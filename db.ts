@@ -13,7 +13,8 @@ export class YBSDatabase extends Dexie {
     super('YBSDatabase');
     
     // Defining database schema with versioning
-    // version() is a standard Dexie instance method inherited from the Dexie base class.
+    // Fix: Ensure version() is correctly called on the class instance.
+    // Using default import for Dexie is the recommended approach for subclassing in TypeScript to avoid property recognition issues.
     this.version(1).stores({
       busStops: 'id, name_mm, name_en, township_mm',
       busRoutes: 'id',

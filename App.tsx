@@ -26,7 +26,8 @@ import {
   Send,
   Sparkles,
   Bot,
-  User
+  User,
+  ArrowRight
 } from 'lucide-react';
 
 // --- Types for Search Results ---
@@ -103,8 +104,6 @@ const performBFS = async (start: string, end: string): Promise<SearchResult[]> =
 const extractStopsFromText = (text: string, allStopNames: string[]) => {
   const normalizedText = text.trim();
   
-  // Find all matches from our database in the user text
-  // We sort by length descending to match longest stop names first (e.g. "မြေနီကုန်း" before "ကုန်း")
   const sortedNames = [...allStopNames].sort((a, b) => b.length - a.length);
   
   const foundStops: { name: string, index: number }[] = [];
@@ -112,7 +111,6 @@ const extractStopsFromText = (text: string, allStopNames: string[]) => {
   sortedNames.forEach(name => {
     if (normalizedText.includes(name)) {
       const index = normalizedText.indexOf(name);
-      // Ensure we don't pick overlapping names if a longer one was already picked
       const isOverlapping = foundStops.some(s => 
         (index >= s.index && index < s.index + s.name.length) ||
         (index + name.length > s.index && index + name.length <= s.index + s.name.length)
@@ -123,7 +121,6 @@ const extractStopsFromText = (text: string, allStopNames: string[]) => {
     }
   });
 
-  // Sort by appearance in text
   foundStops.sort((a, b) => a.index - b.index);
 
   if (foundStops.length < 1) return null;
@@ -131,7 +128,6 @@ const extractStopsFromText = (text: string, allStopNames: string[]) => {
   let start: string | null = null;
   let end: string | null = null;
 
-  // Rule 1: Check for "ကနေ" or "မှ" (From)
   const fromKeywords = ["ကနေ", "မှ"];
   const toKeywords = ["ကို", "သို့", "သွားချင်တာ"];
 
@@ -139,7 +135,6 @@ const extractStopsFromText = (text: string, allStopNames: string[]) => {
     const firstStop = foundStops[0];
     const secondStop = foundStops[1];
     
-    // Check if there is a 'from' indicator near the first stop
     const textAfterFirst = normalizedText.substring(firstStop.index + firstStop.name.length, secondStop.index);
     const hasFromMarker = fromKeywords.some(k => textAfterFirst.includes(k));
     
@@ -147,12 +142,10 @@ const extractStopsFromText = (text: string, allStopNames: string[]) => {
       start = firstStop.name;
       end = secondStop.name;
     } else {
-      // Default to first found is start, second is end
       start = firstStop.name;
       end = secondStop.name;
     }
   } else if (foundStops.length === 1) {
-    // Only one stop found, check if user said "X ကို"
     const textAfter = normalizedText.substring(foundStops[0].index + foundStops[0].name.length);
     const isDestination = toKeywords.some(k => textAfter.includes(k));
     if (isDestination) end = foundStops[0].name;
@@ -603,8 +596,8 @@ const RoutesPage: React.FC<{
   }, []);
 
   const stopInfoMap = useMemo(() => {
-    const map = new Map<string, { mm: string, en: string }>();
-    stops.forEach(s => map.set(s.name_mm, { mm: s.township_mm, en: s.township_en }));
+    const map = new Map<string, { township: string }>();
+    stops.forEach(s => map.set(s.name_mm, { township: s.township_mm }));
     return map;
   }, [stops]);
 
@@ -613,13 +606,13 @@ const RoutesPage: React.FC<{
     return routes.filter(r => {
       const startStop = r.stops[0];
       const endStop = r.stops[r.stops.length - 1];
-      const startInfo = stopInfoMap.get(startStop);
-      const endInfo = stopInfoMap.get(endStop);
+      const startTownship = stopInfoMap.get(startStop)?.township || "";
+      const endTownship = stopInfoMap.get(endStop)?.township || "";
 
       return (
         r.id.toLowerCase().includes(term) ||
-        (startInfo?.mm.toLowerCase().includes(term)) ||
-        (endInfo?.mm.toLowerCase().includes(term)) ||
+        startTownship.toLowerCase().includes(term) ||
+        endTownship.toLowerCase().includes(term) ||
         startStop.toLowerCase().includes(term) ||
         endStop.toLowerCase().includes(term)
       );
@@ -638,7 +631,7 @@ const RoutesPage: React.FC<{
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
         <input 
           type="text" 
-          placeholder="ကားလိုင်း သို့မဟုတ် မြို့နယ် ရှာဖွေပါ..." 
+          placeholder="ကားလိုင်း သို့မဟုတ် မှတ်တိုင် ရှာဖွေပါ..." 
           className="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white shadow-sm md:text-lg"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -649,8 +642,8 @@ const RoutesPage: React.FC<{
           {filtered.map(route => {
             const startStop = route.stops[0];
             const endStop = route.stops[route.stops.length - 1];
-            const startTownship = stopInfoMap.get(startStop)?.mm || (startStop.includes('(') ? startStop.split('(')[1].replace(')', '') : startStop);
-            const endTownship = stopInfoMap.get(endStop)?.mm || (endStop.includes('(') ? endStop.split('(')[1].replace(')', '') : endStop);
+            const startTownship = stopInfoMap.get(startStop)?.township || "";
+            const endTownship = stopInfoMap.get(endStop)?.township || "";
 
             return (
               <div 
@@ -663,19 +656,25 @@ const RoutesPage: React.FC<{
                   <div className="flex items-center space-x-4 overflow-hidden flex-1">
                     <RouteBadge routeId={route.id} color={route.color} />
                     <div className="flex flex-col overflow-hidden">
-                       <div className="text-[18px] md:text-[20px] font-black text-gray-900 leading-tight flex items-center space-x-2">
-                         <span className="hover:text-blue-600 transition-colors" onClick={(e) => handleStopClick(e, startStop)}>{startTownship}</span> 
-                         <span className="text-gray-300 font-normal shrink-0">→</span> 
-                         <span className="hover:text-blue-600 transition-colors" onClick={(e) => handleStopClick(e, endStop)}>{endTownship}</span>
+                       <div className="text-[17px] md:text-[19px] font-black text-gray-900 leading-tight flex items-center flex-wrap gap-x-2">
+                         <span 
+                          className="text-blue-600 hover:text-blue-800 hover:underline transition-all" 
+                          onClick={(e) => handleStopClick(e, startStop)}
+                         >
+                           {startStop}
+                         </span> 
+                         <ArrowRight size={16} className="text-gray-300 shrink-0" /> 
+                         <span 
+                          className="text-blue-600 hover:text-blue-800 hover:underline transition-all" 
+                          onClick={(e) => handleStopClick(e, endStop)}
+                         >
+                           {endStop}
+                         </span>
                        </div>
-                       <div className="flex flex-wrap items-center gap-2 mt-1.5">
-                          <div className="text-[12px] md:text-[13px] font-bold text-gray-400 flex items-center space-x-1 truncate">
+                       <div className="flex flex-wrap items-center gap-2 mt-2">
+                          <div className="text-[12px] font-bold text-gray-400 flex items-center space-x-1 truncate">
                             <MapPin size={12} className="shrink-0" />
-                            <div className="truncate flex items-center space-x-1">
-                              <span className="hover:text-blue-500 hover:underline transition-colors" onClick={(e) => handleStopClick(e, startStop)}>{startStop}</span> 
-                              <span>မှ</span> 
-                              <span className="hover:text-blue-500 hover:underline transition-colors" onClick={(e) => handleStopClick(e, endStop)}>{endStop}</span>
-                            </div>
+                            <span className="truncate">{startTownship || 'N/A'} - {endTownship || 'N/A'}</span>
                           </div>
                           {route.operator && <OperatorBadge name={route.operator} />}
                        </div>
@@ -856,7 +855,6 @@ const AssistantPage: React.FC<{ onRouteClick: (r: BusRoute) => void }> = ({ onRo
     db.busStops.toArray().then(stops => {
       const names = new Set<string>();
       stops.forEach(s => names.add(s.name_mm));
-      // Also add from INITIAL_ROUTES just in case some are missing in INITIAL_STOPS
       INITIAL_ROUTES.forEach(r => r.stops.forEach(s => names.add(s)));
       setAllStopNames(Array.from(names));
     });
@@ -878,7 +876,6 @@ const AssistantPage: React.FC<{ onRouteClick: (r: BusRoute) => void }> = ({ onRo
     setMessages(prev => [...prev, { role: 'user', content: userQuery }]);
     setIsTyping(true);
 
-    // Small delay to simulate "thinking" for better UX
     setTimeout(async () => {
       const extracted = extractStopsFromText(userQuery, allStopNames);
       
@@ -1050,7 +1047,7 @@ const StopDetailPage: React.FC<{ stop: BusStop, onClose: () => void }> = ({ stop
             <p className="text-xs text-gray-400 uppercase tracking-widest font-black">ဖြတ်သန်းသွားသော လိုင်းများ ({passingRoutes.length})</p>
             <div className="flex flex-wrap gap-4">
               {passingRoutes.map(r => (
-                <div key={r.id} className="flex flex-col items-center space-y-1.5 bg-gray-50 p-3 rounded-2xl border border-gray-100 min-w-[80px] hover:bg-blue-50 transition-colors cursor-pointer group">
+                <div key={r.id} className="flex flex-col items-center space-y-1.5 bg-gray-50 p-3 rounded-2xl border border-gray-100 min-w-[80px] hover:bg-blue-50 transition-colors cursor-pointer group" onClick={() => {}}>
                   <RouteBadge routeId={r.id} color={r.color} size="sm" />
                   {r.operator && <OperatorBadge name={r.operator} />}
                 </div>
@@ -1064,36 +1061,9 @@ const StopDetailPage: React.FC<{ stop: BusStop, onClose: () => void }> = ({ stop
 };
 
 const RouteDetailPage: React.FC<{ route: BusRoute, onClose: () => void, onStopClick: (s: BusStop) => void }> = ({ route, onClose, onStopClick }) => {
-  const [stopsData, setStopsData] = useState<BusStop[]>([]);
-
-  useEffect(() => {
-    db.busStops.toArray().then(allStops => {
-      const found = route.stops.map(sName => allStops.find(st => st.name_mm === sName)).filter(Boolean) as BusStop[];
-      setStopsData(found);
-    });
-  }, [route]);
-
-  useEffect(() => {
-    if (stopsData.length > 0 && (window as any).L) {
-      const L = (window as any).L;
-      const map = L.map('route-map').setView([stopsData[0].lat, stopsData[0].lng], 13);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-      
-      const latlngs = stopsData.map(s => [s.lat, s.lng]);
-      const polyline = L.polyline(latlngs, { color: route.color, weight: 6, opacity: 0.8 }).addTo(map);
-      map.fitBounds(polyline.getBounds().pad(0.1));
-
-      stopsData.forEach(s => {
-        L.circleMarker([s.lat, s.lng], { radius: 6, color: route.color, fillColor: '#fff', fillOpacity: 1, weight: 3 }).addTo(map).bindPopup(s.name_mm);
-      });
-
-      return () => map.remove();
-    }
-  }, [stopsData, route]);
-
   return (
     <div className="fixed inset-0 z-[60] flex md:items-center justify-center md:p-8 overflow-hidden bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white w-full h-full md:max-w-4xl md:h-[90vh] flex flex-col md:rounded-3xl md:shadow-2xl overflow-hidden animate-in slide-in-from-bottom-10 duration-300">
+      <div className="bg-white w-full h-full md:max-w-2xl md:h-[90vh] flex flex-col md:rounded-3xl md:shadow-2xl overflow-hidden animate-in slide-in-from-bottom-10 duration-300">
         <div className="p-4 flex items-center border-b border-gray-100 space-x-4 shrink-0">
           <button onClick={onClose} className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"><ChevronRight className="rotate-180" size={20}/></button>
           <div className="flex items-center space-x-3">
@@ -1102,11 +1072,11 @@ const RouteDetailPage: React.FC<{ route: BusRoute, onClose: () => void, onStopCl
              <h3 className="font-bold text-gray-800">လမ်းကြောင်းအသေးစိတ်</h3>
           </div>
         </div>
-        <div id="route-map" className="w-full h-64 md:h-96 bg-gray-200 shrink-0"></div>
-        <div className="p-6 flex-1 overflow-y-auto space-y-6 pb-24 md:pb-10">
+        
+        <div className="p-6 flex-1 overflow-y-auto space-y-6 pb-24 md:pb-10 bg-white">
            <div className="flex items-center justify-between border-b border-gray-50 pb-4">
              <div>
-               <h4 className="text-xs text-gray-400 font-black uppercase tracking-widest">မှတ်တိုင်များ</h4>
+               <h4 className="text-xs text-gray-400 font-black uppercase tracking-widest">စုစုပေါင်းမှတ်တိုင်</h4>
                <p className="text-3xl font-black text-gray-900">{route.stops.length} ခု</p>
              </div>
              <div className="flex flex-col items-end text-sm font-bold text-gray-400">
@@ -1115,24 +1085,29 @@ const RouteDetailPage: React.FC<{ route: BusRoute, onClose: () => void, onStopCl
                <span className="text-gray-900 font-black text-right">{route.stops[route.stops.length-1]}</span>
              </div>
            </div>
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-1">
-             {route.stops.map((sName, idx) => (
-               <div 
-                  key={idx} 
-                  className="flex items-start space-x-4 group cursor-pointer"
-                  onClick={() => {
-                     db.busStops.where('name_mm').equals(sName).first().then(s => s && onStopClick(s));
-                  }}
-               >
-                 <div className="flex flex-col items-center mt-1.5 shrink-0">
-                    <div className={`w-3.5 h-3.5 rounded-full border-2 border-white shadow-sm ${idx === 0 || idx === route.stops.length-1 ? 'scale-150 ring-2 ring-offset-2' : ''}`} style={{ backgroundColor: route.color }}></div>
-                    <div className="w-0.5 h-10 bg-gray-100 group-last:bg-transparent"></div>
+           
+           <div className="space-y-1">
+             <p className="text-xs text-gray-400 font-black uppercase tracking-widest mb-4">မှတ်တိုင်စာရင်း (တည်နေရာကြည့်ရန် နှိပ်ပါ)</p>
+             <div className="space-y-0.5">
+               {route.stops.map((sName, idx) => (
+                 <div 
+                    key={idx} 
+                    className="flex items-start space-x-4 group cursor-pointer"
+                    onClick={() => {
+                       db.busStops.where('name_mm').equals(sName).first().then(s => s && onStopClick(s));
+                    }}
+                 >
+                   <div className="flex flex-col items-center mt-1.5 shrink-0">
+                      <div className={`w-3.5 h-3.5 rounded-full border-2 border-white shadow-sm ${idx === 0 || idx === route.stops.length-1 ? 'scale-125 ring-2 ring-offset-1' : ''}`} style={{ backgroundColor: route.color }}></div>
+                      <div className="w-0.5 h-12 bg-gray-100 group-last:bg-transparent"></div>
+                   </div>
+                   <div className="pb-4 border-b border-gray-50 w-full group-hover:bg-blue-50 transition-all rounded-xl px-3 -ml-2 flex items-center justify-between">
+                     <span className="text-[17px] font-bold text-gray-700 group-hover:text-blue-700">{sName}</span>
+                     <MapIcon size={16} className="text-gray-300 group-hover:text-blue-500 opacity-0 group-hover:opacity-100 transition-all" />
+                   </div>
                  </div>
-                 <div className="pb-4 border-b border-gray-50 w-full group-hover:bg-blue-50 transition-all rounded-xl px-3 -ml-2">
-                   <span className="text-[16px] font-bold text-gray-700 group-hover:text-blue-700">{sName}</span>
-                 </div>
-               </div>
-             ))}
+               ))}
+             </div>
            </div>
         </div>
       </div>
