@@ -1,0 +1,7 @@
+{
+  "name": "Yangon YBS Guide",
+  "description": "A production-ready, offline-first YBS route finder for Yangon. Features real-world route data, interactive maps, and from-to search for the Yangon Bus Service.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
