@@ -80,7 +80,6 @@ const performBFS = async (start: string, end: string): Promise<SearchResult[]> =
       if (route.stops.includes(end)) {
         const finalPath = [...path, { route, fromStop: currentStop, toStop: end }];
         finalResults.push({ steps: finalPath, transferCount: finalPath.length - 1 });
-        if (finalResults.length >= 5) break; 
       }
 
       if (path.length < MAX_TRANSFERS) {
@@ -549,13 +548,6 @@ const HomePage: React.FC<{ setPage: (p: Page) => void }> = ({ setPage }) => (
       >
         <div className="bg-blue-100 p-2.5 sm:p-3 md:p-4 rounded-full text-blue-600 group-hover:scale-110 transition-transform"><MessageSquare size={24} className="sm:w-7 sm:h-7 md:w-8 md:h-8" /></div>
         <span className="font-bold text-gray-800 text-xs sm:text-sm md:text-base lg:text-lg leading-tight">Assistant</span>
-      </button>
-      <button
-        onClick={() => setPage(Page.Routes)}
-        className="bg-white p-3 sm:p-4 md:p-6 rounded-xl sm:rounded-2xl border border-gray-200 shadow-sm flex flex-col items-center justify-center space-y-1.5 sm:space-y-2 md:space-y-3 hover:shadow-md hover:bg-blue-50 transition-all group"
-      >
-        <div className="bg-red-100 p-2.5 sm:p-3 md:p-4 rounded-full text-red-600 group-hover:scale-110 transition-transform"><Bus size={24} className="sm:w-7 sm:h-7 md:w-8 md:h-8" /></div>
-        <span className="font-bold text-gray-800 text-xs sm:text-sm md:text-base lg:text-lg leading-tight">ကားလိုင်းများ</span>
       </button>
       <button
         onClick={() => setPage(Page.Map)}
