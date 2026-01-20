@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { db } from './db';
-import { INITIAL_STOPS, INITIAL_ROUTES } from './data_constants';
+import { INITIAL_STOPS, INITIAL_ROUTES, loadRoutesFromFiles } from './data_constants';
 import { Page, BusStop, BusRoute } from './types';
 import { 
   Bus, 
@@ -697,10 +697,11 @@ const RoutesPage: React.FC<{
   );
 };
 
-const MapPage: React.FC<{ stops: BusStop[], onStopClick: (s: BusStop) => void }> = ({ stops, onStopClick }) => {
+const MapPage: React.FC<{ stops: BusStop[], routes: BusRoute[], onStopClick: (s: BusStop) => void }> = ({ stops, routes, onStopClick }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
   const markersLayerRef = useRef<any>(null);
+  const routesLayerRef = useRef<any>(null);
   const [isLocating, setIsLocating] = useState(false);
   const [search, setSearch] = useState('');
   const [showSearch, setShowSearch] = useState(false);
@@ -723,6 +724,7 @@ const MapPage: React.FC<{ stops: BusStop[], onStopClick: (s: BusStop) => void }>
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
     markersLayerRef.current = L.featureGroup().addTo(map);
+    routesLayerRef.current = L.featureGroup().addTo(map);
 
     map.on('locationfound', (e: any) => {
       setIsLocating(false);
@@ -772,6 +774,24 @@ const MapPage: React.FC<{ stops: BusStop[], onStopClick: (s: BusStop) => void }>
       marker.addTo(markersLayerRef.current);
     });
   }, [stops, onStopClick]);
+
+  useEffect(() => {
+    const L = (window as any).L;
+    if (!L || !routesLayerRef.current || routes.length === 0) return;
+
+    routesLayerRef.current.clearLayers();
+
+    routes.forEach(route => {
+      if (route.shape && route.shape.geometry && route.shape.geometry.coordinates) {
+        const coordinates = route.shape.geometry.coordinates.map(coord => [coord[1], coord[0]]); // Convert [lng, lat] to [lat, lng]
+        const polyline = L.polyline(coordinates, {
+          color: route.color,
+          weight: 4,
+          opacity: 0.8
+        }).addTo(routesLayerRef.current);
+      }
+    });
+  }, [routes]);
 
   const handleLocate = () => {
     if (mapInstanceRef.current) {
@@ -1415,6 +1435,7 @@ const App: React.FC = () => {
   const [selectedRoute, setSelectedRoute] = useState<BusRoute | null>(null);
   const [selectedStop, setSelectedStop] = useState<BusStop | null>(null);
   const [stops, setStops] = useState<BusStop[]>([]);
+  const [routes, setRoutes] = useState<BusRoute[]>([]);
   const [isInitializing, setIsInitializing] = useState(true);
   const [prevPage, setPrevPage] = useState<Page>(Page.Home);
 
@@ -1427,6 +1448,11 @@ const App: React.FC = () => {
       }
       const loadedStops = await db.busStops.toArray();
       setStops(loadedStops);
+
+      // Load routes from JSON files
+      const loadedRoutes = await loadRoutesFromFiles();
+      setRoutes(loadedRoutes);
+
       setIsInitializing(false);
     };
     checkData();
@@ -1456,7 +1482,7 @@ const App: React.FC = () => {
     switch (page) {
       case Page.Home: return <HomePage setPage={setPage} />;
       case Page.Routes: return <RoutesPage onRouteClick={navigateToRoute} onStopClick={navigateToStop} />;
-      case Page.Map: return <MapPage stops={stops} onStopClick={navigateToStop} />;
+      case Page.Map: return <MapPage stops={stops} routes={routes} onStopClick={navigateToStop} />;
       case Page.Assistant: return <AssistantPage onRouteClick={navigateToRoute} />;
       case Page.FindRoute: return <FindRoutePage onRouteClick={navigateToRoute} />;
       case Page.Settings: return <SettingsPage />;

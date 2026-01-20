@@ -17,6 +17,14 @@ export interface BusRoute {
   // Fix: Added optional operator property to match the data structure used in INITIAL_ROUTES
   operator?: string;
   stops: string[]; // List of name_mm
+  shape?: {
+    geometry: {
+      coordinates: [number, number][]; // [lng, lat] pairs
+      type: string;
+    };
+    properties: any;
+    type: string;
+  };
 }
 
 export interface FavoriteStop {
