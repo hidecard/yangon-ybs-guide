@@ -452,15 +452,15 @@ const MobileBottomNav: React.FC<{ currentPage: Page, setPage: (p: Page) => void 
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around items-center h-16 px-2 z-50 md:hidden">
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around items-center h-16 px-1 z-50 md:hidden">
       {items.map(item => (
         <button
           key={item.id}
           onClick={() => setPage(item.id)}
-          className={`flex flex-col items-center justify-center space-y-1 w-full ${currentPage === item.id ? 'text-blue-600' : 'text-gray-500'}`}
+          className={`flex flex-col items-center justify-center space-y-0.5 w-full py-1 px-1 min-w-0 ${currentPage === item.id ? 'text-blue-600' : 'text-gray-500'}`}
         >
-          <item.icon size={20} />
-          <span className="text-[10px] font-medium">{item.label}</span>
+          <item.icon size={18} className="mb-0.5" />
+          <span className="text-[9px] font-medium leading-tight truncate">{item.label}</span>
         </button>
       ))}
     </div>
@@ -542,34 +542,34 @@ const HomePage: React.FC<{ setPage: (p: Page) => void }> = ({ setPage }) => (
       </div>
     </div>
 
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-      <button 
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+      <button
         onClick={() => setPage(Page.Assistant)}
-        className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col items-center justify-center space-y-3 hover:shadow-md hover:bg-blue-50 transition-all group"
+        className="bg-white p-3 sm:p-4 md:p-6 rounded-xl sm:rounded-2xl border border-gray-200 shadow-sm flex flex-col items-center justify-center space-y-1.5 sm:space-y-2 md:space-y-3 hover:shadow-md hover:bg-blue-50 transition-all group"
       >
-        <div className="bg-blue-100 p-4 rounded-full text-blue-600 group-hover:scale-110 transition-transform"><MessageSquare size={32}/></div>
-        <span className="font-bold text-gray-800 md:text-lg">Assistant</span>
+        <div className="bg-blue-100 p-2.5 sm:p-3 md:p-4 rounded-full text-blue-600 group-hover:scale-110 transition-transform"><MessageSquare size={24} className="sm:w-7 sm:h-7 md:w-8 md:h-8" /></div>
+        <span className="font-bold text-gray-800 text-xs sm:text-sm md:text-base lg:text-lg leading-tight">Assistant</span>
       </button>
-      <button 
+      <button
         onClick={() => setPage(Page.Routes)}
-        className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col items-center justify-center space-y-3 hover:shadow-md hover:bg-blue-50 transition-all group"
+        className="bg-white p-3 sm:p-4 md:p-6 rounded-xl sm:rounded-2xl border border-gray-200 shadow-sm flex flex-col items-center justify-center space-y-1.5 sm:space-y-2 md:space-y-3 hover:shadow-md hover:bg-blue-50 transition-all group"
       >
-        <div className="bg-red-100 p-4 rounded-full text-red-600 group-hover:scale-110 transition-transform"><Bus size={32}/></div>
-        <span className="font-bold text-gray-800 md:text-lg">ကားလိုင်းများ</span>
+        <div className="bg-red-100 p-2.5 sm:p-3 md:p-4 rounded-full text-red-600 group-hover:scale-110 transition-transform"><Bus size={24} className="sm:w-7 sm:h-7 md:w-8 md:h-8" /></div>
+        <span className="font-bold text-gray-800 text-xs sm:text-sm md:text-base lg:text-lg leading-tight">ကားလိုင်းများ</span>
       </button>
-      <button 
+      <button
         onClick={() => setPage(Page.Map)}
-        className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col items-center justify-center space-y-3 hover:shadow-md hover:bg-blue-50 transition-all group"
+        className="bg-white p-3 sm:p-4 md:p-6 rounded-xl sm:rounded-2xl border border-gray-200 shadow-sm flex flex-col items-center justify-center space-y-1.5 sm:space-y-2 md:space-y-3 hover:shadow-md hover:bg-blue-50 transition-all group"
       >
-        <div className="bg-green-100 p-4 rounded-full text-green-600 group-hover:scale-110 transition-transform"><MapIcon size={32}/></div>
-        <span className="font-bold text-gray-800 md:text-lg">မြေပုံ</span>
+        <div className="bg-green-100 p-2.5 sm:p-3 md:p-4 rounded-full text-green-600 group-hover:scale-110 transition-transform"><MapIcon size={24} className="sm:w-7 sm:h-7 md:w-8 md:h-8" /></div>
+        <span className="font-bold text-gray-800 text-xs sm:text-sm md:text-base lg:text-lg leading-tight">မြေပုံ</span>
       </button>
-      <button 
+      <button
         onClick={() => setPage(Page.FindRoute)}
-        className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col items-center justify-center space-y-3 hover:shadow-md hover:bg-gray-50 transition-all group"
+        className="bg-white p-3 sm:p-4 md:p-6 rounded-xl sm:rounded-2xl border border-gray-200 shadow-sm flex flex-col items-center justify-center space-y-1.5 sm:space-y-2 md:space-y-3 hover:shadow-md hover:bg-gray-50 transition-all group"
       >
-        <div className="bg-purple-100 p-4 rounded-full text-purple-600 group-hover:scale-110 transition-transform"><ArrowRightLeft size={32}/></div>
-        <span className="font-bold text-gray-800 md:text-lg">လမ်းကြောင်းရှာ</span>
+        <div className="bg-purple-100 p-2.5 sm:p-3 md:p-4 rounded-full text-purple-600 group-hover:scale-110 transition-transform"><ArrowRightLeft size={24} className="sm:w-7 sm:h-7 md:w-8 md:h-8" /></div>
+        <span className="font-bold text-gray-800 text-xs sm:text-sm md:text-base lg:text-lg leading-tight">လမ်းကြောင်းရှာ</span>
       </button>
     </div>
   </div>
@@ -626,19 +626,19 @@ const RoutesPage: React.FC<{
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-4 md:p-8 h-full flex flex-col space-y-6">
+    <div className="max-w-5xl mx-auto p-3 sm:p-4 md:p-8 h-full flex flex-col space-y-4 sm:space-y-6">
       <div className="relative shrink-0 max-w-xl mx-auto w-full">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-        <input 
-          type="text" 
-          placeholder="ကားလိုင်း သို့မဟုတ် မှတ်တိုင် ရှာဖွေပါ..." 
-          className="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white shadow-sm md:text-lg"
+        <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+        <input
+          type="text"
+          placeholder="ကားလိုင်း သို့မဟုတ် မှတ်တိုင် ရှာဖွေပါ..."
+          className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-3 sm:py-4 rounded-xl sm:rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white shadow-sm text-sm sm:text-base md:text-lg"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
-      <div className="flex-1 overflow-y-auto pb-24 md:pb-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+      <div className="flex-1 overflow-y-auto pb-20 sm:pb-24 md:pb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
           {filtered.map(route => {
             const startStop = route.stops[0];
             const endStop = route.stops[route.stops.length - 1];
@@ -811,37 +811,37 @@ const MapPage: React.FC<{ stops: BusStop[], routes: BusRoute[], onStopClick: (s:
   return (
     <div className="relative w-full h-full bg-gray-100 overflow-hidden flex flex-col">
       <div ref={mapContainerRef} className="flex-1 w-full bg-gray-200"></div>
-      
-      <div className="absolute top-4 left-4 right-4 md:left-auto md:w-80 md:right-4 z-[1000] space-y-2">
+
+      <div className="absolute top-3 sm:top-4 left-3 sm:left-4 right-3 sm:right-4 md:left-auto md:w-80 md:right-4 z-[1000] space-y-2">
         <div className="relative">
-          <input 
-            type="text" 
+          <input
+            type="text"
             placeholder="မှတ်တိုင်အမည်ဖြင့် ရှာရန်..."
-            className="w-full pl-10 pr-4 py-3 bg-white rounded-2xl shadow-2xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-medium"
+            className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2.5 sm:py-3 bg-white rounded-xl sm:rounded-2xl shadow-2xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs sm:text-sm font-medium"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onFocus={() => setShowSearch(true)}
           />
-          <Search className="absolute left-3.5 top-3.5 text-gray-400" size={18} />
+          <Search className="absolute left-3 sm:left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
           {search && (
-            <button onClick={() => setSearch('')} className="absolute right-3.5 top-3.5 text-gray-400 hover:text-gray-600">
-              <X size={18} />
+            <button onClick={() => setSearch('')} className="absolute right-3 sm:right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+              <X size={16} />
             </button>
           )}
         </div>
-        
+
         {showSearch && filteredStops.length > 0 && (
-          <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 max-h-[60vh] overflow-y-auto no-scrollbar">
+          <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl border border-gray-100 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 max-h-[50vh] sm:max-h-[60vh] overflow-y-auto no-scrollbar">
             {filteredStops.map(s => (
-              <button 
+              <button
                 key={s.id}
                 onClick={() => jumpToStop(s)}
-                className="w-full p-3 flex items-center space-x-3 hover:bg-blue-50 border-b border-gray-50 last:border-0 text-left transition-colors"
+                className="w-full p-2.5 sm:p-3 flex items-center space-x-2.5 sm:space-x-3 hover:bg-blue-50 border-b border-gray-50 last:border-0 text-left transition-colors"
               >
-                <div className="bg-blue-100 p-1.5 rounded-lg text-blue-600"><MapPin size={14} /></div>
+                <div className="bg-blue-100 p-1.5 rounded-lg text-blue-600"><MapPin size={12} className="sm:w-3.5 sm:h-3.5" /></div>
                 <div>
-                  <div className="text-sm font-bold text-gray-800">{s.name_mm}</div>
-                  <div className="text-[10px] text-gray-400 font-bold">{s.township_mm}</div>
+                  <div className="text-xs sm:text-sm font-bold text-gray-800">{s.name_mm}</div>
+                  <div className="text-[9px] sm:text-[10px] text-gray-400 font-bold">{s.township_mm}</div>
                 </div>
               </button>
             ))}
@@ -849,13 +849,13 @@ const MapPage: React.FC<{ stops: BusStop[], routes: BusRoute[], onStopClick: (s:
         )}
       </div>
 
-      <div className="absolute bottom-24 right-4 z-[1000] flex flex-col space-y-3">
-        <button 
+      <div className="absolute bottom-20 sm:bottom-24 right-3 sm:right-4 z-[1000] flex flex-col space-y-3">
+        <button
           onClick={handleLocate}
           disabled={isLocating}
-          className="bg-white p-3.5 rounded-full shadow-2xl text-blue-600 border border-gray-100 hover:bg-blue-50 active:scale-90 transition-all"
+          className="bg-white p-3 sm:p-3.5 rounded-full shadow-2xl text-blue-600 border border-gray-100 hover:bg-blue-50 active:scale-90 transition-all"
         >
-          {isLocating ? <RefreshCw className="animate-spin" size={22} /> : <Locate size={22} />}
+          {isLocating ? <RefreshCw className="animate-spin w-5 h-5 sm:w-5.5 sm:h-5.5" size={20} /> : <Locate className="w-5 h-5 sm:w-5.5 sm:h-5.5" size={20} />}
         </button>
       </div>
     </div>
@@ -937,7 +937,7 @@ const AssistantPage: React.FC<{ onRouteClick: (r: BusRoute) => void }> = ({ onRo
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-6 bg-slate-50/50">
+      <div className="flex-1 overflow-y-auto p-4 space-y-6 bg-slate-50/50 pb-20 md:pb-4">
         {messages.map((m, i) => (
           <div key={i} className={`flex flex-col ${m.role === 'user' ? 'items-end' : 'items-start'}`}>
             <div className="flex items-end space-x-2 max-w-[90%]">
@@ -1006,7 +1006,7 @@ const AssistantPage: React.FC<{ onRouteClick: (r: BusRoute) => void }> = ({ onRo
         <div ref={chatEndRef}></div>
       </div>
 
-      <div className="p-4 border-t bg-gray-50 shrink-0">
+      <div className="p-4 border-t bg-gray-50 shrink-0 pb-20 md:pb-4">
         <div className="relative flex items-center space-x-2">
           <input 
             type="text" 
