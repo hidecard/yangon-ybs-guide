@@ -773,16 +773,7 @@ const MapPage: React.FC<{ stops: BusStop[], routes: BusRoute[], onStopClick: (s:
 
     routesLayerRef.current.clearLayers();
 
-    routes.forEach(route => {
-      if (route.shape && route.shape.geometry && route.shape.geometry.coordinates) {
-        const coordinates = route.shape.geometry.coordinates.map(coord => [coord[1], coord[0]]); // Convert [lng, lat] to [lat, lng]
-        const polyline = L.polyline(coordinates, {
-          color: route.color,
-          weight: 4,
-          opacity: 0.8
-        }).addTo(routesLayerRef.current);
-      }
-    });
+    // Route lines are hidden as per user request - only map icons are shown
   }, [routes]);
 
   const handleLocate = () => {
