@@ -451,7 +451,7 @@ const MobileBottomNav: React.FC<{ currentPage: Page, setPage: (p: Page) => void 
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around items-center h-16 px-1 z-50 md:hidden">
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around items-center h-16 px-1 z-[1001] md:hidden">
       {items.map(item => (
         <button
           key={item.id}
