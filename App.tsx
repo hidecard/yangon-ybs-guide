@@ -1361,8 +1361,8 @@ const SettingsPage: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-3xl border border-yellow-100 overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300">
-          <div className="p-6">
-            <div className="flex items-center space-x-4 mb-6">
+          {/* <div className="p-6"> */}
+            {/* <div className="flex items-center space-x-4 mb-6">
               <div className="bg-yellow-500 p-3 rounded-2xl text-white shadow-lg">
                 <RefreshCw size={24} />
               </div>
@@ -1370,8 +1370,8 @@ const SettingsPage: React.FC = () => {
                 <h3 className="font-black text-gray-800 text-xl">Offline Data Update</h3>
                 <p className="text-sm text-gray-600 font-medium">ဒေတာအသစ်များကို ဒေါင်းလုဒ်လုပ်ပါ</p>
               </div>
-            </div>
-
+            </div> */}
+{/* 
             <div className="flex justify-center">
               <button
                 onClick={updateData}
@@ -1400,8 +1400,8 @@ const SettingsPage: React.FC = () => {
                   </div>
                 )}
               </button>
-            </div>
-          </div>
+            </div> */}
+          {/* </div> */}
         </div>
 
         <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-3xl border border-blue-100 overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300">
