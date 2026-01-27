@@ -1450,10 +1450,6 @@ const SettingsPage: React.FC = () => {
                         <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                         <span className="text-sm font-medium text-blue-700">arkaryan.vercel.app</span>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                        <span className="text-sm font-medium text-green-700">24/7 Available</span>
-                      </div>
                     </div>
                   </div>
                 </div>
