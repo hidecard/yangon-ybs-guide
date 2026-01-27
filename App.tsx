@@ -307,7 +307,6 @@ const MapSelectionModal: React.FC<{
             <div className="relative flex items-center justify-center">
                <div className="w-8 h-px bg-yellow-500/50 absolute"></div>
                <div className="h-8 w-px bg-yellow-500/50 absolute"></div>
-border-yellow-600
             </div>
           </div>
           <button 
