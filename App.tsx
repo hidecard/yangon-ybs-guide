@@ -876,7 +876,7 @@ const AssistantPage: React.FC<{ onRouteClick: (r: BusRoute) => void }> = ({ onRo
 
   return (
     <div className="max-w-3xl mx-auto h-full flex flex-col bg-white md:shadow-2xl md:my-4 md:rounded-3xl overflow-hidden">
-      <div className="bg-yellow-600 p-4 flex items-center space-x-3 shrink-0">
+      {/* <div className="bg-yellow-600 p-4 flex items-center space-x-3 shrink-0">
         <div className="bg-white/20 p-2 rounded-xl">
            <Bot className="text-white" size={24} />
         </div>
@@ -886,7 +886,7 @@ const AssistantPage: React.FC<{ onRouteClick: (r: BusRoute) => void }> = ({ onRo
             <div className="w-1.5 h-1.5 rounded-full bg-green-400"></div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       <div className="flex-1 overflow-y-auto p-4 space-y-6 bg-slate-50/50 pb-20 md:pb-4">
         {messages.map((m, i) => (
