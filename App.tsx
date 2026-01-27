@@ -1356,25 +1356,110 @@ const SettingsPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-4 md:p-8 space-y-6">
-      <h2 className="text-2xl font-black mb-6 text-gray-800">သတ်မှတ်ချက်များ (Settings)</h2>
-      <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden shadow-sm">
-        <div className="p-6 border-b border-gray-100 flex justify-between items-center hover:bg-gray-50 transition-colors">
-          <div className="flex items-center space-x-4">
-            <div className="bg-yellow-100 p-3 rounded-2xl text-yellow-600"><RefreshCw size={24} /></div>
-            <div>
-              <p className="font-black text-gray-800 text-lg">Offline Data Update</p>
-              <p className="text-sm text-gray-400 font-medium">ဒေတာအသစ်များကို ဒေါင်းလုဒ်လုပ်ပါ</p>
+    <div className="max-w-4xl mx-auto p-4 md:p-8 space-y-8">
+      
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-3xl border border-yellow-100 overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300">
+          <div className="p-6">
+            <div className="flex items-center space-x-4 mb-6">
+              <div className="bg-yellow-500 p-3 rounded-2xl text-white shadow-lg">
+                <RefreshCw size={24} />
+              </div>
+              <div>
+                <h3 className="font-black text-gray-800 text-xl">Offline Data Update</h3>
+                <p className="text-sm text-gray-600 font-medium">ဒေတာအသစ်များကို ဒေါင်းလုဒ်လုပ်ပါ</p>
+              </div>
+            </div>
+
+            <div className="flex justify-center">
+              <button
+                onClick={updateData}
+                disabled={status === 'updating'}
+                className={`px-8 py-4 rounded-2xl font-black text-lg transition-all shadow-lg ${
+                  status === 'updating'
+                    ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                    : 'bg-yellow-600 text-white hover:bg-yellow-700 active:scale-95 hover:shadow-xl'
+                }`}
+              >
+                {status === 'idle' && (
+                  <div className="flex items-center space-x-2">
+                    <RefreshCw size={20} />
+                    <span>Update Now</span>
+                  </div>
+                )}
+                {status === 'updating' && (
+                  <div className="flex items-center space-x-2">
+                    <RefreshCw className="animate-spin" size={20} />
+                    <span>Updating...</span>
+                  </div>
+                )}
+                {status === 'done' && (
+                  <div className="flex items-center space-x-2">
+                    <span>✓ Completed!</span>
+                  </div>
+                )}
+              </button>
             </div>
           </div>
-          <button 
-            onClick={updateData}
-            className={`px-6 py-3 rounded-xl font-black transition-all shadow-sm ${status === 'updating' ? 'bg-gray-100 text-gray-400' : 'bg-yellow-600 text-white hover:bg-yellow-700 active:scale-95'}`}
-          >
-            {status === 'idle' && 'Update Now'}
-            {status === 'updating' && 'Updating...'}
-            {status === 'done' && 'Completed!'}
-          </button>
+        </div>
+
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-3xl border border-blue-100 overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300">
+          <div className="p-6">
+            <div className="flex items-center space-x-4 mb-6">
+              <div className="bg-blue-500 p-3 rounded-2xl text-white shadow-lg">
+                <Info size={24} />
+              </div>
+              <div>
+                <h3 className="font-black text-gray-800 text-xl">Developer Info</h3>
+                <p className="text-sm text-gray-600 font-medium">ဆော့ဝဲရေးသားသူ အချက်အလက်</p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">App Name</p>
+                    <p className="text-lg font-black text-gray-800">YBS AI</p>
+                    <p className="text-sm text-gray-600">YBS Guide</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Version</p>
+                    <p className="text-lg font-black text-gray-800">1.0.0</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Developer</p>
+                    <p className="text-lg font-black text-gray-800">Arkar Yan</p>
+                    <p className="text-sm text-gray-600">Project Manager | Instructor</p>
+                  </div>
+
+                  <div className="pt-2 border-t border-gray-200">
+                    <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Get In Touch</p>
+                    <div className="grid grid-cols-1 gap-2">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                        <span className="text-sm font-medium text-yellow-700">arkaryan.info@gmail.com</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                        <span className="text-sm font-medium text-blue-700">arkaryan.vercel.app</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <span className="text-sm font-medium text-green-700">24/7 Available</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
