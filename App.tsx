@@ -481,7 +481,7 @@ const Header: React.FC<{ currentPage: Page, setPage: (p: Page) => void }> = ({ c
       <div className="max-w-5xl mx-auto px-4 py-3 flex justify-between items-center">
         <div className="flex items-center space-x-2 cursor-pointer" onClick={() => setPage(Page.Home)}>
           <Bus size={28} />
-          <h1 className="text-xl font-bold tracking-tight">YBS Guide</h1>
+          <h1 className="text-xl font-bold tracking-tight">YBS Ai</h1>
         </div>
 
         <nav className="hidden md:flex items-center space-x-6">
