@@ -482,6 +482,7 @@ const Header: React.FC<{ currentPage: Page, setPage: (p: Page) => void }> = ({ c
         <div className="flex items-center space-x-2 cursor-pointer" onClick={() => setPage(Page.Home)}>
           <Bus size={28} />
           <h1 className="text-xl font-bold tracking-tight">YBS Ai</h1>
+          <span className="text-yellow-600 p-1 rounded bg-white">2.0 Beta</span>
         </div>
 
         <nav className="hidden md:flex items-center space-x-6">
@@ -1422,11 +1423,10 @@ const SettingsPage: React.FC = () => {
                   <div>
                     <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">App Name</p>
                     <p className="text-lg font-black text-gray-800">YBS AI</p>
-                    <p className="text-sm text-gray-600">YBS Guide</p>
                   </div>
                   <div>
                     <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Version</p>
-                    <p className="text-lg font-black text-gray-800">1.0.0</p>
+                    <p className="text-lg font-black text-gray-800">2.0 Beta</p>
                   </div>
                 </div>
               </div>
