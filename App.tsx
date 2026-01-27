@@ -527,13 +527,6 @@ const HomePage: React.FC<{ setPage: (p: Page) => void }> = ({ setPage }) => (
     <div className="bg-yellow-100 p-6 md:p-10 rounded-2xl md:rounded-3xl border border-yellow-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
       <div>
         <p className="text-yellow-800 md:text-lg mb-6">၁။ ရာသီဥတုအခြေအနေကို အတည်မပြုနိုင်သေးတဲ့အတွက် ခရီးစဉ်အတွက် ကြိုတင်ပြင်ဆင်သွားပါ။ နေပူရင် မျက်နှာသုတ်ပုဝါ၊ ဦးထုပ် ဒါမှမဟုတ် နေကာမျက်မှန် ယူသွားပါ။ မိုးရွာရင် ဒါမှမဟုတ် တိမ်ထူနေရင် ထီးဆောင်သွားဖို့ အကြံပြုလိုပါတယ်။<br />1. Since weather data is unavailable, please prepare accordingly for your trip. If it is sunny, remember to bring a small towel, a hat, or sunglasses to stay comfortable in the heat. If it is rainy or cloudy, carrying an umbrella is highly recommended.<br /><br />၂။ လူကျပ်တဲ့အချိန်တွေမှာ ဘတ်စ်ကားပေါ်မှာ ခိတ်နှိုက်နဲ့ သူခိုးတွေကို အထူးသတိထားကြဖို့ သတိပေးလိုပါတယ်။<br />2. Please be careful of pickpockets and thieves on the bus, especially during crowded times.<br /><br />၃။ ကားစီးရင်း အိပ်ပျော်သွားတတ်တဲ့အတွက် ကိုယ်ဆင်းရမယ့် မှတ်တိုင်ကို မကျော်သွားစေဖို့ ဖုန်းထဲမှာ အချက်ပေးသံ (Alarm) ပေးထားတာမျိုး ဒါမှမဟုတ် ဘေးကလူကို နှိုးပေးဖို့ အကူအညီတောင်းထားတာမျိုး လုပ်ဆောင်နိုင်ပါတယ်။<br />3. You may fall asleep on the bus. To avoid missing your bus stop, you can set an alarm on your phone or ask a fellow passenger to wake you up.<br /><br />၄။ YBS ကတ်အသုံးပြုသူများအတွက် အကြံပြုချက်နှစ်ခုမှာ ကတ်ထဲမှာ ငွေကို ကြိုတင်ဖြည့်ထားရန်နှင့် ကတ်ထဲက လက်ကျန်ငွေကို ပုံမှန်စစ်ဆေးရန်တို့ ဖြစ်ပါတယ်။<br />4. Two proactive tips for YBS card users include topping up your card in advance and checking your balance regularly.</p>
-        <button 
-          onClick={() => setPage(Page.Assistant)}
-          className="bg-yellow-600 text-white px-6 py-3 rounded-xl font-bold flex items-center space-x-2 hover:bg-yellow-700 transition-all shadow-lg"
-        >
-          <MessageSquare size={20} />
-          <span>Assistant ကို မေးပါ</span>
-        </button>
       </div>
       <div className="hidden md:block">
         <Bot size={120} className="text-yellow-500 opacity-20" />
