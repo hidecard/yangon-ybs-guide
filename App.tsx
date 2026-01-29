@@ -40,6 +40,7 @@ interface PathStep {
 interface SearchResult {
   steps: PathStep[];
   transferCount: number;
+  totalDistance: number;
 }
 
 interface ChatMessage {
@@ -65,10 +66,26 @@ const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => 
 
 const performBFS = async (start: string, end: string): Promise<SearchResult[]> => {
   const allRoutes = await db.busRoutes.toArray();
+  const allStops = await db.busStops.toArray();
+  const stopMap = new Map<string, BusStop>();
+  allStops.forEach(s => stopMap.set(s.name_mm, s));
+
   const queue: { currentStop: string; path: PathStep[] }[] = [{ currentStop: start, path: [] }];
   const visitedStops = new Set<string>([start]);
   const finalResults: SearchResult[] = [];
-  const MAX_TRANSFERS = 2; 
+  const MAX_TRANSFERS = 4;
+
+  const calculatePathDistance = (path: PathStep[]): number => {
+    let totalDistance = 0;
+    path.forEach(step => {
+      const fromStop = stopMap.get(step.fromStop);
+      const toStop = stopMap.get(step.toStop);
+      if (fromStop && toStop) {
+        totalDistance += getDistance(fromStop.lat, fromStop.lng, toStop.lat, toStop.lng);
+      }
+    });
+    return totalDistance;
+  };
 
   while (queue.length > 0) {
     const { currentStop, path } = queue.shift()!;
@@ -79,7 +96,8 @@ const performBFS = async (start: string, end: string): Promise<SearchResult[]> =
       if (path.some(step => step.route.id === route.id)) continue;
       if (route.stops.includes(end)) {
         const finalPath = [...path, { route, fromStop: currentStop, toStop: end }];
-        finalResults.push({ steps: finalPath, transferCount: finalPath.length - 1 });
+        const totalDistance = calculatePathDistance(finalPath);
+        finalResults.push({ steps: finalPath, transferCount: finalPath.length - 1, totalDistance });
       }
 
       if (path.length < MAX_TRANSFERS) {
@@ -96,7 +114,7 @@ const performBFS = async (start: string, end: string): Promise<SearchResult[]> =
     }
     if (finalResults.length >= 5) break;
   }
-  return finalResults.sort((a, b) => a.transferCount - b.transferCount);
+  return finalResults.sort((a, b) => a.transferCount - b.transferCount || a.totalDistance - b.totalDistance);
 };
 
 // --- Local NLP Logic (No AI Needed) ---
@@ -326,11 +344,11 @@ const MapSelectionModal: React.FC<{
           <div className="flex-1 overflow-y-auto p-2 space-y-1.5">
             {nearbyStops.length > 0 ? (
               nearbyStops.map(s => (
-                <button 
-                  key={s.id}
-                  onClick={() => onSelect(s)}
-hover:border-yellow-200
-                >
+              <button
+                key={s.id}
+                onClick={() => onSelect(s)}
+                className="w-full p-2.5 flex items-center space-x-3 hover:bg-yellow-50 border border-gray-50 rounded-lg transition-colors"
+              >
                   <div className="flex items-center space-x-3">
                     <div className="bg-yellow-100 p-2 rounded-lg text-yellow-600 group-hover:bg-yellow-600 group-hover:text-white transition-colors">
                       <MapPin size={14} />
@@ -536,13 +554,16 @@ const HomePage: React.FC<{ setPage: (p: Page) => void }> = ({ setPage }) => (
   </div>
 );
 
-const RoutesPage: React.FC<{ 
+const RoutesPage: React.FC<{
   onRouteClick: (r: BusRoute) => void,
-  onStopClick: (s: BusStop) => void 
-}> = ({ onRouteClick, onStopClick }) => {
+  onStopClick: (s: BusStop) => void,
+  favorites: Set<string>,
+  onToggleFavorite: (routeId: string) => void
+}> = ({ onRouteClick, onStopClick, favorites, onToggleFavorite }) => {
   const [routes, setRoutes] = useState<BusRoute[]>([]);
   const [stops, setStops] = useState<BusStop[]>([]);
   const [search, setSearch] = useState('');
+  const [operatorFilter, setOperatorFilter] = useState<string>('all');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -554,6 +575,25 @@ const RoutesPage: React.FC<{
       setStops(stopsData);
     };
     fetchData();
+
+    // Load favorites from localStorage
+    const savedFavorites = localStorage.getItem('ybs-favorites');
+    if (savedFavorites) {
+      setFavorites(new Set(JSON.parse(savedFavorites)));
+    }
+  }, []);
+
+  const toggleFavorite = useCallback((routeId: string) => {
+    setFavorites(prev => {
+      const newFavorites = new Set(prev);
+      if (newFavorites.has(routeId)) {
+        newFavorites.delete(routeId);
+      } else {
+        newFavorites.add(routeId);
+      }
+      localStorage.setItem('ybs-favorites', JSON.stringify(Array.from(newFavorites)));
+      return newFavorites;
+    });
   }, []);
 
   const stopInfoMap = useMemo(() => {
@@ -562,31 +602,56 @@ const RoutesPage: React.FC<{
     return map;
   }, [stops]);
 
-  const filtered = useMemo(() => {
-    const term = search.toLowerCase();
-    return routes.filter(r => {
-      const startStop = r.stops[0];
-      const endStop = r.stops[r.stops.length - 1];
-      const startTownship = stopInfoMap.get(startStop)?.township || "";
-      const endTownship = stopInfoMap.get(endStop)?.township || "";
-      const startStopEn = stopInfoMap.get(startStop)?.name_en || "";
-      const endStopEn = stopInfoMap.get(endStop)?.name_en || "";
+  const operators = useMemo(() => {
+    const uniqueOperators = new Set<string>();
+    routes.forEach(r => {
+      if (r.operator) uniqueOperators.add(r.operator);
+    });
+    return Array.from(uniqueOperators).sort();
+  }, [routes]);
 
-      return (
-        r.id.toLowerCase().includes(term) ||
-        startTownship.toLowerCase().includes(term) ||
-        endTownship.toLowerCase().includes(term) ||
-        startStop.toLowerCase().includes(term) ||
-        endStop.toLowerCase().includes(term) ||
-        startStopEn.toLowerCase().includes(term) ||
-        endStopEn.toLowerCase().includes(term) ||
-        r.stops.some(stop => {
+  const filtered = useMemo(() => {
+    let result = routes;
+
+    // Apply operator filter
+    if (operatorFilter !== 'all') {
+      result = result.filter(r => r.operator === operatorFilter);
+    }
+
+    // Apply search filter
+    const term = search.toLowerCase().trim();
+    if (term) {
+      result = result.filter(r => {
+        const startStop = r.stops[0];
+        const endStop = r.stops[r.stops.length - 1];
+        const startTownship = stopInfoMap.get(startStop)?.township || "";
+        const endTownship = stopInfoMap.get(endStop)?.township || "";
+        const startStopEn = stopInfoMap.get(startStop)?.name_en || "";
+        const endStopEn = stopInfoMap.get(endStop)?.name_en || "";
+
+        // Check route ID
+        if (r.id.toLowerCase().includes(term)) return true;
+
+        // Check operator
+        if (r.operator && r.operator.toLowerCase().includes(term)) return true;
+
+        // Check townships
+        if (startTownship.toLowerCase().includes(term) || endTownship.toLowerCase().includes(term)) return true;
+
+        // Check start/end stops
+        if (startStop.toLowerCase().includes(term) || endStop.toLowerCase().includes(term)) return true;
+        if (startStopEn.toLowerCase().includes(term) || endStopEn.toLowerCase().includes(term)) return true;
+
+        // Check all stops in route (limit to first 10 for performance)
+        return r.stops.slice(0, 10).some(stop => {
           const stopEn = stopInfoMap.get(stop)?.name_en || "";
           return stop.toLowerCase().includes(term) || stopEn.toLowerCase().includes(term);
-        })
-      );
-    });
-  }, [routes, search, stopInfoMap]);
+        });
+      });
+    }
+
+    return result.slice(0, 50); // Limit results for performance
+  }, [routes, search, stopInfoMap, operatorFilter]);
 
   const handleStopClick = (e: React.MouseEvent, stopName: string) => {
     e.stopPropagation();
@@ -596,15 +661,31 @@ const RoutesPage: React.FC<{
 
   return (
     <div className="max-w-5xl mx-auto p-3 sm:p-4 md:p-8 h-full flex flex-col space-y-4 sm:space-y-6">
-      <div className="relative shrink-0 max-w-xl mx-auto w-full">
-        <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-        <input
-          type="text"
-          placeholder="ကားလိုင်း သို့မဟုတ် မှတ်တိုင် ရှာဖွေပါ..."
-          className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-3 sm:py-4 rounded-xl sm:rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 bg-white shadow-sm text-sm sm:text-base md:text-lg"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+      <div className="shrink-0 space-y-4">
+        <div className="relative max-w-xl mx-auto w-full">
+          <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+          <input
+            type="text"
+            placeholder="ကားလိုင်း သို့မဟုတ် မှတ်တိုင် ရှာဖွေပါ..."
+            className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-3 sm:py-4 rounded-xl sm:rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 bg-white shadow-sm text-sm sm:text-base md:text-lg"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+
+        <div className="flex items-center justify-center space-x-3">
+          <span className="text-sm font-medium text-gray-600">လုပ်ငန်းရှင်:</span>
+          <select
+            value={operatorFilter}
+            onChange={(e) => setOperatorFilter(e.target.value)}
+            className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 text-sm bg-white"
+          >
+            <option value="all">အားလုံး</option>
+            {operators.map(op => (
+              <option key={op} value={op}>{op}</option>
+            ))}
+          </select>
+        </div>
       </div>
       <div className="flex-1 overflow-y-auto pb-20 sm:pb-24 md:pb-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
@@ -626,15 +707,15 @@ const RoutesPage: React.FC<{
                     <RouteBadge routeId={route.id} color={route.color} />
                     <div className="flex flex-col overflow-hidden">
                        <div className="text-[17px] md:text-[19px] font-black text-gray-900 leading-tight flex items-center flex-wrap gap-x-2">
-                         <span 
-                          className="text-yellow-600 hover:text-yellow-800 hover:underline transition-all" 
+                         <span
+                          className="text-yellow-600 hover:text-yellow-800 hover:underline transition-all"
                           onClick={(e) => handleStopClick(e, startStop)}
                          >
                            {startStop}
-                         </span> 
-                         <ArrowRight size={16} className="text-gray-300 shrink-0" /> 
-                         <span 
-                          className="text-yellow-600 hover:text-yellow-800 hover:underline transition-all" 
+                         </span>
+                         <ArrowRight size={16} className="text-gray-300 shrink-0" />
+                         <span
+                          className="text-yellow-600 hover:text-yellow-800 hover:underline transition-all"
                           onClick={(e) => handleStopClick(e, endStop)}
                          >
                            {endStop}
@@ -649,9 +730,24 @@ const RoutesPage: React.FC<{
                        </div>
                     </div>
                   </div>
-                  <div className="bg-gray-50 px-2 py-1.5 rounded-lg flex items-center space-x-1 shrink-0 border border-gray-100">
-                    <Hash size={12} className="text-gray-400" />
-                    <span className="text-[12px] font-black text-gray-600">{route.stops.length}</span>
+                  <div className="flex items-center space-x-2 shrink-0">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onToggleFavorite(route.id);
+                      }}
+                      className={`p-2 rounded-full transition-colors ${
+                        favorites.has(route.id)
+                          ? 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200'
+                          : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
+                      }`}
+                    >
+                      <Star size={16} className={favorites.has(route.id) ? 'fill-current' : ''} />
+                    </button>
+                    <div className="bg-gray-50 px-2 py-1.5 rounded-lg flex items-center space-x-1 border border-gray-100">
+                      <Hash size={12} className="text-gray-400" />
+                      <span className="text-[12px] font-black text-gray-600">{route.stops.length}</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1356,7 +1452,7 @@ const FindRoutePage: React.FC<{ onRouteClick: (r: BusRoute) => void }> = ({ onRo
             </div>
             <div className="space-y-2">
               <p className="text-gray-400 font-black text-2xl">လမ်းကြောင်း မတွေ့ပါ။</p>
-              <p className="text-gray-300 font-medium">မှတ်တိုင်အမည် မှန်၊ မမှန် ပြန်စစ်ပေးပါ။ (အဆင့် ၄ ဆင့်ထက်ပိုသော လမ်းကြောင်းများ မပြနိုင်ပါ)</p>
+              <p className="text-gray-300 font-medium">မှတ်တိုင်အမည် မှန်၊ မမှန် ပြန်စစ်ပေးပါ။ (အဆင့် ၅ ဆင့်ထက်ပိုသော လမ်းကြောင်းများ မပြနိုင်ပါ)</p>
             </div>
           </div>
         )}
@@ -1492,6 +1588,7 @@ const App: React.FC = () => {
   const [routes, setRoutes] = useState<BusRoute[]>([]);
   const [isInitializing, setIsInitializing] = useState(true);
   const [prevPage, setPrevPage] = useState<Page>(Page.Home);
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const checkData = async () => {
@@ -1523,6 +1620,19 @@ const App: React.FC = () => {
     setPage(Page.StopDetail);
   }, [page]);
 
+  const toggleFavorite = useCallback((routeId: string) => {
+    setFavorites(prev => {
+      const newFavorites = new Set(prev);
+      if (newFavorites.has(routeId)) {
+        newFavorites.delete(routeId);
+      } else {
+        newFavorites.add(routeId);
+      }
+      localStorage.setItem('ybs-favorites', JSON.stringify(Array.from(newFavorites)));
+      return newFavorites;
+    });
+  }, []);
+
   const renderPage = () => {
     if (isInitializing) {
       return (
@@ -1535,23 +1645,13 @@ const App: React.FC = () => {
 
     switch (page) {
       case Page.Home: return <HomePage setPage={setPage} />;
-      case Page.Routes: return <RoutesPage onRouteClick={navigateToRoute} onStopClick={navigateToStop} />;
+      case Page.Routes: return <RoutesPage onRouteClick={navigateToRoute} onStopClick={navigateToStop} favorites={favorites} onToggleFavorite={toggleFavorite} />;
       case Page.Map: return <MapPage stops={stops} routes={routes} onStopClick={navigateToStop} />;
       case Page.Assistant: return <AssistantPage onRouteClick={navigateToRoute} />;
       case Page.FindRoute: return <FindRoutePage onRouteClick={navigateToRoute} />;
       case Page.Settings: return <SettingsPage />;
       case Page.Stops: return <StopsPage stops={stops} onStopClick={navigateToStop} />;
-      case Page.Favorites: return (
-        <div className="p-20 text-center flex flex-col items-center space-y-6 text-gray-400">
-          <div className="bg-gray-100 p-8 rounded-full">
-            <Star size={64} className="text-gray-300" />
-          </div>
-          <div className="space-y-1">
-            <p className="font-black text-2xl text-gray-600">Saved Items</p>
-            <p className="font-medium">သိမ်းဆည်းထားသော အချက်အလက် မရှိသေးပါ။</p>
-          </div>
-        </div>
-      );
+      case Page.Favorites: return <FavoritesPage routes={routes} favorites={favorites} onRouteClick={navigateToRoute} onToggleFavorite={toggleFavorite} onStopClick={navigateToStop} />;
       default: return <HomePage setPage={setPage} />;
     }
   };
