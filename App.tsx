@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { db } from './db';
 import { INITIAL_STOPS, INITIAL_ROUTES, loadRoutesFromFiles } from './data_constants';
 import { Page, BusStop, BusRoute } from './types';
@@ -458,13 +459,15 @@ const StopSearchInput: React.FC<{
   );
 };
 
-const MobileBottomNav: React.FC<{ currentPage: Page, setPage: (p: Page) => void }> = ({ currentPage, setPage }) => {
+const MobileBottomNav: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const items = [
-    { id: Page.Home, icon: Home, label: 'ပင်မ' },
-    { id: Page.Assistant, icon: MessageSquare, label: 'Assistant' },
-    { id: Page.Routes, icon: Bus, label: 'လိုင်းများ' },
-    { id: Page.Map, icon: MapIcon, label: 'မြေပုံ' },
-    { id: Page.FindRoute, icon: Search, label: 'လမ်းကြောင်း' },
+    { id: '/', icon: Home, label: 'ပင်မ' },
+    { id: '/assistant', icon: MessageSquare, label: 'Assistant' },
+    { id: '/routes', icon: Bus, label: 'လိုင်းများ' },
+    { id: '/map', icon: MapIcon, label: 'မြေပုံ' },
+    { id: '/find-route', icon: Search, label: 'လမ်းကြောင်း' },
   ];
 
   return (
@@ -472,8 +475,8 @@ const MobileBottomNav: React.FC<{ currentPage: Page, setPage: (p: Page) => void 
       {items.map(item => (
         <button
           key={item.id}
-          onClick={() => setPage(item.id)}
-          className={`flex flex-col items-center justify-center space-y-0.5 w-full py-1 px-1 min-w-0 ${currentPage === item.id ? 'text-yellow-600' : 'text-gray-500'}`}
+          onClick={() => navigate(item.id)}
+          className={`flex flex-col items-center justify-center space-y-0.5 w-full py-1 px-1 min-w-0 ${location.pathname === item.id ? 'text-yellow-600' : 'text-gray-500'}`}
         >
           <item.icon size={18} className="mb-0.5" />
           <span className="text-[9px] font-medium leading-tight truncate">{item.label}</span>
@@ -483,20 +486,22 @@ const MobileBottomNav: React.FC<{ currentPage: Page, setPage: (p: Page) => void 
   );
 };
 
-const Header: React.FC<{ currentPage: Page, setPage: (p: Page) => void }> = ({ currentPage, setPage }) => {
+const Header: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const navItems = [
-    { id: Page.Home, icon: Home, label: 'Home' },
-    { id: Page.Assistant, icon: MessageSquare, label: 'Assistant' },
-    { id: Page.Routes, icon: Bus, label: 'Routes' },
-    { id: Page.Stops, icon: MapPin, label: 'Stops' },
-    { id: Page.Map, icon: MapIcon, label: 'Map' },
-    { id: Page.FindRoute, icon: Search, label: 'Find Route' },
+    { id: '/', icon: Home, label: 'Home' },
+    { id: '/assistant', icon: MessageSquare, label: 'Assistant' },
+    { id: '/routes', icon: Bus, label: 'Routes' },
+    { id: '/stops', icon: MapPin, label: 'Stops' },
+    { id: '/map', icon: MapIcon, label: 'Map' },
+    { id: '/find-route', icon: Search, label: 'Find Route' },
   ];
 
   return (
     <header className="bg-yellow-600 text-white sticky top-0 z-40 shadow-md">
       <div className="max-w-5xl mx-auto px-4 py-3 flex justify-between items-center">
-        <div className="flex items-center space-x-2 cursor-pointer" onClick={() => setPage(Page.Home)}>
+        <div className="flex items-center space-x-2 cursor-pointer" onClick={() => navigate('/')}>
           <Bus size={28} />
           <h1 className="text-xl font-bold tracking-tight">YBS Ai</h1>
           <span className="text-yellow-600 p-1 rounded bg-white">2.0 Beta</span>
@@ -504,10 +509,12 @@ const Header: React.FC<{ currentPage: Page, setPage: (p: Page) => void }> = ({ c
 
         <nav className="hidden md:flex items-center space-x-6">
           {navItems.map(item => (
-            <button 
+            <button
               key={item.id}
-              onClick={() => setPage(item.id)}
-text-yellow-200
+              onClick={() => navigate(item.id)}
+              className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors ${
+                location.pathname === item.id ? 'bg-yellow-700' : 'hover:bg-yellow-700'
+              }`}
             >
               <item.icon size={16} />
               <span>{item.label}</span>
@@ -515,7 +522,7 @@ text-yellow-200
           ))}
         </nav>
 
-        <button onClick={() => setPage(Page.Settings)} className="p-1.5 hover:bg-yellow-700 rounded-full transition-colors">
+        <button onClick={() => navigate('/settings')} className="p-1.5 hover:bg-yellow-700 rounded-full transition-colors">
           <Settings size={22} />
         </button>
       </div>
@@ -540,7 +547,7 @@ const OperatorBadge: React.FC<{ name: string }> = ({ name }) => (
   </div>
 );
 
-const HomePage: React.FC<{ setPage: (p: Page) => void }> = ({ setPage }) => (
+const HomePage: React.FC<{ setPage?: (path: string) => void }> = ({ setPage }) => (
   <div className="max-w-5xl mx-auto p-4 md:p-8 space-y-6 md:space-y-10">
     <div className="bg-yellow-100 p-6 md:p-10 rounded-2xl md:rounded-3xl border border-yellow-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
       <div>
@@ -563,7 +570,6 @@ const RoutesPage: React.FC<{
   const [routes, setRoutes] = useState<BusRoute[]>([]);
   const [stops, setStops] = useState<BusStop[]>([]);
   const [search, setSearch] = useState('');
-  const [operatorFilter, setOperatorFilter] = useState<string>('all');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -575,25 +581,6 @@ const RoutesPage: React.FC<{
       setStops(stopsData);
     };
     fetchData();
-
-    // Load favorites from localStorage
-    const savedFavorites = localStorage.getItem('ybs-favorites');
-    if (savedFavorites) {
-      setFavorites(new Set(JSON.parse(savedFavorites)));
-    }
-  }, []);
-
-  const toggleFavorite = useCallback((routeId: string) => {
-    setFavorites(prev => {
-      const newFavorites = new Set(prev);
-      if (newFavorites.has(routeId)) {
-        newFavorites.delete(routeId);
-      } else {
-        newFavorites.add(routeId);
-      }
-      localStorage.setItem('ybs-favorites', JSON.stringify(Array.from(newFavorites)));
-      return newFavorites;
-    });
   }, []);
 
   const stopInfoMap = useMemo(() => {
@@ -602,21 +589,8 @@ const RoutesPage: React.FC<{
     return map;
   }, [stops]);
 
-  const operators = useMemo(() => {
-    const uniqueOperators = new Set<string>();
-    routes.forEach(r => {
-      if (r.operator) uniqueOperators.add(r.operator);
-    });
-    return Array.from(uniqueOperators).sort();
-  }, [routes]);
-
   const filtered = useMemo(() => {
     let result = routes;
-
-    // Apply operator filter
-    if (operatorFilter !== 'all') {
-      result = result.filter(r => r.operator === operatorFilter);
-    }
 
     // Apply search filter
     const term = search.toLowerCase().trim();
@@ -651,7 +625,7 @@ const RoutesPage: React.FC<{
     }
 
     return result.slice(0, 50); // Limit results for performance
-  }, [routes, search, stopInfoMap, operatorFilter]);
+  }, [routes, search, stopInfoMap]);
 
   const handleStopClick = (e: React.MouseEvent, stopName: string) => {
     e.stopPropagation();
@@ -661,7 +635,7 @@ const RoutesPage: React.FC<{
 
   return (
     <div className="max-w-5xl mx-auto p-3 sm:p-4 md:p-8 h-full flex flex-col space-y-4 sm:space-y-6">
-      <div className="shrink-0 space-y-4">
+      <div className="shrink-0">
         <div className="relative max-w-xl mx-auto w-full">
           <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
           <input
@@ -671,20 +645,6 @@ const RoutesPage: React.FC<{
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-        </div>
-
-        <div className="flex items-center justify-center space-x-3">
-          <span className="text-sm font-medium text-gray-600">လုပ်ငန်းရှင်:</span>
-          <select
-            value={operatorFilter}
-            onChange={(e) => setOperatorFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 text-sm bg-white"
-          >
-            <option value="all">အားလုံး</option>
-            {operators.map(op => (
-              <option key={op} value={op}>{op}</option>
-            ))}
-          </select>
         </div>
       </div>
       <div className="flex-1 overflow-y-auto pb-20 sm:pb-24 md:pb-8">
@@ -1581,13 +1541,13 @@ const SettingsPage: React.FC = () => {
 };
 
 const App: React.FC = () => {
-  const [page, setPage] = useState<Page>(Page.Home);
+  const navigate = useNavigate();
+  const location = useLocation();
   const [selectedRoute, setSelectedRoute] = useState<BusRoute | null>(null);
   const [selectedStop, setSelectedStop] = useState<BusStop | null>(null);
   const [stops, setStops] = useState<BusStop[]>([]);
   const [routes, setRoutes] = useState<BusRoute[]>([]);
   const [isInitializing, setIsInitializing] = useState(true);
-  const [prevPage, setPrevPage] = useState<Page>(Page.Home);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -1611,14 +1571,13 @@ const App: React.FC = () => {
 
   const navigateToRoute = useCallback((r: BusRoute) => {
     setSelectedRoute(r);
-    setPage(Page.RouteDetail);
-  }, []);
+    navigate('/route-detail');
+  }, [navigate]);
 
   const navigateToStop = useCallback((s: BusStop) => {
-    setPrevPage(page);
     setSelectedStop(s);
-    setPage(Page.StopDetail);
-  }, [page]);
+    navigate('/stop-detail');
+  }, [navigate]);
 
   const toggleFavorite = useCallback((routeId: string) => {
     setFavorites(prev => {
@@ -1633,7 +1592,7 @@ const App: React.FC = () => {
     });
   }, []);
 
-  const renderPage = () => {
+  const renderRoutes = () => {
     if (isInitializing) {
       return (
         <div className="flex flex-col items-center justify-center h-full space-y-4 py-20">
@@ -1643,48 +1602,32 @@ const App: React.FC = () => {
       );
     }
 
-    switch (page) {
-      case Page.Home: return <HomePage setPage={setPage} />;
-      case Page.Routes: return <RoutesPage onRouteClick={navigateToRoute} onStopClick={navigateToStop} favorites={favorites} onToggleFavorite={toggleFavorite} />;
-      case Page.Map: return <MapPage stops={stops} routes={routes} onStopClick={navigateToStop} />;
-      case Page.Assistant: return <AssistantPage onRouteClick={navigateToRoute} />;
-      case Page.FindRoute: return <FindRoutePage onRouteClick={navigateToRoute} />;
-      case Page.Settings: return <SettingsPage />;
-      case Page.Stops: return <StopsPage stops={stops} onStopClick={navigateToStop} />;
-      case Page.Favorites: return <FavoritesPage routes={routes} favorites={favorites} onRouteClick={navigateToRoute} onToggleFavorite={toggleFavorite} onStopClick={navigateToStop} />;
-      default: return <HomePage setPage={setPage} />;
-    }
+    return (
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/routes" element={<RoutesPage onRouteClick={navigateToRoute} onStopClick={navigateToStop} favorites={favorites} onToggleFavorite={toggleFavorite} />} />
+        <Route path="/map" element={<MapPage stops={stops} routes={routes} onStopClick={navigateToStop} />} />
+        <Route path="/assistant" element={<AssistantPage onRouteClick={navigateToRoute} />} />
+        <Route path="/find-route" element={<FindRoutePage onRouteClick={navigateToRoute} />} />
+        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/stops" element={<StopsPage stops={stops} onStopClick={navigateToStop} />} />
+        <Route path="/route-detail" element={selectedRoute ? <RouteDetailPage route={selectedRoute} onClose={() => navigate('/routes')} onStopClick={navigateToStop} /> : null} />
+        <Route path="/stop-detail" element={selectedStop ? <StopDetailPage stop={selectedStop} onClose={() => navigate(-1)} /> : null} />
+      </Routes>
+    );
   };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col overflow-x-hidden h-screen">
-      <Header currentPage={page} setPage={setPage} />
-      
+      <Header />
+
       <main className="flex-1 relative w-full overflow-hidden">
         <div className="absolute inset-0 overflow-y-auto">
-           {renderPage()}
+           {renderRoutes()}
         </div>
       </main>
 
-      {page === Page.RouteDetail && selectedRoute && (
-        <RouteDetailPage 
-          route={selectedRoute} 
-          onClose={() => setPage(Page.Routes)} 
-          onStopClick={navigateToStop}
-        />
-      )}
-
-      {page === Page.StopDetail && selectedStop && (
-        <StopDetailPage 
-          stop={selectedStop} 
-          onClose={() => {
-            setPage(prevPage);
-            setSelectedStop(null);
-          }} 
-        />
-      )}
-
-      <MobileBottomNav currentPage={page} setPage={setPage} />
+      <MobileBottomNav />
     </div>
   );
 };
