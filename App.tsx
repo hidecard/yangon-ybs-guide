@@ -557,8 +557,8 @@ const RoutesPage: React.FC<{
   }, []);
 
   const stopInfoMap = useMemo(() => {
-    const map = new Map<string, { township: string }>();
-    stops.forEach(s => map.set(s.name_mm, { township: s.township_mm }));
+    const map = new Map<string, { township: string, name_en: string }>();
+    stops.forEach(s => map.set(s.name_mm, { township: s.township_mm, name_en: s.name_en }));
     return map;
   }, [stops]);
 
@@ -569,13 +569,21 @@ const RoutesPage: React.FC<{
       const endStop = r.stops[r.stops.length - 1];
       const startTownship = stopInfoMap.get(startStop)?.township || "";
       const endTownship = stopInfoMap.get(endStop)?.township || "";
+      const startStopEn = stopInfoMap.get(startStop)?.name_en || "";
+      const endStopEn = stopInfoMap.get(endStop)?.name_en || "";
 
       return (
         r.id.toLowerCase().includes(term) ||
         startTownship.toLowerCase().includes(term) ||
         endTownship.toLowerCase().includes(term) ||
         startStop.toLowerCase().includes(term) ||
-        endStop.toLowerCase().includes(term)
+        endStop.toLowerCase().includes(term) ||
+        startStopEn.toLowerCase().includes(term) ||
+        endStopEn.toLowerCase().includes(term) ||
+        r.stops.some(stop => {
+          const stopEn = stopInfoMap.get(stop)?.name_en || "";
+          return stop.toLowerCase().includes(term) || stopEn.toLowerCase().includes(term);
+        })
       );
     });
   }, [routes, search, stopInfoMap]);
@@ -669,9 +677,14 @@ const MapPage: React.FC<{ stops: BusStop[], routes: BusRoute[], onStopClick: (s:
 
   const filteredStops = useMemo(() => {
     if (!search) return [];
-    return stops.filter(s => 
-      s.name_mm.includes(search) || 
-      s.name_en.toLowerCase().includes(search.toLowerCase())
+    const term = search.toLowerCase();
+    return stops.filter(s =>
+      s.name_mm.toLowerCase().includes(term) ||
+      s.name_en.toLowerCase().includes(term) ||
+      s.road_mm.toLowerCase().includes(term) ||
+      s.road_en.toLowerCase().includes(term) ||
+      s.township_mm.toLowerCase().includes(term) ||
+      s.township_en.toLowerCase().includes(term)
     ).slice(0, 10);
   }, [search, stops]);
 
@@ -1088,7 +1101,17 @@ const RouteDetailPage: React.FC<{ route: BusRoute, onClose: () => void, onStopCl
 
 const StopsPage: React.FC<{ stops: BusStop[], onStopClick: (s: BusStop) => void }> = ({ stops, onStopClick }) => {
   const [search, setSearch] = useState('');
-  const filtered = stops.filter(s => s.name_mm.includes(search) || s.township_mm.includes(search));
+  const filtered = stops.filter(s => {
+    const term = search.toLowerCase();
+    return (
+      s.name_mm.toLowerCase().includes(term) ||
+      s.name_en.toLowerCase().includes(term) ||
+      s.township_mm.toLowerCase().includes(term) ||
+      s.township_en.toLowerCase().includes(term) ||
+      s.road_mm.toLowerCase().includes(term) ||
+      s.road_en.toLowerCase().includes(term)
+    );
+  });
 
   return (
     <div className="max-w-5xl mx-auto p-4 md:p-8 h-full flex flex-col space-y-6">
