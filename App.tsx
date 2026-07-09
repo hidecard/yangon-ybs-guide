@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+
 import { Routes, Route, useNavigate, useLocation, useParams } from 'react-router-dom';
 import { loadRoutesFromFiles, loadStopsFromRouteFiles } from './data_constants';
 import { Page, BusStop, BusRoute } from './types';
@@ -1560,7 +1561,229 @@ const StopsPage: React.FC<{ stops: BusStop[], onStopClick: (s: BusStop) => void 
   );
 };
 
-const FindRoutePage: React.FC<{ onRouteClick: (r: BusRoute) => void; routes: BusRoute[]; stops: BusStop[] }> = ({ onRouteClick, routes: routesProp, stops: stopsProp }) => {
+const RoutePlanDetailFromState: React.FC = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const state = (location.state || {}) as any;
+  const steps = (state.steps || []) as PathStep[];
+
+  if (!steps || steps.length === 0) {
+    return (
+      <div className="fixed inset-0 z-[60] flex md:items-center justify-center md:p-8 overflow-hidden bg-slate-900/40 backdrop-blur-sm animate-fade-in">
+        <div className="bg-white w-full h-full md:max-w-2xl md:h-auto md:max-h-[90vh] flex flex-col md:rounded-2xl md:shadow-lg overflow-hidden">
+          <div className="px-5 py-4 flex items-center justify-between border-b border-slate-100 shrink-0">
+            <h3 className="font-semibold text-slate-900">Route plan မရှိပါ</h3>
+            <button onClick={() => navigate(-1)} className="ui-btn-icon">
+              <X size={18} />
+            </button>
+          </div>
+          <div className="p-6 text-slate-600">Result card ကိုနှိပ်ပြီးမှ plan detail ဖွင့်ပါ။</div>
+        </div>
+      </div>
+    );
+  }
+
+  return <RoutePlanDetailPage onClose={() => navigate(-1)} steps={steps} />;
+};
+
+const RoutePlanDetailPage: React.FC<{
+  onClose: () => void;
+  steps: PathStep[];
+}> = ({ onClose, steps }) => {
+  const mapRef = useRef<any>(null);
+  const markersLayerRef = useRef<any>(null);
+  const routeLayerRef = useRef<any>(null);
+  const [activeStepIndex, setActiveStepIndex] = useState(0);
+
+  const stopsByName = useMemo(() => {
+    const m = new Map<string, BusStop>();
+    steps.forEach((st) => {
+      // steps.fromStop/toStop are stop names (string). Coordinates are in route.stopsDetailed.
+      // We'll resolve coordinates from route.stopsDetailed (preferred) in map effect.
+      void st;
+    });
+    return m;
+  }, [steps]);
+
+  useEffect(() => {
+    const L = (window as any).L;
+    if (!L || mapRef.current) return;
+
+    const map = L.map('route-plan-map', { zoomControl: false }).setView([16.8, 96.15], 13);
+    mapRef.current = map;
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+    markersLayerRef.current = L.featureGroup().addTo(map);
+    routeLayerRef.current = L.featureGroup().addTo(map);
+
+    setTimeout(() => {
+      try {
+        map.invalidateSize();
+      } catch {}
+    }, 200);
+
+    return () => {
+      try {
+        map.remove();
+      } catch {}
+      mapRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    const L = (window as any).L;
+    const map = mapRef.current;
+    if (!L || !map || !markersLayerRef.current || !routeLayerRef.current) return;
+
+    markersLayerRef.current.clearLayers();
+    routeLayerRef.current.clearLayers();
+
+    const allLatLngs: [number, number][] = [];
+
+    const active = steps[activeStepIndex];
+    const stepRoutes = steps.map((s) => s.route);
+
+    // Draw all polylines, highlight active step with thicker stroke
+    steps.forEach((st, idx) => {
+      const route = st.route;
+      if (route.shape?.geometry?.coordinates?.length) {
+        try {
+          const coords = route.shape.geometry.coordinates.map(([lng, lat]) => [lat, lng]);
+          const polyline = L.polyline(coords, {
+            color: route.color,
+            weight: idx === activeStepIndex ? 6 : 4,
+            opacity: idx === activeStepIndex ? 0.9 : 0.55,
+          });
+          polyline.addTo(routeLayerRef.current);
+          allLatLngs.push(...coords);
+        } catch {}
+      }
+    });
+
+    // Resolve stop coordinates from route.stopsDetailed
+    const resolveStop = (route: BusRoute, stopName: string): BusStop | null => {
+      const detailed = route.stopsDetailed || [];
+      const found = detailed.find((s) => s.name_mm === stopName);
+      if (!found) return null;
+      return {
+        id: found.id,
+        lat: found.lat,
+        lng: found.lng,
+        name_en: found.name_en,
+        name_mm: found.name_mm,
+        road_en: found.road_en,
+        road_mm: found.road_mm,
+        township_en: found.township_en,
+        township_mm: found.township_mm,
+      };
+    };
+
+    // Markers: from/to for each step (lighter for non-active)
+    steps.forEach((st, idx) => {
+      const fromS = resolveStop(st.route, st.fromStop);
+      const toS = resolveStop(st.route, st.toStop);
+
+      if (fromS) {
+        const marker = L.circleMarker([fromS.lat, fromS.lng], {
+          radius: idx === activeStepIndex ? 10 : 7,
+          fillColor: idx === activeStepIndex ? '#10b981' : st.route.color,
+          color: '#fff',
+          weight: idx === activeStepIndex ? 4 : 2,
+          opacity: 1,
+          fillOpacity: 0.95,
+        });
+        marker.bindPopup(`<div class="p-1"><b>${fromS.name_mm}</b><br/><span style="font-size:10px;color:#6b7280">${st.route.id} စီးရန်</span></div>`, { closeButton: false });
+        marker.addTo(markersLayerRef.current);
+        allLatLngs.push([fromS.lat, fromS.lng]);
+      }
+      if (toS) {
+        const marker = L.circleMarker([toS.lat, toS.lng], {
+          radius: idx === activeStepIndex ? 10 : 7,
+          fillColor: idx === activeStepIndex ? '#f97316' : st.route.color,
+          color: '#fff',
+          weight: idx === activeStepIndex ? 4 : 2,
+          opacity: 1,
+          fillOpacity: 0.95,
+        });
+        marker.bindPopup(`<div class="p-1"><b>${toS.name_mm}</b><br/><span style="font-size:10px;color:#6b7280">${st.route.id} ဆင်းရန်</span></div>`, { closeButton: false });
+        marker.addTo(markersLayerRef.current);
+        allLatLngs.push([toS.lat, toS.lng]);
+      }
+    });
+
+    if (allLatLngs.length > 0) {
+      try {
+        const bounds = L.latLngBounds(allLatLngs);
+        setTimeout(() => {
+          try {
+            map.fitBounds(bounds, { padding: [20, 20] });
+          } catch {}
+        }, 0);
+      } catch {}
+    }
+  }, [steps, activeStepIndex]);
+
+  return (
+    <div className="fixed inset-0 z-[60] flex md:items-center justify-center md:p-8 overflow-hidden bg-slate-900/40 backdrop-blur-sm animate-fade-in">
+      <div className="bg-white w-full h-full md:max-w-2xl md:h-auto md:max-h-[92vh] flex flex-col md:rounded-2xl md:shadow-lg overflow-hidden animate-slide-up">
+        <div className="px-5 py-4 flex items-center justify-between border-b border-slate-100 shrink-0">
+          <div className="flex items-center gap-2 min-w-0">
+            <button onClick={onClose} className="ui-btn-icon">
+              <ChevronRight className="rotate-180" size={18} />
+            </button>
+            <h3 className="font-semibold truncate text-slate-900">လမ်းကြောင်းစီမံချက် (စီး/ဘော်/ဆင်း)</h3>
+          </div>
+          <span className="ui-badge ui-badge-accent shrink-0">Steps {steps.length}</span>
+        </div>
+
+        <div className="flex flex-col flex-1 overflow-hidden">
+          <div className="bg-slate-100">
+            <div id="route-plan-map" className="w-full h-64 md:h-72" />
+          </div>
+
+          <div className="border-t border-slate-100 flex-1 overflow-y-auto bg-white">
+            <div className="p-5 space-y-4">
+              <div className="space-y-2">
+                {steps.map((st, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setActiveStepIndex(idx)}
+                    className={`w-full text-left ui-card p-4 border transition-colors ${
+                      idx === activeStepIndex ? 'border-emerald-300 bg-emerald-50/60' : 'border-slate-100 bg-white'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <RouteBadge routeId={st.route.id} color={st.route.color} size="sm" />
+                        {st.route.operator && <OperatorBadge name={st.route.operator} />}
+                      </div>
+                      <span className="ui-badge">{idx + 1}</span>
+                    </div>
+                    <div className="mt-2 text-sm">
+                      <span className="font-semibold text-slate-800">{st.fromStop}</span>
+                      <span className="text-slate-400"> → </span>
+                      <span className="font-semibold text-slate-800">{st.toStop}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+              <div className="text-xs text-slate-400">
+                Step ကိုနှိပ်ရင် map မှာ active step ကို highlight လုပ်ပါမယ်။
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const FindRoutePage: React.FC<{ onRouteClick: (r: BusRoute) => void; routes: BusRoute[]; stops: BusStop[] }> = ({ onRouteClick, routes: routesProp, stops: stopsProp }) => { 
+
+  const navigate = useNavigate();
+  const location = useLocation();
   const [start, setStart] = useState('');
   const [end, setEnd] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
@@ -1713,7 +1936,12 @@ const FindRoutePage: React.FC<{ onRouteClick: (r: BusRoute) => void; routes: Bus
 
       <div className="space-y-4 max-w-4xl mx-auto">
         {results.length > 0 && results.map((res, i) => (
-          <div key={i} className="ui-card p-5 space-y-4">
+          <div
+            key={i}
+            className="ui-card p-5 space-y-4 cursor-pointer"
+            onClick={() => navigate('/route-plan-detail', { state: { steps: res.steps } })}
+          >
+
             <div className="flex items-center justify-between gap-3">
                <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
                   {res.steps.map((step, idx) => (
@@ -1941,6 +2169,7 @@ const App: React.FC = () => {
         <Route path="/map" element={<MapPage stops={stops} routes={routes} onStopClick={navigateToStop} />} />
         <Route path="/assistant" element={<AssistantPage onRouteClick={navigateToRoute} routes={routes} stops={stops} />} />
         <Route path="/find-route" element={<FindRoutePage onRouteClick={navigateToRoute} routes={routes} stops={stops} />} />
+        <Route path="/route-plan-detail" element={<RoutePlanDetailFromState />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/stops" element={<StopsPage stops={stops} onStopClick={navigateToStop} />} />
         <Route path="/route-detail/:routeId" element={<RouteDetailFromUrl routes={routes} onClose={() => navigate('/routes')} onStopClick={navigateToStop} />} />
