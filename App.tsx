@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
-import { db } from './db';
+import { Routes, Route, useNavigate, useLocation, useParams } from 'react-router-dom';
 import { loadRoutesFromFiles, loadStopsFromRouteFiles } from './data_constants';
 import { Page, BusStop, BusRoute } from './types';
+import { db } from './db';
 import { 
+
   Bus, 
   Map as MapIcon, 
   Search, 
@@ -64,11 +65,9 @@ const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => 
   return d;
 };
 
-const performBFS = async (start: string, end: string): Promise<SearchResult[]> => {
-  const allRoutes = await db.busRoutes.toArray();
-  const allStops = await db.busStops.toArray();
+const performBFS = async (start: string, end: string, allRoutes: BusRoute[], allStops: BusStop[]): Promise<SearchResult[]> => {
   const stopMap = new Map<string, BusStop>();
-  allStops.forEach(s => stopMap.set(s.name_mm, s));
+  allStops.forEach((s) => stopMap.set(s.name_mm, s));
 
   const queue: { currentStop: string; path: PathStep[] }[] = [{ currentStop: start, path: [] }];
   const visitedStops = new Set<string>([start]);
@@ -503,7 +502,7 @@ const Header: React.FC = () => {
         <div className="flex items-center space-x-2 cursor-pointer" onClick={() => navigate('/')}>
           <Bus size={28} />
           <h1 className="text-xl font-bold tracking-tight">YBS Ai</h1>
-          <span className="text-yellow-600 p-1 rounded bg-white">2.0 Beta</span>
+          <span className="text-yellow-600 p-1 rounded bg-white">3.0</span>
         </div>
 
         <nav className="hidden md:flex items-center space-x-6">
@@ -565,22 +564,10 @@ const RoutesPage: React.FC<{
   onStopClick: (s: BusStop) => void,
   favorites: Set<string>,
   onToggleFavorite: (routeId: string) => void
-}> = ({ onRouteClick, onStopClick, favorites, onToggleFavorite }) => {
-  const [routes, setRoutes] = useState<BusRoute[]>([]);
-  const [stops, setStops] = useState<BusStop[]>([]);
+  routes: BusRoute[];
+  stops: BusStop[];
+}> = ({ onRouteClick, onStopClick, favorites, onToggleFavorite, routes, stops }) => {
   const [search, setSearch] = useState('');
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const [routesData, stopsData] = await Promise.all([
-        db.busRoutes.toArray(),
-        db.busStops.toArray()
-      ]);
-      setRoutes(routesData);
-      setStops(stopsData);
-    };
-    fetchData();
-  }, []);
 
   const stopInfoMap = useMemo(() => {
     const map = new Map<string, { township: string, name_en: string }>();
@@ -658,37 +645,43 @@ const RoutesPage: React.FC<{
               <div 
                 key={route.id} 
                 onClick={() => onRouteClick(route)}
-                className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col space-y-4 cursor-pointer hover:shadow-md hover:border-yellow-100 transition-all border-l-4 group/card"
+                className="bg-white p-2 rounded-2xl border border-gray-100 shadow-sm flex flex-col space-y-4 cursor-pointer hover:shadow-md hover:border-yellow-100 transition-all border-l-4 group/card"
                 style={{ borderLeftColor: route.color }}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-center space-x-4 overflow-hidden flex-1">
-                    <RouteBadge routeId={route.id} color={route.color} />
+                    {/* <RouteBadge routeId={route.id} color={route.color} /> */}
                     <div className="flex flex-col overflow-hidden">
                        <div className="text-[17px] md:text-[19px] font-black text-gray-900 leading-tight flex items-center flex-wrap gap-x-2">
-                         <span
+                         {/* <span
                           className="text-yellow-600 hover:text-yellow-800 hover:underline transition-all"
                           onClick={(e) => handleStopClick(e, startStop)}
                          >
-                           {startStop}
-                         </span>
-                         <ArrowRight size={16} className="text-gray-300 shrink-0" />
+                           {startStop}  
+                         </span> */}
+                         {/* <ArrowRight size={16} className="text-gray-300 shrink-0" />
                          <span
                           className="text-yellow-600 hover:text-yellow-800 hover:underline transition-all"
                           onClick={(e) => handleStopClick(e, endStop)}
                          >
                            {endStop}
-                         </span>
+                         </span> */}
                        </div>
                        <div className="flex flex-wrap items-center gap-2 mt-2">
-                          <div className="text-[12px] font-bold text-gray-400 flex items-center space-x-1 truncate">
+                          {/* <div className="text-[12px] font-bold text-gray-400 flex items-center space-x-1 truncate">
                             <MapPin size={12} className="shrink-0" />
                             <span className="truncate">{startTownship || 'N/A'} - {endTownship || 'N/A'}</span>
-                          </div>
+                          </div> */}
+                          {route.line_name && (
+                            <div className="text-[11px] font-black text-yellow-700 bg-yellow-50 px-2 py-1 rounded-lg border border-yellow-100 truncate max-w-[220px]">
+                              {route.line_name}
+                            </div>
+                          )}
                           {route.operator && <OperatorBadge name={route.operator} />}
                        </div>
                     </div>
                   </div>
+
                   <div className="flex items-center space-x-2 shrink-0">
                     <button
                       onClick={(e) => {
@@ -757,8 +750,12 @@ const MapPage: React.FC<{ stops: BusStop[], routes: BusRoute[], onStopClick: (s:
 
     map.on('locationfound', (e: any) => {
       setIsLocating(false);
-      L.circleMarker(e.latlng, { radius: 10, fillColor: '#10b981', color: '#fff', weight: 3, fillOpacity: 1 }).addTo(map).bindPopup("သင်၏နေရာ").openPopup();
-      map.setView(e.latlng, 15);
+      try {
+        L.circleMarker(e.latlng, { radius: 10, fillColor: '#10b981', color: '#fff', weight: 3, fillOpacity: 1 }).addTo(map).bindPopup("သင်၏နေရာ").openPopup();
+      } catch {}
+      try {
+        map.setView(e.latlng, 15);
+      } catch {}
     });
 
     setTimeout(() => map.invalidateSize(), 200);
@@ -882,7 +879,7 @@ const MapPage: React.FC<{ stops: BusStop[], routes: BusRoute[], onStopClick: (s:
   );
 };
 
-const AssistantPage: React.FC<{ onRouteClick: (r: BusRoute) => void }> = ({ onRouteClick }) => {
+const AssistantPage: React.FC<{ onRouteClick: (r: BusRoute) => void; routes: BusRoute[]; stops: BusStop[] }> = ({ onRouteClick, routes, stops }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     { role: 'assistant', content: 'မင်္ဂလာပါ။ YBS Assistant မှ ကြိုဆိုပါတယ်။ ဘယ်ကို သွားချင်ပါသလဲ? စာရိုက်ပြီး မေးနိုင်ပါတယ်။ ဥပမာ- "မြေနီကုန်းကနေ လှည်းတန်းကို ဘယ်လိုသွားရမလဲ"' }
   ]);
@@ -892,15 +889,12 @@ const AssistantPage: React.FC<{ onRouteClick: (r: BusRoute) => void }> = ({ onRo
   const [allStopNames, setAllStopNames] = useState<string[]>([]);
 
   useEffect(() => {
-    db.busStops.toArray().then(stops => {
-      const names = new Set<string>();
-      stops.forEach(s => names.add(s.name_mm));
-      db.busRoutes.toArray().then(routes => {
-        routes.forEach(r => r.stops.forEach(s => names.add(s)));
-        setAllStopNames(Array.from(names));
-      });
-    });
-  }, []);
+    const names = new Set<string>();
+    stops.forEach((s) => names.add(s.name_mm));
+    routes.forEach((r) => r.stops.forEach((s) => names.add(s)));
+    setAllStopNames(Array.from(names));
+  }, [routes, stops]);
+
 
   const scrollToBottom = () => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -931,7 +925,7 @@ const AssistantPage: React.FC<{ onRouteClick: (r: BusRoute) => void }> = ({ onRo
       } else if (!extracted.start && extracted.end) {
         reply = `${extracted.end} ကို ဘယ်မှတ်တိုင်ကနေ လာမှာလဲခင်ဗျာ?`;
       } else if (extracted.start && extracted.end) {
-        results = await performBFS(extracted.start, extracted.end);
+        results = await performBFS(extracted.start, extracted.end, routes, stops);
         if (results.length > 0) {
           reply = `${extracted.start} မှ ${extracted.end} သို့ စီးရမည့် လမ်းကြောင်းများကို ရှာတွေ့ပါပြီ။`;
         } else {
@@ -1211,9 +1205,7 @@ const StopsPage: React.FC<{ stops: BusStop[], onStopClick: (s: BusStop) => void 
   );
 };
 
-const FindRoutePage: React.FC<{ onRouteClick: (r: BusRoute) => void }> = ({ onRouteClick }) => {
-  const [stops, setStops] = useState<BusStop[]>([]);
-  const [routes, setRoutes] = useState<BusRoute[]>([]);
+const FindRoutePage: React.FC<{ onRouteClick: (r: BusRoute) => void; routes: BusRoute[]; stops: BusStop[] }> = ({ onRouteClick, routes: routesProp, stops: stopsProp }) => {
   const [start, setStart] = useState('');
   const [end, setEnd] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
@@ -1221,10 +1213,9 @@ const FindRoutePage: React.FC<{ onRouteClick: (r: BusRoute) => void }> = ({ onRo
   const [locating, setLocating] = useState(false);
   const [mapPickerTarget, setMapPickerTarget] = useState<'start' | 'end' | null>(null);
 
-  useEffect(() => {
-    db.busStops.toArray().then(setStops);
-    db.busRoutes.toArray().then(setRoutes);
-  }, []);
+  const stops = stopsProp;
+  const routes = routesProp;
+
 
   const allStopNames = useMemo(() => {
     const names = new Set<string>();
@@ -1277,10 +1268,10 @@ const FindRoutePage: React.FC<{ onRouteClick: (r: BusRoute) => void }> = ({ onRo
     if (!sTerm || !eTerm) return;
     
     setSearching(true);
-    const found = await performBFS(sTerm, eTerm);
+    const found = await performBFS(sTerm, eTerm, routes, stops);
     setResults(found);
     setSearching(false);
-  }, [start, end]);
+  }, [start, end, routes, stops]);
 
   const handleSwap = () => {
     const temp = start;
@@ -1514,7 +1505,7 @@ const SettingsPage: React.FC = () => {
                   </div>
                   <div>
                     <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Version</p>
-                    <p className="text-lg font-black text-gray-800">2.0 Beta</p>
+                    <p className="text-lg font-black text-gray-800">3.0</p>
                   </div>
                 </div>
               </div>
@@ -1532,11 +1523,11 @@ const SettingsPage: React.FC = () => {
                     <div className="grid grid-cols-1 gap-2">
                       <div className="flex items-center space-x-2">
                         <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                        <span className="text-sm font-medium text-yellow-700">arkaryan.info@gmail.com</span>
+                        <span className="text-sm font-medium text-yellow-700">info@arkaryan.net</span>
                       </div>
                       <div className="flex items-center space-x-2">
                         <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                        <span className="text-sm font-medium text-blue-700">arkaryan.vercel.app</span>
+                        <span className="text-sm font-medium text-blue-700">arkaryan.net<i class="fa fa-neuter" aria-hidden="true"></i></span>
                       </div>
                     </div>
                   </div>
@@ -1555,44 +1546,67 @@ const App: React.FC = () => {
   const location = useLocation();
   const [selectedRoute, setSelectedRoute] = useState<BusRoute | null>(null);
   const [selectedStop, setSelectedStop] = useState<BusStop | null>(null);
+
   const [stops, setStops] = useState<BusStop[]>([]);
   const [routes, setRoutes] = useState<BusRoute[]>([]);
+
+  // routeId driven by URL to prevent blank detail pages
+  const RouteDetailFromUrl: React.FC<{
+    routes: BusRoute[];
+    onClose: () => void;
+    onStopClick: (s: BusStop) => void;
+  }> = ({ routes, onClose, onStopClick }) => {
+    const { routeId } = useParams<{ routeId: string }>();
+    if (!routeId) return null;
+
+    const r = routes.find((x) => x.id === routeId);
+    if (!r) {
+      return (
+        <div className="fixed inset-0 z-[60] flex md:items-center justify-center md:p-8 overflow-hidden bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white w-full h-full md:max-w-2xl md:h-auto md:max-h-[90vh] flex flex-col md:rounded-3xl md:shadow-2xl overflow-hidden">
+            <div className="p-4 flex items-center justify-between border-b border-gray-100 shrink-0">
+              <h3 className="font-bold text-gray-800">Route not found</h3>
+              <button onClick={onClose} className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="p-6 text-gray-600">{routeId} ကိုဒေတာထဲမှာ ရှာမတွေ့ပါ။</div>
+          </div>
+        </div>
+      );
+    }
+
+    return <RouteDetailPage route={r} onClose={onClose} onStopClick={onStopClick} />;
+  };
   const [isInitializing, setIsInitializing] = useState(true);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    const checkData = async () => {
-      const stopCount = await db.busStops.count();
-      const routeCount = await db.busRoutes.count();
-      
-      if (stopCount === 0 || routeCount === 0) {
-        // Load stops from route files
-        const loadedStops = await loadStopsFromRouteFiles();
-        await db.busStops.clear();
-        await db.busStops.bulkAdd(loadedStops);
-        
-        // Load routes from JSON files
-        const loadedRoutes = await loadRoutesFromFiles();
-        await db.busRoutes.clear();
-        await db.busRoutes.bulkAdd(loadedRoutes);
-        
-        setStops(loadedStops);
-        setRoutes(loadedRoutes);
-      } else {
-        const loadedStops = await db.busStops.toArray();
-        const loadedRoutes = await db.busRoutes.toArray();
-        setStops(loadedStops);
-        setRoutes(loadedRoutes);
-      }
+    const loadAll = async () => {
+      const [loadedStops, loadedRoutes] = await Promise.all([
+        loadStopsFromRouteFiles(),
+        loadRoutesFromFiles(),
+      ]);
 
+      // ensure Dexie has data (RoutesPage relies on db.*)
+      // Dexie stores can throw on duplicate primary keys; use bulkPut for idempotency.
+      await db.busStops.clear();
+      await db.busRoutes.clear();
+      await db.busStops.bulkPut(loadedStops as any);
+      await db.busRoutes.bulkPut(loadedRoutes as any);
+
+
+      setStops(loadedStops);
+      setRoutes(loadedRoutes);
       setIsInitializing(false);
     };
-    checkData();
+    loadAll();
   }, []);
+
 
   const navigateToRoute = useCallback((r: BusRoute) => {
     setSelectedRoute(r);
-    navigate('/route-detail');
+    navigate(`/route-detail/${encodeURIComponent(r.id)}`);
   }, [navigate]);
 
   const navigateToStop = useCallback((s: BusStop) => {
@@ -1626,13 +1640,13 @@ const App: React.FC = () => {
     return (
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/routes" element={<RoutesPage onRouteClick={navigateToRoute} onStopClick={navigateToStop} favorites={favorites} onToggleFavorite={toggleFavorite} />} />
+        <Route path="/routes" element={<RoutesPage onRouteClick={navigateToRoute} onStopClick={navigateToStop} favorites={favorites} onToggleFavorite={toggleFavorite} routes={routes} stops={stops} />} />
         <Route path="/map" element={<MapPage stops={stops} routes={routes} onStopClick={navigateToStop} />} />
-        <Route path="/assistant" element={<AssistantPage onRouteClick={navigateToRoute} />} />
-        <Route path="/find-route" element={<FindRoutePage onRouteClick={navigateToRoute} />} />
+        <Route path="/assistant" element={<AssistantPage onRouteClick={navigateToRoute} routes={routes} stops={stops} />} />
+        <Route path="/find-route" element={<FindRoutePage onRouteClick={navigateToRoute} routes={routes} stops={stops} />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/stops" element={<StopsPage stops={stops} onStopClick={navigateToStop} />} />
-        <Route path="/route-detail" element={selectedRoute ? <RouteDetailPage route={selectedRoute} onClose={() => navigate('/routes')} onStopClick={navigateToStop} /> : null} />
+        <Route path="/route-detail/:routeId" element={<RouteDetailFromUrl routes={routes} onClose={() => navigate('/routes')} onStopClick={navigateToStop} />} />
         <Route path="/stop-detail" element={selectedStop ? <StopDetailPage stop={selectedStop} onClose={() => navigate(-1)} /> : null} />
       </Routes>
     );

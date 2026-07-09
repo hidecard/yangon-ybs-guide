@@ -162,8 +162,9 @@ export const loadRoutesFromFiles = async (): Promise<BusRoute[]> => {
       const data = await response.json();
       
       // Extract route ID from bus_line
-      const routeId = data.bus_line || file.replace('ybs_', '').replace('_data.json', '');
-      
+      const routeIdRaw = data.bus_line || file.replace('ybs_', '').replace('_data.json', '');
+      const routeId = String(routeIdRaw).trim();
+
       // Generate a consistent color based on route ID
       const generateColor = (id: string) => {
         let hash = 0;
@@ -193,6 +194,8 @@ export const loadRoutesFromFiles = async (): Promise<BusRoute[]> => {
         id: routeId,
         color: generateColor(routeId),
         operator: data.route_info?.Agency || '',
+        // route_info object contains: "Route Name" and "Line Name"
+        line_name: data.route_info?.['Line Name'] || data.route_info?.['Line Name'.toString()] || undefined,
         stops: stopNames,
         shape: coordinates.length > 0 ? {
           type: 'Feature',
@@ -203,6 +206,7 @@ export const loadRoutesFromFiles = async (): Promise<BusRoute[]> => {
           properties: {}
         } : undefined
       };
+
       routes.push(route);
     } catch (error) {
       console.error(`Error loading ${file}:`, error);

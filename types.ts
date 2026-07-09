@@ -14,8 +14,9 @@ export interface BusStop {
 export interface BusRoute {
   id: string;
   color: string;
-  // Fix: Added optional operator property to match the data structure used in INITIAL_ROUTES
   operator?: string;
+  /** "Line Name" shown on the /routes page (from route_info.Line Name) */
+  line_name?: string;
   stops: string[]; // List of name_mm
   shape?: {
     geometry: {
@@ -26,6 +27,7 @@ export interface BusRoute {
     type: string;
   };
 }
+
 
 export interface FavoriteStop {
   stopId: number;
