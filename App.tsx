@@ -1249,9 +1249,9 @@ const RouteDetailPage: React.FC<{ route: BusRoute, onClose: () => void, onStopCl
           <div class="font-black text-gray-900 text-sm mb-0.5">${s.name_mm}</div>
           <div class="text-[10px] text-gray-500 font-bold uppercase mb-2">${s.township_mm}</div>
           <div class="text-[10px] text-emerald-700 font-semibold">${idx === activeIndex ? 'လက်ရှိနေရာ' : ''}</div>
-          <button id="route-stop-${s.id}" class="w-full bg-slate-900 text-white text-[10px] py-1.5 rounded-lg font-medium hover:bg-slate-800 transition-all">အသေးစိတ်ကြည့်မည်</button>
         </div>
-      `, { closeButton: false });
+      `, { closeButton: false, autoPan: false });
+
 
       marker.on('popupopen', () => {
         const btn = document.getElementById(`route-stop-${s.id}`);
@@ -1262,12 +1262,20 @@ const RouteDetailPage: React.FC<{ route: BusRoute, onClose: () => void, onStopCl
     });
 
     // Fit bounds when first loaded
-    if (latLngs.length > 0) {
+    // Guard against Leaflet crash when markers/panes not ready yet
+    if (latLngs.length > 0 && mapRef.current) {
       try {
         const bounds = L.latLngBounds(latLngs);
-        map.fitBounds(bounds, { padding: [20, 20] });
+        // Leaflet has occasional timing issues in modals; delay to next tick
+        setTimeout(() => {
+          try {
+            map.fitBounds(bounds, { padding: [20, 20] });
+          } catch {}
+        }, 0);
       } catch {}
     }
+
+
   }, [routeStops, activeIndex, route.color, route.shape, onStopClick]);
 
   // Update activeIndex based on live position (nearest stop)
