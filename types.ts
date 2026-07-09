@@ -11,6 +11,18 @@ export interface BusStop {
   township_mm: string;
 }
 
+export interface BusStopDetailed {
+  id: number;
+  lat: number;
+  lng: number;
+  name_en: string;
+  name_mm: string;
+  road_en: string;
+  road_mm: string;
+  township_en: string;
+  township_mm: string;
+}
+
 export interface BusRoute {
   id: string;
   color: string;
@@ -18,6 +30,10 @@ export interface BusRoute {
   /** "Line Name" shown on the /routes page (from route_info.Line Name) */
   line_name?: string;
   stops: string[]; // List of name_mm
+
+  /** Route-specific ordered stops with coordinates (prevents cross-bus mixing) */
+  stopsDetailed?: BusStopDetailed[];
+
   shape?: {
     geometry: {
       coordinates: [number, number][]; // [lng, lat] pairs
@@ -27,6 +43,7 @@ export interface BusRoute {
     type: string;
   };
 }
+
 
 
 export interface FavoriteStop {

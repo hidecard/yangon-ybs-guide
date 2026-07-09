@@ -1,4 +1,4 @@
-import { BusStop, BusRoute } from './types';
+import { BusStop, BusRoute, BusStopDetailed } from './types';
 
 export const ROUTE_FILES = [
   'ybs_1_data.json',
@@ -178,14 +178,34 @@ export const loadRoutesFromFiles = async (): Promise<BusRoute[]> => {
       // Extract stops with coordinates
       const stopNames: string[] = [];
       const coordinates: [number, number][] = [];
+      const detailedStops: BusStopDetailed[] = [];
       
       if (data.stops && Array.isArray(data.stops)) {
-        data.stops.forEach((stop: any) => {
+        data.stops.forEach((stop: any, idx: number) => {
           if (stop.stop_name_mm) {
             stopNames.push(stop.stop_name_mm);
           }
+
           if (stop.latitude && stop.longitude) {
             coordinates.push([stop.longitude, stop.latitude]);
+          }
+
+          // Build route-specific stop data to avoid cross-bus mixing
+          if (stop.stop_name_mm && stop.stop_name_en && stop.latitude && stop.longitude) {
+            const roadParts = stop.road ? stop.road.split(',') : ['', ''];
+            const township = roadParts[1] ? roadParts[1].trim() : roadParts[0].trim();
+
+            detailedStops.push({
+              id: idx + 1,
+              lat: stop.latitude,
+              lng: stop.longitude,
+              name_en: stop.stop_name_en || '',
+              name_mm: stop.stop_name_mm,
+              road_en: roadParts[0] ? roadParts[0].trim() : '',
+              road_mm: roadParts[0] ? roadParts[0].trim() : '',
+              township_en: township,
+              township_mm: township
+            });
           }
         });
       }
@@ -197,6 +217,7 @@ export const loadRoutesFromFiles = async (): Promise<BusRoute[]> => {
         // route_info object contains: "Route Name" and "Line Name"
         line_name: data.route_info?.['Line Name'] || data.route_info?.['Line Name'.toString()] || undefined,
         stops: stopNames,
+        stopsDetailed: detailedStops,
         shape: coordinates.length > 0 ? {
           type: 'Feature',
           geometry: {
@@ -214,6 +235,7 @@ export const loadRoutesFromFiles = async (): Promise<BusRoute[]> => {
   }
   return routes;
 };
+
 
 export const loadStopsFromRouteFiles = async (): Promise<BusStop[]> => {
   const stopsMap = new Map<string, BusStop>();

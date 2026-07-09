@@ -1153,6 +1153,203 @@ const StopDetailPage: React.FC<{ stop: BusStop, onClose: () => void }> = ({ stop
 };
 
 const RouteDetailPage: React.FC<{ route: BusRoute, onClose: () => void, onStopClick: (s: BusStop) => void }> = ({ route, onClose, onStopClick }) => {
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<any>(null);
+  const markersLayerRef = useRef<any>(null);
+  const routeLayerRef = useRef<any>(null);
+
+  const [isLocating, setIsLocating] = useState(false);
+  const [livePos, setLivePos] = useState<{ lat: number; lng: number } | null>(null);
+
+  const [routeStops, setRouteStops] = useState<BusStop[]>([]);
+  const [activeIndex, setActiveIndex] = useState<number>(0);
+
+  // Use route-specific stop list from JSON (prevents cross-bus mixing)
+  useEffect(() => {
+    const detailed = route.stopsDetailed || [];
+    // Map BusStopDetailed -> BusStop (same shape)
+    const mapped: BusStop[] = detailed.map((s) : any => ({
+      id: s.id,
+
+      lat: s.lat,
+      lng: s.lng,
+      name_en: s.name_en,
+      name_mm: s.name_mm,
+      road_en: s.road_en,
+      road_mm: s.road_mm,
+      township_en: s.township_en,
+      township_mm: s.township_mm,
+    }));
+
+    setRouteStops(mapped);
+    setActiveIndex(0);
+  }, [route]);
+
+
+  // Init map
+  useEffect(() => {
+    const L = (window as any).L;
+    if (!L || !mapContainerRef.current || mapRef.current) return;
+
+    const map = L.map(mapContainerRef.current, { zoomControl: false }).setView([16.8, 96.15], 13);
+    mapRef.current = map;
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+    markersLayerRef.current = L.featureGroup().addTo(map);
+    routeLayerRef.current = L.featureGroup().addTo(map);
+
+    // Resize safety (mobile modal)
+    setTimeout(() => {
+      try { map.invalidateSize(); } catch {}
+    }, 200);
+
+    return () => {
+      try { map.remove(); } catch {}
+      mapRef.current = null;
+    };
+  }, []);
+
+  // Draw route line + stop markers
+  useEffect(() => {
+    const L = (window as any).L;
+    const map = mapRef.current;
+    if (!L || !map || !markersLayerRef.current || !routeLayerRef.current) return;
+
+    markersLayerRef.current.clearLayers();
+    routeLayerRef.current.clearLayers();
+
+    // Draw line if shape exists
+    if (route.shape?.geometry?.coordinates?.length) {
+      try {
+        const coords = route.shape.geometry.coordinates.map(([lng, lat]) => [lat, lng]);
+        const polyline = L.polyline(coords, { color: route.color, weight: 4, opacity: 0.7 });
+        polyline.addTo(routeLayerRef.current);
+      } catch {}
+    }
+
+    // Compute bounds
+    const latLngs = routeStops.map(s => [s.lat, s.lng] as [number, number]);
+
+    // Markers
+    routeStops.forEach((s, idx) => {
+      const isActive = idx === activeIndex;
+      const marker = L.circleMarker([s.lat, s.lng], {
+        radius: isActive ? 10 : 7,
+        fillColor: isActive ? '#10b981' : route.color,
+        color: '#fff',
+        weight: isActive ? 4 : 2,
+        opacity: 1,
+        fillOpacity: isActive ? 0.95 : 0.85,
+      });
+
+      marker.bindPopup(`
+        <div class="p-2 min-w-[140px]">
+          <div class="font-black text-gray-900 text-sm mb-0.5">${s.name_mm}</div>
+          <div class="text-[10px] text-gray-500 font-bold uppercase mb-2">${s.township_mm}</div>
+          <div class="text-[10px] text-emerald-700 font-semibold">${idx === activeIndex ? 'လက်ရှိနေရာ' : ''}</div>
+          <button id="route-stop-${s.id}" class="w-full bg-slate-900 text-white text-[10px] py-1.5 rounded-lg font-medium hover:bg-slate-800 transition-all">အသေးစိတ်ကြည့်မည်</button>
+        </div>
+      `, { closeButton: false });
+
+      marker.on('popupopen', () => {
+        const btn = document.getElementById(`route-stop-${s.id}`);
+        if (btn) btn.onclick = () => onStopClick(s);
+      });
+
+      marker.addTo(markersLayerRef.current);
+    });
+
+    // Fit bounds when first loaded
+    if (latLngs.length > 0) {
+      try {
+        const bounds = L.latLngBounds(latLngs);
+        map.fitBounds(bounds, { padding: [20, 20] });
+      } catch {}
+    }
+  }, [routeStops, activeIndex, route.color, route.shape, onStopClick]);
+
+  // Update activeIndex based on live position (nearest stop)
+  useEffect(() => {
+    const map = mapRef.current;
+    const L = (window as any).L;
+    if (!map || !L) return;
+    if (!livePos || routeStops.length === 0) return;
+
+    let bestIdx = 0;
+    let bestDist = Infinity;
+
+    for (let i = 0; i < routeStops.length; i++) {
+      const s = routeStops[i];
+      const d = getDistance(livePos.lat, livePos.lng, s.lat, s.lng);
+      if (d < bestDist) {
+        bestDist = d;
+        bestIdx = i;
+      }
+    }
+
+    setActiveIndex(bestIdx);
+
+    // Live marker
+    try {
+      // Remove old marker if any
+      if ((map as any).__liveMarker) {
+        (map as any).__liveMarker.remove();
+      }
+
+      const liveMarker = L.circleMarker([livePos.lat, livePos.lng], {
+        radius: 9,
+        fillColor: '#2563eb',
+        color: '#fff',
+        weight: 3,
+        opacity: 1,
+        fillOpacity: 0.9,
+      }).addTo(map);
+      (map as any).__liveMarker = liveMarker;
+    } catch {}
+
+    try {
+      // Keep map centered gently
+      map.setView([livePos.lat, livePos.lng], Math.max(map.getZoom(), 15));
+    } catch {}
+  }, [livePos, routeStops]);
+
+  // Start watchPosition
+  useEffect(() => {
+    if (!navigator.geolocation) return;
+    let watchId: number | null = null;
+
+    const startWatch = () => {
+      if (watchId !== null) return;
+      setIsLocating(true);
+      watchId = navigator.geolocation.watchPosition(
+        (pos) => {
+          setLivePos({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+          setIsLocating(false);
+        },
+        () => {
+          setIsLocating(false);
+        },
+        { enableHighAccuracy: true, maximumAge: 1000, timeout: 10000 }
+      );
+    };
+
+    startWatch();
+
+    return () => {
+      try {
+        if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+      } catch {}
+    };
+  }, []);
+
+  const nextStops = useMemo(() => {
+    if (routeStops.length === 0) return [] as BusStop[];
+    const start = Math.min(activeIndex + 1, routeStops.length - 1);
+    return routeStops.slice(start, start + 8);
+  }, [routeStops, activeIndex]);
+
   return (
     <div className="fixed inset-0 z-[60] flex md:items-center justify-center md:p-8 overflow-hidden bg-slate-900/40 backdrop-blur-sm animate-fade-in">
       <div className="bg-white w-full h-full md:max-w-2xl md:h-[90vh] flex flex-col md:rounded-2xl md:shadow-lg overflow-hidden animate-slide-up">
@@ -1161,49 +1358,141 @@ const RouteDetailPage: React.FC<{ route: BusRoute, onClose: () => void, onStopCl
           <RouteBadge routeId={route.id} color={route.color} size="sm" />
           {route.operator && <OperatorBadge name={route.operator} />}
           <h3 className="font-semibold text-slate-800 text-sm">လမ်းကြောင်းအသေးစိတ်</h3>
+          <div className="ml-auto flex items-center gap-2">
+            <span className="ui-badge ui-badge-accent">{routeStops.length}/{route.stops.length}</span>
+          </div>
         </div>
-        
-        <div className="p-5 flex-1 overflow-y-auto space-y-5 pb-24 md:pb-8">
-           <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-             <div>
-               <p className="ui-label">စုစုပေါင်းမှတ်တိုင်</p>
-               <p className="text-2xl font-bold text-slate-900">{route.stops.length}</p>
-             </div>
-             <div className="flex flex-col items-end text-sm">
-               <span className="text-slate-800 font-medium text-right">{route.stops[0]}</span>
-               <div className="h-4 w-px bg-slate-200 my-1 mr-2"></div>
-               <span className="text-slate-800 font-medium text-right">{route.stops[route.stops.length-1]}</span>
-             </div>
-           </div>
-           
-           <div className="space-y-1">
-             <p className="ui-label mb-3">မှတ်တိုင်စာရင်း</p>
-             <div>
-               {route.stops.map((sName, idx) => (
-                 <div 
-                    key={idx} 
-                    className="flex items-start gap-3 group cursor-pointer"
-                    onClick={() => {
-                       db.busStops.where('name_mm').equals(sName).first().then(s => s && onStopClick(s));
-                    }}
-                 >
-                   <div className="flex flex-col items-center mt-2 shrink-0">
-                      <div className={`w-2.5 h-2.5 rounded-full ${idx === 0 || idx === route.stops.length-1 ? 'ring-2 ring-offset-1 ring-slate-200' : ''}`} style={{ backgroundColor: route.color }}></div>
-                      {idx < route.stops.length - 1 && <div className="w-px h-10 bg-slate-100"></div>}
-                   </div>
-                   <div className="pb-3 w-full group-hover:bg-slate-50 transition-colors rounded-lg px-2 -ml-1 flex items-center justify-between">
-                     <span className="text-sm font-medium text-slate-700 group-hover:text-slate-900">{sName}</span>
-                     <MapIcon size={14} className="text-slate-300 group-hover:text-brand opacity-0 group-hover:opacity-100 transition-all" />
-                   </div>
-                 </div>
-               ))}
-             </div>
-           </div>
+
+        <div className="flex flex-col flex-1 overflow-hidden">
+          <div className="relative bg-slate-100">
+            <div ref={mapContainerRef} className="w-full h-[42vh] md:h-[45vh]" />
+
+            <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2">
+              <div className="bg-white/90 backdrop-blur px-3 py-2 rounded-xl shadow-sm border border-slate-100">
+                <div className="text-xs text-slate-500">လက်ရှိနေရာ</div>
+                <div className="text-sm font-semibold text-slate-800">
+                  {routeStops[activeIndex]?.name_mm || 'ရှာဖွေနေပါသည်...'}
+                </div>
+              </div>
+
+              <button
+                onClick={() => {
+                  if (!navigator.geolocation) return;
+                  setIsLocating(true);
+                  navigator.geolocation.getCurrentPosition(
+                    (p) => setLivePos({ lat: p.coords.latitude, lng: p.coords.longitude }),
+                    () => setIsLocating(false),
+                    { enableHighAccuracy: true, timeout: 10000 }
+                  );
+                }}
+                disabled={isLocating}
+                className="ui-btn-icon bg-white/90 backdrop-blur"
+              >
+                {isLocating ? <RefreshCw className="animate-spin" size={20} /> : <Locate size={20} />}
+              </button>
+            </div>
+          </div>
+
+          <div className="border-t border-slate-100 flex-1 overflow-y-auto bg-white">
+            <div className="p-5 space-y-4 pb-24 md:pb-6">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div>
+                  <p className="ui-label">စုစုပေါင်းမှတ်တိုင်</p>
+                  <p className="text-2xl font-bold text-slate-900">{routeStops.length}</p>
+                </div>
+                <div className="flex flex-col items-end text-sm">
+                  <span className="text-slate-800 font-medium text-right">{routeStops[0]?.name_mm || '—'}</span>
+                  <div className="h-4 w-px bg-slate-200 my-1 mr-2"></div>
+                  <span className="text-slate-800 font-medium text-right">{routeStops[routeStops.length - 1]?.name_mm || '—'}</span>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <p className="ui-label">Bus list (နောက်လာမည့်မှတ်တိုင်များ)</p>
+
+                {routeStops.length === 0 ? (
+                  <div className="text-center py-10 text-slate-400">
+                    ဒေတာမတွေ့သေးပါ။
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {(() => {
+                      const active = routeStops[activeIndex];
+                      return (
+                        <>
+                          {active && (
+                            <div
+                              className="ui-card p-4 border border-emerald-100 bg-emerald-50/60"
+                              onClick={() => onStopClick(active)}
+                              style={{ cursor: 'pointer' }}
+                            >
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <div className="text-xs text-emerald-700 font-semibold">လက်ရှိနေရာ</div>
+                                  <div className="text-sm font-bold text-slate-900">{active.name_mm}</div>
+                                  <div className="text-[11px] text-emerald-700">{active.township_mm}</div>
+                                </div>
+                                <div className="w-9 h-9 rounded-xl bg-emerald-600/10 flex items-center justify-center">
+                                  <MapPin size={18} className="text-emerald-700" />
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          <div className="space-y-1">
+                            {nextStops.map((s, idx) => {
+                              const actualIndex = Math.min(activeIndex + 1 + idx, routeStops.length - 1);
+                              return (
+                                <div
+                                  key={s.id}
+                                  className={`flex items-start gap-3 p-3 rounded-xl border transition-colors ${
+                                    actualIndex === activeIndex ? 'border-emerald-300 bg-emerald-50' : 'border-slate-100 bg-white'
+                                  }`}
+                                  onClick={() => onStopClick(s)}
+                                  style={{ cursor: 'pointer' }}
+                                >
+                                  <div className="flex flex-col items-center mt-1 shrink-0">
+                                    <div
+                                      className="w-2.5 h-2.5 rounded-full"
+                                      style={{ backgroundColor: route.color }}
+                                    />
+                                    {actualIndex < routeStops.length - 1 && (
+                                      <div className="w-px h-8 bg-slate-100" />
+                                    )}
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center justify-between gap-3">
+                                      <div className="min-w-0">
+                                        <div className="text-sm font-semibold text-slate-800 truncate">{s.name_mm}</div>
+                                        <div className="text-xs text-slate-400 truncate">{s.township_mm}</div>
+                                      </div>
+                                      <div className="shrink-0 text-slate-300">
+                                        <MapIcon size={16} />
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </>
+                      );
+                    })()}
+                  </div>
+                )}
+              </div>
+
+              <div className="text-xs text-slate-400">
+                Live location အတွက် browser location permission ကို allow လုပ်ထားရပါမည်။
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
 };
+
 
 const StopsPage: React.FC<{ stops: BusStop[], onStopClick: (s: BusStop) => void }> = ({ stops, onStopClick }) => {
   const [search, setSearch] = useState('');
