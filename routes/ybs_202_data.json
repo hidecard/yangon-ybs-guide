@@ -1,0 +1,174 @@
+{
+    "bus_line": "Sula - Dala (ကြိုဆိုပါ၏)",
+    "route_id": "202",
+    "route_info": {
+        "Route Name": "Sula - Dala (ကြိုဆိုပါ၏)",
+        "Line Name": "(စမ်းသပ်) ဆူးလေ - ဒလ (ကြိုဆိုပါ၏)",
+        "Agency": "YBPC",
+        "Route Type": "route",
+        "Total Stops": "20 stops",
+        "QR Payment": "✅ Supported"
+    },
+    "stops": [
+        {
+            "index": "1",
+            "stop_name_en": "Sule Myodaw Khan Ma",
+            "stop_name_mm": "ဆူးလေမြို့တော်ခန်းမ",
+            "road": "Sule Pagoda Road, Kyauktada",
+            "latitude": 16.775754,
+            "longitude": 96.158879
+        },
+        {
+            "index": "2",
+            "stop_name_en": "Lan Thone Sae",
+            "stop_name_mm": "လမ်း(၃၀)",
+            "road": "Anawrahta Road, Pabedan",
+            "latitude": 16.776964,
+            "longitude": 96.157234
+        },
+        {
+            "index": "3",
+            "stop_name_en": "Kone Zay Tan",
+            "stop_name_mm": "ကုန်ဈေးတန်း",
+            "road": "Anawrahta Road, Pabedan",
+            "latitude": 16.777003,
+            "longitude": 96.155096
+        },
+        {
+            "index": "4",
+            "stop_name_en": "Latha",
+            "stop_name_mm": "လသာ",
+            "road": "Anawrahta Road, Latha",
+            "latitude": 16.777129,
+            "longitude": 96.151594
+        },
+        {
+            "index": "5",
+            "stop_name_en": "Ayapaw Htana",
+            "stop_name_mm": "အရေးပေါ်ဌာန",
+            "road": "Lanmadaw Road, Lanmadaw",
+            "latitude": 16.778287,
+            "longitude": 96.147773
+        },
+        {
+            "index": "6",
+            "stop_name_en": "Sanpya",
+            "stop_name_mm": "စံပြ",
+            "road": "Phone Gyi Road, Lanmadaw",
+            "latitude": 16.778647,
+            "longitude": 96.144935
+        },
+        {
+            "index": "7",
+            "stop_name_en": "Dala Bridge",
+            "stop_name_mm": "ဒလတံတား",
+            "road": "Bo Tayza Road, Dala",
+            "latitude": 16.759573,
+            "longitude": 96.142672
+        },
+        {
+            "index": "8",
+            "stop_name_en": "Nar Yee Sin",
+            "stop_name_mm": "နာရီစင်",
+            "road": "Bo Tayza Road, Dala",
+            "latitude": 16.757598,
+            "longitude": 96.142269
+        },
+        {
+            "index": "9",
+            "stop_name_en": "Pan War Lan",
+            "stop_name_mm": "ပန်ဝါလမ်းထိပ်",
+            "road": "Bo Tayza Road, Dala",
+            "latitude": 16.754337,
+            "longitude": 96.141657
+        },
+        {
+            "index": "10",
+            "stop_name_en": "Kyaung Shay",
+            "stop_name_mm": "ကျောင်းရှေ့",
+            "road": "Bo Tayza Road, Dala",
+            "latitude": 16.752012,
+            "longitude": 96.141338
+        },
+        {
+            "index": "11",
+            "stop_name_en": "Kyo So Par E",
+            "stop_name_mm": "ကြိုဆိုပါ၏",
+            "road": "Bo Tayza Road, Dala",
+            "latitude": 16.749768,
+            "longitude": 96.141816
+        },
+        {
+            "index": "12",
+            "stop_name_en": "Kyo So Par E",
+            "stop_name_mm": "ကြိုဆိုပါ၏",
+            "road": "Bo Tayza Road, Dala",
+            "latitude": 16.749655,
+            "longitude": 96.14185
+        },
+        {
+            "index": "13",
+            "stop_name_en": "Kyaung Shay",
+            "stop_name_mm": "ကျောင်းရှေ့",
+            "road": "Bo Tayza Road, Dala",
+            "latitude": 16.751894,
+            "longitude": 96.141408
+        },
+        {
+            "index": "14",
+            "stop_name_en": "Pan War Lan",
+            "stop_name_mm": "ပန်ဝါလမ်းထိပ်",
+            "road": "Bo Tayza Road, Dala",
+            "latitude": 16.754131,
+            "longitude": 96.141716
+        },
+        {
+            "index": "15",
+            "stop_name_en": "Nar Yee Sin",
+            "stop_name_mm": "နာရီစင်",
+            "road": "Bo Tayza Road, Dala",
+            "latitude": 16.757531,
+            "longitude": 96.142355
+        },
+        {
+            "index": "16",
+            "stop_name_en": "Dala Bridge",
+            "stop_name_mm": "ဒလတံတား",
+            "road": "Bo Tayza Road, Dala",
+            "latitude": 16.759437,
+            "longitude": 96.142699
+        },
+        {
+            "index": "17",
+            "stop_name_en": "Sanpya",
+            "stop_name_mm": "စံပြ",
+            "road": "Phone Gyi Road, Lanmadaw",
+            "latitude": 16.777905,
+            "longitude": 96.145015
+        },
+        {
+            "index": "18",
+            "stop_name_en": "Thayet Taw Kyaung",
+            "stop_name_mm": "သရက်တောကျောင်း",
+            "road": "Bogyoke Aung San Road, Latha",
+            "latitude": 16.779782,
+            "longitude": 96.145659
+        },
+        {
+            "index": "19",
+            "stop_name_en": "Latha",
+            "stop_name_mm": "လသာ",
+            "road": "Strand Road, Latha",
+            "latitude": 16.771997,
+            "longitude": 96.151238
+        },
+        {
+            "index": "20",
+            "stop_name_en": "Chauk Htat Yone",
+            "stop_name_mm": "(၆) ထပ်ရုံး",
+            "road": "Strand Road, Pabedan",
+            "latitude": 16.770799,
+            "longitude": 96.157348
+        }
+    ]
+}

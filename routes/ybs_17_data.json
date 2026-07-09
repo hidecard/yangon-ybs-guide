@@ -1,0 +1,717 @@
+{
+    "bus_line": "17",
+    "route_info": {
+        "Route Name": "17",
+        "Line Name": "(၁၇) ရွှေပေါက်ကံ - ဒဂုံဧရာအဝေးပြေးဝင်း",
+        "Agency": "YUPT",
+        "Route Type": "route",
+        "Total Stops": "88 stops",
+        "QR Payment": "✅ Supported"
+    },
+    "stops": [
+        {
+            "index": "1",
+            "stop_name_en": "17 Gate",
+            "stop_name_mm": "၁၇ ဂိတ်",
+            "road": "Naung Rann Road, North Okkalapa",
+            "latitude": 16.926938,
+            "longitude": 96.189122
+        },
+        {
+            "index": "2",
+            "stop_name_en": "Say Yon Kwae",
+            "stop_name_mm": "ဆေးရုံကွေ့",
+            "road": "Bagan Road, North Dagon",
+            "latitude": 16.93016,
+            "longitude": 96.186101
+        },
+        {
+            "index": "3",
+            "stop_name_en": "Mee Thet",
+            "stop_name_mm": "မီးသတ်",
+            "road": "Bagan Road, North Okkalapa",
+            "latitude": 16.928021,
+            "longitude": 96.183518
+        },
+        {
+            "index": "4",
+            "stop_name_en": "Min Htoo Kyaw",
+            "stop_name_mm": "မင်းထူးကျော်",
+            "road": "Bagan Road, North Dagon",
+            "latitude": 16.926872,
+            "longitude": 96.182244
+        },
+        {
+            "index": "5",
+            "stop_name_en": "Sal Myaung",
+            "stop_name_mm": "ဆည်မြောင်း",
+            "road": "Bagan Road, North Dagon",
+            "latitude": 16.924488,
+            "longitude": 96.179371
+        },
+        {
+            "index": "6",
+            "stop_name_en": "Hmaw Kyun",
+            "stop_name_mm": "မော်ကျွန်း",
+            "road": "Bagan Road, North Dagon",
+            "latitude": 16.923073,
+            "longitude": 96.176283
+        },
+        {
+            "index": "7",
+            "stop_name_en": "Kar Gyi Gate",
+            "stop_name_mm": "ကားကြီးဂိတ်",
+            "road": "Wai Bargi Road, North Okkalapa",
+            "latitude": 16.92179,
+            "longitude": 96.171892
+        },
+        {
+            "index": "8",
+            "stop_name_en": "Dhamar Yon",
+            "stop_name_mm": "ဓမ္မာရုံ",
+            "road": "Wai Bargi Road, North Okkalapa",
+            "latitude": 16.921451,
+            "longitude": 96.169455
+        },
+        {
+            "index": "9",
+            "stop_name_en": "Kyaung Lan",
+            "stop_name_mm": "ကျောင်းလမ်း",
+            "road": "Wai Bargi Road, North Okkalapa",
+            "latitude": 16.920919,
+            "longitude": 96.167799
+        },
+        {
+            "index": "10",
+            "stop_name_en": "Chauk Kwae",
+            "stop_name_mm": "(၆) ကွေ့",
+            "road": "Thudhamar Road, North Okkalapa",
+            "latitude": 16.919091,
+            "longitude": 96.162873
+        },
+        {
+            "index": "11",
+            "stop_name_en": "Dhamar Yon",
+            "stop_name_mm": "ဓမ္မာရုံ",
+            "road": "Thudhamar Road, North Okkalapa",
+            "latitude": 16.924162,
+            "longitude": 96.158154
+        },
+        {
+            "index": "12",
+            "stop_name_en": "Aung Mingalar A Way Pyay",
+            "stop_name_mm": "အောင်မင်္ဂလာအဝေးပြေး",
+            "road": "Thudhamar Road, North Okkalapa",
+            "latitude": 16.926474,
+            "longitude": 96.156261
+        },
+        {
+            "index": "13",
+            "stop_name_en": "Tat Htate",
+            "stop_name_mm": "တပ်ထိပ်",
+            "road": "Thudhamar Road, North Okkalapa",
+            "latitude": 16.930007,
+            "longitude": 96.154865
+        },
+        {
+            "index": "14",
+            "stop_name_en": "Ah-Hmat-Thone Lan Sone",
+            "stop_name_mm": "အမှတ် (၃) လမ်းဆုံ",
+            "road": "No. 3 Main Road, Mingalardon",
+            "latitude": 16.93573,
+            "longitude": 96.152263
+        },
+        {
+            "index": "15",
+            "stop_name_en": "Khayae Pin Yate Mon",
+            "stop_name_mm": "ခရေပင်ရိပ်မွန်",
+            "road": "Khayae Pin Road, Mingaladon",
+            "latitude": 16.934479,
+            "longitude": 96.148878
+        },
+        {
+            "index": "16",
+            "stop_name_en": "Thone Yarthi",
+            "stop_name_mm": "သုံးရာသီ",
+            "road": "Khayae Pin Road, Mingalardon",
+            "latitude": 16.931715,
+            "longitude": 96.141234
+        },
+        {
+            "index": "17",
+            "stop_name_en": "Yar Thet Pan",
+            "stop_name_mm": "ရာသက်ပန်",
+            "road": "Khayae Pin Road, Mingalardon",
+            "latitude": 16.930159,
+            "longitude": 96.13694
+        },
+        {
+            "index": "18",
+            "stop_name_en": "Khayae Pin Lan Khawe",
+            "stop_name_mm": "ခရေပင်လမ်းခွဲ",
+            "road": "Khayae Pin Road, Mingalardon",
+            "latitude": 16.928434,
+            "longitude": 96.132024
+        },
+        {
+            "index": "19",
+            "stop_name_en": "Khayae Pin Lan Khawe",
+            "stop_name_mm": "ခရေပင်လမ်းခွဲ",
+            "road": "Khayae Pin Road, Mingalardon",
+            "latitude": 16.92929,
+            "longitude": 96.12982
+        },
+        {
+            "index": "20",
+            "stop_name_en": "Say Kyaung Pouk",
+            "stop_name_mm": "ဆေးကျောင်းပေါက်",
+            "road": "Khayae Pin Road, Mingalardon",
+            "latitude": 16.929693,
+            "longitude": 96.122968
+        },
+        {
+            "index": "21",
+            "stop_name_en": "Tayar-Chauk",
+            "stop_name_mm": "၁၀၆",
+            "road": "Khayae Pin Road, Mingalardon",
+            "latitude": 16.928333,
+            "longitude": 96.120753
+        },
+        {
+            "index": "22",
+            "stop_name_en": "Pan Chan",
+            "stop_name_mm": "ပန်းခြံ",
+            "road": "Khayae Pin Road, Mingalardon",
+            "latitude": 16.929913,
+            "longitude": 96.117084
+        },
+        {
+            "index": "23",
+            "stop_name_en": "Chauk Lay Chauk",
+            "stop_name_mm": "၆၄၆",
+            "road": "Khayae Pin Road, Mingalardon",
+            "latitude": 16.931012,
+            "longitude": 96.114592
+        },
+        {
+            "index": "24",
+            "stop_name_en": "Asar Set",
+            "stop_name_mm": "အစာစက်",
+            "road": "Khayae Pin Road, Insein",
+            "latitude": 16.932264,
+            "longitude": 96.112169
+        },
+        {
+            "index": "25",
+            "stop_name_en": "Yae Set",
+            "stop_name_mm": "ရေစက်",
+            "road": "Khayae Pin Road, Insein",
+            "latitude": 16.932786,
+            "longitude": 96.106947
+        },
+        {
+            "index": "26",
+            "stop_name_en": "Danyin Gone Lan Sone",
+            "stop_name_mm": "ဒညင်းကုန်းလမ်းဆုံ",
+            "road": "Khayae Pin Road, Insein",
+            "latitude": 16.934088,
+            "longitude": 96.103477
+        },
+        {
+            "index": "27",
+            "stop_name_en": "Butar Zay",
+            "stop_name_mm": "ဘူတာဈေး",
+            "road": "Shwe Pyi Thar Bridge Road, Insein",
+            "latitude": 16.933783,
+            "longitude": 96.093165
+        },
+        {
+            "index": "28",
+            "stop_name_en": "Sae-Lay Lan Sone",
+            "stop_name_mm": "(၁၄) လမ်းဆုံ",
+            "road": "Shwe Pyi Thar Bridge Road, Insein",
+            "latitude": 16.933532,
+            "longitude": 96.088466
+        },
+        {
+            "index": "29",
+            "stop_name_en": "Tit-Koe-Koe",
+            "stop_name_mm": "၁၉၉",
+            "road": "Shwe Pyi Thar Bridge Road, Insein",
+            "latitude": 16.932261,
+            "longitude": 96.085623
+        },
+        {
+            "index": "30",
+            "stop_name_en": "Ayar Myay",
+            "stop_name_mm": "ဧရာမြေ",
+            "road": "Shwe Pyi Thar Bridge Road, Insein",
+            "latitude": 16.930825,
+            "longitude": 96.083202
+        },
+        {
+            "index": "31",
+            "stop_name_en": "Mile Hnat-sae",
+            "stop_name_mm": "မိုင် (၂၀)",
+            "road": "Shwe Pyi Thar Bridge Road, Hlaing Tharyar",
+            "latitude": 16.922762,
+            "longitude": 96.069577
+        },
+        {
+            "index": "32",
+            "stop_name_en": "Shwe Lin Pan Lan Sone",
+            "stop_name_mm": "ရွှေလင်ပန်း",
+            "road": "Khayae Pin Road, Hlaing Tharyar",
+            "latitude": 16.919895,
+            "longitude": 96.064035
+        },
+        {
+            "index": "33",
+            "stop_name_en": "Alel Ywa",
+            "stop_name_mm": "အလယ်ရွာ",
+            "road": "West University Road, Hlaing Tharyar",
+            "latitude": 16.921796,
+            "longitude": 96.056181
+        },
+        {
+            "index": "34",
+            "stop_name_en": "Kyaung Shae",
+            "stop_name_mm": "ကျောင်းရှေ့",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.899854,
+            "longitude": 96.045886
+        },
+        {
+            "index": "35",
+            "stop_name_en": "Gate Haung",
+            "stop_name_mm": "ဂိတ်ဟောင်း",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.897147,
+            "longitude": 96.044739
+        },
+        {
+            "index": "36",
+            "stop_name_en": "Zay Lan",
+            "stop_name_mm": "ဈေးလမ်း",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.894867,
+            "longitude": 96.043842
+        },
+        {
+            "index": "37",
+            "stop_name_en": "Shwe Yin Aye Paya",
+            "stop_name_mm": "ရွှေရင်အေးဘုရား",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.892693,
+            "longitude": 96.042629
+        },
+        {
+            "index": "38",
+            "stop_name_en": "Kyaung Lan",
+            "stop_name_mm": "ကျောင်းလမ်း",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.890095,
+            "longitude": 96.04008
+        },
+        {
+            "index": "39",
+            "stop_name_en": "Bago Lan",
+            "stop_name_mm": "ပဲခူးလမ်း",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.887055,
+            "longitude": 96.038171
+        },
+        {
+            "index": "40",
+            "stop_name_en": "Zay Lay",
+            "stop_name_mm": "ဈေးလေး",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.884307,
+            "longitude": 96.036973
+        },
+        {
+            "index": "41",
+            "stop_name_en": "Sae-Hnit Thama",
+            "stop_name_mm": "(၁၂) သမ",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.882419,
+            "longitude": 96.036169
+        },
+        {
+            "index": "42",
+            "stop_name_en": "Aung Mingalar Zay",
+            "stop_name_mm": "အောင်မင်္ဂလာဈေး",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.880803,
+            "longitude": 96.035501
+        },
+        {
+            "index": "43",
+            "stop_name_en": "Arr Man",
+            "stop_name_mm": "အားမာန်",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.879434,
+            "longitude": 96.034902
+        },
+        {
+            "index": "44",
+            "stop_name_en": "Thama Kone",
+            "stop_name_mm": "သမကုန်း",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.875023,
+            "longitude": 96.033038
+        },
+        {
+            "index": "45",
+            "stop_name_en": "Dagon Ayar A Way Pyay",
+            "stop_name_mm": "ဒဂုံဧရာအဝေးပြေး",
+            "road": "No. 5 Main Road, Hlaing Tharyar",
+            "latitude": 16.878048,
+            "longitude": 96.024103
+        },
+        {
+            "index": "46",
+            "stop_name_en": "Dagon Ayar A Way Pyay",
+            "stop_name_mm": "ဒဂုံဧရာအဝေးပြေး",
+            "road": "No. 5 Main Road, Hlaing Tharyar",
+            "latitude": 16.87797,
+            "longitude": 96.024065
+        },
+        {
+            "index": "47",
+            "stop_name_en": "Thama Kone",
+            "stop_name_mm": "သမကုန်း",
+            "road": "Anawratha Road, Hlaingtharya",
+            "latitude": 16.874974,
+            "longitude": 96.033111
+        },
+        {
+            "index": "48",
+            "stop_name_en": "Arr Man",
+            "stop_name_mm": "အားမာန်",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.879488,
+            "longitude": 96.03504
+        },
+        {
+            "index": "49",
+            "stop_name_en": "Aung Mingalar Zay",
+            "stop_name_mm": "အောင်မင်္ဂလာဈေး",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.880752,
+            "longitude": 96.03563
+        },
+        {
+            "index": "50",
+            "stop_name_en": "Sae-Hnit Thama",
+            "stop_name_mm": "(၁၂) သမ",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.882275,
+            "longitude": 96.03623
+        },
+        {
+            "index": "51",
+            "stop_name_en": "Zay Lay",
+            "stop_name_mm": "ဈေးလေး",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.884532,
+            "longitude": 96.037183
+        },
+        {
+            "index": "52",
+            "stop_name_en": "Bago Lan",
+            "stop_name_mm": "ပဲခူးလမ်း",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.887218,
+            "longitude": 96.03839
+        },
+        {
+            "index": "53",
+            "stop_name_en": "Kyaung Lan",
+            "stop_name_mm": "ကျောင်းလမ်း",
+            "road": "Shwe Pyi Thar Bridge Road, Hlaing Tharyar",
+            "latitude": 16.890025,
+            "longitude": 96.040129
+        },
+        {
+            "index": "54",
+            "stop_name_en": "Shwe Yin Aye Paya",
+            "stop_name_mm": "ရွှေရင်အေးဘုရား",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.892614,
+            "longitude": 96.042726
+        },
+        {
+            "index": "55",
+            "stop_name_en": "Zay Lan",
+            "stop_name_mm": "ဈေးလမ်း",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.894878,
+            "longitude": 96.043919
+        },
+        {
+            "index": "56",
+            "stop_name_en": "Gate Haung",
+            "stop_name_mm": "ဂိတ်ဟောင်း",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.8973,
+            "longitude": 96.044907
+        },
+        {
+            "index": "57",
+            "stop_name_en": "Kyaung Shae",
+            "stop_name_mm": "ကျောင်းရှေ့",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.899658,
+            "longitude": 96.045927
+        },
+        {
+            "index": "58",
+            "stop_name_en": "Alel Ywa",
+            "stop_name_mm": "အလယ်ရွာ",
+            "road": "West University Road, Hlaing Tharyar",
+            "latitude": 16.92158,
+            "longitude": 96.056128
+        },
+        {
+            "index": "59",
+            "stop_name_en": "Mile Hnat-sae",
+            "stop_name_mm": "မိုင် (၂၀)",
+            "road": "Shwe Pyi Thar Bridge Road, Hlaing Tharyar",
+            "latitude": 16.922576,
+            "longitude": 96.06975
+        },
+        {
+            "index": "60",
+            "stop_name_en": "Ayar Myay",
+            "stop_name_mm": "ဧရာမြေ",
+            "road": "Shwe Pyi Thar Bridge Road, Insein",
+            "latitude": 16.93039,
+            "longitude": 96.08282
+        },
+        {
+            "index": "61",
+            "stop_name_en": "Tit-Koe-Koe",
+            "stop_name_mm": "၁၉၉",
+            "road": "Shwe Pyi Thar Bridge Road, Insein",
+            "latitude": 16.931731,
+            "longitude": 96.085049
+        },
+        {
+            "index": "62",
+            "stop_name_en": "Sae-Lay Lan Sone",
+            "stop_name_mm": "(၁၄) လမ်းဆုံ",
+            "road": "Shwe Pyi Thar Bridge Road, Insein",
+            "latitude": 16.933362,
+            "longitude": 96.088471
+        },
+        {
+            "index": "63",
+            "stop_name_en": "Butar Zay",
+            "stop_name_mm": "ဘူတာဈေး",
+            "road": "Shwe Pyi Thar Bridge Road, Insein",
+            "latitude": 16.933668,
+            "longitude": 96.094363
+        },
+        {
+            "index": "64",
+            "stop_name_en": "Danyin Gone Lan Sone",
+            "stop_name_mm": "ဒညင်းကုန်းလမ်းဆုံ",
+            "road": "Khayae Pin Road, Insein",
+            "latitude": 16.933879,
+            "longitude": 96.103257
+        },
+        {
+            "index": "65",
+            "stop_name_en": "Yae Set",
+            "stop_name_mm": "ရေစက်",
+            "road": "Khayae Pin Road, Insein",
+            "latitude": 16.932608,
+            "longitude": 96.107056
+        },
+        {
+            "index": "66",
+            "stop_name_en": "Asar Set",
+            "stop_name_mm": "အစာစက်",
+            "road": "Khayae Pin Road, Insein",
+            "latitude": 16.932314,
+            "longitude": 96.112023
+        },
+        {
+            "index": "67",
+            "stop_name_en": "Chauk Lay Chauk",
+            "stop_name_mm": "၆၄၆",
+            "road": "Khayae Pin Road, Mingalardon",
+            "latitude": 16.930992,
+            "longitude": 96.114231
+        },
+        {
+            "index": "68",
+            "stop_name_en": "Pan Chan",
+            "stop_name_mm": "ပန်းခြံ",
+            "road": "Khayae Pin Road, Mingalardon",
+            "latitude": 16.929905,
+            "longitude": 96.116613
+        },
+        {
+            "index": "69",
+            "stop_name_en": "Tayar-Chauk",
+            "stop_name_mm": "၁၀၆",
+            "road": "Khayae Pin Road, Mingalardon",
+            "latitude": 16.928214,
+            "longitude": 96.120621
+        },
+        {
+            "index": "70",
+            "stop_name_en": "Say Kyaung Pouk",
+            "stop_name_mm": "ဆေးကျောင်းပေါက်",
+            "road": "Khayae Pin Road, Mingalardon",
+            "latitude": 16.929606,
+            "longitude": 96.12307
+        },
+        {
+            "index": "71",
+            "stop_name_en": "Khayae Pin Lan Khawe",
+            "stop_name_mm": "ခရေပင်လမ်းခွဲ",
+            "road": "Khayae Pin Road, Mingalardon",
+            "latitude": 16.9283,
+            "longitude": 96.132085
+        },
+        {
+            "index": "72",
+            "stop_name_en": "Yar Thet Pan",
+            "stop_name_mm": "ရာသက်ပန်",
+            "road": "Khayae Pin Road, Mingalardon",
+            "latitude": 16.930114,
+            "longitude": 96.137014
+        },
+        {
+            "index": "73",
+            "stop_name_en": "Thone Yarthi",
+            "stop_name_mm": "သုံးရာသီ",
+            "road": "Khayae Pin Road, Mingalardon",
+            "latitude": 16.931647,
+            "longitude": 96.141277
+        },
+        {
+            "index": "74",
+            "stop_name_en": "Khayae Pin Yate Mon",
+            "stop_name_mm": "ခရေပင်ရိပ်မွန်",
+            "road": "Khayae Pin Road, Mingaladon",
+            "latitude": 16.934387,
+            "longitude": 96.148932
+        },
+        {
+            "index": "75",
+            "stop_name_en": "Ah-Hmat-Thone Lan Sone",
+            "stop_name_mm": "အမှတ် (၃) လမ်းဆုံ",
+            "road": "No. 3 Main Road, Mingalardon",
+            "latitude": 16.935503,
+            "longitude": 96.153047
+        },
+        {
+            "index": "76",
+            "stop_name_en": "Tat Htate",
+            "stop_name_mm": "တပ်ထိပ်",
+            "road": "Thudhamar Road, North Okkalapa",
+            "latitude": 16.929566,
+            "longitude": 96.154652
+        },
+        {
+            "index": "77",
+            "stop_name_en": "Aung Mingalar A Way Pyay",
+            "stop_name_mm": "အောင်မင်္ဂလာအဝေးပြေး",
+            "road": "Thudhamar Road, North Okkalapa",
+            "latitude": 16.926507,
+            "longitude": 96.156078
+        },
+        {
+            "index": "78",
+            "stop_name_en": "Dhamar Yon",
+            "stop_name_mm": "ဓမ္မာရုံ",
+            "road": "Thudhamar Road, North Okkalapa",
+            "latitude": 16.924184,
+            "longitude": 96.157897
+        },
+        {
+            "index": "79",
+            "stop_name_en": "Chauk Kwae",
+            "stop_name_mm": "(၆) ကွေ့",
+            "road": "Wai Bargi Road, North Okkalapa",
+            "latitude": 16.918907,
+            "longitude": 96.163312
+        },
+        {
+            "index": "80",
+            "stop_name_en": "Kyaung Lan",
+            "stop_name_mm": "ကျောင်းလမ်း",
+            "road": "Wai Bargi Road, North Okkalapa",
+            "latitude": 16.920714,
+            "longitude": 96.167502
+        },
+        {
+            "index": "81",
+            "stop_name_en": "Dhamar Yon",
+            "stop_name_mm": "ဓမ္မာရုံ",
+            "road": "Wai Bargi Road, North Okkalapa",
+            "latitude": 16.921494,
+            "longitude": 96.170038
+        },
+        {
+            "index": "82",
+            "stop_name_en": "Kar Gyi Gate",
+            "stop_name_mm": "ကားကြီးဂိတ်",
+            "road": "Wai Bargi Road, North Okkalapa",
+            "latitude": 16.921713,
+            "longitude": 96.171916
+        },
+        {
+            "index": "83",
+            "stop_name_en": "Hmaw Kyun",
+            "stop_name_mm": "မော်ကျွန်း",
+            "road": "Bagan Road, North Dagon",
+            "latitude": 16.922991,
+            "longitude": 96.176299
+        },
+        {
+            "index": "84",
+            "stop_name_en": "Sal Myaung",
+            "stop_name_mm": "ဆည်မြောင်း",
+            "road": "Bagan Road, North Dagon",
+            "latitude": 16.924398,
+            "longitude": 96.179411
+        },
+        {
+            "index": "85",
+            "stop_name_en": "Min Htoo Kyaw",
+            "stop_name_mm": "မင်းထူးကျော်",
+            "road": "Bagan Road, North Dagon",
+            "latitude": 16.926635,
+            "longitude": 96.182047
+        },
+        {
+            "index": "86",
+            "stop_name_en": "Mee Thet",
+            "stop_name_mm": "မီးသတ်",
+            "road": "Bagan Road, North Okkalapa",
+            "latitude": 16.928064,
+            "longitude": 96.183717
+        },
+        {
+            "index": "87",
+            "stop_name_en": "Say Yon Kwae",
+            "stop_name_mm": "ဆေးရုံကွေ့",
+            "road": "Bagan Road, North Dagon",
+            "latitude": 16.930083,
+            "longitude": 96.186191
+        },
+        {
+            "index": "88",
+            "stop_name_en": "17 Gate",
+            "stop_name_mm": "၁၇ ဂိတ်",
+            "road": "Naung Rann Road, North Okkalapa",
+            "latitude": 16.926825,
+            "longitude": 96.189015
+        }
+    ]
+}

@@ -1,0 +1,501 @@
+{
+    "bus_line": "126",
+    "route_info": {
+        "Route Name": "126",
+        "Line Name": "(၁၂၆) လှိုင်သာယာ -  စော်ဘွားကြီးကုန်းလမ်းဆုံ",
+        "Agency": "Transport Star",
+        "Route Type": "route",
+        "Total Stops": "61 stops",
+        "QR Payment": "Not available"
+    },
+    "stops": [
+        {
+            "index": "1",
+            "stop_name_en": "Yoe Gyi",
+            "stop_name_mm": "ရိုးကြီး",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.917169,
+            "longitude": 96.053049
+        },
+        {
+            "index": "2",
+            "stop_name_en": "Yoe Lay",
+            "stop_name_mm": "ရိုးလေး",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.910588,
+            "longitude": 96.050366
+        },
+        {
+            "index": "3",
+            "stop_name_en": "Kyaung Shae",
+            "stop_name_mm": "ကျောင်းရှေ့",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.899854,
+            "longitude": 96.045886
+        },
+        {
+            "index": "4",
+            "stop_name_en": "Gate Haung",
+            "stop_name_mm": "ဂိတ်ဟောင်း",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.897147,
+            "longitude": 96.044739
+        },
+        {
+            "index": "5",
+            "stop_name_en": "Zay Lan",
+            "stop_name_mm": "ဈေးလမ်း",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.894867,
+            "longitude": 96.043842
+        },
+        {
+            "index": "6",
+            "stop_name_en": "Shwe Yin Aye Paya",
+            "stop_name_mm": "ရွှေရင်အေးဘုရား",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.892693,
+            "longitude": 96.042629
+        },
+        {
+            "index": "7",
+            "stop_name_en": "Kyaung Lan",
+            "stop_name_mm": "ကျောင်းလမ်း",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.890095,
+            "longitude": 96.04008
+        },
+        {
+            "index": "8",
+            "stop_name_en": "Bago Lan",
+            "stop_name_mm": "ပဲခူးလမ်း",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.887055,
+            "longitude": 96.038171
+        },
+        {
+            "index": "9",
+            "stop_name_en": "Zay Lay",
+            "stop_name_mm": "ဈေးလေး",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.884307,
+            "longitude": 96.036973
+        },
+        {
+            "index": "10",
+            "stop_name_en": "Sae-Hnit Thama",
+            "stop_name_mm": "(၁၂) သမ",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.882419,
+            "longitude": 96.036169
+        },
+        {
+            "index": "11",
+            "stop_name_en": "Aung Mingalar Zay",
+            "stop_name_mm": "အောင်မင်္ဂလာဈေး",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.880803,
+            "longitude": 96.035501
+        },
+        {
+            "index": "12",
+            "stop_name_en": "Arr Man",
+            "stop_name_mm": "အားမာန်",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.879434,
+            "longitude": 96.034902
+        },
+        {
+            "index": "13",
+            "stop_name_en": "Thama Kone",
+            "stop_name_mm": "သမကုန်း",
+            "road": "No. 5 Main Road, Hlaing Tharyar",
+            "latitude": 16.874114,
+            "longitude": 96.033579
+        },
+        {
+            "index": "14",
+            "stop_name_en": "B.O.C",
+            "stop_name_mm": "ဘီအိုစီ",
+            "road": "No. 5 Main Road, Hlaing Tharyar",
+            "latitude": 16.87254,
+            "longitude": 96.0374
+        },
+        {
+            "index": "15",
+            "stop_name_en": "Sanay Ma",
+            "stop_name_mm": "စနေမ",
+            "road": "No. 5 Main Road, Hlaing Tharyar",
+            "latitude": 16.872309,
+            "longitude": 96.041574
+        },
+        {
+            "index": "16",
+            "stop_name_en": "5 Hteik (A Paw)",
+            "stop_name_mm": "၅ ထိပ် (အပေါ်)",
+            "road": "Nyaung Done Road, Hlaing Tharyar",
+            "latitude": 16.873263,
+            "longitude": 96.047856
+        },
+        {
+            "index": "17",
+            "stop_name_en": "Mee Khwat Zay",
+            "stop_name_mm": "မီးခွက်ဈေး",
+            "road": "Nyaung Done Road, Hlaing Tharyar",
+            "latitude": 16.87372,
+            "longitude": 96.050646
+        },
+        {
+            "index": "18",
+            "stop_name_en": "Tada Phyu",
+            "stop_name_mm": "တံတားဖြူ",
+            "road": "Nyaung Done Road, Hlaing Tharyar",
+            "latitude": 16.874854,
+            "longitude": 96.057919
+        },
+        {
+            "index": "19",
+            "stop_name_en": "Yone Shae",
+            "stop_name_mm": "ရုံးရှေ့",
+            "road": "Nyaung Done Road, Hlaing Tharyar",
+            "latitude": 16.875541,
+            "longitude": 96.062147
+        },
+        {
+            "index": "20",
+            "stop_name_en": "Ngar Htate",
+            "stop_name_mm": "(၅) ထိပ်",
+            "road": "Nyaung Done Road, Hlaing Tharyar",
+            "latitude": 16.876926,
+            "longitude": 96.071316
+        },
+        {
+            "index": "21",
+            "stop_name_en": "Thone Htate",
+            "stop_name_mm": "(၃) ထိပ်",
+            "road": "Nyaung Done Road, Hlaing Tharyar",
+            "latitude": 16.87758,
+            "longitude": 96.075094
+        },
+        {
+            "index": "22",
+            "stop_name_en": "Tit Htate",
+            "stop_name_mm": "(၁) ထိပ်",
+            "road": "Nyaung Done Road, Hlaing Tharyar",
+            "latitude": 16.878087,
+            "longitude": 96.078418
+        },
+        {
+            "index": "23",
+            "stop_name_en": "Insein Kannar",
+            "stop_name_mm": "အင်းစိန်ကမ်းနား",
+            "road": "Hlaing River Road, Insein",
+            "latitude": 16.883422,
+            "longitude": 96.094077
+        },
+        {
+            "index": "24",
+            "stop_name_en": "Pauk Taw Wa",
+            "stop_name_mm": "ပေါက်တောဝ",
+            "road": "Hlaing River Road, Insein",
+            "latitude": 16.885269,
+            "longitude": 96.098151
+        },
+        {
+            "index": "25",
+            "stop_name_en": "Htaung Boo Wa",
+            "stop_name_mm": "ထောင်ဘူးဝ",
+            "road": "Hlaing River Road, Insein",
+            "latitude": 16.886136,
+            "longitude": 96.10034
+        },
+        {
+            "index": "26",
+            "stop_name_en": "Insein Zay",
+            "stop_name_mm": "အင်းစိန်ဈေး",
+            "road": "Hlaing River Road, Insein",
+            "latitude": 16.886884,
+            "longitude": 96.102552
+        },
+        {
+            "index": "27",
+            "stop_name_en": "Insein Pan Chan",
+            "stop_name_mm": "အင်းစိန်ပန်းခြံ",
+            "road": "Lan Thit Road, Insein",
+            "latitude": 16.88925,
+            "longitude": 96.109659
+        },
+        {
+            "index": "28",
+            "stop_name_en": "Oakyin Wa",
+            "stop_name_mm": "အုတ်ကျင်းဝ",
+            "road": "Lan Thit Road, Insein",
+            "latitude": 16.89041,
+            "longitude": 96.111393
+        },
+        {
+            "index": "29",
+            "stop_name_en": "Workshop",
+            "stop_name_mm": "ဝပ်ရှော့",
+            "road": "Lan Thit Road, Insein",
+            "latitude": 16.891124,
+            "longitude": 96.114643
+        },
+        {
+            "index": "30",
+            "stop_name_en": "Ar Lain Ngar Sint",
+            "stop_name_mm": "အာလိန်ငါးဆင့်",
+            "road": "Lan Thit Road, Insein",
+            "latitude": 16.89148,
+            "longitude": 96.116596
+        },
+        {
+            "index": "31",
+            "stop_name_en": "Saw Bwar Gyi Kone Lan Sone",
+            "stop_name_mm": "စော်ဘွားကြီးကုန်းလမ်းဆုံ",
+            "road": "Insein Butaryon Road, Insein",
+            "latitude": 16.892777,
+            "longitude": 96.119488
+        },
+        {
+            "index": "32",
+            "stop_name_en": "Saw Bwar Gyi Kone Lan Sone",
+            "stop_name_mm": "စော်ဘွားကြီးကုန်းလမ်းဆုံ",
+            "road": "Insein Butaryon Road, Insein",
+            "latitude": 16.892179,
+            "longitude": 96.119078
+        },
+        {
+            "index": "33",
+            "stop_name_en": "Ar Lain Ngar Sint",
+            "stop_name_mm": "အာလိန်ငါးဆင့်",
+            "road": "Lan Thit Road, Insein",
+            "latitude": 16.891578,
+            "longitude": 96.11659
+        },
+        {
+            "index": "34",
+            "stop_name_en": "Workshop",
+            "stop_name_mm": "ဝပ်ရှော့",
+            "road": "Lan Thit Road, Insein",
+            "latitude": 16.8912,
+            "longitude": 96.114669
+        },
+        {
+            "index": "35",
+            "stop_name_en": "Oakyin Wa",
+            "stop_name_mm": "အုတ်ကျင်းဝ",
+            "road": "Lan Thit Road, Insein",
+            "latitude": 16.890592,
+            "longitude": 96.111455
+        },
+        {
+            "index": "36",
+            "stop_name_en": "Insein Pan Chan",
+            "stop_name_mm": "အင်းစိန်ပန်းခြံ",
+            "road": "Lan Thit Road, Insein",
+            "latitude": 16.889348,
+            "longitude": 96.109702
+        },
+        {
+            "index": "37",
+            "stop_name_en": "Insein Zay",
+            "stop_name_mm": "အင်းစိန်ဈေး",
+            "road": "Hlaing River Road, Insein",
+            "latitude": 16.886955,
+            "longitude": 96.102533
+        },
+        {
+            "index": "38",
+            "stop_name_en": "Htaung Boo Wa",
+            "stop_name_mm": "ထောင်ဘူးဝ",
+            "road": "Hlaing River Road, Insein",
+            "latitude": 16.886196,
+            "longitude": 96.100313
+        },
+        {
+            "index": "39",
+            "stop_name_en": "Pauk Taw Wa",
+            "stop_name_mm": "ပေါက်တောဝ",
+            "road": "Hlaing River Road, Insein",
+            "latitude": 16.885152,
+            "longitude": 96.097108
+        },
+        {
+            "index": "40",
+            "stop_name_en": "Insein Kannar",
+            "stop_name_mm": "အင်းစိန်ကမ်းနား",
+            "road": "Hlaing River Road, Insein",
+            "latitude": 16.883501,
+            "longitude": 96.093983
+        },
+        {
+            "index": "41",
+            "stop_name_en": "Tit Htate",
+            "stop_name_mm": "(၁) ထိပ်",
+            "road": "Nyaung Done Road, Hlaing Tharyar",
+            "latitude": 16.87818,
+            "longitude": 96.078396
+        },
+        {
+            "index": "42",
+            "stop_name_en": "Thone Htate",
+            "stop_name_mm": "(၃) ထိပ်",
+            "road": "Nyaung Done Road, Hlaing Tharyar",
+            "latitude": 16.877696,
+            "longitude": 96.075061
+        },
+        {
+            "index": "43",
+            "stop_name_en": "Ngar Htate",
+            "stop_name_mm": "(၅) ထိပ်",
+            "road": "Nyaung Done Road, Hlaing Tharyar",
+            "latitude": 16.877059,
+            "longitude": 96.071282
+        },
+        {
+            "index": "44",
+            "stop_name_en": "Yone Shae",
+            "stop_name_mm": "ရုံးရှေ့",
+            "road": "Nyaung Done Road, Hlaing Tharyar",
+            "latitude": 16.875692,
+            "longitude": 96.062609
+        },
+        {
+            "index": "45",
+            "stop_name_en": "Tada Phyu",
+            "stop_name_mm": "တံတားဖြူ",
+            "road": "Nyaung Done Road, Hlaing Tharyar",
+            "latitude": 16.875003,
+            "longitude": 96.058032
+        },
+        {
+            "index": "46",
+            "stop_name_en": "Mee Khwat Zay",
+            "stop_name_mm": "မီးခွက်ဈေး",
+            "road": "Nyaung Done Road, Hlaing Tharyar",
+            "latitude": 16.874082,
+            "longitude": 96.051997
+        },
+        {
+            "index": "47",
+            "stop_name_en": "5 Hteik (A Paw)",
+            "stop_name_mm": "၅ ထိပ် (အပေါ်)",
+            "road": "Nyaung Done Road, Hlaing Tharyar",
+            "latitude": 16.873431,
+            "longitude": 96.047872
+        },
+        {
+            "index": "48",
+            "stop_name_en": "Sanay Ma",
+            "stop_name_mm": "စနေမ",
+            "road": "No. 5 Main Road, Hlaing Tharyar",
+            "latitude": 16.872406,
+            "longitude": 96.0416
+        },
+        {
+            "index": "49",
+            "stop_name_en": "B.O.C",
+            "stop_name_mm": "ဘီအိုစီ",
+            "road": "No. 5 Main Road, Hlaing Tharyar",
+            "latitude": 16.872649,
+            "longitude": 96.03751
+        },
+        {
+            "index": "50",
+            "stop_name_en": "Thama Kone",
+            "stop_name_mm": "သမကုန်း",
+            "road": "No. 5 Main Road, Hlaing Tharyar",
+            "latitude": 16.874179,
+            "longitude": 96.033695
+        },
+        {
+            "index": "51",
+            "stop_name_en": "Arr Man",
+            "stop_name_mm": "အားမာန်",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.879488,
+            "longitude": 96.03504
+        },
+        {
+            "index": "52",
+            "stop_name_en": "Sae-Hnit Thama",
+            "stop_name_mm": "(၁၂) သမ",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.882275,
+            "longitude": 96.03623
+        },
+        {
+            "index": "53",
+            "stop_name_en": "Zay Lay",
+            "stop_name_mm": "ဈေးလေး",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.884532,
+            "longitude": 96.037183
+        },
+        {
+            "index": "54",
+            "stop_name_en": "Bago Lan",
+            "stop_name_mm": "ပဲခူးလမ်း",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.887218,
+            "longitude": 96.03839
+        },
+        {
+            "index": "55",
+            "stop_name_en": "Kyaung Lan",
+            "stop_name_mm": "ကျောင်းလမ်း",
+            "road": "Shwe Pyi Thar Bridge Road, Hlaing Tharyar",
+            "latitude": 16.890025,
+            "longitude": 96.040129
+        },
+        {
+            "index": "56",
+            "stop_name_en": "Shwe Yin Aye Paya",
+            "stop_name_mm": "ရွှေရင်အေးဘုရား",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.892614,
+            "longitude": 96.042726
+        },
+        {
+            "index": "57",
+            "stop_name_en": "Zay Lan",
+            "stop_name_mm": "ဈေးလမ်း",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.894878,
+            "longitude": 96.043919
+        },
+        {
+            "index": "58",
+            "stop_name_en": "Gate Haung",
+            "stop_name_mm": "ဂိတ်ဟောင်း",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.8973,
+            "longitude": 96.044907
+        },
+        {
+            "index": "59",
+            "stop_name_en": "Kyaung Shae",
+            "stop_name_mm": "ကျောင်းရှေ့",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.899658,
+            "longitude": 96.045927
+        },
+        {
+            "index": "60",
+            "stop_name_en": "Yoe Lay",
+            "stop_name_mm": "ရိုးလေး",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.910437,
+            "longitude": 96.050419
+        },
+        {
+            "index": "61",
+            "stop_name_en": "Yoe Gyi",
+            "stop_name_mm": "ရိုးကြီး",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.917067,
+            "longitude": 96.053221
+        }
+    ]
+}

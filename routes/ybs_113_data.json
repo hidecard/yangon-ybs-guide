@@ -1,0 +1,397 @@
+{
+    "bus_line": "113",
+    "route_info": {
+        "Route Name": "113",
+        "Line Name": "(၁၁၃) ကားကြီးဂိတ် - ဆူးလေမြို့တော်ခန်းမ",
+        "Agency": "YUPT",
+        "Route Type": "route",
+        "Total Stops": "48 stops",
+        "QR Payment": "✅ Supported"
+    },
+    "stops": [
+        {
+            "index": "1",
+            "stop_name_en": "Kar Gyi Gate",
+            "stop_name_mm": "ကားကြီးဂိတ်",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.847393,
+            "longitude": 96.20904
+        },
+        {
+            "index": "2",
+            "stop_name_en": "Sanpya Zay/ Nga Moe Yeik",
+            "stop_name_mm": "စံပြဈေး/ ငမိုးရိပ်",
+            "road": "Lay Daung Kan Road, Thingangyun",
+            "latitude": 16.841911,
+            "longitude": 96.204373
+        },
+        {
+            "index": "3",
+            "stop_name_en": "Bawa Myint",
+            "stop_name_mm": "ဘဝမြင့်",
+            "road": "Lay Daung Kan Road, Thingangyun",
+            "latitude": 16.837496,
+            "longitude": 96.199818
+        },
+        {
+            "index": "4",
+            "stop_name_en": "B.O.C",
+            "stop_name_mm": "ဘီအိုစီ",
+            "road": "Lay Daung Kan Road, Thingangyun",
+            "latitude": 16.832867,
+            "longitude": 96.195098
+        },
+        {
+            "index": "5",
+            "stop_name_en": "Paya Lan",
+            "stop_name_mm": "ဘုရားလမ်း",
+            "road": "Lay Daung Kan Road, Thingangyun",
+            "latitude": 16.831138,
+            "longitude": 96.193347
+        },
+        {
+            "index": "6",
+            "stop_name_en": "Zawana",
+            "stop_name_mm": "ဇဝန",
+            "road": "Lay Daung Kan Road, Thingangyun",
+            "latitude": 16.828079,
+            "longitude": 96.18817
+        },
+        {
+            "index": "7",
+            "stop_name_en": "Khap Chee Yar",
+            "stop_name_mm": "ခပ်ချီးယား",
+            "road": "Lay Daung Kan Road, Thingangyun",
+            "latitude": 16.826198,
+            "longitude": 96.186498
+        },
+        {
+            "index": "8",
+            "stop_name_en": "Athin Taik",
+            "stop_name_mm": "အသင်းတိုက်",
+            "road": "Lay Daung Kan Road, Thingangyun",
+            "latitude": 16.823072,
+            "longitude": 96.183366
+        },
+        {
+            "index": "9",
+            "stop_name_en": "Than Lan",
+            "stop_name_mm": "သံလမ်း",
+            "road": "Lay Daung Kan Road, Thingangyun",
+            "latitude": 16.819962,
+            "longitude": 96.178332
+        },
+        {
+            "index": "10",
+            "stop_name_en": "Lan Sone",
+            "stop_name_mm": "လမ်းဆုံ",
+            "road": "East Horse Race Course Road, Tamwe",
+            "latitude": 16.819241,
+            "longitude": 96.172281
+        },
+        {
+            "index": "11",
+            "stop_name_en": "Kyaung Shae",
+            "stop_name_mm": "ကျောင်းရှေ့",
+            "road": "East Horse Race Course Road, Tamwe",
+            "latitude": 16.815446,
+            "longitude": 96.172466
+        },
+        {
+            "index": "12",
+            "stop_name_en": "Tamwe Zay Haung/ Akhun Lut Zay",
+            "stop_name_mm": "တာမွေဈေးဟောင်း/ အခွန်လွတ်ဈေး",
+            "road": "Kyaikkasan Road, Tamwe",
+            "latitude": 16.81322,
+            "longitude": 96.174533
+        },
+        {
+            "index": "13",
+            "stop_name_en": "Tamwe Zay/ Tamwe Bali",
+            "stop_name_mm": "တာမွေဈေး/ တာမွေဗလီ",
+            "road": "Kyaikkasan Road, Tamwe",
+            "latitude": 16.807725,
+            "longitude": 96.176172
+        },
+        {
+            "index": "14",
+            "stop_name_en": "Kyauk Myaung Zay",
+            "stop_name_mm": "ကျောက်မြောင်းဈေး",
+            "road": "Kyaikkasan Road, Tamwe",
+            "latitude": 16.804151,
+            "longitude": 96.175646
+        },
+        {
+            "index": "15",
+            "stop_name_en": "Thida",
+            "stop_name_mm": "သီတာ",
+            "road": "Banyardala Road, Mingalar Taung Nyunt",
+            "latitude": 16.799387,
+            "longitude": 96.175793
+        },
+        {
+            "index": "16",
+            "stop_name_en": "Aung Mingalar",
+            "stop_name_mm": "အောင်မင်္ဂလာ",
+            "road": "Banyardala Road, Mingalar Taung Nyunt",
+            "latitude": 16.796309,
+            "longitude": 96.176624
+        },
+        {
+            "index": "17",
+            "stop_name_en": "Yuzana Plaza/ Lan Kyal",
+            "stop_name_mm": "ယုဇနပလာဇာ/လမ်းကျယ်",
+            "road": "Banyardala Road, Mingalar Taung Nyunt",
+            "latitude": 16.794463,
+            "longitude": 96.175586
+        },
+        {
+            "index": "18",
+            "stop_name_en": "Mingalar Zay/ Tara Na SeLayy Lan",
+            "stop_name_mm": "မင်္ဂလာဈေး/ (၁၂၄)လမ်း",
+            "road": "Banyardala Road, Mingalar Taung Nyunt",
+            "latitude": 16.791641,
+            "longitude": 96.172439
+        },
+        {
+            "index": "19",
+            "stop_name_en": "Masalar Set",
+            "stop_name_mm": "မဆလာစက်",
+            "road": "Banyardala Road, Mingalar Taung Nyunt",
+            "latitude": 16.790188,
+            "longitude": 96.169403
+        },
+        {
+            "index": "20",
+            "stop_name_en": "Thein Phyu Sar Taik",
+            "stop_name_mm": "သိမ်ဖြူစာတိုက်",
+            "road": "Thein Phyu Road, Mingalar Taung Nyunt",
+            "latitude": 16.786857,
+            "longitude": 96.167645
+        },
+        {
+            "index": "21",
+            "stop_name_en": "Thein Phyu Zay",
+            "stop_name_mm": "သိမ်ဖြူဈေး",
+            "road": "Thein Phyu Road, Mingalar Taung Nyunt",
+            "latitude": 16.784569,
+            "longitude": 96.167519
+        },
+        {
+            "index": "22",
+            "stop_name_en": "Sein Paul",
+            "stop_name_mm": "စိန်ပေါ(လ်)",
+            "road": "Thein Phyu Road, Botahtaung",
+            "latitude": 16.777445,
+            "longitude": 96.167201
+        },
+        {
+            "index": "23",
+            "stop_name_en": "Bokalay Zay",
+            "stop_name_mm": "ဘိုကလေးဈေး",
+            "road": "Merchant Road, Kyauktada",
+            "latitude": 16.771597,
+            "longitude": 96.166374
+        },
+        {
+            "index": "24",
+            "stop_name_en": "(Pansodan Seikkanthar)",
+            "stop_name_mm": "ပန်းဆိုးတန်း (ဆိပ်ကမ်းသာလမ်း)",
+            "road": "Merchant Road, Kyauktada",
+            "latitude": 16.771652,
+            "longitude": 96.163083
+        },
+        {
+            "index": "25",
+            "stop_name_en": "Pansodan",
+            "stop_name_mm": "ပန်းဆိုးတန်း",
+            "road": "Mahabandoola Road, Kyauktada",
+            "latitude": 16.774167,
+            "longitude": 96.163094
+        },
+        {
+            "index": "26",
+            "stop_name_en": "Bokalay Zay",
+            "stop_name_mm": "ဘိုကလေးဈေး",
+            "road": "Mahabandoola Road, Kyauktada",
+            "latitude": 16.774037,
+            "longitude": 96.165841
+        },
+        {
+            "index": "27",
+            "stop_name_en": "Sein Paul",
+            "stop_name_mm": "စိန်ပေါ(လ်)",
+            "road": "Thein Phyu Road, Botahtaung",
+            "latitude": 16.777861,
+            "longitude": 96.167352
+        },
+        {
+            "index": "28",
+            "stop_name_en": "Thein Phyu Zay",
+            "stop_name_mm": "သိမ်ဖြူဈေး",
+            "road": "Thein Phyu Road, Mingalar Taung Nyunt",
+            "latitude": 16.784877,
+            "longitude": 96.167626
+        },
+        {
+            "index": "29",
+            "stop_name_en": "Thein Phyu Sar Taik",
+            "stop_name_mm": "သိမ်ဖြူစာတိုက်",
+            "road": "Thein Phyu Road, Mingalar Taung Nyunt",
+            "latitude": 16.78681,
+            "longitude": 96.167691
+        },
+        {
+            "index": "30",
+            "stop_name_en": "Masalar Set",
+            "stop_name_mm": "မဆလာစက်",
+            "road": "Banyardala Road, Mingalar Taung Nyunt",
+            "latitude": 16.790037,
+            "longitude": 96.169454
+        },
+        {
+            "index": "31",
+            "stop_name_en": "Mingalar Zay/ Tara Na SeLayy Lan",
+            "stop_name_mm": "မင်္ဂလာဈေး/ (၁၂၄)လမ်း",
+            "road": "Banyardala Road, Mingalar Taung Nyunt",
+            "latitude": 16.791508,
+            "longitude": 96.172476
+        },
+        {
+            "index": "32",
+            "stop_name_en": "Yuzana Plaza/ Lan Kyal",
+            "stop_name_mm": "ယုဇနပလာဇာ/လမ်းကျယ်",
+            "road": "Banyardala Road, Mingalar Taung Nyunt",
+            "latitude": 16.794242,
+            "longitude": 96.175678
+        },
+        {
+            "index": "33",
+            "stop_name_en": "Aung Mingalar",
+            "stop_name_mm": "အောင်မင်္ဂလာ",
+            "road": "Banyardala Road, Mingalar Taung Nyunt",
+            "latitude": 16.796486,
+            "longitude": 96.176834
+        },
+        {
+            "index": "34",
+            "stop_name_en": "Thida",
+            "stop_name_mm": "သီတာ",
+            "road": "Banyardala Road, Mingalar Taung Nyunt",
+            "latitude": 16.799399,
+            "longitude": 96.176018
+        },
+        {
+            "index": "35",
+            "stop_name_en": "Kyauk Myaung Zay",
+            "stop_name_mm": "ကျောက်မြောင်းဈေး",
+            "road": "Kyaikkasan Road, Tamwe",
+            "latitude": 16.804034,
+            "longitude": 96.175738
+        },
+        {
+            "index": "36",
+            "stop_name_en": "Tamwe Zay/ Tamwe Bali",
+            "stop_name_mm": "တာမွေဈေး/ တာမွေဗလီ",
+            "road": "Kyaikkasan Road, Tamwe",
+            "latitude": 16.807522,
+            "longitude": 96.176273
+        },
+        {
+            "index": "37",
+            "stop_name_en": "Tamwe Zay Haung/ Akhun Lut Zay",
+            "stop_name_mm": "တာမွေဈေးဟောင်း/ အခွန်လွတ်ဈေး",
+            "road": "Kyaikkasan Road, Tamwe",
+            "latitude": 16.813353,
+            "longitude": 96.174892
+        },
+        {
+            "index": "38",
+            "stop_name_en": "Kyaung Shae",
+            "stop_name_mm": "ကျောင်းရှေ့",
+            "road": "East Horse Race Course Road, Tamwe",
+            "latitude": 16.815407,
+            "longitude": 96.172656
+        },
+        {
+            "index": "39",
+            "stop_name_en": "Lan Sone",
+            "stop_name_mm": "လမ်းဆုံ",
+            "road": "East Horse Race Course Road, Tamwe",
+            "latitude": 16.818935,
+            "longitude": 96.172527
+        },
+        {
+            "index": "40",
+            "stop_name_en": "Than Lan",
+            "stop_name_mm": "သံလမ်း",
+            "road": "Lay Daung Kan Road, Thingangyun",
+            "latitude": 16.819789,
+            "longitude": 96.178082
+        },
+        {
+            "index": "41",
+            "stop_name_en": "Athin Taik",
+            "stop_name_mm": "အသင်းတိုက်",
+            "road": "Lay Daung Kan Road, Thingangyun",
+            "latitude": 16.823051,
+            "longitude": 96.183464
+        },
+        {
+            "index": "42",
+            "stop_name_en": "Khap Chee Yar",
+            "stop_name_mm": "ခပ်ချီးယား",
+            "road": "Lay Daung Kan Road, Thingangyun",
+            "latitude": 16.826177,
+            "longitude": 96.186584
+        },
+        {
+            "index": "43",
+            "stop_name_en": "Zawana",
+            "stop_name_mm": "ဇဝန",
+            "road": "Lay Daung Kan Road, Thingangyun",
+            "latitude": 16.827762,
+            "longitude": 96.187952
+        },
+        {
+            "index": "44",
+            "stop_name_en": "Paya Lan",
+            "stop_name_mm": "ဘုရားလမ်း",
+            "road": "Lay Daung Kan Road, Thingangyun",
+            "latitude": 16.830734,
+            "longitude": 96.193152
+        },
+        {
+            "index": "45",
+            "stop_name_en": "B.O.C",
+            "stop_name_mm": "ဘီအိုစီ",
+            "road": "Lay Daung Kan Road, Thingangyun",
+            "latitude": 16.832662,
+            "longitude": 96.195074
+        },
+        {
+            "index": "46",
+            "stop_name_en": "Bawa Myint",
+            "stop_name_mm": "ဘဝမြင့်",
+            "road": "Lay Daung Kan Road, Thingangyun",
+            "latitude": 16.83714,
+            "longitude": 96.19967
+        },
+        {
+            "index": "47",
+            "stop_name_en": "Sanpya Zay/ Nga Moe Yeik",
+            "stop_name_mm": "စံပြဈေး/ ငမိုးရိပ်",
+            "road": "Lay Daung Kan Road, Thingangyun",
+            "latitude": 16.842002,
+            "longitude": 96.20458
+        },
+        {
+            "index": "48",
+            "stop_name_en": "Kar Gyi Gate",
+            "stop_name_mm": "ကားကြီးဂိတ်",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.847381,
+            "longitude": 96.209097
+        }
+    ]
+}

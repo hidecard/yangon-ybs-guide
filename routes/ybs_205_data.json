@@ -1,0 +1,198 @@
+{
+    "bus_line": "Dala Ferry Terminal - Sule",
+    "route_id": "205",
+    "route_info": {
+        "Route Name": "Dala Ferry Terminal - Sule",
+        "Line Name": "(စမ်းသပ်) ဒလ (သင်္ဘောဆိပ်) - ဆူးလေ",
+        "Agency": "YBPC",
+        "Route Type": "route",
+        "Total Stops": "23 stops",
+        "QR Payment": "✅ Supported"
+    },
+    "stops": [
+        {
+            "index": "1",
+            "stop_name_en": "Cherry Ferry Terminal",
+            "stop_name_mm": "ချယ်ရီသင်္ဘောဆိပ်",
+            "road": "Dala-Twante Road, Dala",
+            "latitude": 16.760692,
+            "longitude": 96.156041
+        },
+        {
+            "index": "2",
+            "stop_name_en": "Dala Hospital",
+            "stop_name_mm": "ဒလဆေးရုံ",
+            "road": "Dala-Twante Road, Dala",
+            "latitude": 16.757426,
+            "longitude": 96.15348
+        },
+        {
+            "index": "3",
+            "stop_name_en": "Aung Zeya Zay",
+            "stop_name_mm": "အောင်ဇေယျဈေး",
+            "road": "Dala-Twante Road, Dala",
+            "latitude": 16.756524,
+            "longitude": 96.151922
+        },
+        {
+            "index": "4",
+            "stop_name_en": "Bogyoke Park",
+            "stop_name_mm": "ဗိုလ်ချုပ်ပန်းခြံ",
+            "road": "Dala-Twante Road, Dala",
+            "latitude": 16.756098,
+            "longitude": 96.148915
+        },
+        {
+            "index": "5",
+            "stop_name_en": "Saya San",
+            "stop_name_mm": "ဆရာစံ",
+            "road": "Dala-Twante Road, Dala",
+            "latitude": 16.756915,
+            "longitude": 96.145466
+        },
+        {
+            "index": "6",
+            "stop_name_en": "Nar Yee Sin",
+            "stop_name_mm": "နာရီစင်",
+            "road": "Bo Tayza Road, Dala",
+            "latitude": 16.757531,
+            "longitude": 96.142355
+        },
+        {
+            "index": "7",
+            "stop_name_en": "Dala Bridge",
+            "stop_name_mm": "ဒလတံတား",
+            "road": "Bo Tayza Road, Dala",
+            "latitude": 16.759437,
+            "longitude": 96.142699
+        },
+        {
+            "index": "8",
+            "stop_name_en": "Thayet Taw Kyaung",
+            "stop_name_mm": "သရက်တောကျောင်း",
+            "road": "Bogyoke Aung San Road, Latha",
+            "latitude": 16.779782,
+            "longitude": 96.145659
+        },
+        {
+            "index": "9",
+            "stop_name_en": "Ayapaw Htana",
+            "stop_name_mm": "အရေးပေါ်ဌာန",
+            "road": "Lanmadaw Road, Lanmadaw",
+            "latitude": 16.778777,
+            "longitude": 96.14772
+        },
+        {
+            "index": "10",
+            "stop_name_en": "Latha",
+            "stop_name_mm": "လသာ",
+            "road": "Mahabandoola Road, Latha",
+            "latitude": 16.774631,
+            "longitude": 96.15199
+        },
+        {
+            "index": "11",
+            "stop_name_en": "Theingyi Zay/ Kone Zay Tan",
+            "stop_name_mm": "သိမ်ကြီးဈေး/ကုန်ဈေးတန်း",
+            "road": "Mahabandoola Road, Pabedan",
+            "latitude": 16.774559,
+            "longitude": 96.153921
+        },
+        {
+            "index": "12",
+            "stop_name_en": "Sule Myodaw Khan Ma",
+            "stop_name_mm": "ဆူးလေမြို့တော်ခန်းမ",
+            "road": "Sule Pagoda Road, Kyauktada",
+            "latitude": 16.775754,
+            "longitude": 96.158879
+        },
+        {
+            "index": "13",
+            "stop_name_en": "Lan Thone Sae",
+            "stop_name_mm": "လမ်း(၃၀)",
+            "road": "Anawrahta Road, Pabedan",
+            "latitude": 16.776964,
+            "longitude": 96.157234
+        },
+        {
+            "index": "14",
+            "stop_name_en": "Kone Zay Tan",
+            "stop_name_mm": "ကုန်ဈေးတန်း",
+            "road": "Anawrahta Road, Pabedan",
+            "latitude": 16.777003,
+            "longitude": 96.155096
+        },
+        {
+            "index": "15",
+            "stop_name_en": "Latha",
+            "stop_name_mm": "လသာ",
+            "road": "Anawrahta Road, Latha",
+            "latitude": 16.777129,
+            "longitude": 96.151594
+        },
+        {
+            "index": "16",
+            "stop_name_en": "Ayapaw Htana",
+            "stop_name_mm": "အရေးပေါ်ဌာန",
+            "road": "Lanmadaw Road, Lanmadaw",
+            "latitude": 16.778287,
+            "longitude": 96.147773
+        },
+        {
+            "index": "17",
+            "stop_name_en": "Dala Bridge",
+            "stop_name_mm": "ဒလတံတား",
+            "road": "Bo Tayza Road, Dala",
+            "latitude": 16.759573,
+            "longitude": 96.142672
+        },
+        {
+            "index": "18",
+            "stop_name_en": "Nar Yee Sin",
+            "stop_name_mm": "နာရီစင်",
+            "road": "Bo Tayza Road, Dala",
+            "latitude": 16.757598,
+            "longitude": 96.142269
+        },
+        {
+            "index": "19",
+            "stop_name_en": "Saya San",
+            "stop_name_mm": "ဆရာစံ",
+            "road": "Dala-Twante Road, Dala",
+            "latitude": 16.756838,
+            "longitude": 96.145354
+        },
+        {
+            "index": "20",
+            "stop_name_en": "Bogyoke Park",
+            "stop_name_mm": "ဗိုလ်ချုပ်ပန်းခြံ",
+            "road": "Dala-Twante Road, Dala",
+            "latitude": 16.756031,
+            "longitude": 96.148749
+        },
+        {
+            "index": "21",
+            "stop_name_en": "Aung Zeya Zay",
+            "stop_name_mm": "အောင်ဇေယျဈေး",
+            "road": "Dala-Twante Road, Dala",
+            "latitude": 16.756453,
+            "longitude": 96.15189
+        },
+        {
+            "index": "22",
+            "stop_name_en": "Dala Hospital",
+            "stop_name_mm": "ဒလဆေးရုံ",
+            "road": "Dala-Twante Road, Dala",
+            "latitude": 16.757272,
+            "longitude": 96.153437
+        },
+        {
+            "index": "23",
+            "stop_name_en": "Cherry Ferry Terminal",
+            "stop_name_mm": "ချယ်ရီသင်္ဘောဆိပ်",
+            "road": "Dala-Twante Road, Dala",
+            "latitude": 16.760568,
+            "longitude": 96.156077
+        }
+    ]
+}
