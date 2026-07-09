@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { db } from './db';
-import { INITIAL_STOPS, INITIAL_ROUTES, loadRoutesFromFiles } from './data_constants';
+import { loadRoutesFromFiles, loadStopsFromRouteFiles } from './data_constants';
 import { Page, BusStop, BusRoute } from './types';
 import { 
   Bus, 
@@ -896,8 +895,10 @@ const AssistantPage: React.FC<{ onRouteClick: (r: BusRoute) => void }> = ({ onRo
     db.busStops.toArray().then(stops => {
       const names = new Set<string>();
       stops.forEach(s => names.add(s.name_mm));
-      INITIAL_ROUTES.forEach(r => r.stops.forEach(s => names.add(s)));
-      setAllStopNames(Array.from(names));
+      db.busRoutes.toArray().then(routes => {
+        routes.forEach(r => r.stops.forEach(s => names.add(s)));
+        setAllStopNames(Array.from(names));
+      });
     });
   }, []);
 
@@ -1212,6 +1213,7 @@ const StopsPage: React.FC<{ stops: BusStop[], onStopClick: (s: BusStop) => void 
 
 const FindRoutePage: React.FC<{ onRouteClick: (r: BusRoute) => void }> = ({ onRouteClick }) => {
   const [stops, setStops] = useState<BusStop[]>([]);
+  const [routes, setRoutes] = useState<BusRoute[]>([]);
   const [start, setStart] = useState('');
   const [end, setEnd] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
@@ -1221,14 +1223,15 @@ const FindRoutePage: React.FC<{ onRouteClick: (r: BusRoute) => void }> = ({ onRo
 
   useEffect(() => {
     db.busStops.toArray().then(setStops);
+    db.busRoutes.toArray().then(setRoutes);
   }, []);
 
   const allStopNames = useMemo(() => {
     const names = new Set<string>();
     stops.forEach(s => names.add(s.name_mm));
-    INITIAL_ROUTES.forEach(r => r.stops.forEach(s => names.add(s)));
+    routes.forEach(r => r.stops.forEach(s => names.add(s)));
     return Array.from(names).sort((a, b) => a.localeCompare(b, 'my'));
-  }, [stops]);
+  }, [stops, routes]);
 
   const handleUseCurrentLocation = () => {
     if (!navigator.geolocation) {
@@ -1426,10 +1429,17 @@ const SettingsPage: React.FC = () => {
 
   const updateData = async () => {
     setStatus('updating');
+    
+    // Load stops from route files
+    const loadedStops = await loadStopsFromRouteFiles();
     await db.busStops.clear();
+    await db.busStops.bulkAdd(loadedStops);
+    
+    // Load routes from JSON files
+    const loadedRoutes = await loadRoutesFromFiles();
     await db.busRoutes.clear();
-    await db.busStops.bulkAdd(INITIAL_STOPS);
-    await db.busRoutes.bulkAdd(INITIAL_ROUTES);
+    await db.busRoutes.bulkAdd(loadedRoutes);
+    
     setStatus('done');
     setTimeout(() => setStatus('idle'), 2000);
   };
@@ -1553,16 +1563,27 @@ const App: React.FC = () => {
   useEffect(() => {
     const checkData = async () => {
       const stopCount = await db.busStops.count();
-      if (stopCount === 0) {
-        await db.busStops.bulkAdd(INITIAL_STOPS);
-        await db.busRoutes.bulkAdd(INITIAL_ROUTES);
+      const routeCount = await db.busRoutes.count();
+      
+      if (stopCount === 0 || routeCount === 0) {
+        // Load stops from route files
+        const loadedStops = await loadStopsFromRouteFiles();
+        await db.busStops.clear();
+        await db.busStops.bulkAdd(loadedStops);
+        
+        // Load routes from JSON files
+        const loadedRoutes = await loadRoutesFromFiles();
+        await db.busRoutes.clear();
+        await db.busRoutes.bulkAdd(loadedRoutes);
+        
+        setStops(loadedStops);
+        setRoutes(loadedRoutes);
+      } else {
+        const loadedStops = await db.busStops.toArray();
+        const loadedRoutes = await db.busRoutes.toArray();
+        setStops(loadedStops);
+        setRoutes(loadedRoutes);
       }
-      const loadedStops = await db.busStops.toArray();
-      setStops(loadedStops);
-
-      // Load routes from JSON files
-      const loadedRoutes = await loadRoutesFromFiles();
-      setRoutes(loadedRoutes);
 
       setIsInitializing(false);
     };
