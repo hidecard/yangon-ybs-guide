@@ -692,7 +692,12 @@ const RoutesPage: React.FC<{
       });
     }
 
-    return result.slice(0, 50); // Limit results for performance
+    return result.sort((a, b) => {
+      const numA = parseInt(a.id, 10) || 0;
+      const numB = parseInt(b.id, 10) || 0;
+      if (numA !== numB) return numA - numB;
+      return a.id.localeCompare(b.id, 'my');
+    });
   }, [routes, search, stopInfoMap]);
 
   const handleStopClick = (e: React.MouseEvent, stopName: string) => {
@@ -703,7 +708,7 @@ const RoutesPage: React.FC<{
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-5 md:py-8 h-full flex flex-col gap-5">
-      <div className="shrink-0">
+      <div className="shrink-0 space-y-2">
         <div className="relative max-w-xl mx-auto w-full">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
           <input
@@ -714,6 +719,11 @@ const RoutesPage: React.FC<{
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
+        <p className="text-center text-xs text-slate-400">
+          {search.trim()
+            ? `${filtered.length} ခု တွေ့ရှိပါသည်`
+            : `စုစုပေါင်း လိုင်း ${filtered.length} ခု`}
+        </p>
       </div>
       <div className="flex-1 overflow-y-auto pb-20 md:pb-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
