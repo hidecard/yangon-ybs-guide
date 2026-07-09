@@ -215,8 +215,8 @@ const MapSelectionModal: React.FC<{
         <div class="p-1">
           <b class="text-sm">${s.name_mm}</b><br>
           <span class="text-[10px] text-gray-500">${s.township_mm}</span><br>
-          <div class="text-[9px] text-yellow-600 font-bold mb-1">${(s.distance * 1000).toFixed(0)}m away</div>
-          <button id="select-stop-${s.id}" class="w-full bg-yellow-600 text-white text-[10px] px-2 py-1.5 rounded font-bold hover:bg-yellow-700 transition-colors">ရွေးချယ်မည်</button>
+          <div class="text-[9px] text-amber-600 font-semibold mb-1">${(s.distance * 1000).toFixed(0)}m away</div>
+          <button id="select-stop-${s.id}" class="w-full bg-slate-900 text-white text-[10px] px-2 py-1.5 rounded-lg font-medium hover:bg-slate-800 transition-colors">ရွေးချယ်မည်</button>
         </div>
       `, { closeButton: false });
       
@@ -303,73 +303,66 @@ const MapSelectionModal: React.FC<{
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-[100] flex items-end md:items-center justify-center p-0 md:p-4 animate-in fade-in duration-200">
-      <div className="bg-white w-full max-w-2xl rounded-t-3xl md:rounded-3xl h-[90vh] flex flex-col overflow-hidden shadow-2xl relative">
-        <div className="p-4 border-b flex items-center justify-between bg-white shrink-0">
-          <div className="flex flex-col">
-            <h3 className="font-black text-gray-800 text-lg">{title}</h3>
-            <div className="flex items-center space-x-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse"></div>
-              <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">၁ ကီလိုမီတာအတွင်း ရှာဖွေနေပါသည်</p>
-            </div>
+    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-end md:items-center justify-center p-0 md:p-4 animate-fade-in">
+      <div className="bg-white w-full max-w-2xl rounded-t-2xl md:rounded-2xl h-[90vh] flex flex-col overflow-hidden shadow-lg relative">
+        <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
+          <div>
+            <h3 className="font-semibold text-slate-900 text-base">{title}</h3>
+            <p className="text-xs text-slate-400 mt-0.5">၁ ကီလိုမီတာအတွင်း ရှာဖွေနေပါသည်</p>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400">
-            <X size={24} />
+          <button onClick={onClose} className="ui-btn-icon">
+            <X size={18} />
           </button>
         </div>
         
-        <div className="relative flex-1 bg-gray-100">
+        <div className="relative flex-1 bg-slate-100">
           <div id="selection-map" className="w-full h-full"></div>
           <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-[1000]">
-            <div className="relative flex items-center justify-center">
-               <div className="w-8 h-px bg-yellow-500/50 absolute"></div>
-               <div className="h-8 w-px bg-yellow-500/50 absolute"></div>
-            </div>
+            <div className="w-5 h-5 border-2 border-brand rounded-full bg-brand/20"></div>
           </div>
           <button 
             onClick={handleLocate}
             disabled={isLocating}
-            className="absolute bottom-4 right-4 z-[1000] bg-white p-3 rounded-full shadow-xl text-yellow-600 hover:bg-yellow-50 active:scale-95 transition-all border border-gray-100"
+            className="absolute bottom-4 right-4 z-[1000] ui-btn-icon"
           >
-            {isLocating ? <RefreshCw className="animate-spin" size={24} /> : <Locate size={24} />}
+            {isLocating ? <RefreshCw className="animate-spin" size={20} /> : <Locate size={20} />}
           </button>
         </div>
 
-        <div className="bg-gray-50 border-t shrink-0 h-1/3 flex flex-col">
-          <div className="px-4 py-2 border-b bg-white flex items-center justify-between">
-            <span className="text-[11px] font-black text-gray-400 uppercase tracking-widest">အနီးဆုံးမှတ်တိုင်များ ({nearbyStops.length})</span>
-            {nearbyStops.length > 0 && <span className="text-[10px] text-yellow-600 font-bold">List မှ ရွေးနိုင်ပါသည်</span>}
+        <div className="border-t border-slate-100 shrink-0 h-1/3 flex flex-col bg-slate-50">
+          <div className="px-5 py-3 flex items-center justify-between">
+            <span className="ui-label">အနီးဆုံးမှတ်တိုင်များ ({nearbyStops.length})</span>
           </div>
-          <div className="flex-1 overflow-y-auto p-2 space-y-1.5">
+          <div className="flex-1 overflow-y-auto px-3 pb-3 space-y-1.5">
             {nearbyStops.length > 0 ? (
               nearbyStops.map(s => (
               <button
                 key={s.id}
                 onClick={() => onSelect(s)}
-                className="w-full p-2.5 flex items-center space-x-3 hover:bg-yellow-50 border border-gray-50 rounded-lg transition-colors"
+                className="w-full p-3 flex items-center justify-between bg-white hover:bg-slate-50 border border-slate-100 rounded-xl transition-colors"
               >
-                  <div className="flex items-center space-x-3">
-                    <div className="bg-yellow-100 p-2 rounded-lg text-yellow-600 group-hover:bg-yellow-600 group-hover:text-white transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-brand-light p-2 rounded-lg text-brand">
                       <MapPin size={14} />
                     </div>
                     <div className="text-left">
-                      <p className="text-sm font-black text-gray-800">{s.name_mm}</p>
-                      <p className="text-[10px] text-gray-400 font-bold">{s.township_mm}</p>
+                      <p className="text-sm font-medium text-slate-800">{s.name_mm}</p>
+                      <p className="text-xs text-slate-400">{s.township_mm}</p>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-[10px] bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded-full font-black">
+                  <div className="flex items-center gap-2">
+                    <span className="ui-badge ui-badge-accent">
                       {(s.distance * 1000).toFixed(0)}m
                     </span>
-                    <ChevronRight size={14} className="text-gray-300" />
+                    <ChevronRight size={14} className="text-slate-300" />
                   </div>
                 </button>
               ))
             ) : (
-              <div className="h-full flex flex-col items-center justify-center text-gray-400 py-10">
-                <Search size={24} className="mb-2 opacity-20" />
-                <p className="text-[11px] font-bold">ဤနေရာအနီးတွင် မှတ်တိုင်မရှိပါ။</p>
-                <p className="text-[10px]">မြေပုံကို ရွှေ့ကြည့်ပါ</p>
+              <div className="h-full flex flex-col items-center justify-center text-slate-400 py-10">
+                <Search size={24} className="mb-2 opacity-30" />
+                <p className="text-sm font-medium">ဤနေရာအနီးတွင် မှတ်တိုင်မရှိပါ</p>
+                <p className="text-xs mt-1">မြေပုံကို ရွှေ့ကြည့်ပါ</p>
               </div>
             )}
           </div>
@@ -415,7 +408,7 @@ const StopSearchInput: React.FC<{
   return (
     <div className="space-y-2 relative" ref={wrapperRef}>
       <div className="flex items-center justify-between">
-        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center space-x-2">
+        <label className="ui-label flex items-center gap-2">
           <div className={`w-2 h-2 rounded-full ${indicatorColor}`}></div>
           <span>{label}</span>
         </label>
@@ -424,7 +417,7 @@ const StopSearchInput: React.FC<{
       <div className="relative">
         <input 
           type="text"
-          className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500 transition-all text-sm"
+          className="ui-input"
           placeholder={placeholder}
           value={query}
           onChange={(e) => {
@@ -436,11 +429,11 @@ const StopSearchInput: React.FC<{
           onFocus={() => setIsOpen(true)}
         />
         {isOpen && filtered.length > 0 && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-xl z-[80] max-h-60 overflow-y-auto">
+          <div className="absolute top-full left-0 right-0 mt-1.5 bg-white border border-slate-200 rounded-xl shadow-lg z-[80] max-h-60 overflow-y-auto">
             {filtered.map((name, i) => (
               <div 
                 key={i}
-                className="p-3 hover:bg-yellow-50 cursor-pointer text-sm border-b border-gray-50 last:border-0"
+                className="px-4 py-3 hover:bg-slate-50 cursor-pointer text-sm text-slate-700 border-b border-slate-50 last:border-0"
                 onClick={() => {
                   onChange(name);
                   setQuery(name);
@@ -469,18 +462,23 @@ const MobileBottomNav: React.FC = () => {
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around items-center h-16 px-1 z-[1001] md:hidden">
-      {items.map(item => (
-        <button
-          key={item.id}
-          onClick={() => navigate(item.id)}
-          className={`flex flex-col items-center justify-center space-y-0.5 w-full py-1 px-1 min-w-0 ${location.pathname === item.id ? 'text-yellow-600' : 'text-gray-500'}`}
-        >
-          <item.icon size={18} className="mb-0.5" />
-          <span className="text-[9px] font-medium leading-tight truncate">{item.label}</span>
-        </button>
-      ))}
-    </div>
+    <nav className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-lg border-t border-slate-200/80 flex justify-around items-center h-[4.25rem] px-2 z-[1001] md:hidden safe-area-bottom">
+      {items.map(item => {
+        const isActive = location.pathname === item.id;
+        return (
+          <button
+            key={item.id}
+            onClick={() => navigate(item.id)}
+            className={`flex flex-col items-center justify-center gap-0.5 w-full py-1 min-w-0 transition-colors ${isActive ? 'text-brand' : 'text-slate-400'}`}
+          >
+            <div className={`p-1.5 rounded-xl transition-colors ${isActive ? 'bg-brand-light' : ''}`}>
+              <item.icon size={20} strokeWidth={isActive ? 2.5 : 2} />
+            </div>
+            <span className="text-[10px] font-medium leading-tight truncate">{item.label}</span>
+          </button>
+        );
+      })}
+    </nav>
   );
 };
 
@@ -497,31 +495,38 @@ const Header: React.FC = () => {
   ];
 
   return (
-    <header className="bg-yellow-600 text-white sticky top-0 z-40 shadow-md">
-      <div className="max-w-5xl mx-auto px-4 py-3 flex justify-between items-center">
-        <div className="flex items-center space-x-2 cursor-pointer" onClick={() => navigate('/')}>
-          <Bus size={28} />
-          <h1 className="text-xl font-bold tracking-tight">YBS Ai</h1>
-          <span className="text-yellow-600 p-1 rounded bg-white">3.0</span>
-        </div>
+    <header className="bg-white border-b border-slate-200/80 sticky top-0 z-40">
+      <div className="max-w-5xl mx-auto px-4 h-14 flex justify-between items-center">
+        <button className="flex items-center gap-2.5" onClick={() => navigate('/')}>
+          <div className="bg-slate-900 p-2 rounded-xl">
+            <Bus size={18} className="text-white" />
+          </div>
+          <div className="flex items-center gap-2">
+            <h1 className="text-base font-bold text-slate-900 tracking-tight">YBS Guide</h1>
+            <span className="text-[10px] font-semibold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">3.0</span>
+          </div>
+        </button>
 
-        <nav className="hidden md:flex items-center space-x-6">
-          {navItems.map(item => (
-            <button
-              key={item.id}
-              onClick={() => navigate(item.id)}
-              className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors ${
-                location.pathname === item.id ? 'bg-yellow-700' : 'hover:bg-yellow-700'
-              }`}
-            >
-              <item.icon size={16} />
-              <span>{item.label}</span>
-            </button>
-          ))}
+        <nav className="hidden md:flex items-center gap-1">
+          {navItems.map(item => {
+            const isActive = location.pathname === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => navigate(item.id)}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  isActive ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
+                }`}
+              >
+                <item.icon size={16} />
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
         </nav>
 
-        <button onClick={() => navigate('/settings')} className="p-1.5 hover:bg-yellow-700 rounded-full transition-colors">
-          <Settings size={22} />
+        <button onClick={() => navigate('/settings')} className="ui-btn-ghost p-2 rounded-xl">
+          <Settings size={20} />
         </button>
       </div>
     </header>
@@ -532,32 +537,109 @@ const RouteBadge: React.FC<{ routeId: string, color: string, onClick?: () => voi
   <div 
     onClick={onClick}
     style={{ backgroundColor: color }}
-    className={`rounded-xl text-white font-black shadow-md cursor-pointer hover:opacity-90 active:scale-95 transition-all flex items-center justify-center shrink-0 ${size === 'sm' ? 'px-2 py-1 text-[10px] min-w-[40px] h-7' : 'px-4 py-2 text-base min-w-[60px] h-12'}`}
+    className={`rounded-lg text-white font-semibold shadow-sm cursor-pointer hover:opacity-90 active:scale-95 transition-all flex items-center justify-center shrink-0 ${size === 'sm' ? 'px-2.5 py-1 text-xs min-w-[36px] h-7' : 'px-4 py-2 text-sm min-w-[52px] h-10'}`}
   >
     {routeId}
   </div>
 );
 
 const OperatorBadge: React.FC<{ name: string }> = ({ name }) => (
-  <div className="flex items-center space-x-1 bg-yellow-400/10 border border-yellow-400/30 text-yellow-700 px-1.5 py-0.5 rounded text-[10px] font-bold shrink-0">
+  <span className="ui-badge">
     <CreditCard size={10} />
-    <span>{name}</span>
-  </div>
+    {name}
+  </span>
 );
 
-const HomePage: React.FC<{ setPage?: (path: string) => void }> = ({ setPage }) => (
-  <div className="max-w-5xl mx-auto p-4 md:p-8 space-y-6 md:space-y-10">
-    <div className="bg-yellow-100 p-6 md:p-10 rounded-2xl md:rounded-3xl border border-yellow-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
-      <div>
-        <p className="text-yellow-800 md:text-lg mb-6">၁။ ရာသီဥတုအခြေအနေကို အတည်မပြုနိုင်သေးတဲ့အတွက် ခရီးစဉ်အတွက် ကြိုတင်ပြင်ဆင်သွားပါ။ နေပူရင် မျက်နှာသုတ်ပုဝါ၊ ဦးထုပ် ဒါမှမဟုတ် နေကာမျက်မှန် ယူသွားပါ။ မိုးရွာရင် ဒါမှမဟုတ် တိမ်ထူနေရင် ထီးဆောင်သွားဖို့ အကြံပြုလိုပါတယ်။<br />1. Since weather data is unavailable, please prepare accordingly for your trip. If it is sunny, remember to bring a small towel, a hat, or sunglasses to stay comfortable in the heat. If it is rainy or cloudy, carrying an umbrella is highly recommended.<br /><br />၂။ လူကျပ်တဲ့အချိန်တွေမှာ ဘတ်စ်ကားပေါ်မှာ ခိတ်နှိုက်နဲ့ သူခိုးတွေကို အထူးသတိထားကြဖို့ သတိပေးလိုပါတယ်။<br />2. Please be careful of pickpockets and thieves on the bus, especially during crowded times.<br /><br />၃။ ကားစီးရင်း အိပ်ပျော်သွားတတ်တဲ့အတွက် ကိုယ်ဆင်းရမယ့် မှတ်တိုင်ကို မကျော်သွားစေဖို့ ဖုန်းထဲမှာ အချက်ပေးသံ (Alarm) ပေးထားတာမျိုး ဒါမှမဟုတ် ဘေးကလူကို နှိုးပေးဖို့ အကူအညီတောင်းထားတာမျိုး လုပ်ဆောင်နိုင်ပါတယ်။<br />3. You may fall asleep on the bus. To avoid missing your bus stop, you can set an alarm on your phone or ask a fellow passenger to wake you up.<br /><br />၄။ YBS ကတ်အသုံးပြုသူများအတွက် အကြံပြုချက်နှစ်ခုမှာ ကတ်ထဲမှာ ငွေကို ကြိုတင်ဖြည့်ထားရန်နှင့် ကတ်ထဲက လက်ကျန်ငွေကို ပုံမှန်စစ်ဆေးရန်တို့ ဖြစ်ပါတယ်။<br />4. Two proactive tips for YBS card users include topping up your card in advance and checking your balance regularly.</p>
-      </div>
-      <div className="hidden md:block">
-        <Bot size={120} className="text-yellow-500 opacity-20" />
-      </div>
+const TRAVEL_TIPS = [
+  {
+    icon: Info,
+    title: 'ရာသီဥတု ပြင်ဆင်မှု',
+    titleEn: 'Weather Prep',
+    desc: 'နေပူရင် ဦးထုပ်/နေကာမျက်မှန်၊ မိုးရွာရင် ထီးဆောင်သွားပါ။',
+    descEn: 'Bring a hat or sunglasses in sun; carry an umbrella when rainy.',
+  },
+  {
+    icon: User,
+    title: 'လုံခြုံရေး သတိပေးချက်',
+    titleEn: 'Safety',
+    desc: 'လူကျပ်တဲ့အချိန်မှာ ခိတ်နှိုက်နဲ့ သူခိုးတွေကို အထူးသတိထားပါ။',
+    descEn: 'Watch for pickpockets during crowded times on the bus.',
+  },
+  {
+    icon: Navigation,
+    title: 'မှတ်တိုင်မကျော်စေရန်',
+    titleEn: 'Don\'t Miss Your Stop',
+    desc: 'အိပ်ပျော်မသွားအောင် ဖုန်းအချက်ပေးသံ ပေးထားပါ။',
+    descEn: 'Set a phone alarm or ask a fellow passenger to wake you.',
+  },
+  {
+    icon: CreditCard,
+    title: 'YBS ကတ် အကြံပြုချက်',
+    titleEn: 'YBS Card Tips',
+    desc: 'ကတ်ထဲ ငွေကြိုတင်ဖြည့်ပြီး လက်ကျန်ငွေကို ပုံမှန်စစ်ဆေးပါ။',
+    descEn: 'Top up your card in advance and check balance regularly.',
+  },
+];
+
+const HomePage: React.FC = () => {
+  const navigate = useNavigate();
+
+  const quickActions = [
+    { path: '/find-route', icon: Search, label: 'လမ်းကြောင်း ရှာရန်', color: 'bg-slate-900' },
+    { path: '/routes', icon: Bus, label: 'ကားလိုင်းများ', color: 'bg-brand' },
+    { path: '/map', icon: MapIcon, label: 'မြေပုံ', color: 'bg-emerald-600' },
+    { path: '/assistant', icon: MessageSquare, label: 'Assistant', color: 'bg-violet-600' },
+  ];
+
+  return (
+    <div className="max-w-5xl mx-auto px-4 py-6 md:py-10 space-y-8 pb-24 md:pb-10">
+      {/* Hero */}
+      <section className="text-center space-y-3 pt-2">
+        <h2 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
+          ရန်ကုန် YBS လမ်းညွှန်
+        </h2>
+        <p className="text-slate-500 text-sm md:text-base max-w-md mx-auto">
+          ကားလိုင်းရှာဖွေခြင်း၊ လမ်းကြောင်းရှာခြင်းနှင့် မြေပုံကြည့်ရှုခြင်း — အားလုံးတစ်နေရာတည်း
+        </p>
+      </section>
+
+      {/* Quick Actions */}
+      <section className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {quickActions.map(action => (
+          <button
+            key={action.path}
+            onClick={() => navigate(action.path)}
+            className="ui-card ui-card-interactive p-4 flex flex-col items-center gap-3 text-center"
+          >
+            <div className={`${action.color} p-3 rounded-xl text-white`}>
+              <action.icon size={22} />
+            </div>
+            <span className="text-sm font-semibold text-slate-800">{action.label}</span>
+          </button>
+        ))}
+      </section>
+
+      {/* Travel Tips */}
+      <section className="space-y-4">
+        <h3 className="ui-section-title">ခရီးသွားရန် အကြံပြုချက်များ</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {TRAVEL_TIPS.map((tip, i) => (
+            <div key={i} className="ui-card p-4 flex gap-4">
+              <div className="bg-slate-100 p-2.5 rounded-xl h-fit shrink-0">
+                <tip.icon size={18} className="text-slate-600" />
+              </div>
+              <div className="space-y-1 min-w-0">
+                <p className="font-semibold text-slate-800 text-sm">{tip.title}</p>
+                <p className="text-xs text-slate-500 leading-relaxed">{tip.desc}</p>
+                <p className="text-xs text-slate-400 leading-relaxed">{tip.descEn}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
-
-  </div>
-);
+  );
+};
 
 const RoutesPage: React.FC<{
   onRouteClick: (r: BusRoute) => void,
@@ -620,93 +702,70 @@ const RoutesPage: React.FC<{
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-3 sm:p-4 md:p-8 h-full flex flex-col space-y-4 sm:space-y-6">
+    <div className="max-w-5xl mx-auto px-4 py-5 md:py-8 h-full flex flex-col gap-5">
       <div className="shrink-0">
         <div className="relative max-w-xl mx-auto w-full">
-          <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
           <input
             type="text"
             placeholder="ကားလိုင်း သို့မဟုတ် မှတ်တိုင် ရှာဖွေပါ..."
-            className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-3 sm:py-4 rounded-xl sm:rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 bg-white shadow-sm text-sm sm:text-base md:text-lg"
+            className="ui-input pl-11 text-sm md:text-base"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
       </div>
-      <div className="flex-1 overflow-y-auto pb-20 sm:pb-24 md:pb-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
-          {filtered.map(route => {
-            const startStop = route.stops[0];
-            const endStop = route.stops[route.stops.length - 1];
-            const startTownship = stopInfoMap.get(startStop)?.township || "";
-            const endTownship = stopInfoMap.get(endStop)?.township || "";
-
-            return (
+      <div className="flex-1 overflow-y-auto pb-20 md:pb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {filtered.map(route => (
               <div 
                 key={route.id} 
                 onClick={() => onRouteClick(route)}
-                className="bg-white p-2 rounded-2xl border border-gray-100 shadow-sm flex flex-col space-y-4 cursor-pointer hover:shadow-md hover:border-yellow-100 transition-all border-l-4 group/card"
+                className="ui-card ui-card-interactive p-4 flex flex-col gap-3 cursor-pointer border-l-[3px]"
                 style={{ borderLeftColor: route.color }}
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center space-x-4 overflow-hidden flex-1">
-                    {/* <RouteBadge routeId={route.id} color={route.color} /> */}
-                    <div className="flex flex-col overflow-hidden">
-                       <div className="text-[17px] md:text-[19px] font-black text-gray-900 leading-tight flex items-center flex-wrap gap-x-2">
-                         {/* <span
-                          className="text-yellow-600 hover:text-yellow-800 hover:underline transition-all"
-                          onClick={(e) => handleStopClick(e, startStop)}
-                         >
-                           {startStop}  
-                         </span> */}
-                         {/* <ArrowRight size={16} className="text-gray-300 shrink-0" />
-                         <span
-                          className="text-yellow-600 hover:text-yellow-800 hover:underline transition-all"
-                          onClick={(e) => handleStopClick(e, endStop)}
-                         >
-                           {endStop}
-                         </span> */}
-                       </div>
-                       <div className="flex flex-wrap items-center gap-2 mt-2">
-                          {/* <div className="text-[12px] font-bold text-gray-400 flex items-center space-x-1 truncate">
-                            <MapPin size={12} className="shrink-0" />
-                            <span className="truncate">{startTownship || 'N/A'} - {endTownship || 'N/A'}</span>
-                          </div> */}
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <RouteBadge routeId={route.id} color={route.color} size="sm" />
+                    <div className="min-w-0">
+                       <div className="flex flex-wrap items-center gap-2">
                           {route.line_name && (
-                            <div className="text-[11px] font-black text-yellow-700 bg-yellow-50 px-2 py-1 rounded-lg border border-yellow-100 truncate max-w-[220px]">
+                            <span className="text-sm font-medium text-slate-800 truncate">
                               {route.line_name}
-                            </div>
+                            </span>
                           )}
                           {route.operator && <OperatorBadge name={route.operator} />}
                        </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center space-x-2 shrink-0">
+                  <div className="flex items-center gap-1.5 shrink-0">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         onToggleFavorite(route.id);
                       }}
-                      className={`p-2 rounded-full transition-colors ${
+                      className={`p-2 rounded-lg transition-colors ${
                         favorites.has(route.id)
-                          ? 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200'
-                          : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
+                          ? 'bg-brand-light text-brand'
+                          : 'text-slate-300 hover:text-slate-500 hover:bg-slate-50'
                       }`}
                     >
                       <Star size={16} className={favorites.has(route.id) ? 'fill-current' : ''} />
                     </button>
-                    <div className="bg-gray-50 px-2 py-1.5 rounded-lg flex items-center space-x-1 border border-gray-100">
-                      <Hash size={12} className="text-gray-400" />
-                      <span className="text-[12px] font-black text-gray-600">{route.stops.length}</span>
-                    </div>
+                    <span className="ui-badge">
+                      <Hash size={10} />
+                      {route.stops.length}
+                    </span>
                   </div>
                 </div>
               </div>
-            );
-          })}
+          ))}
           {filtered.length === 0 && (
-             <div className="text-center py-20 text-gray-400 col-span-full">ရှာဖွေမှု မတွေ့ရှိပါ။</div>
+             <div className="text-center py-16 text-slate-400 col-span-full">
+               <Search size={32} className="mx-auto mb-3 opacity-30" />
+               <p className="font-medium">ရှာဖွေမှု မတွေ့ရှိပါ</p>
+             </div>
           )}
         </div>
       </div>
@@ -788,7 +847,7 @@ const MapPage: React.FC<{ stops: BusStop[], routes: BusRoute[], onStopClick: (s:
         <div class="p-2 min-w-[120px]">
           <div class="font-black text-gray-900 text-sm mb-0.5">${s.name_mm}</div>
           <div class="text-[10px] text-gray-500 font-bold uppercase mb-2">${s.township_mm}</div>
-          <button id="detail-btn-${s.id}" class="w-full bg-yellow-600 text-white text-[10px] py-1.5 rounded font-black hover:bg-yellow-700 transition-all">အသေးစိတ်ကြည့်မည်</button>
+          <button id="detail-btn-${s.id}" class="w-full bg-slate-900 text-white text-[10px] py-1.5 rounded-lg font-medium hover:bg-slate-800 transition-all">အသေးစိတ်ကြည့်မည်</button>
         </div>
       `, { closeButton: false });
 
@@ -826,39 +885,39 @@ const MapPage: React.FC<{ stops: BusStop[], routes: BusRoute[], onStopClick: (s:
   };
 
   return (
-    <div className="relative w-full h-full bg-gray-100 overflow-hidden flex flex-col">
-      <div ref={mapContainerRef} className="flex-1 w-full bg-gray-200"></div>
+    <div className="relative w-full h-full bg-slate-100 overflow-hidden flex flex-col">
+      <div ref={mapContainerRef} className="flex-1 w-full bg-slate-200"></div>
 
       <div className="absolute top-3 sm:top-4 left-3 sm:left-4 right-3 sm:right-4 md:left-auto md:w-80 md:right-4 z-[1000] space-y-2">
         <div className="relative">
           <input
             type="text"
             placeholder="မှတ်တိုင်အမည်ဖြင့် ရှာရန်..."
-            className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2.5 sm:py-3 bg-white rounded-xl sm:rounded-2xl shadow-2xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 text-xs sm:text-sm font-medium"
+            className="ui-input pl-10 shadow-md text-sm"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onFocus={() => setShowSearch(true)}
           />
-          <Search className="absolute left-3 sm:left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
           {search && (
-            <button onClick={() => setSearch('')} className="absolute right-3 sm:right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+            <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
               <X size={16} />
             </button>
           )}
         </div>
 
         {showSearch && filteredStops.length > 0 && (
-          <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl border border-gray-100 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 max-h-[50vh] sm:max-h-[60vh] overflow-y-auto no-scrollbar">
+          <div className="bg-white rounded-xl shadow-lg border border-slate-100 overflow-hidden animate-slide-up max-h-[50vh] sm:max-h-[60vh] overflow-y-auto no-scrollbar">
             {filteredStops.map(s => (
               <button
                 key={s.id}
                 onClick={() => jumpToStop(s)}
-                className="w-full p-2.5 sm:p-3 flex items-center space-x-2.5 sm:space-x-3 hover:bg-yellow-50 border-b border-gray-50 last:border-0 text-left transition-colors"
+                className="w-full p-3 flex items-center gap-3 hover:bg-slate-50 border-b border-slate-50 last:border-0 text-left transition-colors"
               >
-                <div className="bg-yellow-100 p-1.5 rounded-lg text-yellow-600"><MapPin size={12} className="sm:w-3.5 sm:h-3.5" /></div>
+                <div className="bg-brand-light p-1.5 rounded-lg text-brand"><MapPin size={14} /></div>
                 <div>
-                  <div className="text-xs sm:text-sm font-bold text-gray-800">{s.name_mm}</div>
-                  <div className="text-[9px] sm:text-[10px] text-gray-400 font-bold">{s.township_mm}</div>
+                  <div className="text-sm font-medium text-slate-800">{s.name_mm}</div>
+                  <div className="text-xs text-slate-400">{s.township_mm}</div>
                 </div>
               </button>
             ))}
@@ -866,13 +925,13 @@ const MapPage: React.FC<{ stops: BusStop[], routes: BusRoute[], onStopClick: (s:
         )}
       </div>
 
-      <div className="absolute bottom-20 sm:bottom-24 right-3 sm:right-4 z-[1000] flex flex-col space-y-3">
+      <div className="absolute bottom-20 sm:bottom-24 right-3 sm:right-4 z-[1000]">
         <button
           onClick={handleLocate}
           disabled={isLocating}
-          className="bg-white p-3 sm:p-3.5 rounded-full shadow-2xl text-yellow-600 border border-gray-100 hover:bg-yellow-50 active:scale-90 transition-all"
+          className="ui-btn-icon"
         >
-          {isLocating ? <RefreshCw className="animate-spin w-5 h-5 sm:w-5.5 sm:h-5.5" size={20} /> : <Locate className="w-5 h-5 sm:w-5.5 sm:h-5.5" size={20} />}
+          {isLocating ? <RefreshCw className="animate-spin" size={20} /> : <Locate size={20} />}
         </button>
       </div>
     </div>
@@ -939,63 +998,51 @@ const AssistantPage: React.FC<{ onRouteClick: (r: BusRoute) => void; routes: Bus
   };
 
   return (
-    <div className="max-w-3xl mx-auto h-full flex flex-col bg-white md:shadow-2xl md:my-4 md:rounded-3xl overflow-hidden">
-      {/* <div className="bg-yellow-600 p-4 flex items-center space-x-3 shrink-0">
-        <div className="bg-white/20 p-2 rounded-xl">
-           <Bot className="text-white" size={24} />
-        </div>
-        <div>
-          <h2 className="text-white font-bold">YBS Smart Assistant</h2>
-          <div className="flex items-center space-x-1">
-            <div className="w-1.5 h-1.5 rounded-full bg-green-400"></div>
-          </div>
-        </div>
-      </div> */}
-
-      <div className="flex-1 overflow-y-auto p-4 space-y-6 bg-slate-50/50 pb-20 md:pb-4">
+    <div className="max-w-3xl mx-auto h-full flex flex-col bg-white md:shadow-lg md:my-4 md:rounded-2xl overflow-hidden border border-slate-100">
+      <div className="flex-1 overflow-y-auto p-4 space-y-5 bg-slate-50 pb-20 md:pb-4">
         {messages.map((m, i) => (
           <div key={i} className={`flex flex-col ${m.role === 'user' ? 'items-end' : 'items-start'}`}>
-            <div className="flex items-end space-x-2 max-w-[90%]">
+            <div className="flex items-end gap-2 max-w-[90%]">
               {m.role === 'assistant' && (
-                <div className="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center shrink-0 mb-1">
-                  <Bot size={18} className="text-yellow-600" />
+                <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center shrink-0 mb-1">
+                  <Bot size={16} className="text-white" />
                 </div>
               )}
-              <div className={`p-4 rounded-2xl text-sm leading-relaxed shadow-sm ${
-                m.role === 'user' ? 'bg-yellow-600 text-white rounded-tr-none' : 'bg-white text-gray-800 rounded-tl-none border border-gray-100'
+              <div className={`px-4 py-3 rounded-2xl text-sm leading-relaxed ${
+                m.role === 'user' ? 'bg-slate-900 text-white rounded-br-md' : 'bg-white text-slate-700 rounded-bl-md border border-slate-100 shadow-sm'
               }`}>
                 {m.content}
               </div>
               {m.role === 'user' && (
-                <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center shrink-0 mb-1">
-                  <User size={18} className="text-gray-500" />
+                <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center shrink-0 mb-1">
+                  <User size={16} className="text-slate-500" />
                 </div>
               )}
             </div>
             {m.results && (
-              <div className="w-full mt-4 space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-500">
+              <div className="w-full mt-3 space-y-2.5 animate-slide-up">
                 {m.results.map((res, idx) => (
-                  <div key={idx} className="bg-white border border-yellow-100 p-4 rounded-2xl space-y-4 shadow-sm ml-10">
+                  <div key={idx} className="ui-card p-4 space-y-3 ml-10">
                     <div className="flex items-center justify-between">
                        <div className="flex gap-2">
                          {res.steps.map((step, sidx) => (
                            <RouteBadge key={sidx} routeId={step.route.id} color={step.route.color} size="sm" onClick={() => onRouteClick(step.route)} />
                          ))}
                        </div>
-                       <span className="text-[10px] font-black bg-yellow-50 text-yellow-600 px-2 py-0.5 rounded-full uppercase">
+                       <span className="ui-badge ui-badge-accent">
                          {res.transferCount === 0 ? 'တိုက်ရိုက်' : `${res.transferCount} ဆင့်ပြောင်း`}
                        </span>
                     </div>
-                    <div className="space-y-3">
+                    <div className="space-y-2.5">
                       {res.steps.map((step, sidx) => (
-                        <div key={sidx} className="flex items-start space-x-3 text-[13px]">
-                          <div className="flex flex-col items-center mt-1">
+                        <div key={sidx} className="flex items-start gap-3 text-sm">
+                          <div className="flex flex-col items-center mt-1.5">
                              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: step.route.color }}></div>
-                             {sidx < res.steps.length - 1 && <div className="w-0.5 h-8 bg-gray-100"></div>}
+                             {sidx < res.steps.length - 1 && <div className="w-px h-6 bg-slate-200"></div>}
                           </div>
                           <div className="flex-1">
-                            <p className="font-black text-gray-800">YBS {step.route.id}</p>
-                            <p className="text-gray-500">{step.fromStop} <span className="text-gray-300 mx-1">→</span> {step.toStop}</p>
+                            <p className="font-medium text-slate-800">YBS {step.route.id}</p>
+                            <p className="text-slate-500 text-xs mt-0.5">{step.fromStop} → {step.toStop}</p>
                           </div>
                         </div>
                       ))}
@@ -1007,26 +1054,26 @@ const AssistantPage: React.FC<{ onRouteClick: (r: BusRoute) => void; routes: Bus
           </div>
         ))}
         {isTyping && (
-          <div className="flex items-start space-x-2">
-             <div className="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center shrink-0">
-               <Bot size={18} className="text-yellow-600" />
+          <div className="flex items-start gap-2">
+             <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center shrink-0">
+               <Bot size={16} className="text-white" />
              </div>
-             <div className="bg-white p-4 rounded-2xl rounded-tl-none border border-gray-200 flex items-center space-x-1.5 shadow-sm">
-                <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full animate-bounce"></div>
-                <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+             <div className="bg-white px-4 py-3 rounded-2xl rounded-bl-md border border-slate-100 flex items-center gap-1.5 shadow-sm">
+                <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"></div>
+                <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
              </div>
           </div>
         )}
         <div ref={chatEndRef}></div>
       </div>
 
-      <div className="p-4 border-t bg-gray-50 shrink-0 pb-20 md:pb-4">
-        <div className="relative flex items-center space-x-2">
+      <div className="p-4 border-t border-slate-100 bg-white shrink-0 pb-20 md:pb-4">
+        <div className="flex items-center gap-2">
           <input 
             type="text" 
             placeholder="ဥပမာ- ဆူးလေကနေ လှည်းတန်းကို ဘယ်လိုသွားရမလဲ"
-            className="flex-1 p-4 bg-white rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 shadow-sm text-sm"
+            className="ui-input flex-1"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
@@ -1034,9 +1081,9 @@ const AssistantPage: React.FC<{ onRouteClick: (r: BusRoute) => void; routes: Bus
           <button 
             onClick={handleSend}
             disabled={!input.trim() || isTyping}
-            className="p-4 bg-yellow-600 text-white rounded-2xl shadow-lg hover:bg-yellow-700 active:scale-95 transition-all disabled:opacity-50"
+            className="ui-btn ui-btn-primary p-3 rounded-xl disabled:opacity-50"
           >
-            <Send size={20} />
+            <Send size={18} />
           </button>
         </div>
       </div>
@@ -1066,23 +1113,23 @@ const StopDetailPage: React.FC<{ stop: BusStop, onClose: () => void }> = ({ stop
   }, [stop]);
 
   return (
-    <div className="fixed inset-0 z-[60] flex md:items-center justify-center md:p-8 overflow-hidden bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white w-full h-full md:max-w-2xl md:h-auto md:max-h-[90vh] flex flex-col md:rounded-3xl md:shadow-2xl overflow-hidden animate-in slide-in-from-bottom-10 duration-300">
-        <div className="p-4 flex items-center justify-between border-b border-gray-100 shrink-0">
-          <h3 className="text-lg font-bold truncate">{stop.name_mm} ({stop.name_en})</h3>
-          <button onClick={onClose} className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors"><X size={20}/></button>
+    <div className="fixed inset-0 z-[60] flex md:items-center justify-center md:p-8 overflow-hidden bg-slate-900/40 backdrop-blur-sm animate-fade-in">
+      <div className="bg-white w-full h-full md:max-w-2xl md:h-auto md:max-h-[90vh] flex flex-col md:rounded-2xl md:shadow-lg overflow-hidden animate-slide-up">
+        <div className="px-5 py-4 flex items-center justify-between border-b border-slate-100 shrink-0">
+          <h3 className="text-base font-semibold truncate text-slate-900">{stop.name_mm}</h3>
+          <button onClick={onClose} className="ui-btn-icon"><X size={18}/></button>
         </div>
-        <div id="stop-map" className="w-full h-64 md:h-80 bg-gray-200 shrink-0"></div>
-        <div className="p-6 flex-1 overflow-y-auto space-y-8 pb-24 md:pb-8">
+        <div id="stop-map" className="w-full h-64 md:h-72 bg-slate-100 shrink-0"></div>
+        <div className="p-5 flex-1 overflow-y-auto space-y-6 pb-24 md:pb-6">
           <div className="space-y-1">
-            <p className="text-xs text-gray-400 uppercase tracking-widest font-black">တည်နေရာ</p>
-            <p className="text-gray-800 text-lg md:text-xl font-medium leading-relaxed">{stop.road_mm}၊ {stop.township_mm}</p>
+            <p className="ui-label">တည်နေရာ</p>
+            <p className="text-slate-800 font-medium">{stop.road_mm}၊ {stop.township_mm}</p>
           </div>
-          <div className="space-y-4">
-            <p className="text-xs text-gray-400 uppercase tracking-widest font-black">ဖြတ်သန်းသွားသော လိုင်းများ ({passingRoutes.length})</p>
-            <div className="flex flex-wrap gap-4">
+          <div className="space-y-3">
+            <p className="ui-label">ဖြတ်သန်းသွားသော လိုင်းများ ({passingRoutes.length})</p>
+            <div className="flex flex-wrap gap-2">
               {passingRoutes.map(r => (
-                <div key={r.id} className="flex flex-col items-center space-y-1.5 bg-gray-50 p-3 rounded-2xl border border-gray-100 min-w-[80px] hover:bg-yellow-50 transition-colors cursor-pointer group" onClick={() => {}}>
+                <div key={r.id} className="flex flex-col items-center gap-1.5 bg-slate-50 p-3 rounded-xl border border-slate-100 min-w-[72px]">
                   <RouteBadge routeId={r.id} color={r.color} size="sm" />
                   {r.operator && <OperatorBadge name={r.operator} />}
                 </div>
@@ -1097,48 +1144,46 @@ const StopDetailPage: React.FC<{ stop: BusStop, onClose: () => void }> = ({ stop
 
 const RouteDetailPage: React.FC<{ route: BusRoute, onClose: () => void, onStopClick: (s: BusStop) => void }> = ({ route, onClose, onStopClick }) => {
   return (
-    <div className="fixed inset-0 z-[60] flex md:items-center justify-center md:p-8 overflow-hidden bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white w-full h-full md:max-w-2xl md:h-[90vh] flex flex-col md:rounded-3xl md:shadow-2xl overflow-hidden animate-in slide-in-from-bottom-10 duration-300">
-        <div className="p-4 flex items-center border-b border-gray-100 space-x-4 shrink-0">
-          <button onClick={onClose} className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"><ChevronRight className="rotate-180" size={20}/></button>
-          <div className="flex items-center space-x-3">
-             <RouteBadge routeId={route.id} color={route.color} size="sm" />
-             {route.operator && <OperatorBadge name={route.operator} />}
-             <h3 className="font-bold text-gray-800">လမ်းကြောင်းအသေးစိတ်</h3>
-          </div>
+    <div className="fixed inset-0 z-[60] flex md:items-center justify-center md:p-8 overflow-hidden bg-slate-900/40 backdrop-blur-sm animate-fade-in">
+      <div className="bg-white w-full h-full md:max-w-2xl md:h-[90vh] flex flex-col md:rounded-2xl md:shadow-lg overflow-hidden animate-slide-up">
+        <div className="px-5 py-4 flex items-center gap-3 border-b border-slate-100 shrink-0">
+          <button onClick={onClose} className="ui-btn-icon"><ChevronRight className="rotate-180" size={18}/></button>
+          <RouteBadge routeId={route.id} color={route.color} size="sm" />
+          {route.operator && <OperatorBadge name={route.operator} />}
+          <h3 className="font-semibold text-slate-800 text-sm">လမ်းကြောင်းအသေးစိတ်</h3>
         </div>
         
-        <div className="p-6 flex-1 overflow-y-auto space-y-6 pb-24 md:pb-10 bg-white">
-           <div className="flex items-center justify-between border-b border-gray-50 pb-4">
+        <div className="p-5 flex-1 overflow-y-auto space-y-5 pb-24 md:pb-8">
+           <div className="flex items-center justify-between pb-4 border-b border-slate-100">
              <div>
-               <h4 className="text-xs text-gray-400 font-black uppercase tracking-widest">စုစုပေါင်းမှတ်တိုင်</h4>
-               <p className="text-3xl font-black text-gray-900">{route.stops.length} ခု</p>
+               <p className="ui-label">စုစုပေါင်းမှတ်တိုင်</p>
+               <p className="text-2xl font-bold text-slate-900">{route.stops.length}</p>
              </div>
-             <div className="flex flex-col items-end text-sm font-bold text-gray-400">
-               <span className="text-gray-900 font-black text-right">{route.stops[0]}</span>
-               <div className="h-6 w-px bg-gray-200 my-1.5 mr-4"></div>
-               <span className="text-gray-900 font-black text-right">{route.stops[route.stops.length-1]}</span>
+             <div className="flex flex-col items-end text-sm">
+               <span className="text-slate-800 font-medium text-right">{route.stops[0]}</span>
+               <div className="h-4 w-px bg-slate-200 my-1 mr-2"></div>
+               <span className="text-slate-800 font-medium text-right">{route.stops[route.stops.length-1]}</span>
              </div>
            </div>
            
            <div className="space-y-1">
-             <p className="text-xs text-gray-400 font-black uppercase tracking-widest mb-4">မှတ်တိုင်စာရင်း (တည်နေရာကြည့်ရန် နှိပ်ပါ)</p>
-             <div className="space-y-0.5">
+             <p className="ui-label mb-3">မှတ်တိုင်စာရင်း</p>
+             <div>
                {route.stops.map((sName, idx) => (
                  <div 
                     key={idx} 
-                    className="flex items-start space-x-4 group cursor-pointer"
+                    className="flex items-start gap-3 group cursor-pointer"
                     onClick={() => {
                        db.busStops.where('name_mm').equals(sName).first().then(s => s && onStopClick(s));
                     }}
                  >
-                   <div className="flex flex-col items-center mt-1.5 shrink-0">
-                      <div className={`w-3.5 h-3.5 rounded-full border-2 border-white shadow-sm ${idx === 0 || idx === route.stops.length-1 ? 'scale-125 ring-2 ring-offset-1' : ''}`} style={{ backgroundColor: route.color }}></div>
-                      <div className="w-0.5 h-12 bg-gray-100 group-last:bg-transparent"></div>
+                   <div className="flex flex-col items-center mt-2 shrink-0">
+                      <div className={`w-2.5 h-2.5 rounded-full ${idx === 0 || idx === route.stops.length-1 ? 'ring-2 ring-offset-1 ring-slate-200' : ''}`} style={{ backgroundColor: route.color }}></div>
+                      {idx < route.stops.length - 1 && <div className="w-px h-10 bg-slate-100"></div>}
                    </div>
-                   <div className="pb-4 border-b border-gray-50 w-full group-hover:bg-yellow-50 transition-all rounded-xl px-3 -ml-2 flex items-center justify-between">
-                     <span className="text-[17px] font-bold text-gray-700 group-hover:text-yellow-700">{sName}</span>
-                     <MapIcon size={16} className="text-gray-300 group-hover:text-yellow-500 opacity-0 group-hover:opacity-100 transition-all" />
+                   <div className="pb-3 w-full group-hover:bg-slate-50 transition-colors rounded-lg px-2 -ml-1 flex items-center justify-between">
+                     <span className="text-sm font-medium text-slate-700 group-hover:text-slate-900">{sName}</span>
+                     <MapIcon size={14} className="text-slate-300 group-hover:text-brand opacity-0 group-hover:opacity-100 transition-all" />
                    </div>
                  </div>
                ))}
@@ -1165,39 +1210,42 @@ const StopsPage: React.FC<{ stops: BusStop[], onStopClick: (s: BusStop) => void 
   });
 
   return (
-    <div className="max-w-5xl mx-auto p-4 md:p-8 h-full flex flex-col space-y-6">
+    <div className="max-w-5xl mx-auto px-4 py-5 md:py-8 h-full flex flex-col gap-5">
       <div className="relative shrink-0 max-w-xl mx-auto w-full">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
         <input 
           type="text" 
           placeholder="မှတ်တိုင်ရှာရန်..." 
-          className="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-200 md:text-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 shadow-sm"
+          className="ui-input pl-11"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
       <div className="flex-1 overflow-y-auto pb-24 md:pb-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {filtered.map(s => (
             <div 
               key={s.id} 
               onClick={() => onStopClick(s)} 
-              className="p-5 bg-white rounded-2xl border border-gray-100 shadow-sm cursor-pointer hover:shadow-md hover:border-yellow-100 hover:bg-gray-50 transition-all flex items-center justify-between group"
+              className="ui-card ui-card-interactive p-4 flex items-center justify-between cursor-pointer group"
             >
-              <div className="flex items-center space-x-4">
-                <div className="bg-yellow-50 p-2.5 rounded-full text-yellow-500 group-hover:bg-yellow-500 group-hover:text-white transition-colors">
-                  <MapPin size={20} />
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="bg-slate-100 p-2 rounded-xl text-slate-500 group-hover:bg-brand-light group-hover:text-brand transition-colors">
+                  <MapPin size={18} />
                 </div>
-                <div>
-                  <p className="font-bold text-gray-800 text-lg">{s.name_mm}</p>
-                  <p className="text-sm text-gray-400 font-medium">{s.township_mm}</p>
+                <div className="min-w-0">
+                  <p className="font-medium text-slate-800 truncate">{s.name_mm}</p>
+                  <p className="text-xs text-slate-400">{s.township_mm}</p>
                 </div>
               </div>
-              <ChevronRight className="text-gray-300 group-hover:text-yellow-500 transition-colors" size={20} />
+              <ChevronRight className="text-slate-300 group-hover:text-brand transition-colors shrink-0" size={18} />
             </div>
           ))}
           {filtered.length === 0 && (
-             <div className="text-center py-20 text-gray-400 col-span-full">မှတ်တိုင် မတွေ့ပါ။</div>
+             <div className="text-center py-16 text-slate-400 col-span-full">
+               <MapPin size={32} className="mx-auto mb-3 opacity-30" />
+               <p className="font-medium">မှတ်တိုင် မတွေ့ပါ</p>
+             </div>
           )}
         </div>
       </div>
@@ -1280,42 +1328,42 @@ const FindRoutePage: React.FC<{ onRouteClick: (r: BusRoute) => void; routes: Bus
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-4 md:p-8 h-full overflow-y-auto pb-24 md:pb-12 space-y-8">
-      <div className="bg-white p-6 md:p-10 rounded-3xl border border-gray-200 shadow-xl space-y-6 max-w-3xl mx-auto">
-        <div className="grid grid-cols-1 gap-6">
+    <div className="max-w-5xl mx-auto px-4 py-5 md:py-8 h-full overflow-y-auto pb-24 md:pb-12 space-y-6">
+      <div className="ui-card p-5 md:p-8 space-y-5 max-w-3xl mx-auto">
+        <div className="space-y-4">
           <StopSearchInput 
             label="စတင်မည့်မှတ်တိုင်"
             value={start}
             onChange={setStart}
             allNames={allStopNames}
             placeholder="ရှာရန်..."
-            indicatorColor="bg-green-500"
+            indicatorColor="bg-emerald-500"
             icon={
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center gap-1.5">
                 <button 
                   onClick={handleUseCurrentLocation}
                   disabled={locating}
-                  className="p-2 text-yellow-600 bg-yellow-50 hover:bg-yellow-100 rounded-lg transition-colors flex items-center space-x-1.5"
+                  className="ui-btn-ghost p-2 rounded-lg flex items-center gap-1.5 text-brand"
                 >
-                  {locating ? <RefreshCw className="animate-spin" size={16} /> : <Crosshair size={16} />}
-                  <span className="text-xs font-bold uppercase tracking-wider">Near Me</span>
+                  {locating ? <RefreshCw className="animate-spin" size={14} /> : <Crosshair size={14} />}
+                  <span className="text-xs font-medium">Near Me</span>
                 </button>
                 <button 
                   onClick={() => setMapPickerTarget('start')}
-                  className="p-2 text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="ui-btn-icon p-2"
                 >
-                  <MapIcon size={16} />
+                  <MapIcon size={14} />
                 </button>
               </div>
             }
           />
 
-          <div className="flex justify-center -my-3 md:-my-4 relative z-10">
+          <div className="flex justify-center -my-2 relative z-10">
             <button 
               onClick={handleSwap}
-              className="bg-white p-2.5 md:p-3 rounded-full border border-gray-200 shadow-lg text-yellow-600 hover:bg-yellow-50 active:scale-90 transition-all"
+              className="ui-btn-icon bg-white"
             >
-              <ArrowRightLeft size={24} className="rotate-90 md:rotate-0" />
+              <ArrowRightLeft size={18} className="rotate-90 md:rotate-0" />
             </button>
           </div>
 
@@ -1325,13 +1373,13 @@ const FindRoutePage: React.FC<{ onRouteClick: (r: BusRoute) => void; routes: Bus
             onChange={setEnd}
             allNames={allStopNames}
             placeholder="ရှာရန်..."
-            indicatorColor="bg-red-500"
+            indicatorColor="bg-rose-500"
             icon={
               <button 
                 onClick={() => setMapPickerTarget('end')}
-                className="p-2 text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+                className="ui-btn-icon p-2"
               >
-                <MapIcon size={16} />
+                <MapIcon size={14} />
               </button>
             }
           />
@@ -1340,9 +1388,9 @@ const FindRoutePage: React.FC<{ onRouteClick: (r: BusRoute) => void; routes: Bus
         <button 
           onClick={handleSearch}
           disabled={!start || !end || searching}
-          className="w-full bg-yellow-600 text-white font-black text-lg py-5 rounded-2xl shadow-xl hover:bg-yellow-700 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center space-x-3"
+          className="ui-btn ui-btn-primary w-full py-3.5 text-base rounded-xl disabled:opacity-50"
         >
-          {searching ? <RefreshCw className="animate-spin" size={24} /> : <Search size={24} />}
+          {searching ? <RefreshCw className="animate-spin" size={20} /> : <Search size={20} />}
           <span>{searching ? 'ရှာဖွေနေပါသည်...' : 'လမ်းကြောင်းရှာပါ'}</span>
         </button>
       </div>
@@ -1356,42 +1404,42 @@ const FindRoutePage: React.FC<{ onRouteClick: (r: BusRoute) => void; routes: Bus
         />
       )}
 
-      <div className="space-y-6 max-w-4xl mx-auto">
+      <div className="space-y-4 max-w-4xl mx-auto">
         {results.length > 0 && results.map((res, i) => (
-          <div key={i} className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-6 hover:shadow-md transition-all">
-            <div className="flex items-center justify-between">
-               <div className="flex items-center space-x-3 overflow-x-auto pb-1 no-scrollbar">
+          <div key={i} className="ui-card p-5 space-y-4">
+            <div className="flex items-center justify-between gap-3">
+               <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
                   {res.steps.map((step, idx) => (
                     <React.Fragment key={idx}>
                       <RouteBadge routeId={step.route.id} color={step.route.color} size="sm" onClick={() => onRouteClick(step.route)} />
-                      {idx < res.steps.length - 1 && <ChevronRight size={14} className="text-gray-300 shrink-0" />}
+                      {idx < res.steps.length - 1 && <ChevronRight size={14} className="text-slate-300 shrink-0" />}
                     </React.Fragment>
                   ))}
                </div>
-               <div className={`shrink-0 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                 res.transferCount === 0 ? 'bg-green-100 text-green-700' : 
-                 res.transferCount === 1 ? 'bg-orange-100 text-orange-700' : 'bg-red-100 text-red-700'
+               <span className={`ui-badge shrink-0 ${
+                 res.transferCount === 0 ? 'bg-emerald-50 text-emerald-700' : 
+                 res.transferCount === 1 ? 'bg-amber-50 text-amber-700' : 'bg-rose-50 text-rose-700'
                }`}>
                  {res.transferCount === 0 ? 'တိုက်ရိုက်' : `${res.transferCount} ဆင့်ပြောင်း`}
-               </div>
+               </span>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
                {res.steps.map((step, idx) => (
-                 <div key={idx} className="flex items-start space-x-4">
-                    <div className="flex flex-col items-center mt-1 shrink-0">
-                       <div className="w-2.5 h-2.5 rounded-full border-2 border-white shadow-sm" style={{ backgroundColor: step.route.color }}></div>
-                       {idx < res.steps.length && <div className="w-0.5 h-12 bg-gray-100"></div>}
+                 <div key={idx} className="flex items-start gap-3">
+                    <div className="flex flex-col items-center mt-1.5 shrink-0">
+                       <div className="w-2 h-2 rounded-full" style={{ backgroundColor: step.route.color }}></div>
+                       {idx < res.steps.length && <div className="w-px h-10 bg-slate-100"></div>}
                     </div>
-                    <div className="flex-1 pb-2">
-                       <div className="text-sm font-bold text-gray-800 flex items-center space-x-2">
-                          <span className="bg-gray-100 px-2 py-0.5 rounded text-[11px]">စီးရန်</span>
+                    <div className="flex-1">
+                       <div className="text-sm font-medium text-slate-800 flex items-center gap-2">
+                          <span className="ui-badge">စီးရန်</span>
                           <span>YBS {step.route.id}</span>
                           {step.route.operator && <OperatorBadge name={step.route.operator} />}
                        </div>
-                       <div className="mt-1 text-[13px] text-gray-500 font-medium">
-                          <span className="text-yellow-600 font-bold">{step.fromStop}</span> မှတ်တိုင်မှ <span className="text-yellow-600 font-bold">{step.toStop}</span> မှတ်တိုင်အထိ စီးပါ။
-                       </div>
+                       <p className="mt-1 text-xs text-slate-500">
+                          <span className="text-brand font-medium">{step.fromStop}</span> မှ <span className="text-brand font-medium">{step.toStop}</span> အထိ
+                       </p>
                     </div>
                  </div>
                ))}
@@ -1400,13 +1448,13 @@ const FindRoutePage: React.FC<{ onRouteClick: (r: BusRoute) => void; routes: Bus
         ))}
 
         {results.length === 0 && start && end && !searching && (
-          <div className="text-center py-24 space-y-6">
-            <div className="bg-gray-100 p-8 rounded-full w-24 h-24 flex items-center justify-center mx-auto text-gray-300">
-               <Search size={48} />
+          <div className="text-center py-16 space-y-4">
+            <div className="bg-slate-100 p-6 rounded-full w-20 h-20 flex items-center justify-center mx-auto">
+               <Search size={32} className="text-slate-300" />
             </div>
-            <div className="space-y-2">
-              <p className="text-gray-400 font-black text-2xl">လမ်းကြောင်း မတွေ့ပါ။</p>
-              <p className="text-gray-300 font-medium">မှတ်တိုင်အမည် မှန်၊ မမှန် ပြန်စစ်ပေးပါ။ (အဆင့် ၅ ဆင့်ထက်ပိုသော လမ်းကြောင်းများ မပြနိုင်ပါ)</p>
+            <div className="space-y-1">
+              <p className="text-slate-500 font-semibold text-lg">လမ်းကြောင်း မတွေ့ပါ</p>
+              <p className="text-slate-400 text-sm max-w-sm mx-auto">မှတ်တိုင်အမည် မှန်၊ မမှန် ပြန်စစ်ပေးပါ</p>
             </div>
           </div>
         )}
@@ -1436,103 +1484,43 @@ const SettingsPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-4 md:p-8 space-y-8">
-      
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-3xl border border-yellow-100 overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300">
-          {/* <div className="p-6"> */}
-            {/* <div className="flex items-center space-x-4 mb-6">
-              <div className="bg-yellow-500 p-3 rounded-2xl text-white shadow-lg">
-                <RefreshCw size={24} />
-              </div>
-              <div>
-                <h3 className="font-black text-gray-800 text-xl">Offline Data Update</h3>
-                <p className="text-sm text-gray-600 font-medium">ဒေတာအသစ်များကို ဒေါင်းလုဒ်လုပ်ပါ</p>
-              </div>
-            </div> */}
-{/* 
-            <div className="flex justify-center">
-              <button
-                onClick={updateData}
-                disabled={status === 'updating'}
-                className={`px-8 py-4 rounded-2xl font-black text-lg transition-all shadow-lg ${
-                  status === 'updating'
-                    ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                    : 'bg-yellow-600 text-white hover:bg-yellow-700 active:scale-95 hover:shadow-xl'
-                }`}
-              >
-                {status === 'idle' && (
-                  <div className="flex items-center space-x-2">
-                    <RefreshCw size={20} />
-                    <span>Update Now</span>
-                  </div>
-                )}
-                {status === 'updating' && (
-                  <div className="flex items-center space-x-2">
-                    <RefreshCw className="animate-spin" size={20} />
-                    <span>Updating...</span>
-                  </div>
-                )}
-                {status === 'done' && (
-                  <div className="flex items-center space-x-2">
-                    <span>✓ Completed!</span>
-                  </div>
-                )}
-              </button>
-            </div> */}
-          {/* </div> */}
+    <div className="max-w-4xl mx-auto px-4 py-6 md:py-8 space-y-6 pb-24 md:pb-8">
+      <div className="ui-card p-6">
+        <div className="flex items-center gap-4 mb-5">
+          <div className="bg-slate-900 p-3 rounded-xl text-white">
+            <Info size={20} />
+          </div>
+          <div>
+            <h3 className="font-semibold text-slate-900">Developer Info</h3>
+            <p className="text-sm text-slate-500">ဆော့ဝဲရေးသားသူ အချက်အလက်</p>
+          </div>
         </div>
 
-        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-3xl border border-blue-100 overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300">
-          <div className="p-6">
-            <div className="flex items-center space-x-4 mb-6">
-              <div className="bg-blue-500 p-3 rounded-2xl text-white shadow-lg">
-                <Info size={24} />
+        <div className="space-y-3">
+          <div className="bg-slate-50 rounded-xl p-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="ui-label">App Name</p>
+                <p className="font-semibold text-slate-800 mt-0.5">YBS Guide</p>
               </div>
               <div>
-                <h3 className="font-black text-gray-800 text-xl">Developer Info</h3>
-                <p className="text-sm text-gray-600 font-medium">ဆော့ဝဲရေးသားသူ အချက်အလက်</p>
+                <p className="ui-label">Version</p>
+                <p className="font-semibold text-slate-800 mt-0.5">3.0</p>
               </div>
             </div>
+          </div>
 
-            <div className="space-y-4">
-              <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">App Name</p>
-                    <p className="text-lg font-black text-gray-800">YBS AI</p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Version</p>
-                    <p className="text-lg font-black text-gray-800">3.0</p>
-                  </div>
-                </div>
-              </div>
+          <div className="bg-slate-50 rounded-xl p-4 space-y-3">
+            <div>
+              <p className="ui-label">Developer</p>
+              <p className="font-semibold text-slate-800 mt-0.5">Arkar Yan</p>
+              <p className="text-sm text-slate-500">Project Manager | Instructor</p>
+            </div>
 
-              <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
-                <div className="space-y-3">
-                  <div>
-                    <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Developer</p>
-                    <p className="text-lg font-black text-gray-800">Arkar Yan</p>
-                    <p className="text-sm text-gray-600">Project Manager | Instructor</p>
-                  </div>
-
-                  <div className="pt-2 border-t border-gray-200">
-                    <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Get In Touch</p>
-                    <div className="grid grid-cols-1 gap-2">
-                      <div className="flex items-center space-x-2">
-                        <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                        <span className="text-sm font-medium text-yellow-700">info@arkaryan.net</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                        <span className="text-sm font-medium text-blue-700">arkaryan.net<i class="fa fa-neuter" aria-hidden="true"></i></span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            <div className="pt-3 border-t border-slate-200 space-y-2">
+              <p className="ui-label">Get In Touch</p>
+              <p className="text-sm text-brand font-medium">info@arkaryan.net</p>
+              <p className="text-sm text-slate-600">arkaryan.net</p>
             </div>
           </div>
         </div>
@@ -1562,15 +1550,15 @@ const App: React.FC = () => {
     const r = routes.find((x) => x.id === routeId);
     if (!r) {
       return (
-        <div className="fixed inset-0 z-[60] flex md:items-center justify-center md:p-8 overflow-hidden bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white w-full h-full md:max-w-2xl md:h-auto md:max-h-[90vh] flex flex-col md:rounded-3xl md:shadow-2xl overflow-hidden">
-            <div className="p-4 flex items-center justify-between border-b border-gray-100 shrink-0">
-              <h3 className="font-bold text-gray-800">Route not found</h3>
-              <button onClick={onClose} className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors">
-                <X size={20} />
+        <div className="fixed inset-0 z-[60] flex md:items-center justify-center md:p-8 overflow-hidden bg-slate-900/40 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white w-full h-full md:max-w-2xl md:h-auto md:max-h-[90vh] flex flex-col md:rounded-2xl md:shadow-lg overflow-hidden">
+            <div className="px-5 py-4 flex items-center justify-between border-b border-slate-100 shrink-0">
+              <h3 className="font-semibold text-slate-900">Route not found</h3>
+              <button onClick={onClose} className="ui-btn-icon">
+                <X size={18} />
               </button>
             </div>
-            <div className="p-6 text-gray-600">{routeId} ကိုဒေတာထဲမှာ ရှာမတွေ့ပါ။</div>
+            <div className="p-6 text-slate-600">{routeId} ကိုဒေတာထဲမှာ ရှာမတွေ့ပါ။</div>
           </div>
         </div>
       );
@@ -1630,9 +1618,11 @@ const App: React.FC = () => {
   const renderRoutes = () => {
     if (isInitializing) {
       return (
-        <div className="flex flex-col items-center justify-center h-full space-y-4 py-20">
-          <RefreshCw className="animate-spin text-yellow-600" size={48} />
-          <p className="text-gray-500 font-black text-xl">ဒေတာများ ပြင်ဆင်နေပါသည်...</p>
+        <div className="flex flex-col items-center justify-center h-full gap-4 py-20">
+          <div className="bg-slate-100 p-4 rounded-2xl">
+            <RefreshCw className="animate-spin text-slate-600" size={32} />
+          </div>
+          <p className="text-slate-500 font-medium">ဒေတာများ ပြင်ဆင်နေပါသည်...</p>
         </div>
       );
     }
@@ -1653,7 +1643,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col overflow-x-hidden h-screen">
+    <div className="min-h-screen bg-slate-50 flex flex-col overflow-x-hidden h-screen">
       <Header />
 
       <main className="flex-1 relative w-full overflow-hidden">
