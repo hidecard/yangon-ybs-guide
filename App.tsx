@@ -1117,8 +1117,9 @@ const StopDetailPage: React.FC<{ stop: BusStop, onClose: () => void }> = ({ stop
                 <Bell size={16} /> ဤမှတ်တိုင်သို့ ရောက်လျှင် သတိပေးပါ
               </button>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <p className="text-xs text-slate-600">Telegram နှင့် ချိတ်ဆက်ပြီး မှတ်တိုင်နီးလျှင် သတိပေးခံရန် ရွေးချယ်ပါ။</p>
+
                 <a
                   href={connectUrl(userId)}
                   target="_blank"
@@ -1127,6 +1128,23 @@ const StopDetailPage: React.FC<{ stop: BusStop, onClose: () => void }> = ({ stop
                 >
                   <Send size={16} /> Telegram နဲ့ ချိတ်ဆက်မည်
                 </a>
+
+                <div className="bg-white rounded-xl border border-slate-200 p-3 space-y-1.5">
+                  <p className="text-[11px] text-slate-500 leading-relaxed">
+                    Bot ကို အရင် ဖွင့်ထားပြီးသားဆိုရင် Link နှိပ်ပြီးနောက် Bot ထဲမှာ အောက်ပါ ကုဒ်ကို တိုက်ရိုက် ပို့ပါ
+                    (သို့မဟုတ် <code className="bg-slate-100 px-1 rounded">/start {userId}</code>):
+                  </p>
+                  <div className="flex items-center justify-between gap-2 bg-slate-50 rounded-lg px-3 py-2">
+                    <span className="font-mono font-semibold tracking-widest text-slate-800 select-all">{userId}</span>
+                    <button
+                      type="button"
+                      onClick={() => navigator.clipboard?.writeText(userId)}
+                      className="text-xs font-medium text-blue-600 hover:text-blue-700"
+                    >
+                      ကူးယူ
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
 

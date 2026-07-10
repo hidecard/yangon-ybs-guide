@@ -5,21 +5,29 @@
 const STORAGE_KEY = 'ybs_telegram_user_id';
 export const TELEGRAM_BOT = 'ybsguide_bot';
 
+// Short, Telegram-deep-link-safe (A-Z, 2-9, no confusing chars), easy to type.
+function randomCode(len: number): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let s = '';
+  for (let i = 0; i < len; i++) s += chars[Math.floor(Math.random() * chars.length)];
+  return s;
+}
+
 export function getUserId(): string {
   try {
     let id = localStorage.getItem(STORAGE_KEY);
     if (!id) {
-      id = 'u' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+      id = randomCode(8);
       localStorage.setItem(STORAGE_KEY, id);
     }
     return id;
   } catch {
-    return 'anonymous';
+    return 'ANON' + randomCode(4);
   }
 }
 
 export function connectUrl(userId: string): string {
-  return `https://t.me/${TELEGRAM_BOT}?start=${encodeURIComponent(userId)}`;
+  return `https://t.me/${TELEGRAM_BOT}?start=${userId}`;
 }
 
 export interface AlertStatus {

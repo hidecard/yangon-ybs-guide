@@ -58,6 +58,20 @@ async function sendTelegram(chatId: string, text: string): Promise<void> {
   });
 }
 
+async function linkUser(payload: string, chatId: string, from: any): Promise<void> {
+  await turso.execute({
+    sql: `INSERT INTO telegram_users (user_id, chat_id, username, first_name, linked_at)
+          VALUES (?, ?, ?, ?, ?)
+          ON CONFLICT(user_id) DO UPDATE SET chat_id = excluded.chat_id, linked_at = excluded.linked_at`,
+    args: [payload, chatId, from.username ?? null, from.first_name ?? null, Date.now()],
+  });
+  await sendTelegram(
+    chatId,
+    '✅ ချိတ်ဆက်ပြီးပါပြီ! YBS Guide နဲ့ သင့် Telegram အကောင့် ချိတ်ဆက်သွားပါပြီ။\n\n' +
+    'ယခု App ထဲမှ ဆင်းမည့်မှတ်တိုင်ကို ရွေးပြီး "သတိပေးပါ" ကို နှိပ်ပါ။ ထို့နောက် ဤ Bot သို့ Live Location ပို့ပေးပါက ၅၀၀ မီတာအတွင်း ရောက်လျှင် သတိပေးချက် ပို့ပေးမည်ဖြစ်ပါသည်။'
+  );
+}
+
 async function checkProximity(chatId: string, lat: number, lng: number): Promise<void> {
   const result = await turso.execute({
     sql: 'SELECT * FROM destination_alerts WHERE chat_id = ?',
@@ -104,24 +118,22 @@ export default async function handler(req: any, res: any) {
         if (text.startsWith('/start')) {
           const payload = text.split(' ')[1];
           if (payload) {
-            await turso.execute({
-              sql: `INSERT INTO telegram_users (user_id, chat_id, username, first_name, linked_at)
-                    VALUES (?, ?, ?, ?, ?)
-                    ON CONFLICT(user_id) DO UPDATE SET chat_id = excluded.chat_id, linked_at = excluded.linked_at`,
-              args: [payload, chatId, from.username ?? null, from.first_name ?? null, Date.now()],
-            });
-            await sendTelegram(
-              chatId,
-              '✅ ချိတ်ဆက်ပြီးပါပြီ! YBS Guide နဲ့ သင့် Telegram အကောင့် ချိတ်ဆက်သွားပါပြီ။\n\n' +
-              'ယခု App ထဲမှ ဆင်းမည့်မှတ်တိုင်ကို ရွေးပြီး "သတိပေးပါ" ကို နှိပ်ပါ။ ထို့နောက် ဤ Bot သို့ Live Location ပို့ပေးပါက ၅၀၀ မီတာအတွင်း ရောက်လျှင် သတိပေးချက် ပို့ပေးမည်ဖြစ်ပါသည်။'
-            );
-          } else {
-            await sendTelegram(
-              chatId,
-              '👋 မင်္ဂလာပါ! ကျွန်ုပ်သည် YBS Guide Bot ဖြစ်ပါသည်။\n\n' +
-              'မှတ်တိုင် နီးကပ်လျှင် သတိပေးခံရန် App ထဲမှ သင့် Telegram ကို ချိတ်ဆက်ပါ။'
-            );
+            await linkUser(payload, chatId, from);
+            return res.status(200).json({ status: 'ok' });
           }
+          // /start with no payload: guide the user to link with their code
+          await sendTelegram(
+            chatId,
+            '👋 မင်္ဂလာပါ! ကျွန်ုပ်သည် YBS Guide Bot ဖြစ်ပါသည်။\n\n' +
+            'မှတ်တိုင် နီးကပ်လျှင် သတိပေးခံရန် App ထဲမှ သင့် Telegram ကို ချိတ်ဆက်ပါ။\n' +
+            'App ၏ "သတိပေးချက်" အပိုင်းတွင် ပြထားသော ကုဒ်ကို ဤ Bot သို့ တိုက်ရိုက် ပို့ပါ (သို့မဟုတ် /start <ကုဒ်>)။'
+          );
+          return res.status(200).json({ status: 'ok' });
+        }
+
+        // Bare linking code pasted directly into the chat (e.g. already-started users)
+        if (/^[A-HJ-NP-Z2-9]{6,12}$/.test(text.trim())) {
+          await linkUser(text.trim(), chatId, from);
           return res.status(200).json({ status: 'ok' });
         }
 
