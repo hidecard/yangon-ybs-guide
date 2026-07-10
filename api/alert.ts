@@ -17,12 +17,11 @@ function ensureSchema(): Promise<void> {
         linked_at INTEGER
       )`);
       await turso.execute(`CREATE TABLE IF NOT EXISTS destination_alerts (
-        chat_id TEXT PRIMARY KEY,
-        user_id TEXT,
+        user_id TEXT PRIMARY KEY,
+        target_stop_name TEXT NOT NULL,
         target_lat REAL NOT NULL,
         target_lng REAL NOT NULL,
-        target_stop_name TEXT NOT NULL,
-        created_at INTEGER
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )`);
     })().catch((e) => {
       schemaReady = null;
@@ -52,7 +51,7 @@ export default async function handler(req: any, res: any) {
 
       const chatId = String(user.rows[0].chat_id);
       const alert = await turso.execute({
-        sql: 'SELECT target_stop_name, created_at FROM destination_alerts WHERE chat_id = ?',
+        sql: 'SELECT target_stop_name FROM destination_alerts WHERE user_id = ?',
         args: [chatId],
       });
 
@@ -71,9 +70,9 @@ export default async function handler(req: any, res: any) {
         sql: 'SELECT chat_id FROM telegram_users WHERE user_id = ?',
         args: [userId],
       });
-      if (user.rows.length > 0) {
+       if (user.rows.length > 0) {
         await turso.execute({
-          sql: 'DELETE FROM destination_alerts WHERE chat_id = ?',
+          sql: 'DELETE FROM destination_alerts WHERE user_id = ?',
           args: [String(user.rows[0].chat_id)],
         });
       }
@@ -101,15 +100,14 @@ export default async function handler(req: any, res: any) {
 
       const chatId = String(user.rows[0].chat_id);
       await turso.execute({
-        sql: `INSERT INTO destination_alerts (chat_id, user_id, target_lat, target_lng, target_stop_name, created_at)
-              VALUES (?, ?, ?, ?, ?, ?)
-              ON CONFLICT(chat_id) DO UPDATE SET
-                user_id = excluded.user_id,
+        sql: `INSERT INTO destination_alerts (user_id, target_stop_name, target_lat, target_lng, created_at)
+              VALUES (?, ?, ?, ?, ?)
+              ON CONFLICT(user_id) DO UPDATE SET
+                target_stop_name = excluded.target_stop_name,
                 target_lat = excluded.target_lat,
                 target_lng = excluded.target_lng,
-                target_stop_name = excluded.target_stop_name,
                 created_at = excluded.created_at`,
-        args: [chatId, userId, lat, lng, stopName, Date.now()],
+        args: [chatId, stopName, lat, lng, Date.now()],
       });
 
       return res.status(200).json({ ok: true });

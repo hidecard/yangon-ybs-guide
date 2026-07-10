@@ -35,12 +35,11 @@ function ensureSchema(): Promise<void> {
         linked_at INTEGER
       )`);
       await turso.execute(`CREATE TABLE IF NOT EXISTS destination_alerts (
-        chat_id TEXT PRIMARY KEY,
-        user_id TEXT,
+        user_id TEXT PRIMARY KEY,
+        target_stop_name TEXT NOT NULL,
         target_lat REAL NOT NULL,
         target_lng REAL NOT NULL,
-        target_stop_name TEXT NOT NULL,
-        created_at INTEGER
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )`);
     })().catch((e) => {
       schemaReady = null;
@@ -74,7 +73,7 @@ async function linkUser(payload: string, chatId: string, from: any): Promise<voi
 
 async function checkProximity(chatId: string, lat: number, lng: number): Promise<void> {
   const result = await turso.execute({
-    sql: 'SELECT * FROM destination_alerts WHERE chat_id = ?',
+    sql: 'SELECT * FROM destination_alerts WHERE user_id = ?',
     args: [chatId],
   });
 
@@ -90,7 +89,7 @@ async function checkProximity(chatId: string, lat: number, lng: number): Promise
         `📢 သတိပေးချက်: <b>${String(alert.target_stop_name)}</b> မှတ်တိုင်သို့ ရောက်ရှိတော့မည် ဖြစ်ပါသဖြင့် ဆင်းရန် အဆင့်သင့်ပြင်ပါဗျာ။`
       ),
       turso.execute({
-        sql: 'DELETE FROM destination_alerts WHERE chat_id = ?',
+        sql: 'DELETE FROM destination_alerts WHERE user_id = ?',
         args: [chatId],
       }),
     ]);
@@ -139,7 +138,7 @@ export default async function handler(req: any, res: any) {
 
         if (text.startsWith('/cancel') || text.startsWith('/stop')) {
           await turso.execute({
-            sql: 'DELETE FROM destination_alerts WHERE chat_id = ?',
+            sql: 'DELETE FROM destination_alerts WHERE user_id = ?',
             args: [chatId],
           });
           await sendTelegram(chatId, '🚫 သတိပေးချက်ကို ပယ်ဖျက်ပြီးပါပြီ။');
@@ -148,7 +147,7 @@ export default async function handler(req: any, res: any) {
 
         if (text.startsWith('/status')) {
           const r = await turso.execute({
-            sql: 'SELECT * FROM destination_alerts WHERE chat_id = ?',
+            sql: 'SELECT * FROM destination_alerts WHERE user_id = ?',
             args: [chatId],
           });
           if (r.rows.length > 0) {
