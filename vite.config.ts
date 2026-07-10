@@ -8,6 +8,14 @@ export default defineConfig(({ mode }) => {
       server: {
         port: 3000,
         host: '0.0.0.0',
+        proxy: {
+          // In dev, Vite does not serve the /api serverless functions.
+          // Proxy them to the deployed Vercel app so local testing works.
+          '/api': {
+            target: 'https://ybs-mm-v2.vercel.app',
+            changeOrigin: true,
+          },
+        },
       },
       plugins: [react()],
       define: {
