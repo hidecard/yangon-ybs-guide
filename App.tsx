@@ -29,7 +29,8 @@ import {
   Sparkles,
   Bot,
   User,
-  ArrowRight
+  ArrowRight,
+  CheckCircle2
 } from 'lucide-react';
 
 // --- Types for Search Results ---
@@ -2243,71 +2244,79 @@ const SettingsPage: React.FC = () => {
         </div>
 
         {/* Features Grid */}
-        <div className="grid gap-3">
-          <div className="flex gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
-            <span className="text-emerald-500 text-lg flex-shrink-0">✅</span>
-            <div>
-              <h4 className="text-sm font-semibold text-slate-800">ထပ်တိုးလမ်းကြောင်းများ</h4>
-              <p className="text-xs text-slate-500 mt-0.5">ခရီးစဉ်လမ်းကြောင်းအသစ်များကို အပြည့်အစုံ ဖြည့်စွက်ပေးထားခြင်း။</p>
-            </div>
-          </div>
+  <div className="grid gap-3">
+  {/* ထပ်တိုးလမ်းကြောင်းများ */}
+  <div className="flex gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
+    <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
+    <div>
+      <h4 className="text-sm font-semibold text-slate-800 mb-2">ထပ်တိုးလမ်းကြောင်းများ</h4>
+      <p className="text-xs text-slate-500">ခရီးစဉ်လမ်းကြောင်းအသစ်များကို အပြည့်အစုံ ဖြည့်စွက်ပေးထားခြင်း။</p>
+    </div>
+  </div>
 
-          <div className="flex gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
-            <span className="text-emerald-500 text-lg flex-shrink-0">✅</span>
-            <div>
-              <h4 className="text-sm font-semibold text-slate-800">ခေတ်မီဒီဇိုင်း</h4>
-              <p className="text-xs text-slate-500 mt-0.5">အသုံးပြုရ ပိုမိုလွယ်ကူပြီး မျက်စိပသာဒဖြစ်စေမည့် UI/UX Design သို့ ပြောင်းလဲထားခြင်း။</p>
-            </div>
-          </div>
+  {/* ခေတ်မီဒီဇိုင်း */}
+  <div className="flex gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
+    <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
+    <div>
+      <h4 className="text-sm font-semibold text-slate-800 mb-2">ခေတ်မီဒီဇိုင်း</h4>
+      <p className="text-xs text-slate-500">အသုံးပြုရ ပိုမိုလွယ်ကူပြီး မျက်စိပသာဒဖြစ်စေမည့် UI/UX Design သို့ ပြောင်းလဲထားခြင်း။</p>
+    </div>
+  </div>
 
-          <div className="flex gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
-            <span className="text-emerald-500 text-lg flex-shrink-0">✅</span>
-            <div>
-              <h4 className="text-sm font-semibold text-slate-800">အဆင့်မြင့် AI စနစ်</h4>
-              <p className="text-xs text-slate-500 mt-0.5">မိမိသွားလိုသည့် ခရီးစဉ်ကို ပိုမိုတိကျမှန်ကန်စွာ ရှာဖွေပေးနိုင်ခြင်း။</p>
-            </div>
-          </div>
+  {/* အဆင့်မြင့် AI စနစ် */}
+  <div className="flex gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
+    <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
+    <div>
+      <h4 className="text-sm font-semibold text-slate-800 mb-2">အဆင့်မြင့် AI စနစ်</h4>
+      <p className="text-xs text-slate-500">မိမိသွားလိုသည့် ခရီးစဉ်ကို ပိုမိုတိကျမှန်ကန်စွာ ရှာဖွေပေးနိုင်ခြင်း။</p>
+    </div>
+  </div>
 
-          <div className="flex gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
-            <span className="text-emerald-500 text-lg flex-shrink-0">✅</span>
-            <div>
-              <h4 className="text-sm font-semibold text-slate-800">Real-time မှတ်တိုင်ခြေရာခံစနစ်</h4>
-              <p className="text-xs text-slate-500 mt-0.5">ဆင်းရမည့်မှတ်တိုင် မကျော်သွားစေဖို့ ဘယ်မှတ်တိုင်ရောက်နေပြီလဲဆိုတာကို အချိန်နဲ့တပြေးညီ သိရှိနိုင်ခြင်း။</p>
-            </div>
-          </div>
-<div className="flex gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
-  <span className="text-emerald-500 text-lg flex-shrink-0">✅</span>
-  <div>
-    <h4 className="text-sm font-semibold text-slate-800">Route Detail Page (တစ်လိုင်းချင်းစီ အသေးစိတ်ကြည့်ရှုနိုင်မှု)</h4>
-    <ol className="list-decimal pl-4 mt-1.5 space-y-1 text-xs text-slate-500">
-      <li>လိုင်းကားတစ်လိုင်းချင်းစီရဲ့ မှတ်တိုင်အားလုံးကို နံပါတ်စဉ်တပ်ပြီး ရှင်းရှင်းလင်းလင်း ပြသပေးထားပါတယ်။</li>
-      <li>Live Location စနစ်ကြောင့် မိမိလက်ရှိရောက်နေတဲ့ မှတ်တိုင်ကို အလိုအလျောက် Highlight လုပ်ပြပေးမှာဖြစ်ပါတယ်။</li>
-      <li>Map ပေါ်မှာလည်း လက်ရှိမှတ်တိုင်နဲ့ နောက်လာမယ့်မှတ်တိုင်တွေကို ကွဲကွဲပြားပြား ရှင်းရှင်းလင်းလင်း မြင်တွေ့ရမှာပါ။</li>
-    </ol>
+  {/* Real-time မှတ်တိုင်ခြေရာခံစနစ် */}
+  <div className="flex gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
+    <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
+    <div>
+      <h4 className="text-sm font-semibold text-slate-800 mb-2">Real-time မှတ်တိုင်ခြေရာခံစနစ်</h4>
+      <p className="text-xs text-slate-500">ဆင်းရမည့်မှတ်တိုင် မကျော်သွားစေဖို့ ဘယ်မှတ်တိုင်ရောက်နေပြီလဲဆိုတာကို အချိန်နဲ့တပြေးညီ သိရှိနိုင်ခြင်း။</p>
+    </div>
+  </div>
+
+  {/* Route Detail Page */}
+  <div className="flex gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
+    <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
+    <div>
+      <h4 className="text-sm font-semibold text-slate-800 mb-2">Route Detail Page (တစ်လိုင်းချင်းစီ အသေးစိတ်ကြည့်ရှုနိုင်မှု)</h4>
+      <ol className="list-decimal pl-4 space-y-1 text-xs text-slate-500">
+        <li>လိုင်းကားတစ်လိုင်းချင်းစီရဲ့ မှတ်တိုင်အားလုံးကို နံပါတ်စဉ်တပ်ပြီး ရှင်းရှင်းလင်းလင်း ပြသပေးထားပါတယ်။</li>
+        <li>Live Location စနစ်ကြောင့် မိမိလက်ရှိရောက်နေတဲ့ မှတ်တိုင်ကို အလိုအလျောက် Highlight လုပ်ပြပေးမှာဖြစ်ပါတယ်။</li>
+        <li>Map ပေါ်မှာလည်း လက်ရှိမှတ်တိုင်နဲ့ နောက်လာမယ့်မှတ်တိုင်တွေကို ကွဲကွဲပြားပြား ရှင်းရှင်းလင်းလင်း မြင်တွေ့ရမှာပါ။</li>
+      </ol>
+    </div>
+  </div>
+
+  {/* Route Plan Detail Page */}
+  <div className="flex gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
+    <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
+    <div>
+      <h4 className="text-sm font-semibold text-slate-800 mb-2">Route Plan Detail Page (အသေးစိတ် လမ်းကြောင်းစီမံချက်)</h4>
+      <ol className="list-decimal pl-4 space-y-1 text-xs text-slate-500">
+        <li>ဘယ်မှတ်တိုင်ကနေ ဘယ်ကားစီးရမယ်၊ ဘယ်မှတ်တိုင်မှာ ဆင်းရမယ်ဆိုတာကို တစ်ဆင့်ချင်း (Step-by-Step) ရှင်းပြပေးပါတယ်။</li>
+        <li>Map ပေါ်မှာ လက်ရှိအဆင့်ရဲ့ စီးရန်နဲ့ ဆင်းရန်မှတ်တိုင်ကိုပဲ အဓိက ပြသပေးထားလို့ ရှုပ်ထွေးမှုမရှိစေပါဘူး။</li>
+        <li>Live Location နဲ့ လက်ရှိရောက်နေတဲ့ အဆင့်အတိုင်း လမ်းကြောင်းပြမြေပုံကို အလိုအလျောက် ရွှေ့ပေးသွားမှာပါ။</li>
+        <li>လမ်းကြောင်း List ထဲမှာလည်း မိမိလက်ရှိရောက်နေတဲ့ အဆင့်ကို အစိမ်းရောင်နဲ့ Highlight လုပ်ပေးမယ့်အပြင်၊ စာရင်းကို အလိုအလျောက် အပေါ်အောက် ရွှေ့ပေးမယ့် (Auto Scroll) စနစ်လည်း ပါဝင်လာပါတယ်။</li>
+      </ol>
+    </div>
+  </div>
+
+  {/* Application ထည့်သွင်းရန်မလိုခြင်း */}
+  <div className="flex gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
+    <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
+    <div>
+      <h4 className="text-sm font-semibold text-slate-800 mb-2">Application ထည့်သွင်းရန်မလိုခြင်း</h4>
+      <p className="text-xs text-slate-500">Telegram ရှိရုံဖြင့် Android ရော iOS ပါဝင်တဲ့ မည်သည့်ဖုန်းတွင်မဆို တိုက်ရိုက်အသုံးပြုနိုင်ခြင်း။</p>
+    </div>
   </div>
 </div>
-
-<div className="flex gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
-  <span className="text-emerald-500 text-lg flex-shrink-0">✅</span>
-  <div>
-    <h4 className="text-sm font-semibold text-slate-800">Route Plan Detail Page (အသေးစိတ် လမ်းကြောင်းစီမံချက်)</h4>
-    <ol className="list-decimal pl-4 mt-1.5 space-y-1 text-xs text-slate-500">
-      <li>ဘယ်မှတ်တိုင်ကနေ ဘယ်ကားစီးရမယ်၊ ဘယ်မှတ်တိုင်မှာ ဆင်းရမယ်ဆိုတာကို တစ်ဆင့်ချင်း (Step-by-Step) ရှင်းပြပေးပါတယ်။</li>
-      <li>Map ပေါ်မှာ လက်ရှိအဆင့်ရဲ့ စီးရန်နဲ့ ဆင်းရန်မှတ်တိုင်ကိုပဲ အဓိက ပြသပေးထားလို့ ရှုပ်ထွေးမှုမရှိစေပါဘူး။</li>
-      <li>Live Location နဲ့ လက်ရှိရောက်နေတဲ့ အဆင့်အတိုင်း လမ်းကြောင်းပြမြေပုံကို အလိုအလျောက် ရွှေ့ပေးသွားမှာပါ။</li>
-      <li>လမ်းကြောင်း List ထဲမှာလည်း မိမိလက်ရှိရောက်နေတဲ့ အဆင့်ကို အစိမ်းရောင်နဲ့ Highlight လုပ်ပေးမယ့်အပြင်၊ စာရင်းကို အလိုအလျောက် အပေါ်အောက် ရွှေ့ပေးမယ့် (Auto Scroll) စနစ်လည်း ပါဝင်လာပါတယ်။</li>
-    </ol>
-  </div>
-</div>
-          <div className="flex gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
-            <span className="text-emerald-500 text-lg flex-shrink-0">✅</span>
-            <div>
-              <h4 className="text-sm font-semibold text-slate-800">Application ထည့်သွင်းရန်မလိုခြင်း</h4>
-              <p className="text-xs text-slate-500 mt-0.5">Telegram ရှိရုံရုံဖြင့် Android ရော iOS ပါဝင်တဲ့ မည်သည့်ဖုန်းတွင်မဆို တိုက်ရိုက်အသုံးပြုနိုင်ခြင်း။</p>
-            </div>
-          </div>
-        </div>
-
         {/* Next Update & Apology Note */}
         <div className="bg-amber-50/70 rounded-xl p-4 border border-amber-100 space-y-1.5">
           <div className="flex items-center gap-2 text-amber-800 font-semibold text-sm">
