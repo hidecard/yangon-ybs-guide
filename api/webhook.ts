@@ -1,5 +1,8 @@
 import { createClient } from '@libsql/client';
 
+// Vercel ကို Cache မလုပ်ဘဲ Request တိုင်း Real-time Run ခိုင်းရန်
+export const dynamic = 'force-dynamic';
+
 const turso = createClient({
   url: process.env.TURSO_DATABASE_URL!,
   authToken: process.env.TURSO_AUTH_TOKEN!,
@@ -42,27 +45,32 @@ export default async function handler(req: any, res: any) {
 
         const distance = getDistance(latitude, longitude, targetLat, targetLng);
 
+        // ၅၀၀ မီတာ (၀.၅ ကီလိုမီတာ) အတွင်း ရောက်ရှိပါက
         if (distance <= 0.5) {
           const botToken = process.env.BOT_TOKEN;
           const telegramUrl = `https://api.telegram.com/bot${botToken}/sendMessage`;
 
-          await fetch(telegramUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              chat_id: userId,
-              text: `📢 သတိပေးချက်: ${stopName} မှတ်တိုင်သို့ ရောက်ရှိတော့မည် ဖြစ်ပါသဖြင့် ဆင်းရန် အဆင့်သင့်ပြင်ပါဗျာ။`,
+          // Telegram Message ပို့ခြင်းနှင့် Turso Record ဖျက်ခြင်းကို 
+          // တစ်ပြိုင်နက်တည်း အမြန်ဆုံး Run စေရန် Promise.all သုံးပါသည်
+          await Promise.all([
+            fetch(telegramUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                chat_id: userId,
+                text: `📢 သတိပေးချက်: ${stopName} မှတ်တိုင်သို့ ရောက်ရှိတော့မည် ဖြစ်ပါသဖြင့် ဆင်းရန် အဆင့်သင့်ပြင်ပါဗျာ။`,
+              }),
             }),
-          });
-
-          await turso.execute({
-            sql: 'DELETE FROM destination_alerts WHERE user_id = ?',
-            args: [userId],
-          });
+            turso.execute({
+              sql: 'DELETE FROM destination_alerts WHERE user_id = ?',
+              args: [userId],
+            })
+          ]);
         }
       }
     }
 
+    // Telegram က Request အထပ်ထပ် မပို့စေရန် အောင်မြင်ကြောင်း 200 OK အမြဲ ပြန်ပေးရမည်
     return res.status(200).json({ status: 'ok' });
   } catch (error) {
     console.error('Webhook Error:', error);
