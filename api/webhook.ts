@@ -1,6 +1,5 @@
 import { createClient } from '@libsql/client';
 
-// Vercel ကို Cache မလုပ်ဘဲ Request တိုင်း Real-time Run ခိုင်းရန်
 export const dynamic = 'force-dynamic';
 
 const turso = createClient({
@@ -70,7 +69,6 @@ export default async function handler(req: any, res: any) {
       }
     }
 
-    // Telegram က Request အထပ်ထပ် မပို့စေရန် အောင်မြင်ကြောင်း 200 OK အမြဲ ပြန်ပေးရမည်
     return res.status(200).json({ status: 'ok' });
   } catch (error) {
     console.error('Webhook Error:', error);
