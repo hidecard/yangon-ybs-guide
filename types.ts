@@ -42,6 +42,9 @@ export interface BusRoute {
     properties: any;
     type: string;
   };
+
+  /** QR Payment support status from route_info["QR Payment"] */
+  qrPayment?: string;
 }
 
 

@@ -217,6 +217,7 @@ export const loadRoutesFromFiles = async (): Promise<BusRoute[]> => {
         color: generateColor(routeId),
         operator: data.route_info?.Agency || '',
         line_name: data.route_info?.['Line Name'] || data.route_info?.['Line Name'.toString()] || undefined,
+        qrPayment: data.route_info?.['QR Payment'] || undefined,
         stops: stopNames,
         stopsDetailed: detailedStops,
         shape: coordinates.length > 0 ? {
@@ -282,4 +283,44 @@ export const loadStopsFromRouteFiles = async (): Promise<BusStop[]> => {
   }
   
   return Array.from(stopsMap.values());
+};
+
+export const CACHE_KEY = 'ybs-local-cache';
+export const CACHE_VERSION = 1;
+
+export interface LocalCache {
+  version: number;
+  timestamp: number;
+  stops: BusStop[];
+  routes: BusRoute[];
+}
+
+export const saveToLocalCache = (stops: BusStop[], routes: BusRoute[]): void => {
+  try {
+    const cache: LocalCache = {
+      version: CACHE_VERSION,
+      timestamp: Date.now(),
+      stops,
+      routes,
+    };
+    localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
+  } catch (e) {
+    console.warn('Failed to save local cache:', e);
+  }
+};
+
+export const loadFromLocalCache = (): { stops: BusStop[]; routes: BusRoute[] } | null => {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const cache: LocalCache = JSON.parse(raw);
+    if (cache.version !== CACHE_VERSION) return null;
+    return { stops: cache.stops, routes: cache.routes };
+  } catch (e) {
+    return null;
+  }
+};
+
+export const clearLocalCache = (): void => {
+  localStorage.removeItem(CACHE_KEY);
 };

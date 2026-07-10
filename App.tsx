@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef, useLayoutEffect } from 'react';
 
 import { Routes, Route, useNavigate, useLocation, useParams } from 'react-router-dom';
-import { loadRoutesFromFiles, loadStopsFromRouteFiles } from './data_constants';
+import { loadRoutesFromFiles, loadStopsFromRouteFiles, saveToLocalCache, loadFromLocalCache, clearLocalCache, CACHE_KEY, LocalCache } from './data_constants';
 import { Page, BusStop, BusRoute } from './types';
 import { db } from './db';
 import { 
@@ -46,6 +46,11 @@ interface SearchResult {
   totalDistance: number;
 }
 
+interface StopOption {
+  raw: string;
+  display: string;
+}
+
 interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
@@ -71,8 +76,20 @@ const performBFS = async (start: string, end: string, allRoutes: BusRoute[], all
   const stopMap = new Map<string, BusStop>();
   allStops.forEach((s) => stopMap.set(s.name_mm, s));
 
-  const queue: { currentStop: string; path: PathStep[] }[] = [{ currentStop: start, path: [] }];
-  const visitedStops = new Set<string>([start]);
+  const routeStopPositions = new Map<string, Map<string, number[]>>();
+  allRoutes.forEach(r => {
+    const idxMap = new Map<string, number[]>();
+    r.stops.forEach((s, i) => {
+      if (!idxMap.has(s)) idxMap.set(s, []);
+      idxMap.get(s)!.push(i);
+    });
+    routeStopPositions.set(r.id, idxMap);
+  });
+
+  const queue: { currentStop: string; path: PathStep[]; usedRouteIds: Set<string> }[] = [
+    { currentStop: start, path: [], usedRouteIds: new Set() }
+  ];
+  const visited = new Set<string>();
   const finalResults: SearchResult[] = [];
   const MAX_TRANSFERS = 4;
 
@@ -89,26 +106,33 @@ const performBFS = async (start: string, end: string, allRoutes: BusRoute[], all
   };
 
   while (queue.length > 0) {
-    const { currentStop, path } = queue.shift()!;
-    if (path.length > MAX_TRANSFERS + 1) break;
+    const { currentStop, path, usedRouteIds } = queue.shift()!;
+
+    if (visited.has(currentStop)) continue;
+    visited.add(currentStop);
+
+    if (path.length > MAX_TRANSFERS + 1) continue;
 
     const availableRoutes = allRoutes.filter(r => r.stops.includes(currentStop));
     for (const route of availableRoutes) {
-      if (path.some(step => step.route.id === route.id)) continue;
-      if (route.stops.includes(end)) {
-        const finalPath = [...path, { route, fromStop: currentStop, toStop: end }];
-        const totalDistance = calculatePathDistance(finalPath);
-        finalResults.push({ steps: finalPath, transferCount: finalPath.length - 1, totalDistance });
-      }
+      if (usedRouteIds.has(route.id)) continue;
 
-      if (path.length < MAX_TRANSFERS) {
-        for (const nextStop of route.stops) {
-          if (!visitedStops.has(nextStop)) {
-            visitedStops.add(nextStop);
-            queue.push({
-              currentStop: nextStop,
-              path: [...path, { route, fromStop: currentStop, toStop: nextStop }]
-            });
+      const newUsedRouteIds = new Set(usedRouteIds);
+      newUsedRouteIds.add(route.id);
+
+      const positions = routeStopPositions.get(route.id)?.get(currentStop) || [];
+
+      for (const pos of positions) {
+        for (let i = pos + 1; i < route.stops.length; i++) {
+          const nextStop = route.stops[i];
+          const stepPath = [...path, { route, fromStop: currentStop, toStop: nextStop }];
+
+          if (nextStop === end) {
+            finalResults.push({ steps: stepPath, transferCount: stepPath.length - 1, totalDistance: calculatePathDistance(stepPath) });
+          }
+
+          if (path.length <= MAX_TRANSFERS) {
+            queue.push({ currentStop: nextStop, path: stepPath, usedRouteIds: new Set(newUsedRouteIds) });
           }
         }
       }
@@ -179,14 +203,25 @@ const MapSelectionModal: React.FC<{
   stops: BusStop[], 
   onSelect: (stop: BusStop) => void, 
   onClose: () => void,
-  title: string
-}> = ({ stops, onSelect, onClose, title }) => {
+  title: string,
+  stopOptions?: StopOption[]
+}> = ({ stops, onSelect, onClose, title, stopOptions }) => {
   const mapRef = useRef<any>(null);
   const markerLayerRef = useRef<any>(null);
   const radiusCircleRef = useRef<any>(null);
   const userMarkerRef = useRef<any>(null);
   const [isLocating, setIsLocating] = useState(false);
   const [nearbyStops, setNearbyStops] = useState<(BusStop & { distance: number })[]>([]);
+
+  const stopDisplayMap = useMemo(() => {
+    const map = new Map<string, string>();
+    stopOptions?.forEach(o => map.set(o.raw, o.display));
+    return map;
+  }, [stopOptions]);
+
+  const getStopDisplay = (rawName: string): string => {
+    return stopDisplayMap.get(rawName) || rawName;
+  };
 
   const updateMarkers = useCallback((centerLat: number, centerLng: number) => {
     const L = (window as any).L;
@@ -215,7 +250,7 @@ const MapSelectionModal: React.FC<{
 
       marker.bindPopup(`
         <div class="p-1">
-          <b class="text-sm">${s.name_mm}</b><br>
+          <b class="text-sm">${getStopDisplay(s.name_mm)}</b><br>
           <span class="text-[10px] text-gray-500">${s.township_mm}</span><br>
           <div class="text-[9px] text-amber-600 font-semibold mb-1">${(s.distance * 1000).toFixed(0)}m away</div>
           <button id="select-stop-${s.id}" class="w-full bg-slate-900 text-white text-[10px] px-2 py-1.5 rounded-lg font-medium hover:bg-slate-800 transition-colors">ရွေးချယ်မည်</button>
@@ -247,13 +282,13 @@ const MapSelectionModal: React.FC<{
         dashArray: '5, 10'
       }).addTo(mapRef.current);
     }
-  }, [stops, onSelect, onClose]);
+  }, [stops, onSelect, onClose, stopDisplayMap]);
 
   useEffect(() => {
     const L = (window as any).L;
     if (!L) return;
 
-    const map = L.map('selection-map', { zoomControl: false }).setView([16.8, 96.15], 14);
+    const map = L.map('selection-map', { zoomControl: false, scrollWheelZoom: true }).setView([16.8, 96.15], 14);
     mapRef.current = map;
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
     L.control.zoom({ position: 'topleft' }).addTo(map);
@@ -374,28 +409,53 @@ const MapSelectionModal: React.FC<{
   );
 };
 
-const StopSearchInput: React.FC<{
+const buildDisambiguatedStops = (stops: BusStop[], routes: BusRoute[]): StopOption[] => {
+  const seen = new Set<string>();
+  const options: StopOption[] = [];
+
+  stops.forEach(stop => {
+    const road = stop.road_mm || stop.township_mm || '';
+    const key = `${stop.name_mm}|${road}`;
+
+    if (seen.has(key)) return;
+    seen.add(key);
+
+    const display = `${stop.name_mm} [${road}]`;
+    options.push({ raw: stop.name_mm, display });
+  });
+
+  return options.sort((a, b) =>
+    a.display.localeCompare(b.display, 'my')
+  );
+};
+
+const StopSearchInput: React.FC<{ 
   label: string,
   value: string,
   onChange: (val: string) => void,
-  allNames: string[],
+  allOptions: StopOption[],
   placeholder: string,
   icon?: React.ReactNode,
   indicatorColor: string
-}> = ({ label, value, onChange, allNames, placeholder, icon, indicatorColor }) => {
-  const [query, setQuery] = useState(value);
+}> = ({ label, value, onChange, allOptions, placeholder, icon, indicatorColor }) => {
+  const [displayValue, setDisplayValue] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  const filtered = useMemo(() => {
-    if (!query) return [];
-    const term = query.toLowerCase().trim();
-    return allNames.filter(n => n.toLowerCase().includes(term)).slice(0, 50);
-  }, [query, allNames]);
-
   useEffect(() => {
-    setQuery(value);
-  }, [value]);
+    if (!value) {
+      setDisplayValue('');
+      return;
+    }
+    const match = allOptions.find(o => o.raw === value);
+    setDisplayValue(match ? match.display : value);
+  }, [value, allOptions]);
+
+  const filtered = useMemo(() => {
+    if (!displayValue) return [];
+    const term = displayValue.toLowerCase().trim();
+    return allOptions.filter(o => o.display.toLowerCase().includes(term)).slice(0, 50);
+  }, [displayValue, allOptions]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -421,10 +481,10 @@ const StopSearchInput: React.FC<{
           type="text"
           className="ui-input"
           placeholder={placeholder}
-          value={query}
+          value={displayValue}
           onChange={(e) => {
             const val = e.target.value;
-            setQuery(val);
+            setDisplayValue(val);
             setIsOpen(true);
             onChange(val);
           }}
@@ -432,17 +492,17 @@ const StopSearchInput: React.FC<{
         />
         {isOpen && filtered.length > 0 && (
           <div className="absolute top-full left-0 right-0 mt-1.5 bg-white border border-slate-200 rounded-xl shadow-lg z-[80] max-h-60 overflow-y-auto">
-            {filtered.map((name, i) => (
+            {filtered.map((option, i) => (
               <div 
                 key={i}
                 className="px-4 py-3 hover:bg-slate-50 cursor-pointer text-sm text-slate-700 border-b border-slate-50 last:border-0"
                 onClick={() => {
-                  onChange(name);
-                  setQuery(name);
+                  onChange(option.raw);
+                  setDisplayValue(option.display);
                   setIsOpen(false);
                 }}
               >
-                {name}
+                {option.display}
               </div>
             ))}
           </div>
@@ -873,9 +933,9 @@ const AssistantPage: React.FC<{ onRouteClick: (r: BusRoute) => void; routes: Bus
                            <RouteBadge key={sidx} routeId={step.route.id} color={step.route.color} size="sm" onClick={() => onRouteClick(step.route)} />
                          ))}
                        </div>
-                       <span className="ui-badge ui-badge-accent">
-                         {res.transferCount === 0 ? 'တိုက်ရိုက်' : `${res.transferCount} ဆင့်ပြောင်း`}
-                       </span>
+                        <span className="ui-badge ui-badge-accent">
+                          {res.transferCount === 0 ? 'တိုက်ရိုက်' : `${res.transferCount} ဆင့်ပြောင်း`}
+                        </span>
                     </div>
                     <div className="space-y-2.5">
                       {res.steps.map((step, sidx) => (
@@ -884,10 +944,18 @@ const AssistantPage: React.FC<{ onRouteClick: (r: BusRoute) => void; routes: Bus
                              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: step.route.color }}></div>
                              {sidx < res.steps.length - 1 && <div className="w-px h-6 bg-slate-200"></div>}
                           </div>
-                          <div className="flex-1">
-                            <p className="font-medium text-slate-800">YBS {step.route.id}</p>
-                            <p className="text-slate-500 text-xs mt-0.5">{step.fromStop} → {step.toStop}</p>
-                          </div>
+                           <div className="flex-1">
+                             <div className="flex items-center gap-2">
+                               <p className="font-medium text-slate-800">YBS {step.route.id}</p>
+                               {step.route.qrPayment === '✅ Supported' && (
+                                 <span className="ui-badge bg-amber-50 text-amber-700 border border-amber-100" title="QR Payment ပံ့ပိုးမှု">
+                                   <CreditCard size={10} className="mr-1" />
+                                   QR
+                                 </span>
+                               )}
+                             </div>
+                             <p className="text-slate-500 text-xs mt-0.5">{step.fromStop} → {step.toStop}</p>
+                           </div>
                         </div>
                       ))}
                     </div>
@@ -949,7 +1017,7 @@ const StopDetailPage: React.FC<{ stop: BusStop, onClose: () => void }> = ({ stop
     const mapContainer = document.getElementById('stop-map');
     if (mapContainer && (window as any).L) {
       const L = (window as any).L;
-      const map = L.map('stop-map').setView([stop.lat, stop.lng], 16);
+      const map = L.map('stop-map', { scrollWheelZoom: true }).setView([stop.lat, stop.lng], 16);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
       L.marker([stop.lat, stop.lng]).addTo(map).bindPopup(stop.name_mm).openPopup();
       return () => map.remove();
@@ -958,12 +1026,12 @@ const StopDetailPage: React.FC<{ stop: BusStop, onClose: () => void }> = ({ stop
 
   return (
     <div className="fixed inset-0 z-[60] flex md:items-center justify-center md:p-8 overflow-hidden bg-slate-900/40 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white w-full h-full md:max-w-2xl md:h-auto md:max-h-[90vh] flex flex-col md:rounded-2xl md:shadow-lg overflow-hidden animate-slide-up">
+      <div className="bg-white w-full h-full md:max-w-3xl md:h-auto md:max-h-[95vh] flex flex-col md:rounded-2xl md:shadow-lg overflow-hidden animate-slide-up">
         <div className="px-5 py-4 flex items-center justify-between border-b border-slate-100 shrink-0">
           <h3 className="text-base font-semibold truncate text-slate-900">{stop.name_mm}</h3>
           <button onClick={onClose} className="ui-btn-icon"><X size={18}/></button>
         </div>
-        <div id="stop-map" className="w-full h-64 md:h-72 bg-slate-100 shrink-0"></div>
+        <div id="stop-map" className="w-full h-80 md:h-96 bg-slate-100 shrink-0"></div>
         <div className="p-5 flex-1 overflow-y-auto space-y-6 pb-24 md:pb-6">
           <div className="space-y-1">
             <p className="ui-label">တည်နေရာ</p>
@@ -1025,11 +1093,11 @@ const RouteDetailPage: React.FC<{ route: BusRoute, onClose: () => void, onStopCl
     const L = (window as any).L;
     if (!L || !mapContainerRef.current || mapRef.current) return;
 
-    const map = L.map(mapContainerRef.current, { zoomControl: false }).setView([16.8, 96.15], 13);
+    const map = L.map(mapContainerRef.current, { zoomControl: false, scrollWheelZoom: true }).setView([16.8, 96.15], 13);
     mapRef.current = map;
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-    L.control.zoom({ position: 'bottomright' }).addTo(map);
+    L.control.zoom({ position: 'topright' }).addTo(map);
 
     markersLayerRef.current = L.featureGroup().addTo(map);
     routeLayerRef.current = L.featureGroup().addTo(map);
@@ -1215,6 +1283,12 @@ const RouteDetailPage: React.FC<{ route: BusRoute, onClose: () => void, onStopCl
           <h3 className="font-semibold text-slate-800 text-sm">လမ်းကြောင်းအသေးစိတ်</h3>
           <div className="ml-auto flex items-center gap-2">
             <span className="ui-badge ui-badge-accent">{routeStops.length}/{route.stops.length}</span>
+            {route.qrPayment === '✅ Supported' && (
+              <span className="ui-badge bg-amber-50 text-amber-700 border border-amber-100" title="QR Payment ပံ့ပိုးမှု">
+                <CreditCard size={10} className="mr-1" />
+                QR
+              </span>
+            )}
           </div>
         </div>
 
@@ -1399,8 +1473,8 @@ const RoutePlanDetailFromState: React.FC = () => {
 
   if (!steps || steps.length === 0) {
     return (
-      <div className="fixed inset-0 z-[60] flex md:items-center justify-center md:p-8 overflow-hidden bg-slate-900/40 backdrop-blur-sm animate-fade-in">
-        <div className="bg-white w-full h-full md:max-w-2xl md:h-auto md:max-h-[90vh] flex flex-col md:rounded-2xl md:shadow-lg overflow-hidden">
+      <div className="fixed inset-0 z-[60] flex md:items-center justify-center md:p-6 overflow-hidden bg-slate-900/40 backdrop-blur-sm animate-fade-in">
+        <div className="bg-white w-full h-full md:max-w-3xl md:h-auto md:max-h-[95vh] flex flex-col md:rounded-2xl md:shadow-lg overflow-hidden">
           <div className="px-5 py-4 flex items-center justify-between border-b border-slate-100 shrink-0">
             <h3 className="font-semibold text-slate-900">Route plan မရှိပါ</h3>
             <button onClick={() => navigate(-1)} className="ui-btn-icon">
@@ -1525,11 +1599,11 @@ const RoutePlanDetailPage: React.FC<{
     const L = (window as any).L;
     if (!L || mapRef.current) return;
 
-    const map = L.map('route-plan-map', { zoomControl: false }).setView([16.8, 96.15], 13);
+    const map = L.map('route-plan-map', { zoomControl: false, scrollWheelZoom: true }).setView([16.8, 96.15], 13);
     mapRef.current = map;
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-    L.control.zoom({ position: 'bottomright' }).addTo(map);
+    L.control.zoom({ position: 'topright' }).addTo(map);
 
     markersLayerRef.current = L.featureGroup().addTo(map);
     routeLayerRef.current = L.featureGroup().addTo(map);
@@ -1708,8 +1782,8 @@ const RoutePlanDetailPage: React.FC<{
   const isAtToStop = nearestInfo && toStop && nearestInfo.stop.id === toStop.id;
 
   return (
-    <div className="fixed inset-0 z-[60] flex md:items-center justify-center md:p-8 overflow-hidden bg-slate-900/40 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white w-full h-full md:max-w-2xl md:h-auto md:max-h-[92vh] flex flex-col md:rounded-2xl md:shadow-lg overflow-hidden animate-slide-up">
+    <div className="fixed inset-0 z-[60] flex md:items-center justify-center md:p-6 overflow-hidden bg-slate-900/40 backdrop-blur-sm animate-fade-in">
+      <div className="bg-white w-full h-full md:max-w-3xl md:h-auto md:max-h-[95vh] flex flex-col md:rounded-2xl md:shadow-lg overflow-hidden animate-slide-up">
         <div className="px-5 py-4 flex items-center justify-between border-b border-slate-100 shrink-0">
           <div className="flex items-center gap-2 min-w-0">
             <button onClick={onClose} className="ui-btn-icon">
@@ -1717,13 +1791,21 @@ const RoutePlanDetailPage: React.FC<{
             </button>
             <h3 className="font-semibold truncate text-slate-900">လမ်းကြောင်းစီမံချက် (စီး/ဆင်း)</h3>
           </div>
-          <span className="ui-badge ui-badge-accent shrink-0">Steps {steps.length}</span>
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="ui-badge ui-badge-accent">Steps {steps.length}</span>
+            {steps.some(s => s.route.qrPayment === '✅ Supported') && (
+              <span className="ui-badge bg-amber-50 text-amber-700 border border-amber-100" title="QR Payment ပံ့ပိုးမှု">
+                <CreditCard size={10} className="mr-1" />
+                QR
+              </span>
+            )}
+          </div>
         </div>
 
-        <div className="flex flex-col flex-1 overflow-hidden">
-          <div className="bg-slate-100">
-            <div id="route-plan-map" className="w-full h-64 md:h-72" />
-          </div>
+         <div className="flex flex-col flex-1 overflow-hidden">
+           <div className="bg-slate-100">
+             <div id="route-plan-map" className="w-full h-80 md:h-[28rem]" />
+           </div>
 
           <div ref={listRef} className="border-t border-slate-100 flex-1 overflow-y-auto bg-white">
             <div className="p-5 space-y-4">
@@ -1773,29 +1855,44 @@ const RoutePlanDetailPage: React.FC<{
                           : 'border-slate-100 bg-white hover:border-slate-200'
                       }`}
                     >
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-2 min-w-0">
-                          <RouteBadge routeId={st.route.id} color={st.route.color} size="sm" />
-                          {st.route.operator && <OperatorBadge name={st.route.operator} />}
-                        </div>
-                        <span className={`ui-badge ${isActive ? 'bg-white/20 text-white border-white/30' : 'bg-slate-100 text-slate-600'}`}>{idx + 1}</span>
-                      </div>
+                       <div className="flex items-center justify-between gap-3">
+                         <div className="flex items-center gap-2 min-w-0">
+                           <RouteBadge routeId={st.route.id} color={st.route.color} size="sm" />
+                           {st.route.operator && <OperatorBadge name={st.route.operator} />}
+                           {st.route.qrPayment === '✅ Supported' && (
+                             <span className={`ui-badge ${isActive ? 'bg-white/20 text-white border-white/30' : 'bg-amber-50 text-amber-700 border border-amber-100'}`} title="QR Payment ပံ့ပိုးမှု">
+                               <CreditCard size={10} className="mr-1" />
+                               QR
+                             </span>
+                           )}
+                         </div>
+                         <span className={`ui-badge ${isActive ? 'bg-white/20 text-white border-white/30' : 'bg-slate-100 text-slate-600'}`}>{idx + 1}</span>
+                       </div>
                       <div className="mt-2 text-sm">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${
-                            isActive
-                              ? 'text-emerald-900 bg-emerald-500/30'
-                              : 'text-emerald-600 bg-emerald-100'
-                          }`}>စီးရန်</span>
-                          <span className={`font-semibold truncate ${isActive ? 'text-white' : 'text-slate-800'}`}>{st.fromStop}</span>
+                        <div className="flex items-center justify-between gap-2 mb-1">
+                          <div className="flex items-center gap-2">
+                            <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${
+                              isActive
+                                ? 'text-emerald-900 bg-emerald-500/30'
+                                : 'text-emerald-600 bg-emerald-100'
+                            }`}>စီးရန်</span>
+                            <span className={`font-semibold truncate ${isActive ? 'text-white' : 'text-slate-800'}`}>{st.fromStop}</span>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${
-                            isActive
-                              ? 'text-rose-900 bg-rose-500/30'
-                              : 'text-rose-600 bg-rose-100'
-                          }`}>ဆင်းရန်</span>
-                          <span className={`font-semibold truncate ${isActive ? 'text-white' : 'text-slate-800'}`}>{st.toStop}</span>
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${
+                              isActive
+                                ? 'text-rose-900 bg-rose-500/30'
+                                : 'text-rose-600 bg-rose-100'
+                            }`}>ဆင်းရန်</span>
+                            <span className={`font-semibold truncate ${isActive ? 'text-white' : 'text-slate-800'}`}>{st.toStop}</span>
+                          </div>
+                          {fromStop && toStop && (
+                            <span className={`text-[10px] font-medium ${isActive ? 'text-emerald-100' : 'text-slate-400'}`}>
+                              {getDistance(fromStop.lat, fromStop.lng, toStop.lat, toStop.lng).toFixed(1)} km
+                            </span>
+                          )}
                         </div>
                       </div>
                       {intermediates.length > 0 && (
@@ -1853,13 +1950,7 @@ const FindRoutePage: React.FC<{ onRouteClick: (r: BusRoute) => void; routes: Bus
   const stops = stopsProp;
   const routes = routesProp;
 
-
-  const stopsByName = useMemo(() => {
-    const names = new Set<string>();
-    stops.forEach(s => names.add(s.name_mm));
-    routes.forEach(r => r.stops.forEach(s => names.add(s)));
-    return Array.from(names).sort((a, b) => a.localeCompare(b, 'my'));
-  }, [stops, routes]);
+  const stopOptions = useMemo(() => buildDisambiguatedStops(stops, routes), [stops, routes]);
 
   const stopDetailsByName = useMemo(() => {
     const m = new Map<string, BusStop>();
@@ -1944,7 +2035,7 @@ const FindRoutePage: React.FC<{ onRouteClick: (r: BusRoute) => void; routes: Bus
             label="စတင်မည့်မှတ်တိုင်"
             value={start}
             onChange={setStart}
-            allNames={stopsByName}
+            allOptions={stopOptions}
             placeholder="ရှာရန်..."
             indicatorColor="bg-emerald-500"
             icon={
@@ -1980,7 +2071,7 @@ const FindRoutePage: React.FC<{ onRouteClick: (r: BusRoute) => void; routes: Bus
             label="ဆင်းမည့်မှတ်တိုင်"
             value={end}
             onChange={setEnd}
-            allNames={stopsByName}
+            allOptions={stopOptions}
             placeholder="ရှာရန်..."
             indicatorColor="bg-rose-500"
             icon={
@@ -2010,6 +2101,7 @@ const FindRoutePage: React.FC<{ onRouteClick: (r: BusRoute) => void; routes: Bus
           title={mapPickerTarget === 'start' ? 'စတင်မည့်မှတ်တိုင် ရွေးချယ်ပါ' : 'ဆင်းမည့်မှတ်တိုင် ရွေးချယ်ပါ'}
           onSelect={(stop) => mapPickerTarget === 'start' ? setStart(stop.name_mm) : setEnd(stop.name_mm)}
           onClose={() => setMapPickerTarget(null)}
+          stopOptions={stopOptions}
         />
       )}
 
@@ -2050,25 +2142,37 @@ const FindRoutePage: React.FC<{ onRouteClick: (r: BusRoute) => void; routes: Bus
                         <div className="w-2 h-2 rounded-full" style={{ backgroundColor: step.route.color }}></div>
                         {idx < res.steps.length && <div className="w-px h-10 bg-slate-100"></div>}
                      </div>
-                     <div className="flex-1">
-                        <div className="text-sm font-medium text-slate-800 flex items-center gap-2">
-                           <span className="ui-badge">စီးရန်</span>
-                           <span>YBS {step.route.id}</span>
-                           {step.route.operator && <OperatorBadge name={step.route.operator} />}
-                        </div>
-                        <p className="mt-1 text-xs text-slate-500">
-                           <span className="text-brand font-medium">
-                             {step.fromStop}
-                             {fromDup && fromDetail && <span className="text-slate-400 font-normal"> ({fromDetail.township_mm})</span>}
-                           </span>
-                           မှ
-                           <span className="text-brand font-medium">
-                             {step.toStop}
-                             {toDup && toDetail && <span className="text-slate-400 font-normal"> ({toDetail.township_mm})</span>}
-                           </span>
-                           အထိ
-                        </p>
-                     </div>
+                      <div className="flex-1">
+                          <div className="text-sm font-medium text-slate-800 flex items-center gap-2">
+                             <span className="ui-badge">စီးရန်</span>
+                             <span>YBS {step.route.id}</span>
+                             {step.route.operator && <OperatorBadge name={step.route.operator} />}
+                             {step.route.line_name && <span className="text-[10px] text-slate-400 font-normal truncate max-w-[120px]">{step.route.line_name}</span>}
+                             {step.route.qrPayment === '✅ Supported' && (
+                               <span className="ui-badge bg-amber-50 text-amber-700 border border-amber-100" title="QR Payment ပံ့ပိုးမှု">
+                                 <CreditCard size={10} className="mr-1" />
+                                 QR
+                               </span>
+                             )}
+                          </div>
+                         <p className="mt-1 text-xs text-slate-500">
+                            <span className="text-brand font-medium">
+                              {step.fromStop}
+                              {fromDup && fromDetail && <span className="text-slate-400 font-normal"> ({fromDetail.township_mm})</span>}
+                            </span>
+                            မှ
+                            <span className="text-brand font-medium">
+                              {step.toStop}
+                              {toDup && toDetail && <span className="text-slate-400 font-normal"> ({toDetail.township_mm})</span>}
+                            </span>
+                            အထိ
+                         </p>
+                         {fromDetail && toDetail && (
+                           <p className="mt-1 text-[10px] text-slate-400">
+                             {getDistance(fromDetail.lat, fromDetail.lng, toDetail.lat, toDetail.lng).toFixed(2)} km
+                           </p>
+                         )}
+                      </div>
                   </div>
                  );
                })}
@@ -2095,31 +2199,57 @@ const FindRoutePage: React.FC<{ onRouteClick: (r: BusRoute) => void; routes: Bus
 // စိတ်ချရအောင် ဖုန်းနံပါတ်နဲ့ လမ်းကြောင်း Update လုပ်ပေးမယ့် လုပ်ဆောင်ချက်အားလုံး ပါဝင်ပြီးသား Code ဖြစ်ပါတယ်
 const SettingsPage: React.FC = () => {
   const [status, setStatus] = useState<'idle' | 'updating' | 'done'>('idle');
+  const [cacheInfo, setCacheInfo] = useState<{ size: string; age: string } | null>(null);
   
   // Phone Copy State များ
   const [copiedKpay, setCopiedKpay] = useState(false);
   const [copiedWave, setCopiedWave] = useState(false);
 
+  useEffect(() => {
+    const updateCacheInfo = () => {
+      try {
+        const raw = localStorage.getItem(CACHE_KEY);
+        if (!raw) {
+          setCacheInfo(null);
+          return;
+        }
+        const cache = JSON.parse(raw) as LocalCache;
+        const size = new Blob([raw]).size;
+        const sizeStr = size > 1024 * 1024 ? `${(size / (1024 * 1024)).toFixed(1)} MB` : `${(size / 1024).toFixed(0)} KB`;
+        const age = new Date(cache.timestamp);
+        const ageStr = age.toLocaleDateString('my-MM', { year: 'numeric', month: 'short', day: 'numeric' });
+        setCacheInfo({ size: sizeStr, age: ageStr });
+      } catch {
+        setCacheInfo(null);
+      }
+    };
+    updateCacheInfo();
+  }, [status]);
+
   // Data Update လုပ်ဆောင်ချက် (bulkAdd မှ bulkPut သို့ ပြောင်းလဲထားပါသည်)
   const updateData = async () => {
     setStatus('updating');
     try {
-      // Load stops from route files
-      // @ts-ignore (သင့် project ရဲ့ function/db imported ဖြစ်နေတယ်ဆိုရင် အလုပ်လုပ်ပါလိမ့်မယ်)
       const loadedStops = await loadStopsFromRouteFiles();
       await db.busStops.clear();
-      await db.busStops.bulkPut(loadedStops); // 👈 ပြောင်းလဲထားသည့်နေရာ
+      await db.busStops.bulkPut(loadedStops);
       
-      // Load routes from JSON files
       const loadedRoutes = await loadRoutesFromFiles();
       await db.busRoutes.clear();
-      await db.busRoutes.bulkPut(loadedRoutes); // 👈 ပြောင်းလဲထားသည့်နေရာ
+      await db.busRoutes.bulkPut(loadedRoutes);
+
+      saveToLocalCache(loadedStops, loadedRoutes);
     } catch (error) {
       console.error("Update failed:", error);
     } finally {
       setStatus('done');
       setTimeout(() => setStatus('idle'), 2000);
     }
+  };
+
+  const handleClearCache = () => {
+    clearLocalCache();
+    setCacheInfo(null);
   };
 
   // Phone Copy လုပ်ဆောင်ချက်
@@ -2154,28 +2284,43 @@ const SettingsPage: React.FC = () => {
           <div>
             <p className="text-sm font-medium text-slate-700">Offline Database Version</p>
             <p className="text-xs text-slate-500 mt-0.5">နောက်ဆုံးထွက်လမ်းကြောင်းများကို ဖုန်းထဲသို့ ဒေါင်းလုဒ်ဆွဲထည့်ပါ။</p>
+            {cacheInfo && (
+              <p className="text-[10px] text-slate-400 mt-1">
+                Local cache: {cacheInfo.size} • Updated {cacheInfo.age}
+              </p>
+            )}
           </div>
           
-          <button
-            onClick={updateData}
-            disabled={status === 'updating'}
-            className={`w-full sm:w-auto px-5 py-2.5 rounded-xl text-sm font-medium transition-all shadow-sm active:scale-[0.98] ${
-              status === 'updating' 
-                ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                : status === 'done'
-                ? 'bg-emerald-500 text-white'
-                : 'bg-slate-900 hover:bg-slate-800 text-white'
-            }`}
-          >
-            {status === 'updating' && (
-              <span className="flex items-center justify-center gap-2">
-                <svg className="animate-spin h-4 w-4 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                ခဏစောင့်ပါ...
-              </span>
+          <div className="flex items-center gap-2">
+            {cacheInfo && (
+              <button
+                onClick={handleClearCache}
+                className="px-3 py-2 rounded-xl text-xs font-medium bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 active:scale-[0.98] transition-all"
+              >
+                Clear Cache
+              </button>
             )}
-            {status === 'done' && '✓ Sync အောင်မြင်ပါသည်'}
-            {status === 'idle' && 'လမ်းကြောင်းများ Update လုပ်မည်'}
-          </button>
+            <button
+              onClick={updateData}
+              disabled={status === 'updating'}
+              className={`w-full sm:w-auto px-5 py-2.5 rounded-xl text-sm font-medium transition-all shadow-sm active:scale-[0.98] ${
+                status === 'updating' 
+                  ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                  : status === 'done'
+                  ? 'bg-emerald-500 text-white'
+                  : 'bg-slate-900 hover:bg-slate-800 text-white'
+              }`}
+            >
+              {status === 'updating' && (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="animate-spin h-4 w-4 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                  ခဏစောင့်ပါ...
+                </span>
+              )}
+              {status === 'done' && '✓ Sync အောင်မြင်ပါသည်'}
+              {status === 'idle' && 'လမ်းကြောင်းများ Update လုပ်မည်'}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -2413,7 +2558,7 @@ const App: React.FC = () => {
     if (!r) {
       return (
         <div className="fixed inset-0 z-[60] flex md:items-center justify-center md:p-8 overflow-hidden bg-slate-900/40 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white w-full h-full md:max-w-2xl md:h-auto md:max-h-[90vh] flex flex-col md:rounded-2xl md:shadow-lg overflow-hidden">
+          <div className="bg-white w-full h-full md:max-w-2xl md:h-auto md:max-h-[90vh] flex flex-col md:rounded-2xl md:shadow-lg overflow-hidden animate-slide-up">
             <div className="px-5 py-4 flex items-center justify-between border-b border-slate-100 shrink-0">
               <h3 className="font-semibold text-slate-900">Route not found</h3>
               <button onClick={onClose} className="ui-btn-icon">
@@ -2433,22 +2578,41 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const loadAll = async () => {
-      const [loadedStops, loadedRoutes] = await Promise.all([
-        loadStopsFromRouteFiles(),
-        loadRoutesFromFiles(),
-      ]);
+      const cached = loadFromLocalCache();
+      if (cached) {
+        setStops(cached.stops);
+        setRoutes(cached.routes);
+        await db.busStops.clear();
+        await db.busRoutes.clear();
+        await db.busStops.bulkPut(cached.stops as any);
+        await db.busRoutes.bulkPut(cached.routes as any);
+        setIsInitializing(false);
+      }
 
-      // ensure Dexie has data (RoutesPage relies on db.*)
-      // Dexie stores can throw on duplicate primary keys; use bulkPut for idempotency.
-      await db.busStops.clear();
-      await db.busRoutes.clear();
-      await db.busStops.bulkPut(loadedStops as any);
-      await db.busRoutes.bulkPut(loadedRoutes as any);
+      try {
+        const [loadedStops, loadedRoutes] = await Promise.all([
+          loadStopsFromRouteFiles(),
+          loadRoutesFromFiles(),
+        ]);
 
+        await db.busStops.clear();
+        await db.busRoutes.clear();
+        await db.busStops.bulkPut(loadedStops as any);
+        await db.busRoutes.bulkPut(loadedRoutes as any);
 
-      setStops(loadedStops);
-      setRoutes(loadedRoutes);
-      setIsInitializing(false);
+        setStops(loadedStops);
+        setRoutes(loadedRoutes);
+        saveToLocalCache(loadedStops, loadedRoutes);
+      } catch (error) {
+        console.error('Background data refresh failed:', error);
+        if (!cached) {
+          setIsInitializing(false);
+        }
+      } finally {
+        if (cached) {
+          setIsInitializing(false);
+        }
+      }
     };
     loadAll();
   }, []);
