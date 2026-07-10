@@ -1778,12 +1778,15 @@ const RoutePlanDetailPage: React.FC<{
 
   useEffect(() => {
     const el = stepRefs.current.get(activeStepIndex);
-    if (!el || !listRef.current) return;
     const container = listRef.current;
-    const containerRect = container.getBoundingClientRect();
-    const elRect = el.getBoundingClientRect();
-    const offset = elRect.top - containerRect.top + container.scrollTop - containerRect.height / 2 + elRect.height / 2;
-    container.scrollTo({ top: offset, behavior: 'smooth' });
+    if (!el || !container) return;
+    const raf = requestAnimationFrame(() => {
+      const cRect = container.getBoundingClientRect();
+      const eRect = el.getBoundingClientRect();
+      const offset = eRect.top - cRect.top + container.scrollTop - cRect.height / 2 + eRect.height / 2;
+      container.scrollTo({ top: Math.max(0, offset), behavior: 'smooth' });
+    });
+    return () => cancelAnimationFrame(raf);
   }, [activeStepIndex]);
 
   useEffect(() => {
@@ -2504,6 +2507,34 @@ const SettingsPage: React.FC = () => {
   const [copiedKpay, setCopiedKpay] = useState(false);
   const [copiedWave, setCopiedWave] = useState(false);
 
+  // Telegram link / alert status
+  const userId = useMemo(() => getUserId(), []);
+  const [tgStatus, setTgStatus] = useState<AlertStatus | null>(null);
+  const [tgBusy, setTgBusy] = useState(false);
+  const [tgMsg, setTgMsg] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    getAlertStatus(userId)
+      .then((s) => { if (!cancelled) setTgStatus(s); })
+      .catch(() => { if (!cancelled) setTgStatus({ linked: false, alert: null }); });
+    return () => { cancelled = true; };
+  }, [userId]);
+
+  const handleCancelTgAlert = async () => {
+    setTgBusy(true);
+    setTgMsg('');
+    try {
+      await cancelAlert(userId);
+      setTgStatus((s) => (s ? { ...s, alert: null } : s));
+      setTgMsg('🚫 သတိပေးချက် ပယ်ဖျက်ပြီးပါပြီ။');
+    } catch {
+      setTgMsg('ပယ်ဖျက်၍ မရပါ။');
+    } finally {
+      setTgBusy(false);
+    }
+  };
+
   useEffect(() => {
     const updateCacheInfo = () => {
       try {
@@ -2621,6 +2652,62 @@ const SettingsPage: React.FC = () => {
             </button>
           </div>
         </div>
+      </div>
+
+      {/* 1b. Telegram Alert / Link Card */}
+      <div className="ui-card p-6 bg-white rounded-2xl shadow-sm border border-slate-100">
+        <div className="flex items-center gap-4 mb-5">
+          <div className="bg-gradient-to-tr from-sky-500 to-blue-400 p-3 rounded-xl text-white">
+            <Bot size={20} />
+          </div>
+          <div>
+            <h3 className="font-semibold text-slate-900">Telegram သတိပေးချက်</h3>
+            <p className="text-sm text-slate-500">မှတ်တိုင် နီးကပ်လျှင် သတိပေးခံရန် ချိတ်ဆက်ပါ</p>
+          </div>
+        </div>
+
+        {tgStatus && tgStatus.alert ? (
+          <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 space-y-2">
+            <p className="text-sm text-emerald-700">🔔 <b>{tgStatus.alert.stopName}</b> မှတ်တိုင်သို့ ရောက်လျှင် သတိပေးပါမည်။</p>
+            <p className="text-xs text-emerald-600">Bot သို့ Live Location ပို့ပေးပါ။</p>
+            <button
+              onClick={handleCancelTgAlert}
+              disabled={tgBusy}
+              className="ui-btn-ghost w-full justify-center py-2 text-rose-600 border-rose-200 hover:bg-rose-50 disabled:opacity-50"
+            >သတိပေးချက် ပယ်ဖျက်မည်</button>
+          </div>
+        ) : tgStatus && tgStatus.linked ? (
+          <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 text-sm text-emerald-700">
+            ✅ ချိတ်ဆက်ပြီးပါပြီ။ မှတ်တိုင်တစ်ခုချက် ဖွင့်ပြီး "သတိပေးပါ" ကို နှိပ်ပါ။
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <p className="text-xs text-slate-600">Telegram နှင့် ချိတ်ဆက်ပြီး မှတ်တိုင် နီးကပ်လျှင် သတိပေးခံရန် ရွေးချယ်ပါ။</p>
+            <a
+              href={connectUrl(userId)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-[#26A5E4] hover:bg-[#2297cc] text-white font-medium rounded-xl shadow-sm transition-colors text-sm"
+            >
+              <Send size={16} /> Telegram နဲ့ ချိတ်ဆက်မည်
+            </a>
+            <div className="bg-white rounded-xl border border-slate-200 p-3 space-y-1.5">
+              <p className="text-[11px] text-slate-500 leading-relaxed">
+                Bot ကို အရင် ဖွင့်ထားပြီးသားဆိုရင် Link နှိပ်ပြီးနောက် Bot ထဲမှာ အောက်ပါ ကုဒ်ကို တိုက်ရိုက် ပို့ပါ (သို့မဟုတ် <code className="bg-slate-100 px-1 rounded">/start {userId}</code>):
+              </p>
+              <div className="flex items-center justify-between gap-2 bg-slate-50 rounded-lg px-3 py-2">
+                <span className="font-mono font-semibold tracking-widest text-slate-800 select-all">{userId}</span>
+                <button
+                  type="button"
+                  onClick={() => navigator.clipboard?.writeText(userId)}
+                  className="text-xs font-medium text-blue-600 hover:text-blue-700"
+                >ကူးယူ</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {tgMsg && <p className="text-xs text-center text-slate-600 mt-3">{tgMsg}</p>}
       </div>
 
       {/* 2. Developer Info Card */}
@@ -2758,6 +2845,14 @@ const SettingsPage: React.FC = () => {
     <div>
       <h4 className="text-sm font-semibold text-slate-800 mb-2">Application ထည့်သွင်းရန်မလိုခြင်း</h4>
       <p className="text-xs text-slate-500">Telegram ရှိရုံဖြင့် Android ရော iOS ပါဝင်တဲ့ မည်သည့်ဖုန်းတွင်မဆို တိုက်ရိုက်အသုံးပြုနိုင်ခြင်း။</p>
+    </div>
+  </div>
+  {/* Telegram သတိပေးချက် */}
+  <div className="flex gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
+    <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
+    <div>
+      <h4 className="text-sm font-semibold text-slate-800 mb-2">Telegram သတိပေးချက် (Destination Alert)</h4>
+      <p className="text-xs text-slate-500">Telegram နှင့် ချိတ်ဆက်ပြီး ဆင်းမည့် မှတ်တိုင်သို့ ရောက်လျှင် သတိပေးချက် ပို့ပေးမည်။ Live Location ပို့ပေးပါ။ (Stop Detail ၊ Route Plan ၊ Settings မှ သတိပေးနိုင်ပါ)</p>
     </div>
   </div>
 </div>
