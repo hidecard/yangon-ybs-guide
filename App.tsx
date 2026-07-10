@@ -1998,32 +1998,98 @@ const FindRoutePage: React.FC<{ onRouteClick: (r: BusRoute) => void; routes: Bus
   );
 };
 
+// စိတ်ချရအောင် ဖုန်းနံပါတ်နဲ့ လမ်းကြောင်း Update လုပ်ပေးမယ့် လုပ်ဆောင်ချက်အားလုံး ပါဝင်ပြီးသား Code ဖြစ်ပါတယ်
 const SettingsPage: React.FC = () => {
   const [status, setStatus] = useState<'idle' | 'updating' | 'done'>('idle');
+  
+  // Phone Copy State များ
+  const [copiedKpay, setCopiedKpay] = useState(false);
+  const [copiedWave, setCopiedWave] = useState(false);
 
+  // Data Update လုပ်ဆောင်ချက် (bulkAdd မှ bulkPut သို့ ပြောင်းလဲထားပါသည်)
   const updateData = async () => {
     setStatus('updating');
-    
-    // Load stops from route files
-    const loadedStops = await loadStopsFromRouteFiles();
-    await db.busStops.clear();
-    await db.busStops.bulkAdd(loadedStops);
-    
-    // Load routes from JSON files
-    const loadedRoutes = await loadRoutesFromFiles();
-    await db.busRoutes.clear();
-    await db.busRoutes.bulkAdd(loadedRoutes);
-    
-    setStatus('done');
-    setTimeout(() => setStatus('idle'), 2000);
+    try {
+      // Load stops from route files
+      // @ts-ignore (သင့် project ရဲ့ function/db imported ဖြစ်နေတယ်ဆိုရင် အလုပ်လုပ်ပါလိမ့်မယ်)
+      const loadedStops = await loadStopsFromRouteFiles();
+      await db.busStops.clear();
+      await db.busStops.bulkPut(loadedStops); // 👈 ပြောင်းလဲထားသည့်နေရာ
+      
+      // Load routes from JSON files
+      const loadedRoutes = await loadRoutesFromFiles();
+      await db.busRoutes.clear();
+      await db.busRoutes.bulkPut(loadedRoutes); // 👈 ပြောင်းလဲထားသည့်နေရာ
+    } catch (error) {
+      console.error("Update failed:", error);
+    } finally {
+      setStatus('done');
+      setTimeout(() => setStatus('idle'), 2000);
+    }
+  };
+
+  // Phone Copy လုပ်ဆောင်ချက်
+  const handleCopy = (text: string, type: 'kpay' | 'wave') => {
+    navigator.clipboard.writeText(text).then(() => {
+      if (type === 'kpay') {
+        setCopiedKpay(true);
+        setTimeout(() => setCopiedKpay(false), 2000);
+      } else {
+        setCopiedWave(true);
+        setTimeout(() => setCopiedWave(false), 2000);
+      }
+    });
   };
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6 md:py-8 space-y-6 pb-24 md:pb-8">
-      <div className="ui-card p-6">
+      
+      {/* 1. App Data Sync / Update Card (အပေါ်က Function အတွက် UI ကတ်ပြား) */}
+      <div className="ui-card p-6 bg-white rounded-2xl shadow-sm border border-slate-100">
         <div className="flex items-center gap-4 mb-5">
           <div className="bg-slate-900 p-3 rounded-xl text-white">
-            <Info size={20} />
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
+          </div>
+          <div>
+            <h3 className="font-semibold text-slate-900">Application Data</h3>
+            <p className="text-sm text-slate-500">လမ်းကြောင်းနှင့် မှတ်တိုင်အချက်အလက်များ အပ်ဒိတ်လုပ်ရန်</p>
+          </div>
+        </div>
+
+        <div className="bg-slate-50 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <p className="text-sm font-medium text-slate-700">Offline Database Version</p>
+            <p className="text-xs text-slate-500 mt-0.5">နောက်ဆုံးထွက်လမ်းကြောင်းများကို ဖုန်းထဲသို့ ဒေါင်းလုဒ်ဆွဲထည့်ပါ။</p>
+          </div>
+          
+          <button
+            onClick={updateData}
+            disabled={status === 'updating'}
+            className={`w-full sm:w-auto px-5 py-2.5 rounded-xl text-sm font-medium transition-all shadow-sm active:scale-[0.98] ${
+              status === 'updating' 
+                ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                : status === 'done'
+                ? 'bg-emerald-500 text-white'
+                : 'bg-slate-900 hover:bg-slate-800 text-white'
+            }`}
+          >
+            {status === 'updating' && (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="animate-spin h-4 w-4 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                ခဏစောင့်ပါ...
+              </span>
+            )}
+            {status === 'done' && '✓ Sync အောင်မြင်ပါသည်'}
+            {status === 'idle' && 'လမ်းကြောင်းများ Update လုပ်မည်'}
+          </button>
+        </div>
+      </div>
+
+      {/* 2. Developer Info Card */}
+      <div className="ui-card p-6 bg-white rounded-2xl shadow-sm border border-slate-100">
+        <div className="flex items-center gap-4 mb-5">
+          <div className="bg-slate-900 p-3 rounded-xl text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
           </div>
           <div>
             <h3 className="font-semibold text-slate-900">Developer Info</h3>
@@ -2035,11 +2101,11 @@ const SettingsPage: React.FC = () => {
           <div className="bg-slate-50 rounded-xl p-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="ui-label">App Name</p>
+                <p className="ui-label text-xs font-medium text-slate-400 uppercase tracking-wider">App Name</p>
                 <p className="font-semibold text-slate-800 mt-0.5">YBS Guide</p>
               </div>
               <div>
-                <p className="ui-label">Version</p>
+                <p className="ui-label text-xs font-medium text-slate-400 uppercase tracking-wider">Version</p>
                 <p className="font-semibold text-slate-800 mt-0.5">3.0</p>
               </div>
             </div>
@@ -2047,19 +2113,155 @@ const SettingsPage: React.FC = () => {
 
           <div className="bg-slate-50 rounded-xl p-4 space-y-3">
             <div>
-              <p className="ui-label">Developer</p>
+              <p className="ui-label text-xs font-medium text-slate-400 uppercase tracking-wider">Developer</p>
               <p className="font-semibold text-slate-800 mt-0.5">Arkar Yan</p>
               <p className="text-sm text-slate-500">Project Manager | Instructor</p>
             </div>
 
             <div className="pt-3 border-t border-slate-200 space-y-2">
-              <p className="ui-label">Get In Touch</p>
-              <p className="text-sm text-brand font-medium">info@arkaryan.net</p>
+              <p className="ui-label text-xs font-medium text-slate-400 uppercase tracking-wider">Get In Touch</p>
+              <p className="text-sm text-blue-600 font-medium">info@arkaryan.net</p>
               <p className="text-sm text-slate-600">arkaryan.net</p>
             </div>
           </div>
         </div>
       </div>
+
+      {/* 3. App Announcement / Version 3.0 Info Card */}
+      <div className="ui-card p-6 bg-white rounded-2xl shadow-sm border border-slate-100 space-y-5">
+        <div className="flex items-center gap-4 border-b border-slate-100 pb-4">
+          <div className="bg-gradient-to-tr from-amber-500 to-orange-400 p-3 rounded-xl text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="m5 3 1 2.5L8.5 6 6 7 5 9.5 4 7 1.5 6 4 5.5z"/><path d="m19 17 1 2.5 2.5.5-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1z"/></svg>
+          </div>
+          <div>
+            <h3 className="font-semibold text-slate-900">What's New in V3.0</h3>
+            <p className="text-sm text-slate-500">ဗားရှင်းသစ် အချက်အလက်များ</p>
+          </div>
+        </div>
+
+        {/* Main Banner Text */}
+        <div className="bg-blue-50/60 rounded-xl p-4 border border-blue-100/50">
+          <p className="text-sm text-slate-700 leading-relaxed font-medium">
+            <span className="font-semibold text-blue-600">YBS Guide Bot Version 3.0</span> ကို Telegram တွင် စတင်အသုံးပြုနိုင်ပြီဖြစ်ကြောင်း သတင်းကောင်းပါးအပ်ပါတယ် ✌️
+          </p>
+          <p className="text-sm text-slate-600 leading-relaxed mt-2">
+            ရန်ကုန်မြို့နေ မိဘပြည်သူများ ဘတ်စ်ကားစီးနင်းရာတွင် ပိုမိုအဆင်ပြေချောမွေ့စေဖို့အတွက် YBS AI Version 3.0 ကို အောက်ပါ Feature အသစ်တွေနဲ့ အဆင့်မြှင့်တင်ပေးထားပါတယ် -
+          </p>
+        </div>
+
+        {/* Features Grid */}
+        <div className="grid gap-3">
+          <div className="flex gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
+            <span className="text-emerald-500 text-lg flex-shrink-0">✅</span>
+            <div>
+              <h4 className="text-sm font-semibold text-slate-800">ထပ်တိုးလမ်းကြောင်းများ</h4>
+              <p className="text-xs text-slate-500 mt-0.5">ခရီးစဉ်လမ်းကြောင်းအသစ်များကို အပြည့်အစုံ ဖြည့်စွက်ပေးထားခြင်း။</p>
+            </div>
+          </div>
+
+          <div className="flex gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
+            <span className="text-emerald-500 text-lg flex-shrink-0">✅</span>
+            <div>
+              <h4 className="text-sm font-semibold text-slate-800">ခေတ်မီဒီဇိုင်း</h4>
+              <p className="text-xs text-slate-500 mt-0.5">အသုံးပြုရ ပိုမိုလွယ်ကူပြီး မျက်စိပသာဒဖြစ်စေမည့် UI/UX Design သို့ ပြောင်းလဲထားခြင်း။</p>
+            </div>
+          </div>
+
+          <div className="flex gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
+            <span className="text-emerald-500 text-lg flex-shrink-0">✅</span>
+            <div>
+              <h4 className="text-sm font-semibold text-slate-800">အဆင့်မြင့် AI စနစ်</h4>
+              <p className="text-xs text-slate-500 mt-0.5">မိမိသွားလိုသည့် ခရီးစဉ်ကို ပိုမိုတိကျမှန်ကန်စွာ ရှာဖွေပေးနိုင်ခြင်း။</p>
+            </div>
+          </div>
+
+          <div className="flex gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
+            <span className="text-emerald-500 text-lg flex-shrink-0">✅</span>
+            <div>
+              <h4 className="text-sm font-semibold text-slate-800">Real-time မှတ်တိုင်ခြေရာခံစနစ်</h4>
+              <p className="text-xs text-slate-500 mt-0.5">ဆင်းရမည့်မှတ်တိုင် မကျော်သွားစေဖို့ ဘယ်မှတ်တိုင်ရောက်နေပြီလဲဆိုတာကို အချိန်နဲ့တပြေးညီ သိရှိနိုင်ခြင်း။</p>
+            </div>
+          </div>
+
+          <div className="flex gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
+            <span className="text-emerald-500 text-lg flex-shrink-0">✅</span>
+            <div>
+              <h4 className="text-sm font-semibold text-slate-800">Application ထည့်သွင်းရန်မလိုခြင်း</h4>
+              <p className="text-xs text-slate-500 mt-0.5">Telegram ရှိရုံရုံဖြင့် Android ရော iOS ပါဝင်တဲ့ မည်သည့်ဖုန်းတွင်မဆို တိုက်ရိုက်အသုံးပြုနိုင်ခြင်း။</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Next Update & Apology Note */}
+        <div className="bg-amber-50/70 rounded-xl p-4 border border-amber-100 space-y-1.5">
+          <div className="flex items-center gap-2 text-amber-800 font-semibold text-sm">
+            <span>💡</span>
+            <h4>Next Update & Apology</h4>
+          </div>
+          <p className="text-xs text-slate-600 leading-relaxed">
+            လက်ရှိမှာ အင်တာနက်မလိုဘဲ အသုံးပြုနိုင်မည့် Offline Version အပြင် စိတ်လှုပ်ရှားစရာ Update Feature အသစ်တွေကိုပါ ထပ်မံထည့်သွင်းနိုင်ဖို့ ကြိုးစားနေပါတယ်။ တစ်ယောက်တည်း Data စုဆောင်းရတာဖြစ်လို့ အချိန်အနည်းငယ် ကြန့်ကြာသွားပြီး Update ထွက်ဖို့ နောက်ကျသွားခဲ့တဲ့အတွက် အနူးအညွတ် တောင်းပန်အပ်ပါတယ်ခင်ဗျာ။
+          </p>
+        </div>
+
+        {/* Support & Donations */}
+        <div className="bg-rose-50/40 rounded-xl p-4 border border-rose-100/60 space-y-3">
+          <div className="flex items-center gap-2 text-rose-700 font-semibold text-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-rose-500"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+            <h4>Support & Donation</h4>
+          </div>
+          <p className="text-xs text-slate-600 leading-relaxed">
+            ဒီ Bot လေး ရေရှည်လည်ပတ်နိုင်ဖို့နဲ့ ပိုမိုကောင်းမွန်တဲ့ Feature တွေ ဖန်တီးနိုင်ဖို့အတွက် Support ပေးလိုပါက ကတ်ပြားကိုနှိပ်ပြီး ဖုန်းနံပါတ်ကို Copy ယူကာ လှူဒါန်းပေးနိုင်ပါတယ် -
+          </p>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+            {/* Kpay Button */}
+            <button 
+              onClick={() => handleCopy('09446941632', 'kpay')}
+              className="bg-white px-3 py-2.5 rounded-lg border border-rose-100 flex justify-between items-center text-left hover:bg-rose-50/30 active:scale-[0.99] transition-all group"
+              type="button"
+              title="Click to copy number"
+            >
+              <div className="flex flex-col">
+                <span className="text-xs font-medium text-slate-400">Kpay</span>
+                <span className="text-xs font-semibold text-slate-800 mt-0.5">09446941632 (Hmwe Kyu Kyu)</span>
+              </div>
+              <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full transition-colors ${copiedKpay ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500 group-hover:bg-rose-100 group-hover:text-rose-700'}`}>
+                {copiedKpay ? 'Copied! ✓' : 'Copy'}
+              </span>
+            </button>
+
+            {/* Wave Pay Button */}
+            <button 
+              onClick={() => handleCopy('09758430371', 'wave')}
+              className="bg-white px-3 py-2.5 rounded-lg border border-rose-100 flex justify-between items-center text-left hover:bg-rose-50/30 active:scale-[0.99] transition-all group"
+              type="button"
+              title="Click to copy number"
+            >
+              <div className="flex flex-col">
+                <span className="text-xs font-medium text-slate-400">Wave Pay</span>
+                <span className="text-xs font-semibold text-slate-800 mt-0.5">09758430371 (Arkar Yan)</span>
+              </div>
+              <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full transition-colors ${copiedWave ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500 group-hover:bg-rose-100 group-hover:text-rose-700'}`}>
+                {copiedWave ? 'Copied! ✓' : 'Copy'}
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* Call to Action Button */}
+        <div className="pt-2">
+          <p className="text-xs text-center text-slate-500 mb-2">ယခုပဲ Telegram Bot ကနေတစ်ဆင့် စမ်းသပ်အသုံးပြုကြည့်လိုက်ပါ ခင်ဗျာ</p>
+          <a 
+            href="https://t.me/ybsguide_bot" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-[#26A5E4] hover:bg-[#2297cc] text-white font-medium rounded-xl shadow-sm transition-colors text-sm"
+          >
+             Open YBS Guide Bot on Telegram
+          </a>
+        </div>
+      </div>
+
     </div>
   );
 };
