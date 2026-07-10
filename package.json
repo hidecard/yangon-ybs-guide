@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@google/genai": "^1.37.0",
+    "@libsql/client": "^0.17.4",
     "dexie": "^4.2.1",
     "lucide-react": "^0.562.0",
     "react": "^19.2.3",
