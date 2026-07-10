@@ -458,7 +458,7 @@ const MobileBottomNav: React.FC = () => {
     { id: '/', icon: Home, label: 'ပင်မ' },
     { id: '/assistant', icon: MessageSquare, label: 'Assistant' },
     { id: '/routes', icon: Bus, label: 'လိုင်းများ' },
-    { id: '/map', icon: MapIcon, label: 'မြေပုံ' },
+    { id: '/stops', icon: MapPin, label: 'မှတ်တိုင်များ' },
     { id: '/find-route', icon: Search, label: 'လမ်းကြောင်း' },
   ];
 
@@ -491,7 +491,6 @@ const Header: React.FC = () => {
     { id: '/assistant', icon: MessageSquare, label: 'Assistant' },
     { id: '/routes', icon: Bus, label: 'Routes' },
     { id: '/stops', icon: MapPin, label: 'Stops' },
-    { id: '/map', icon: MapIcon, label: 'Map' },
     { id: '/find-route', icon: Search, label: 'Find Route' },
   ];
 
@@ -504,7 +503,7 @@ const Header: React.FC = () => {
           </div>
           <div className="flex items-center gap-2">
             <h1 className="text-base font-bold text-slate-900 tracking-tight">YBS Guide</h1>
-            <span className="text-[10px] font-semibold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">3.0</span>
+            <span className="text-[10px] font-semibold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">3.1</span>
           </div>
         </button>
 
@@ -588,7 +587,7 @@ const HomePage: React.FC = () => {
   const quickActions = [
     { path: '/find-route', icon: Search, label: 'လမ်းကြောင်း ရှာရန်', color: 'bg-slate-900' },
     { path: '/routes', icon: Bus, label: 'ကားလိုင်းများ', color: 'bg-brand' },
-    { path: '/map', icon: MapIcon, label: 'မြေပုံ', color: 'bg-emerald-600' },
+    { path: '/stops', icon: MapPin, label: 'မှတ်တိုင်များ', color: 'bg-emerald-600' },
     { path: '/assistant', icon: MessageSquare, label: 'Assistant', color: 'bg-violet-600' },
   ];
 
@@ -777,176 +776,6 @@ const RoutesPage: React.FC<{
              </div>
           )}
         </div>
-      </div>
-    </div>
-  );
-};
-
-const MapPage: React.FC<{ stops: BusStop[], routes: BusRoute[], onStopClick: (s: BusStop) => void }> = ({ stops, routes, onStopClick }) => {
-  const mapContainerRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<any>(null);
-  const markersLayerRef = useRef<any>(null);
-  const routesLayerRef = useRef<any>(null);
-  const [isLocating, setIsLocating] = useState(false);
-  const [search, setSearch] = useState('');
-  const [showSearch, setShowSearch] = useState(false);
-
-  const filteredStops = useMemo(() => {
-    if (!search) return [];
-    const term = search.toLowerCase();
-    return stops.filter(s =>
-      s.name_mm.toLowerCase().includes(term) ||
-      s.name_en.toLowerCase().includes(term) ||
-      s.road_mm.toLowerCase().includes(term) ||
-      s.road_en.toLowerCase().includes(term) ||
-      s.township_mm.toLowerCase().includes(term) ||
-      s.township_en.toLowerCase().includes(term)
-    ).slice(0, 10);
-  }, [search, stops]);
-
-  useEffect(() => {
-    const L = (window as any).L;
-    if (!L || !mapContainerRef.current || mapInstanceRef.current) return;
-
-    const map = L.map(mapContainerRef.current, { zoomControl: false }).setView([16.8, 96.15], 13);
-    mapInstanceRef.current = map;
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-    L.control.zoom({ position: 'bottomright' }).addTo(map);
-
-    markersLayerRef.current = L.featureGroup().addTo(map);
-    routesLayerRef.current = L.featureGroup().addTo(map);
-
-    map.on('locationfound', (e: any) => {
-      setIsLocating(false);
-      try {
-        L.circleMarker(e.latlng, { radius: 10, fillColor: '#10b981', color: '#fff', weight: 3, fillOpacity: 1 }).addTo(map).bindTooltip('မိမိ နေရာ', {
-          permanent: true,
-          direction: 'top',
-          offset: [0, -10],
-          className: 'text-[10px] font-bold text-white bg-emerald-600 px-1.5 py-0.5 rounded border border-emerald-800',
-        });
-      } catch {}
-      try {
-        map.setView(e.latlng, 15);
-      } catch {}
-    });
-
-    setTimeout(() => map.invalidateSize(), 200);
-
-    return () => {
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
-        mapInstanceRef.current = null;
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    const L = (window as any).L;
-    if (!L || !markersLayerRef.current || stops.length === 0) return;
-
-    markersLayerRef.current.clearLayers();
-
-    stops.forEach(s => {
-      const marker = L.circleMarker([s.lat, s.lng], {
-        radius: 7,
-        fillColor: "#2563eb",
-        color: "#fff",
-        weight: 2,
-        opacity: 1,
-        fillOpacity: 0.8
-      });
-
-      marker.bindPopup(`
-        <div class="p-2 min-w-[120px]">
-          <div class="font-black text-gray-900 text-sm mb-0.5">${s.name_mm}</div>
-          <div class="text-[10px] text-gray-500 font-bold uppercase mb-2">${s.township_mm}</div>
-          <button id="detail-btn-${s.id}" class="w-full bg-slate-900 text-white text-[10px] py-1.5 rounded-lg font-medium hover:bg-slate-800 transition-all">အသေးစိတ်ကြည့်မည်</button>
-        </div>
-      `, { closeButton: false });
-
-      marker.on('popupopen', () => {
-        const btn = document.getElementById(`detail-btn-${s.id}`);
-        if (btn) btn.onclick = () => onStopClick(s);
-      });
-
-      marker.addTo(markersLayerRef.current);
-    });
-  }, [stops, onStopClick]);
-
-  useEffect(() => {
-    const L = (window as any).L;
-    if (!L || !routesLayerRef.current || routes.length === 0) return;
-
-    routesLayerRef.current.clearLayers();
-
-    // Route lines are hidden as per user request - only map icons are shown
-  }, [routes]);
-
-  const handleLocate = () => {
-    if (mapInstanceRef.current) {
-      setIsLocating(true);
-      mapInstanceRef.current.locate({ setView: true, maxZoom: 15 });
-    }
-  };
-
-  const jumpToStop = (s: BusStop) => {
-    if (mapInstanceRef.current) {
-      mapInstanceRef.current.setView([s.lat, s.lng], 16);
-      setSearch('');
-      setShowSearch(false);
-    }
-  };
-
-  return (
-    <div className="relative w-full h-full bg-slate-100 overflow-hidden flex flex-col">
-      <div ref={mapContainerRef} className="flex-1 w-full bg-slate-200"></div>
-
-      <div className="absolute top-3 sm:top-4 left-3 sm:left-4 right-3 sm:right-4 md:left-auto md:w-80 md:right-4 z-[1000] space-y-2">
-        <div className="relative">
-          <input
-            type="text"
-            placeholder="မှတ်တိုင်အမည်ဖြင့် ရှာရန်..."
-            className="ui-input pl-10 shadow-md text-sm"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onFocus={() => setShowSearch(true)}
-          />
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-          {search && (
-            <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
-              <X size={16} />
-            </button>
-          )}
-        </div>
-
-        {showSearch && filteredStops.length > 0 && (
-          <div className="bg-white rounded-xl shadow-lg border border-slate-100 overflow-hidden animate-slide-up max-h-[50vh] sm:max-h-[60vh] overflow-y-auto no-scrollbar">
-            {filteredStops.map(s => (
-              <button
-                key={s.id}
-                onClick={() => jumpToStop(s)}
-                className="w-full p-3 flex items-center gap-3 hover:bg-slate-50 border-b border-slate-50 last:border-0 text-left transition-colors"
-              >
-                <div className="bg-brand-light p-1.5 rounded-lg text-brand"><MapPin size={14} /></div>
-                <div>
-                  <div className="text-sm font-medium text-slate-800">{s.name_mm}</div>
-                  <div className="text-xs text-slate-400">{s.township_mm}</div>
-                </div>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div className="absolute bottom-20 sm:bottom-24 right-3 sm:right-4 z-[1000]">
-        <button
-          onClick={handleLocate}
-          disabled={isLocating}
-          className="ui-btn-icon"
-        >
-          {isLocating ? <RefreshCw className="animate-spin" size={20} /> : <Locate size={20} />}
-        </button>
       </div>
     </div>
   );
@@ -1325,7 +1154,7 @@ const RouteDetailPage: React.FC<{ route: BusRoute, onClose: () => void, onStopCl
         opacity: 1,
         fillOpacity: 0.9,
       }).addTo(map);
-      liveMarker.bindTooltip('မင်္ဂလာနေရာ', {
+      liveMarker.bindTooltip('မိမိ နေရာ', {
         permanent: true,
         direction: 'top',
         offset: [0, -10],
@@ -1819,7 +1648,7 @@ const RoutePlanDetailPage: React.FC<{
           opacity: 1,
           fillOpacity: 0.9,
         }).addTo(map);
-        liveMarker.bindTooltip('မင်္ဂလာနေရာ', {
+        liveMarker.bindTooltip('မိမိ နေရာ', {
           permanent: true,
           direction: 'top',
           offset: [0, -10],
@@ -2370,7 +2199,7 @@ const SettingsPage: React.FC = () => {
               </div>
               <div>
                 <p className="ui-label text-xs font-medium text-slate-400 uppercase tracking-wider">Version</p>
-                <p className="font-semibold text-slate-800 mt-0.5">3.0</p>
+                <p className="font-semibold text-slate-800 mt-0.5">3.1</p>
               </div>
             </div>
           </div>
@@ -2385,7 +2214,7 @@ const SettingsPage: React.FC = () => {
             <div className="pt-3 border-t border-slate-200 space-y-2">
               <p className="ui-label text-xs font-medium text-slate-400 uppercase tracking-wider">Get In Touch</p>
               <p className="text-sm text-blue-600 font-medium">info@arkaryan.net</p>
-              <p className="text-sm text-slate-600">arkaryan.net</p>
+              <p className="text-sm text-slate-600">https://www.arkaryan.net/</p>
             </div>
           </div>
         </div>
@@ -2398,7 +2227,7 @@ const SettingsPage: React.FC = () => {
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="m5 3 1 2.5L8.5 6 6 7 5 9.5 4 7 1.5 6 4 5.5z"/><path d="m19 17 1 2.5 2.5.5-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1z"/></svg>
           </div>
           <div>
-            <h3 className="font-semibold text-slate-900">What's New in V3.0</h3>
+            <h3 className="font-semibold text-slate-900">What's New in V3.1</h3>
             <p className="text-sm text-slate-500">ဗားရှင်းသစ် အချက်အလက်များ</p>
           </div>
         </div>
@@ -2406,10 +2235,10 @@ const SettingsPage: React.FC = () => {
         {/* Main Banner Text */}
         <div className="bg-blue-50/60 rounded-xl p-4 border border-blue-100/50">
           <p className="text-sm text-slate-700 leading-relaxed font-medium">
-            <span className="font-semibold text-blue-600">YBS Guide Bot Version 3.0</span> ကို Telegram တွင် စတင်အသုံးပြုနိုင်ပြီဖြစ်ကြောင်း သတင်းကောင်းပါးအပ်ပါတယ် ✌️
+            <span className="font-semibold text-blue-600">YBS Guide Bot Version 3.1</span> ကို Telegram တွင် စတင်အသုံးပြုနိုင်ပြီဖြစ်ကြောင်း သတင်းကောင်းပါးအပ်ပါတယ် ✌️
           </p>
           <p className="text-sm text-slate-600 leading-relaxed mt-2">
-            ရန်ကုန်မြို့နေ မိဘပြည်သူများ ဘတ်စ်ကားစီးနင်းရာတွင် ပိုမိုအဆင်ပြေချောမွေ့စေဖို့အတွက် YBS AI Version 3.0 ကို အောက်ပါ Feature အသစ်တွေနဲ့ အဆင့်မြှင့်တင်ပေးထားပါတယ် -
+            ရန်ကုန်မြို့နေ မိဘပြည်သူများ ဘတ်စ်ကားစီးနင်းရာတွင် ပိုမိုအဆင်ပြေချောမွေ့စေဖို့အတွက် YBS AI Version 3.1 ကို အောက်ပါ Feature အသစ်တွေနဲ့ အဆင့်မြှင့်တင်ပေးထားပါတယ် -
           </p>
         </div>
 
@@ -2446,7 +2275,30 @@ const SettingsPage: React.FC = () => {
               <p className="text-xs text-slate-500 mt-0.5">ဆင်းရမည့်မှတ်တိုင် မကျော်သွားစေဖို့ ဘယ်မှတ်တိုင်ရောက်နေပြီလဲဆိုတာကို အချိန်နဲ့တပြေးညီ သိရှိနိုင်ခြင်း။</p>
             </div>
           </div>
+<div className="flex gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
+  <span className="text-emerald-500 text-lg flex-shrink-0">✅</span>
+  <div>
+    <h4 className="text-sm font-semibold text-slate-800">Route Detail Page (တစ်လိုင်းချင်းစီ အသေးစိတ်ကြည့်ရှုနိုင်မှု)</h4>
+    <ol className="list-decimal pl-4 mt-1.5 space-y-1 text-xs text-slate-500">
+      <li>လိုင်းကားတစ်လိုင်းချင်းစီရဲ့ မှတ်တိုင်အားလုံးကို နံပါတ်စဉ်တပ်ပြီး ရှင်းရှင်းလင်းလင်း ပြသပေးထားပါတယ်။</li>
+      <li>Live Location စနစ်ကြောင့် မိမိလက်ရှိရောက်နေတဲ့ မှတ်တိုင်ကို အလိုအလျောက် Highlight လုပ်ပြပေးမှာဖြစ်ပါတယ်။</li>
+      <li>Map ပေါ်မှာလည်း လက်ရှိမှတ်တိုင်နဲ့ နောက်လာမယ့်မှတ်တိုင်တွေကို ကွဲကွဲပြားပြား ရှင်းရှင်းလင်းလင်း မြင်တွေ့ရမှာပါ။</li>
+    </ol>
+  </div>
+</div>
 
+<div className="flex gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
+  <span className="text-emerald-500 text-lg flex-shrink-0">✅</span>
+  <div>
+    <h4 className="text-sm font-semibold text-slate-800">Route Plan Detail Page (အသေးစိတ် လမ်းကြောင်းစီမံချက်)</h4>
+    <ol className="list-decimal pl-4 mt-1.5 space-y-1 text-xs text-slate-500">
+      <li>ဘယ်မှတ်တိုင်ကနေ ဘယ်ကားစီးရမယ်၊ ဘယ်မှတ်တိုင်မှာ ဆင်းရမယ်ဆိုတာကို တစ်ဆင့်ချင်း (Step-by-Step) ရှင်းပြပေးပါတယ်။</li>
+      <li>Map ပေါ်မှာ လက်ရှိအဆင့်ရဲ့ စီးရန်နဲ့ ဆင်းရန်မှတ်တိုင်ကိုပဲ အဓိက ပြသပေးထားလို့ ရှုပ်ထွေးမှုမရှိစေပါဘူး။</li>
+      <li>Live Location နဲ့ လက်ရှိရောက်နေတဲ့ အဆင့်အတိုင်း လမ်းကြောင်းပြမြေပုံကို အလိုအလျောက် ရွှေ့ပေးသွားမှာပါ။</li>
+      <li>လမ်းကြောင်း List ထဲမှာလည်း မိမိလက်ရှိရောက်နေတဲ့ အဆင့်ကို အစိမ်းရောင်နဲ့ Highlight လုပ်ပေးမယ့်အပြင်၊ စာရင်းကို အလိုအလျောက် အပေါ်အောက် ရွှေ့ပေးမယ့် (Auto Scroll) စနစ်လည်း ပါဝင်လာပါတယ်။</li>
+    </ol>
+  </div>
+</div>
           <div className="flex gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
             <span className="text-emerald-500 text-lg flex-shrink-0">✅</span>
             <div>
@@ -2632,7 +2484,6 @@ const App: React.FC = () => {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/routes" element={<RoutesPage onRouteClick={navigateToRoute} onStopClick={navigateToStop} favorites={favorites} onToggleFavorite={toggleFavorite} routes={routes} stops={stops} />} />
-        <Route path="/map" element={<MapPage stops={stops} routes={routes} onStopClick={navigateToStop} />} />
         <Route path="/assistant" element={<AssistantPage onRouteClick={navigateToRoute} routes={routes} stops={stops} />} />
         <Route path="/find-route" element={<FindRoutePage onRouteClick={navigateToRoute} routes={routes} stops={stops} />} />
         <Route path="/route-plan-detail" element={<RoutePlanDetailFromState />} />
