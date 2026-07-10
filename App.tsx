@@ -553,6 +553,81 @@ const MobileBottomNav: React.FC = () => {
   );
 };
 
+const TelegramConnect: React.FC = () => {
+  const [open, setOpen] = useState(false);
+  const [status, setStatus] = useState<AlertStatus | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState('');
+  const userId = useMemo(() => getUserId(), []);
+
+  useEffect(() => {
+    if (!open) return;
+    getAlertStatus(userId)
+      .then((s) => setStatus(s))
+      .catch(() => setStatus({ linked: false, alert: null }));
+  }, [open, userId]);
+
+  return (
+    <>
+      <button onClick={() => setOpen(true)} className="ui-btn-ghost p-2 rounded-xl" title="Telegram ချိတ်ဆက်">
+        <Bot size={20} />
+      </button>
+
+      {open && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm" onClick={() => setOpen(false)}>
+          <div className="bg-white w-full max-w-md rounded-2xl p-5 space-y-4" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2">
+                <Bot size={18} className="text-blue-600" /> Telegram ချိတ်ဆက်
+              </h3>
+              <button onClick={() => setOpen(false)} className="ui-btn-icon"><X size={18} /></button>
+            </div>
+
+            <p className="text-sm text-slate-600">မှတ်တိုင် နီးကပ်လျှင် သတိပေးခံရန် သင့် Telegram ကို ချိတ်ဆက်ပါ။</p>
+
+            {status && status.alert ? (
+              <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-3 text-sm text-emerald-700 space-y-2">
+                <p>🔔 <b>{status.alert.stopName}</b> မှတ်တိုင်သို့ ရောက်လျှင် သတိပေးပါမည်။</p>
+                <p className="text-xs text-emerald-600">Bot သို့ Live Location ပို့ပေးပါ။</p>
+                <button
+                  onClick={async () => { await cancelAlert(userId); setStatus((s) => (s ? { ...s, alert: null } : s)); setMsg('🚫 သတိပေးချက် ပယ်ဖျက်ပြီးပါပြီ။'); }}
+                  className="w-full ui-btn-ghost py-2 text-rose-600 border-rose-200 hover:bg-rose-50"
+                >သတိပေးချက် ပယ်ဖျက်မည်</button>
+              </div>
+            ) : status && status.linked ? (
+              <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-3 text-sm text-emerald-700 space-y-1.5">
+                <p>✅ ချိတ်ဆက်ပြီးပါပြီ။ မှတ်တိုင်တစ်ခုချက် ဖွင့်ပြီး "သတိပေးပါ" ကို နှိပ်ပါ။</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <a
+                  href={connectUrl(userId)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-[#26A5E4] hover:bg-[#2297cc] text-white font-medium rounded-xl text-sm"
+                >
+                  <Send size={16} /> Telegram နဲ့ ချိတ်ဆက်မည်
+                </a>
+                <div className="bg-white rounded-xl border border-slate-200 p-3 space-y-1.5">
+                  <p className="text-[11px] text-slate-500 leading-relaxed">
+                    Bot ကို အရင် ဖွင့်ထားပြီးသားဆိုရင် Link နှိပ်ပြီးနောက် Bot ထဲမှာ အောက်ပါ ကုဒ်ကို တိုက်ရိုက် ပို့ပါ (သို့မဟုတ် <code className="bg-slate-100 px-1 rounded">/start {userId}</code>):
+                  </p>
+                  <div className="flex items-center justify-between gap-2 bg-slate-50 rounded-lg px-3 py-2">
+                    <span className="font-mono font-semibold tracking-widest text-slate-800 select-all">{userId}</span>
+                    <button type="button" onClick={() => navigator.clipboard?.writeText(userId)} className="text-xs font-medium text-blue-600 hover:text-blue-700">ကူးယူ</button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {msg && <p className="text-xs text-center text-slate-600">{msg}</p>}
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
+
 const Header: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -598,6 +673,8 @@ const Header: React.FC = () => {
         <button onClick={() => navigate('/settings')} className="ui-btn-ghost p-2 rounded-xl">
           <Settings size={20} />
         </button>
+
+        <TelegramConnect />
       </div>
     </header>
   );
