@@ -49,12 +49,27 @@ function ensureSchema(): Promise<void> {
   return schemaReady;
 }
 
-async function sendTelegram(chatId: string, text: string): Promise<void> {
-  await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chat_id: chatId, text, parse_mode: 'HTML' }),
-  });
+async function sendTelegram(chatId: string, text: string): Promise<boolean> {
+  if (!BOT_TOKEN) {
+    console.error('[sendTelegram] BOT_TOKEN is not set (check Vercel Environment Variables)');
+    return false;
+  }
+  try {
+    const resp = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chatId, text, parse_mode: 'HTML' }),
+    });
+    if (!resp.ok) {
+      const body = await resp.text();
+      console.error('[sendTelegram] Telegram API error:', resp.status, body);
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.error('[sendTelegram] fetch failed:', e);
+    return false;
+  }
 }
 
 async function linkUser(payload: string, chatId: string, from: any): Promise<void> {
