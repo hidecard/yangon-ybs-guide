@@ -1,4 +1,0 @@
-- [x] Step 1: Fix runtime crash by importing `db` in `App.tsx`.
-- [ ] Step 2: Migrate Tailwind from CDN to build-time (PostCSS/Tailwind CLI) so it’s production-safe.
-- [x] Step 3: Run `npm run dev` to verify `db` error is gone and app loads.
-- [x] Step 4: Run `npm run build` to ensure Tailwind build works.

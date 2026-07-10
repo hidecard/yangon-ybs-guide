@@ -152,6 +152,7 @@ export const ROUTE_FILES = [
 
 export const loadRoutesFromFiles = async (): Promise<BusRoute[]> => {
   const routes: BusRoute[] = [];
+  const usedIds = new Set<string>();
   for (const file of ROUTE_FILES) {
     try {
       const response = await fetch(`/routes/${file}`);
@@ -161,11 +162,14 @@ export const loadRoutesFromFiles = async (): Promise<BusRoute[]> => {
       }
       const data = await response.json();
       
-      // Extract route ID from bus_line
       const routeIdRaw = data.bus_line || file.replace('ybs_', '').replace('_data.json', '');
-      const routeId = String(routeIdRaw).trim();
+      let routeId = String(routeIdRaw).trim();
+      if (usedIds.has(routeId)) {
+        const suffix = file.replace('ybs_', '').replace('_data.json', '').replace(/^\d+_/, '');
+        routeId = `${routeId}_${suffix}`;
+      }
+      usedIds.add(routeId);
 
-      // Generate a consistent color based on route ID
       const generateColor = (id: string) => {
         let hash = 0;
         for (let i = 0; i < id.length; i++) {
@@ -175,7 +179,6 @@ export const loadRoutesFromFiles = async (): Promise<BusRoute[]> => {
         return '#' + '00000'.substring(0, 6 - c.length) + c;
       };
       
-      // Extract stops with coordinates
       const stopNames: string[] = [];
       const coordinates: [number, number][] = [];
       const detailedStops: BusStopDetailed[] = [];
@@ -190,7 +193,6 @@ export const loadRoutesFromFiles = async (): Promise<BusRoute[]> => {
             coordinates.push([stop.longitude, stop.latitude]);
           }
 
-          // Build route-specific stop data to avoid cross-bus mixing
           if (stop.stop_name_mm && stop.stop_name_en && stop.latitude && stop.longitude) {
             const roadParts = stop.road ? stop.road.split(',') : ['', ''];
             const township = roadParts[1] ? roadParts[1].trim() : roadParts[0].trim();
@@ -214,7 +216,6 @@ export const loadRoutesFromFiles = async (): Promise<BusRoute[]> => {
         id: routeId,
         color: generateColor(routeId),
         operator: data.route_info?.Agency || '',
-        // route_info object contains: "Route Name" and "Line Name"
         line_name: data.route_info?.['Line Name'] || data.route_info?.['Line Name'.toString()] || undefined,
         stops: stopNames,
         stopsDetailed: detailedStops,

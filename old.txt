@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo, useRef, useLayoutEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 
 import { Routes, Route, useNavigate, useLocation, useParams } from 'react-router-dom';
 import { loadRoutesFromFiles, loadStopsFromRouteFiles } from './data_constants';
@@ -661,6 +661,7 @@ const RoutesPage: React.FC<{
   const filtered = useMemo(() => {
     let result = routes;
 
+    // Apply search filter
     const term = search.toLowerCase().trim();
     if (term) {
       result = result.filter(r => {
@@ -671,12 +672,20 @@ const RoutesPage: React.FC<{
         const startStopEn = stopInfoMap.get(startStop)?.name_en || "";
         const endStopEn = stopInfoMap.get(endStop)?.name_en || "";
 
+        // Check route ID
         if (r.id.toLowerCase().includes(term)) return true;
+
+        // Check operator
         if (r.operator && r.operator.toLowerCase().includes(term)) return true;
+
+        // Check townships
         if (startTownship.toLowerCase().includes(term) || endTownship.toLowerCase().includes(term)) return true;
+
+        // Check start/end stops
         if (startStop.toLowerCase().includes(term) || endStop.toLowerCase().includes(term)) return true;
         if (startStopEn.toLowerCase().includes(term) || endStopEn.toLowerCase().includes(term)) return true;
 
+        // Check all stops in route (limit to first 10 for performance)
         return r.stops.slice(0, 10).some(stop => {
           const stopEn = stopInfoMap.get(stop)?.name_en || "";
           return stop.toLowerCase().includes(term) || stopEn.toLowerCase().includes(term);
@@ -684,14 +693,7 @@ const RoutesPage: React.FC<{
       });
     }
 
-    const seen = new Set<string>();
-    const unique = result.filter(r => {
-      if (seen.has(r.id)) return false;
-      seen.add(r.id);
-      return true;
-    });
-
-    return unique.sort((a, b) => {
+    return result.sort((a, b) => {
       const numA = parseInt(a.id, 10) || 0;
       const numB = parseInt(b.id, 10) || 0;
       if (numA !== numB) return numA - numB;
@@ -819,12 +821,7 @@ const MapPage: React.FC<{ stops: BusStop[], routes: BusRoute[], onStopClick: (s:
     map.on('locationfound', (e: any) => {
       setIsLocating(false);
       try {
-        L.circleMarker(e.latlng, { radius: 10, fillColor: '#10b981', color: '#fff', weight: 3, fillOpacity: 1 }).addTo(map).bindTooltip('မိမိ နေရာ', {
-          permanent: true,
-          direction: 'top',
-          offset: [0, -10],
-          className: 'text-[10px] font-bold text-white bg-emerald-600 px-1.5 py-0.5 rounded border border-emerald-800',
-        });
+        L.circleMarker(e.latlng, { radius: 10, fillColor: '#10b981', color: '#fff', weight: 3, fillOpacity: 1 }).addTo(map).bindPopup("သင်၏နေရာ").openPopup();
       } catch {}
       try {
         map.setView(e.latlng, 15);
@@ -1248,13 +1245,6 @@ const RouteDetailPage: React.FC<{ route: BusRoute, onClose: () => void, onStopCl
         fillOpacity: isActive ? 0.95 : 0.85,
       });
 
-      marker.bindTooltip(s.name_mm, {
-        permanent: true,
-        direction: 'top',
-        offset: [0, -10],
-        className: 'text-[10px] font-bold text-black bg-white px-1.5 py-0.5 rounded border border-black',
-      });
-
       marker.bindPopup(`
         <div class="p-2 min-w-[140px]">
           <div class="font-black text-gray-900 text-sm mb-0.5">${s.name_mm}</div>
@@ -1325,12 +1315,6 @@ const RouteDetailPage: React.FC<{ route: BusRoute, onClose: () => void, onStopCl
         opacity: 1,
         fillOpacity: 0.9,
       }).addTo(map);
-      liveMarker.bindTooltip('မင်္ဂလာနေရာ', {
-        permanent: true,
-        direction: 'top',
-        offset: [0, -10],
-        className: 'text-[10px] font-bold text-white bg-blue-600 px-1.5 py-0.5 rounded border border-blue-800',
-      });
       (map as any).__liveMarker = liveMarker;
     } catch {}
 
@@ -1433,60 +1417,76 @@ const RouteDetailPage: React.FC<{ route: BusRoute, onClose: () => void, onStopCl
               </div>
 
               <div className="space-y-2">
-                <p className="ui-label">မှတ်တိုင်များ ({routeStops.length})</p>
+                <p className="ui-label">Bus list (နောက်လာမည့်မှတ်တိုင်များ)</p>
 
                 {routeStops.length === 0 ? (
                   <div className="text-center py-10 text-slate-400">
                     ဒေတာမတွေ့သေးပါ။
                   </div>
                 ) : (
-                  <div className="space-y-1.5">
-                    {routeStops.map((s, idx) => {
-                      const isActive = idx === activeIndex;
-                      const isPassed = idx < activeIndex;
+                  <div className="space-y-2">
+                    {(() => {
+                      const active = routeStops[activeIndex];
                       return (
-                        <div
-                          key={s.id}
-                          className={`flex items-start gap-3 p-3 rounded-xl border transition-colors ${
-                            isActive
-                              ? 'border-emerald-300 bg-emerald-50/80'
-                              : isPassed
-                                ? 'border-slate-100 bg-slate-50/50'
-                                : 'border-slate-100 bg-white'
-                          }`}
-                          onClick={() => onStopClick(s)}
-                          style={{ cursor: 'pointer' }}
-                        >
-                          <div className="flex flex-col items-center mt-1 shrink-0">
-                            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                              isActive
-                                ? 'bg-emerald-600 text-white'
-                                : isPassed
-                                  ? 'bg-slate-200 text-slate-500'
-                                  : 'bg-slate-100 text-slate-400'
-                            }`}>
-                              {idx + 1}
-                            </div>
-                            {idx < routeStops.length - 1 && (
-                              <div className={`w-px h-6 ${isPassed ? 'bg-slate-200' : 'bg-slate-100'}`} />
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between gap-3">
-                              <div className="min-w-0">
-                                <div className={`text-sm font-semibold truncate ${isActive ? 'text-emerald-800' : 'text-slate-800'}`}>{s.name_mm}</div>
-                                <div className="text-xs text-slate-400 truncate">{s.township_mm}</div>
-                              </div>
-                              {isActive && (
-                                <div className="shrink-0">
-                                  <span className="ui-badge bg-emerald-100 text-emerald-700 border-emerald-200">လက်ရှိ</span>
+                        <>
+                          {active && (
+                            <div
+                              className="ui-card p-4 border border-emerald-100 bg-emerald-50/60"
+                              onClick={() => onStopClick(active)}
+                              style={{ cursor: 'pointer' }}
+                            >
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <div className="text-xs text-emerald-700 font-semibold">လက်ရှိနေရာ</div>
+                                  <div className="text-sm font-bold text-slate-900">{active.name_mm}</div>
+                                  <div className="text-[11px] text-emerald-700">{active.township_mm}</div>
                                 </div>
-                              )}
+                                <div className="w-9 h-9 rounded-xl bg-emerald-600/10 flex items-center justify-center">
+                                  <MapPin size={18} className="text-emerald-700" />
+                                </div>
+                              </div>
                             </div>
+                          )}
+
+                          <div className="space-y-1">
+                            {nextStops.map((s, idx) => {
+                              const actualIndex = Math.min(activeIndex + 1 + idx, routeStops.length - 1);
+                              return (
+                                <div
+                                  key={s.id}
+                                  className={`flex items-start gap-3 p-3 rounded-xl border transition-colors ${
+                                    actualIndex === activeIndex ? 'border-emerald-300 bg-emerald-50' : 'border-slate-100 bg-white'
+                                  }`}
+                                  onClick={() => onStopClick(s)}
+                                  style={{ cursor: 'pointer' }}
+                                >
+                                  <div className="flex flex-col items-center mt-1 shrink-0">
+                                    <div
+                                      className="w-2.5 h-2.5 rounded-full"
+                                      style={{ backgroundColor: route.color }}
+                                    />
+                                    {actualIndex < routeStops.length - 1 && (
+                                      <div className="w-px h-8 bg-slate-100" />
+                                    )}
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center justify-between gap-3">
+                                      <div className="min-w-0">
+                                        <div className="text-sm font-semibold text-slate-800 truncate">{s.name_mm}</div>
+                                        <div className="text-xs text-slate-400 truncate">{s.township_mm}</div>
+                                      </div>
+                                      <div className="shrink-0 text-slate-300">
+                                        <MapIcon size={16} />
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
                           </div>
-                        </div>
+                        </>
                       );
-                    })}
+                    })()}
                   </div>
                 )}
               </div>
@@ -1586,430 +1586,165 @@ const RoutePlanDetailFromState: React.FC = () => {
   return <RoutePlanDetailPage onClose={() => navigate(-1)} steps={steps} />;
 };
 
-const RoutePlanDetailPage: React.FC<{
-  onClose: () => void;
-  steps: PathStep[];
-}> = ({ onClose, steps }) => {
+const RoutePlanDetailPage: React.FC<{ onClose: () => void; steps: PathStep[] }> = ({ onClose, steps }) => {
   const mapRef = useRef<any>(null);
   const markersLayerRef = useRef<any>(null);
   const routeLayerRef = useRef<any>(null);
   const listRef = useRef<HTMLDivElement>(null);
-  const stepRefs = useRef<Map<number, HTMLDivElement>>(new Map());
-
-  const setStepRef = (idx: number) => (el: HTMLDivElement | null) => {
-    if (el) stepRefs.current.set(idx, el);
-    else stepRefs.current.delete(idx);
-  };
 
   const [activeStepIndex, setActiveStepIndex] = useState(0);
   const [livePos, setLivePos] = useState<{ lat: number; lng: number } | null>(null);
 
-  const stopsByName = useMemo(() => {
-    const m = new Map<string, BusStop>();
-    steps.forEach((st) => {
-      const detailed = st.route.stopsDetailed || [];
-      detailed.forEach((s) => {
-        if (!m.has(s.name_mm)) {
-          m.set(s.name_mm, {
-            id: s.id,
-            lat: s.lat,
-            lng: s.lng,
-            name_en: s.name_en,
-            name_mm: s.name_mm,
-            road_en: s.road_en,
-            road_mm: s.road_mm,
-            township_en: s.township_en,
-            township_mm: s.township_mm,
-          });
-        }
-      });
-    });
-    return m;
-  }, [steps]);
+  const finalArrivalStop = steps[steps.length - 1]?.toStop;
 
-  const resolveStop = (stopName: string): BusStop | null => {
-    const found = stopsByName.get(stopName);
-    if (!found) return null;
-    return found;
-  };
-
-  useEffect(() => {
-    if (!navigator.geolocation) return;
-    let watchId: number | null = null;
-
-    const startWatch = () => {
-      if (watchId !== null) return;
-      watchId = navigator.geolocation.watchPosition(
-        (pos) => {
-          setLivePos({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-        },
-        () => {},
-        { enableHighAccuracy: true, maximumAge: 1000, timeout: 10000 }
-      );
-    };
-
-    startWatch();
-
-    return () => {
-      try {
-        if (watchId !== null) navigator.geolocation.clearWatch(watchId);
-      } catch {}
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!livePos || steps.length === 0) return;
-
-    let bestIdx = 0;
-    let bestDist = Infinity;
-
-    steps.forEach((st, idx) => {
-      const fromStop = resolveStop(st.fromStop);
-      const toStop = resolveStop(st.toStop);
-      if (!fromStop || !toStop) return;
-
-      const distFrom = getDistance(livePos.lat, livePos.lng, fromStop.lat, fromStop.lng);
-      const distTo = getDistance(livePos.lat, livePos.lng, toStop.lat, toStop.lng);
-      const minDist = Math.min(distFrom, distTo);
-
-      if (minDist < bestDist) {
-        bestDist = minDist;
-        bestIdx = idx;
-      }
-    });
-
-    setActiveStepIndex(bestIdx);
-  }, [livePos, steps, stopsByName]);
-
-  useEffect(() => {
-    const el = stepRefs.current.get(activeStepIndex);
-    if (!el || !listRef.current) return;
-    const container = listRef.current;
-    const containerRect = container.getBoundingClientRect();
-    const elRect = el.getBoundingClientRect();
-    const offset = elRect.top - containerRect.top + container.scrollTop - containerRect.height / 2 + elRect.height / 2;
-    container.scrollTo({ top: offset, behavior: 'smooth' });
-  }, [activeStepIndex]);
-
+  // Map Setup
   useEffect(() => {
     const L = (window as any).L;
-    if (!L || mapRef.current) return;
-
+    if (!L) return;
     const map = L.map('route-plan-map', { zoomControl: false }).setView([16.8, 96.15], 13);
     mapRef.current = map;
-
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-    L.control.zoom({ position: 'bottomright' }).addTo(map);
-
     markersLayerRef.current = L.featureGroup().addTo(map);
     routeLayerRef.current = L.featureGroup().addTo(map);
-
-    setTimeout(() => {
-      try {
-        map.invalidateSize();
-      } catch {}
-    }, 200);
-
-    return () => {
-      try {
-        map.remove();
-      } catch {}
-      mapRef.current = null;
-    };
+    return () => map.remove();
   }, []);
 
-   useEffect(() => {
+  // Update Map - Only current step
+  useEffect(() => {
     const L = (window as any).L;
     const map = mapRef.current;
-    if (!L || !map || !markersLayerRef.current || !routeLayerRef.current) return;
+    if (!L || !map) return;
 
     markersLayerRef.current.clearLayers();
     routeLayerRef.current.clearLayers();
 
-    const active = steps[activeStepIndex];
-    if (!active) return;
+    const st = steps[activeStepIndex];
+    const route = st.route;
 
-    const route = active.route;
+    // Draw current route line
+    if (route.shape?.geometry?.coordinates?.length) {
+      const coords = route.shape.geometry.coordinates.map(([lng, lat]) => [lat, lng]);
+      L.polyline(coords, { color: route.color, weight: 6, opacity: 0.9 }).addTo(routeLayerRef.current);
+    }
 
-    const fromStop = resolveStop(active.fromStop);
-    const toStop = resolveStop(active.toStop);
+    const resolveStop = (r: BusRoute, name: string) => {
+      const found = r.stopsDetailed?.find(s => s.name_mm === name);
+      return found ? { lat: found.lat, lng: found.lng, name_mm: found.name_mm } : null;
+    };
 
-    const detailed = route.stopsDetailed || [];
-    const fromIdx = detailed.findIndex(s => s.name_mm === active.fromStop);
-    const toIdx = detailed.findIndex(s => s.name_mm === active.toStop);
+    const fromS = resolveStop(route, st.fromStop);
+    const toS = resolveStop(route, st.toStop);
 
-    const allLatLngs: [number, number][] = [];
-
-    const visibleStops = fromIdx >= 0 && toIdx >= 0 && fromIdx < toIdx
-      ? detailed.slice(fromIdx, toIdx + 1)
-      : detailed;
-
-    visibleStops.forEach((s) => {
-      const isBoard = s.name_mm === active.fromStop;
-      const isAlight = s.name_mm === active.toStop;
-
-      if (isBoard || isAlight) return;
-
-      const marker = L.circleMarker([s.lat, s.lng], {
-        radius: 6,
-        fillColor: '#ffffff',
-        color: '#000000',
-        weight: 2,
-        opacity: 1,
-        fillOpacity: 1,
-      });
-      marker.bindTooltip(s.name_mm, {
-        permanent: true,
-        direction: 'top',
-        offset: [0, -10],
-        className: 'text-[10px] font-bold text-black bg-white px-1.5 py-0.5 rounded border border-black',
-      });
-      marker.addTo(markersLayerRef.current);
-      allLatLngs.push([s.lat, s.lng]);
-    });
-
-    if (fromStop) {
-      const marker = L.circleMarker([fromStop.lat, fromStop.lng], {
-        radius: 10,
+    // Boarding Stop
+    if (fromS) {
+      L.circleMarker([fromS.lat, fromS.lng], {
+        radius: 12,
         fillColor: '#10b981',
         color: '#fff',
-        weight: 3,
-        opacity: 1,
-        fillOpacity: 1,
-      });
-      marker.bindTooltip(`စီးရန်: ${fromStop.name_mm}`, {
-        permanent: true,
-        direction: 'top',
-        offset: [0, -10],
-        className: 'text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200',
-      });
-      marker.addTo(markersLayerRef.current);
-      allLatLngs.push([fromStop.lat, fromStop.lng]);
+        weight: 5
+      }).addTo(markersLayerRef.current).bindPopup(`<b>${fromS.name_mm}</b><br>စီးရန်`);
     }
 
-    if (toStop) {
-      const marker = L.circleMarker([toStop.lat, toStop.lng], {
-        radius: 10,
-        fillColor: '#ef4444',
+    // Alighting Stop
+    if (toS) {
+      L.circleMarker([toS.lat, toS.lng], {
+        radius: 13,
+        fillColor: '#f59e0b',
         color: '#fff',
-        weight: 3,
-        opacity: 1,
-        fillOpacity: 1,
-      });
-      marker.bindTooltip(`ဆင်းရန်: ${toStop.name_mm}`, {
-        permanent: true,
-        direction: 'top',
-        offset: [0, -10],
-        className: 'text-[10px] font-bold text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200',
-      });
-      marker.addTo(markersLayerRef.current);
-      allLatLngs.push([toStop.lat, toStop.lng]);
+        weight: 5
+      }).addTo(markersLayerRef.current).bindPopup(`<b>${toS.name_mm}</b><br>ဆင်းရန်`);
     }
+  }, [steps, activeStepIndex]);
 
-    if (livePos) {
-      try {
-        if ((map as any).__liveMarker) {
-          (map as any).__liveMarker.remove();
-        }
-        const liveMarker = L.circleMarker([livePos.lat, livePos.lng], {
-          radius: 8,
-          fillColor: '#2563eb',
-          color: '#fff',
-          weight: 3,
-          opacity: 1,
-          fillOpacity: 0.9,
-        }).addTo(map);
-        liveMarker.bindTooltip('မင်္ဂလာနေရာ', {
-          permanent: true,
-          direction: 'top',
-          offset: [0, -10],
-          className: 'text-[10px] font-bold text-white bg-blue-600 px-1.5 py-0.5 rounded border border-blue-800',
-        });
-        (map as any).__liveMarker = liveMarker;
-        allLatLngs.push([livePos.lat, livePos.lng]);
-      } catch {}
-    }
+  // Live Location
+  useEffect(() => {
+    if (!navigator.geolocation) return;
+    const watchId = navigator.geolocation.watchPosition(
+      (pos) => setLivePos({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      () => {},
+      { enableHighAccuracy: true, maximumAge: 5000 }
+    );
+    return () => navigator.geolocation.clearWatch(watchId);
+  }, []);
 
-    if (visibleStops.length > 1) {
-      for (let i = 0; i < visibleStops.length - 1; i++) {
-        const curr = visibleStops[i];
-        const next = visibleStops[i + 1];
-        const seg = L.polyline([[curr.lat, curr.lng], [next.lat, next.lng]], {
-          color: route.color,
-          weight: 5,
-          opacity: 0.85,
-        });
-        seg.addTo(routeLayerRef.current);
-      }
-    }
-
-    if (allLatLngs.length > 0) {
-      try {
-        const bounds = L.latLngBounds(allLatLngs);
-        setTimeout(() => {
-          try {
-            map.fitBounds(bounds, { padding: [40, 40] });
-          } catch {}
-        }, 0);
-      } catch {}
-    }
-  }, [steps, activeStepIndex, stopsByName, livePos]);
-
-  const getNearestStop = () => {
-    if (!livePos) return null;
-    let nearest = null;
+  // Auto update active step + Auto Scroll
+  useEffect(() => {
+    if (!livePos || steps.length === 0) return;
+    let closest = activeStepIndex;
     let minDist = Infinity;
-    stopsByName.forEach((s) => {
-      const d = getDistance(livePos.lat, livePos.lng, s.lat, s.lng);
-      if (d < minDist) {
-        minDist = d;
-        nearest = s;
+
+    steps.forEach((st, idx) => {
+      const toS = st.route.stopsDetailed?.find(s => s.name_mm === st.toStop);
+      if (toS) {
+        const d = getDistance(livePos.lat, livePos.lng, toS.lat, toS.lng);
+        if (d < minDist) {
+          minDist = d;
+          closest = idx;
+        }
       }
     });
-    return nearest ? { stop: nearest, distance: minDist } : null;
-  };
 
-  const nearestInfo = getNearestStop();
-  const activeStep = steps[activeStepIndex];
-  const fromStop = activeStep ? resolveStop(activeStep.fromStop) : null;
-  const toStop = activeStep ? resolveStop(activeStep.toStop) : null;
-
-  const isAtFromStop = nearestInfo && fromStop && nearestInfo.stop.id === fromStop.id;
-  const isAtToStop = nearestInfo && toStop && nearestInfo.stop.id === toStop.id;
+    if (closest !== activeStepIndex) {
+      setActiveStepIndex(closest);
+      setTimeout(() => {
+        if (listRef.current) {
+          const el = listRef.current.children[closest] as HTMLElement;
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 150);
+    }
+  }, [livePos, steps]);
 
   return (
-    <div className="fixed inset-0 z-[60] flex md:items-center justify-center md:p-8 overflow-hidden bg-slate-900/40 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white w-full h-full md:max-w-2xl md:h-auto md:max-h-[92vh] flex flex-col md:rounded-2xl md:shadow-lg overflow-hidden animate-slide-up">
-        <div className="px-5 py-4 flex items-center justify-between border-b border-slate-100 shrink-0">
-          <div className="flex items-center gap-2 min-w-0">
-            <button onClick={onClose} className="ui-btn-icon">
-              <ChevronRight className="rotate-180" size={18} />
-            </button>
-            <h3 className="font-semibold truncate text-slate-900">လမ်းကြောင်းစီမံချက် (စီး/ဆင်း)</h3>
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
+      <div className="bg-white w-full max-w-2xl h-full md:h-[92vh] rounded-2xl flex flex-col overflow-hidden">
+        <div className="px-5 py-4 border-b flex justify-between items-center">
+          <div>
+            <h3 className="font-semibold">ခရီးစဉ် အသေးစိတ်</h3>
+            <p className="text-emerald-600">ဆင်းမည့်နေရာ: <strong>{finalArrivalStop}</strong></p>
           </div>
-          <span className="ui-badge ui-badge-accent shrink-0">Steps {steps.length}</span>
+          <button onClick={onClose}><X size={24} /></button>
         </div>
 
-        <div className="flex flex-col flex-1 overflow-hidden">
-          <div className="bg-slate-100">
-            <div id="route-plan-map" className="w-full h-64 md:h-72" />
-          </div>
+        <div className="h-80 bg-slate-100 relative">
+          <div id="route-plan-map" className="w-full h-full" />
+        </div>
 
-          <div ref={listRef} className="border-t border-slate-100 flex-1 overflow-y-auto bg-white">
-            <div className="p-5 space-y-4">
-              {nearestInfo && (
-                <div className="ui-card p-4 border border-emerald-200 bg-emerald-50/60">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Crosshair size={16} className="text-emerald-600" />
-                    <span className="text-sm font-semibold text-emerald-800">မှတ်တိုင် အချက်အလက်</span>
-                  </div>
-                  <div className="text-sm text-slate-700">
-                    {isAtFromStop && (
-                      <span className="font-medium text-emerald-700">သင် <b>{nearestInfo.stop.name_mm}</b> မှတ်တိုင်တွင် ရောက်နေပါပြီ။ ({fromStop?.name_mm} မှ စမည်)</span>
-                    )}
-                    {isAtToStop && (
-                      <span className="font-medium text-rose-700">သင် <b>{nearestInfo.stop.name_mm}</b> မှတ်တိုင်တွင် ရောက်နေပါပြီ။ ({toStop?.name_mm} မှဆင်းမည်)</span>
-                    )}
-                    {!isAtFromStop && !isAtToStop && (
-                      <span>
-                        သင် <b>{nearestInfo.stop.name_mm}</b> မှတ်တိုင် အနီးတွင် ရောက်နေပါသည်။
-                        {fromStop && <span className="text-emerald-600"> နောက်လာမည့် <b>{fromStop.name_mm}</b> </span>}
-                      </span>
-                    )}
-                  </div>
+        {/* Clean List */}
+        <div ref={listRef} className="flex-1 overflow-y-auto p-5 space-y-3">
+          <h3 className="font-semibold mb-4">ခရီးစဉ်အဆင့်ဆင့်</h3>
+          
+          {steps.map((st, idx) => {
+            const isCurrent = idx === activeStepIndex;
+            return (
+              <div
+                key={idx}
+                onClick={() => setActiveStepIndex(idx)}
+                className={`p-4 rounded-2xl border flex items-center gap-4 cursor-pointer transition-all ${
+                  isCurrent ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 hover:bg-slate-50'
+                }`}
+              >
+                <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold shrink-0 ${
+                  isCurrent ? 'bg-emerald-600 text-white' : 'bg-slate-100'
+                }`}>
+                  {idx + 1}
                 </div>
-              )}
 
-              <div className="space-y-2">
-                {steps.map((st, idx) => {
-                  const isActive = idx === activeStepIndex;
-                  const fromStop = resolveStop(st.fromStop);
-                  const toStop = resolveStop(st.toStop);
-                  const detailed = st.route.stopsDetailed || [];
-                  const fromIdx = detailed.findIndex(s => s.name_mm === st.fromStop);
-                  const toIdx = detailed.findIndex(s => s.name_mm === st.toStop);
-                  const intermediates = fromIdx >= 0 && toIdx >= 0 && fromIdx < toIdx
-                    ? detailed.slice(fromIdx + 1, toIdx)
-                    : [];
-                  return (
-                    <div
-                      key={idx}
-                      ref={setStepRef(idx)}
-                      data-step-active={isActive ? 'true' : undefined}
-                      onClick={() => setActiveStepIndex(idx)}
-                      className={`w-full text-left ui-card p-4 border transition-all ${
-                        isActive
-                          ? 'border-emerald-500 bg-emerald-600 text-white shadow-lg shadow-emerald-200'
-                          : 'border-slate-100 bg-white hover:border-slate-200'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-2 min-w-0">
-                          <RouteBadge routeId={st.route.id} color={st.route.color} size="sm" />
-                          {st.route.operator && <OperatorBadge name={st.route.operator} />}
-                        </div>
-                        <span className={`ui-badge ${isActive ? 'bg-white/20 text-white border-white/30' : 'bg-slate-100 text-slate-600'}`}>{idx + 1}</span>
-                      </div>
-                      <div className="mt-2 text-sm">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${
-                            isActive
-                              ? 'text-emerald-900 bg-emerald-500/30'
-                              : 'text-emerald-600 bg-emerald-100'
-                          }`}>စီးရန်</span>
-                          <span className={`font-semibold truncate ${isActive ? 'text-white' : 'text-slate-800'}`}>{st.fromStop}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${
-                            isActive
-                              ? 'text-rose-900 bg-rose-500/30'
-                              : 'text-rose-600 bg-rose-100'
-                          }`}>ဆင်းရန်</span>
-                          <span className={`font-semibold truncate ${isActive ? 'text-white' : 'text-slate-800'}`}>{st.toStop}</span>
-                        </div>
-                      </div>
-                      {intermediates.length > 0 && (
-                        <div className={`mt-3 flex flex-wrap gap-1.5 ${isActive ? 'opacity-90' : ''}`}>
-                          <span className={`text-[10px] font-semibold px-2 py-1 rounded-md border ${
-                            isActive
-                              ? 'bg-white/20 text-white border-white/30'
-                              : 'bg-white text-black border-black'
-                          }`}>
-                            ကြားမှတ်တိုင်များ
-                          </span>
-                          {intermediates.map((s, i) => (
-                            <span
-                              key={i}
-                              className={`text-[10px] font-medium px-2 py-1 rounded-md border ${
-                                isActive
-                                  ? 'bg-white/20 text-white border-white/30'
-                                  : 'bg-white text-black border-black'
-                              }`}
-                            >
-                              {s.name_mm}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                      {isActive && (
-                        <div className="mt-2 text-xs text-emerald-50 font-medium flex items-center gap-1">
-                          <Crosshair size={12} />
-                          လက်ရှိလှုပ်ရှားနေသော လမ်းကြောင်း
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+                <div className="flex-1">
+                  <p className="font-medium">{st.fromStop} → {st.toStop}</p>
+                  <p className="text-xs text-emerald-600">YBS {st.route.id} စီးရန်</p>
+                </div>
+
+                {isCurrent && <div className="text-emerald-600 font-medium">● လက်ရှိ</div>}
               </div>
-            </div>
-          </div>
+            );
+          })}
         </div>
       </div>
     </div>
   );
 };
-
-const FindRoutePage: React.FC<{ onRouteClick: (r: BusRoute) => void; routes: BusRoute[]; stops: BusStop[] }> = ({ onRouteClick, routes: routesProp, stops: stopsProp }) => {
+const FindRoutePage: React.FC<{ onRouteClick: (r: BusRoute) => void; routes: BusRoute[]; stops: BusStop[] }> = ({ onRouteClick, routes: routesProp, stops: stopsProp }) => { 
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -2024,32 +1759,12 @@ const FindRoutePage: React.FC<{ onRouteClick: (r: BusRoute) => void; routes: Bus
   const routes = routesProp;
 
 
-  const stopsByName = useMemo(() => {
+  const allStopNames = useMemo(() => {
     const names = new Set<string>();
     stops.forEach(s => names.add(s.name_mm));
     routes.forEach(r => r.stops.forEach(s => names.add(s)));
     return Array.from(names).sort((a, b) => a.localeCompare(b, 'my'));
   }, [stops, routes]);
-
-  const stopDetailsByName = useMemo(() => {
-    const m = new Map<string, BusStop>();
-    stops.forEach(s => {
-      if (!m.has(s.name_mm)) m.set(s.name_mm, s);
-    });
-    return m;
-  }, [stops]);
-
-  const duplicateStopNames = useMemo(() => {
-    const count = new Map<string, number>();
-    stops.forEach(s => {
-      count.set(s.name_mm, (count.get(s.name_mm) || 0) + 1);
-    });
-    const dupes = new Set<string>();
-    count.forEach((c, name) => {
-      if (c > 1) dupes.add(name);
-    });
-    return dupes;
-  }, [stops]);
 
   const handleUseCurrentLocation = () => {
     if (!navigator.geolocation) {
@@ -2114,7 +1829,7 @@ const FindRoutePage: React.FC<{ onRouteClick: (r: BusRoute) => void; routes: Bus
             label="စတင်မည့်မှတ်တိုင်"
             value={start}
             onChange={setStart}
-            allNames={stopsByName}
+            allNames={allStopNames}
             placeholder="ရှာရန်..."
             indicatorColor="bg-emerald-500"
             icon={
@@ -2150,7 +1865,7 @@ const FindRoutePage: React.FC<{ onRouteClick: (r: BusRoute) => void; routes: Bus
             label="ဆင်းမည့်မှတ်တိုင်"
             value={end}
             onChange={setEnd}
-            allNames={stopsByName}
+            allNames={allStopNames}
             placeholder="ရှာရန်..."
             indicatorColor="bg-rose-500"
             icon={
@@ -2208,40 +1923,25 @@ const FindRoutePage: React.FC<{ onRouteClick: (r: BusRoute) => void; routes: Bus
                </span>
             </div>
 
-             <div className="space-y-3">
-               {res.steps.map((step, idx) => {
-                 const fromDetail = stopDetailsByName.get(step.fromStop);
-                 const toDetail = stopDetailsByName.get(step.toStop);
-                 const fromDup = duplicateStopNames.has(step.fromStop);
-                 const toDup = duplicateStopNames.has(step.toStop);
-                 return (
-                  <div key={idx} className="flex items-start gap-3">
-                     <div className="flex flex-col items-center mt-1.5 shrink-0">
-                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: step.route.color }}></div>
-                        {idx < res.steps.length && <div className="w-px h-10 bg-slate-100"></div>}
-                     </div>
-                     <div className="flex-1">
-                        <div className="text-sm font-medium text-slate-800 flex items-center gap-2">
-                           <span className="ui-badge">စီးရန်</span>
-                           <span>YBS {step.route.id}</span>
-                           {step.route.operator && <OperatorBadge name={step.route.operator} />}
-                        </div>
-                        <p className="mt-1 text-xs text-slate-500">
-                           <span className="text-brand font-medium">
-                             {step.fromStop}
-                             {fromDup && fromDetail && <span className="text-slate-400 font-normal"> ({fromDetail.township_mm})</span>}
-                           </span>
-                           မှ
-                           <span className="text-brand font-medium">
-                             {step.toStop}
-                             {toDup && toDetail && <span className="text-slate-400 font-normal"> ({toDetail.township_mm})</span>}
-                           </span>
-                           အထိ
-                        </p>
-                     </div>
-                  </div>
-                 );
-               })}
+            <div className="space-y-3">
+               {res.steps.map((step, idx) => (
+                 <div key={idx} className="flex items-start gap-3">
+                    <div className="flex flex-col items-center mt-1.5 shrink-0">
+                       <div className="w-2 h-2 rounded-full" style={{ backgroundColor: step.route.color }}></div>
+                       {idx < res.steps.length && <div className="w-px h-10 bg-slate-100"></div>}
+                    </div>
+                    <div className="flex-1">
+                       <div className="text-sm font-medium text-slate-800 flex items-center gap-2">
+                          <span className="ui-badge">စီးရန်</span>
+                          <span>YBS {step.route.id}</span>
+                          {step.route.operator && <OperatorBadge name={step.route.operator} />}
+                       </div>
+                       <p className="mt-1 text-xs text-slate-500">
+                          <span className="text-brand font-medium">{step.fromStop}</span> မှ <span className="text-brand font-medium">{step.toStop}</span> အထိ
+                       </p>
+                    </div>
+                 </div>
+               ))}
             </div>
           </div>
         ))}
