@@ -4,6 +4,14 @@ import { Routes, Route, useNavigate, useLocation, useParams } from 'react-router
 import { loadRoutesFromFiles, loadStopsFromRouteFiles, saveToLocalCache, loadFromLocalCache, clearLocalCache, CACHE_KEY, LocalCache } from './data_constants';
 import { Page, BusStop, BusRoute } from './types';
 import { db } from './db';
+import {
+  getUserId,
+  connectUrl,
+  getAlertStatus,
+  setAlert,
+  cancelAlert,
+  type AlertStatus,
+} from './telegramAlert';
 import { 
 
   Bus, 
@@ -30,7 +38,8 @@ import {
   Bot,
   User,
   ArrowRight,
-  CheckCircle2
+  CheckCircle2,
+  Bell
 } from 'lucide-react';
 
 // --- Types for Search Results ---
@@ -1006,6 +1015,48 @@ const AssistantPage: React.FC<{ onRouteClick: (r: BusRoute) => void; routes: Bus
 const StopDetailPage: React.FC<{ stop: BusStop, onClose: () => void }> = ({ stop, onClose }) => {
   const [passingRoutes, setPassingRoutes] = useState<BusRoute[]>([]);
 
+  const [alertStatus, setAlertStatus] = useState<AlertStatus | null>(null);
+  const [alertBusy, setAlertBusy] = useState(false);
+  const [alertMsg, setAlertMsg] = useState<string>('');
+
+  const userId = useMemo(() => getUserId(), []);
+
+  useEffect(() => {
+    let cancelled = false;
+    getAlertStatus(userId)
+      .then((s) => { if (!cancelled) setAlertStatus(s); })
+      .catch(() => { if (!cancelled) setAlertStatus({ linked: false, alert: null }); });
+    return () => { cancelled = true; };
+  }, [userId, stop.id]);
+
+  const handleSetAlert = async () => {
+    setAlertBusy(true);
+    setAlertMsg('');
+    try {
+      await setAlert(userId, stop);
+      setAlertStatus({ linked: true, alert: { stopName: stop.name_mm } });
+      setAlertMsg('✅ သတိပေးချက် သတ်မှတ်ပြီးပါပြီ။ Bot သို့ Live Location ပို့ပေးပါ။');
+    } catch (e: any) {
+      setAlertMsg(e.message || 'မအောင်မြင်ပါ။');
+    } finally {
+      setAlertBusy(false);
+    }
+  };
+
+  const handleCancelAlert = async () => {
+    setAlertBusy(true);
+    setAlertMsg('');
+    try {
+      await cancelAlert(userId);
+      setAlertStatus((s) => (s ? { ...s, alert: null } : s));
+      setAlertMsg('🚫 သတိပေးချက် ပယ်ဖျက်ပြီးပါပြီ။');
+    } catch {
+      setAlertMsg('ပယ်ဖျက်၍ မရပါ။');
+    } finally {
+      setAlertBusy(false);
+    }
+  };
+
   useEffect(() => {
     db.busRoutes.toArray().then(routes => {
       const filtered = routes.filter(r => r.stops.includes(stop.name_mm));
@@ -1037,6 +1088,51 @@ const StopDetailPage: React.FC<{ stop: BusStop, onClose: () => void }> = ({ stop
             <p className="ui-label">တည်နေရာ</p>
             <p className="text-slate-800 font-medium">{stop.road_mm}၊ {stop.township_mm}</p>
           </div>
+          <div className="bg-gradient-to-tr from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Bot size={18} className="text-blue-600" />
+              <p className="ui-label text-blue-700">ဆင်းမည့်မှတ်တိုင် သတိပေးချက်</p>
+            </div>
+
+            {alertStatus && alertStatus.alert ? (
+              <div className="space-y-2">
+                <p className="text-sm text-slate-700">
+                  🔔 <b>{alertStatus.alert.stopName}</b> မှတ်တိုင်သို့ ၅၀၀ မီတာအတွင်း ရောက်လျှင် သတိပေးပေးမည်။
+                </p>
+                <p className="text-xs text-slate-500">Telegram Bot သို့ Live Location ပို့ပေးပါ။</p>
+                <button
+                  onClick={handleCancelAlert}
+                  disabled={alertBusy}
+                  className="ui-btn-ghost w-full justify-center py-2 text-rose-600 border-rose-200 hover:bg-rose-50 disabled:opacity-50"
+                >
+                  သတိပေးချက် ပယ်ဖျက်မည်
+                </button>
+              </div>
+            ) : alertStatus && alertStatus.linked ? (
+              <button
+                onClick={handleSetAlert}
+                disabled={alertBusy}
+                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl shadow-sm transition-colors text-sm disabled:opacity-50"
+              >
+                <Bell size={16} /> ဤမှတ်တိုင်သို့ ရောက်လျှင် သတိပေးပါ
+              </button>
+            ) : (
+              <div className="space-y-2">
+                <p className="text-xs text-slate-600">Telegram နှင့် ချိတ်ဆက်ပြီး မှတ်တိုင်နီးလျှင် သတိပေးခံရန် ရွေးချယ်ပါ။</p>
+                <a
+                  href={connectUrl(userId)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-[#26A5E4] hover:bg-[#2297cc] text-white font-medium rounded-xl shadow-sm transition-colors text-sm"
+                >
+                  <Send size={16} /> Telegram နဲ့ ချိတ်ဆက်မည်
+                </a>
+              </div>
+            )}
+
+            {alertMsg && <p className="text-xs text-center text-slate-600">{alertMsg}</p>}
+          </div>
+
           <div className="space-y-3">
             <p className="ui-label">ဖြတ်သန်းသွားသော လိုင်းများ ({passingRoutes.length})</p>
             <div className="flex flex-wrap gap-2">
