@@ -58,7 +58,7 @@ async function sendTelegram(chatId: string, text: string): Promise<boolean> {
     const resp = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: chatId, text, parse_mode: 'HTML' }),
+      body: JSON.stringify({ chat_id: chatId, text }),
     });
     if (!resp.ok) {
       const body = await resp.text();
@@ -101,7 +101,7 @@ async function checkProximity(chatId: string, lat: number, lng: number): Promise
     await Promise.all([
       sendTelegram(
         chatId,
-        `📢 သတိပေးချက်: <b>${String(alert.target_stop_name)}</b> မှတ်တိုင်သို့ ရောက်ရှိတော့မည် ဖြစ်ပါသဖြင့် ဆင်းရန် အဆင့်သင့်ပြင်ပါဗျာ။`
+        `📢 သတိပေးချက်: ${String(alert.target_stop_name)} မှတ်တိုင်သို့ ရောက်ရှိတော့မည် ဖြစ်ပါသဖြင့် ဆင်းရန် အဆင့်သင့်ပြင်ပါဗျာ။`
       ),
       turso.execute({
         sql: 'DELETE FROM destination_alerts WHERE user_id = ?',
