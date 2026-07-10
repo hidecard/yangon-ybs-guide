@@ -1972,6 +1972,51 @@ const RoutePlanDetailPage: React.FC<{
   const isAtFromStop = nearestInfo && fromStop && nearestInfo.stop.id === fromStop.id;
   const isAtToStop = nearestInfo && toStop && nearestInfo.stop.id === toStop.id;
 
+  // Destination = final step's alight stop
+  const destStop = steps.length > 0 ? resolveStop(steps[steps.length - 1].toStop) : null;
+
+  const userId = useMemo(() => getUserId(), []);
+  const [planAlertStatus, setPlanAlertStatus] = useState<AlertStatus | null>(null);
+  const [planAlertBusy, setPlanAlertBusy] = useState(false);
+  const [planAlertMsg, setPlanAlertMsg] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    getAlertStatus(userId)
+      .then((s) => { if (!cancelled) setPlanAlertStatus(s); })
+      .catch(() => { if (!cancelled) setPlanAlertStatus({ linked: false, alert: null }); });
+    return () => { cancelled = true; };
+  }, [userId]);
+
+  const handleSetPlanAlert = async () => {
+    if (!destStop) return;
+    setPlanAlertBusy(true);
+    setPlanAlertMsg('');
+    try {
+      await setAlert(userId, destStop);
+      setPlanAlertStatus({ linked: true, alert: { stopName: destStop.name_mm } });
+      setPlanAlertMsg('✅ သတိပေးချက် သတ်မှတ်ပြီးပါပြီ။ Bot သို့ Live Location ပို့ပေးပါ။');
+    } catch (e: any) {
+      setPlanAlertMsg(e.message || 'မအောင်မြင်ပါ။');
+    } finally {
+      setPlanAlertBusy(false);
+    }
+  };
+
+  const handleCancelPlanAlert = async () => {
+    setPlanAlertBusy(true);
+    setPlanAlertMsg('');
+    try {
+      await cancelAlert(userId);
+      setPlanAlertStatus((s) => (s ? { ...s, alert: null } : s));
+      setPlanAlertMsg('🚫 သတိပေးချက် ပယ်ဖျက်ပြီးပါပြီ။');
+    } catch {
+      setPlanAlertMsg('ပယ်ဖျက်၍ မရပါ။');
+    } finally {
+      setPlanAlertBusy(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-[60] flex md:items-center justify-center md:p-6 overflow-hidden bg-slate-900/40 backdrop-blur-sm animate-fade-in">
       <div className="bg-white w-full h-full md:max-w-3xl md:h-auto md:max-h-[95vh] flex flex-col md:rounded-2xl md:shadow-lg overflow-hidden animate-slide-up">
@@ -2021,10 +2066,73 @@ const RoutePlanDetailPage: React.FC<{
                     )}
                   </div>
                 </div>
-              )}
+               )}
 
-              <div className="space-y-2">
-                {steps.map((st, idx) => {
+               {destStop && (
+                 <div className="ui-card p-4 border border-blue-100 bg-blue-50/60 space-y-3">
+                   <div className="flex items-center gap-2">
+                     <Bot size={18} className="text-blue-600" />
+                     <p className="ui-label text-blue-700">ဆင်းမည့်မှတ်တိုင် သတိပေးချက်</p>
+                   </div>
+                   <p className="text-xs text-slate-600">ပျင်းဆုံးဆင်းမည့် မှတ်တိုင်: <b>{destStop.name_mm}</b></p>
+
+                   {planAlertStatus && planAlertStatus.alert ? (
+                     <div className="space-y-2">
+                       <p className="text-sm text-slate-700">
+                         🔔 <b>{planAlertStatus.alert.stopName}</b> မှတ်တိုင်သို့ ရောက်လျှင် သတိပေးပေးမည်။
+                       </p>
+                       <p className="text-xs text-slate-500">Telegram Bot သို့ Live Location ပို့ပေးပါ။</p>
+                       <button
+                         onClick={handleCancelPlanAlert}
+                         disabled={planAlertBusy}
+                         className="ui-btn-ghost w-full justify-center py-2 text-rose-600 border-rose-200 hover:bg-rose-50 disabled:opacity-50"
+                       >
+                         သတိပေးချက် ပယ်ဖျက်မည်
+                       </button>
+                     </div>
+                   ) : planAlertStatus && planAlertStatus.linked ? (
+                     <button
+                       onClick={handleSetPlanAlert}
+                       disabled={planAlertBusy}
+                       className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl shadow-sm transition-colors text-sm disabled:opacity-50"
+                     >
+                       <Bell size={16} /> ဤမှတ်တိုင်သို့ ရောက်လျှင် သတိပေးပါ
+                     </button>
+                   ) : (
+                     <div className="space-y-2">
+                       <p className="text-xs text-slate-600">Telegram နှင့် ချိတ်ဆက်ပြီး မှတ်တိုင်နီးလျှင် သတိပေးခံရန် ရွေးချယ်ပါ။</p>
+                       <a
+                         href={connectUrl(userId)}
+                         target="_blank"
+                         rel="noopener noreferrer"
+                         className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-[#26A5E4] hover:bg-[#2297cc] text-white font-medium rounded-xl shadow-sm transition-colors text-sm"
+                       >
+                         <Send size={16} /> Telegram နဲ့ ချိတ်ဆက်မည်
+                       </a>
+                       <div className="bg-white rounded-xl border border-slate-200 p-3 space-y-1.5">
+                         <p className="text-[11px] text-slate-500 leading-relaxed">
+                           Bot ကို အရင် ဖွင့်ထားပြီးသားဆိုရင် Link နှိပ်ပြီးနောက် Bot ထဲမှာ အောက်ပါ ကုဒ်ကို တိုက်ရိုက် ပို့ပါ (သို့မဟုတ် <code className="bg-slate-100 px-1 rounded">/start {userId}</code>):
+                         </p>
+                         <div className="flex items-center justify-between gap-2 bg-slate-50 rounded-lg px-3 py-2">
+                           <span className="font-mono font-semibold tracking-widest text-slate-800 select-all">{userId}</span>
+                           <button
+                             type="button"
+                             onClick={() => navigator.clipboard?.writeText(userId)}
+                             className="text-xs font-medium text-blue-600 hover:text-blue-700"
+                           >
+                             ကူးယူ
+                           </button>
+                         </div>
+                       </div>
+                     </div>
+                   )}
+
+                   {planAlertMsg && <p className="text-xs text-center text-slate-600">{planAlertMsg}</p>}
+                 </div>
+               )}
+
+               <div className="space-y-2">
+                 {steps.map((st, idx) => {
                   const isActive = idx === activeStepIndex;
                   const fromStop = resolveStop(st.fromStop);
                   const toStop = resolveStop(st.toStop);
