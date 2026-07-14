@@ -1335,6 +1335,8 @@ const RoutePlanDetailPage: React.FC<{
     return () => cancelAnimationFrame(raf);
   }, [activeStepIndex]);
 
+  const liveMarkerRef = useRef<any>(null);
+
   useEffect(() => {
     const L = (window as any).L;
     if (!L || mapRef.current) return;
@@ -1361,6 +1363,33 @@ const RoutePlanDetailPage: React.FC<{
       mapRef.current = null;
     };
   }, []);
+
+  useEffect(() => {
+    const L = (window as any).L;
+    const map = mapRef.current;
+    if (!L || !map || !livePos) return;
+
+    if (!liveMarkerRef.current) {
+      liveMarkerRef.current = L.circleMarker([livePos.lat, livePos.lng], {
+        radius: 8,
+        fillColor: '#3b82f6',
+        color: '#fff',
+        weight: 3,
+        opacity: 1,
+        fillOpacity: 1,
+        zIndexOffset: 1000
+      }).addTo(map);
+      
+      liveMarkerRef.current.bindTooltip("လက်ရှိနေရာ", {
+        permanent: true,
+        direction: 'top',
+        offset: [0, -10],
+        className: 'text-[10px] font-bold text-white bg-blue-600 px-1.5 py-0.5 rounded shadow-sm border-none'
+      });
+    } else {
+      liveMarkerRef.current.setLatLng([livePos.lat, livePos.lng]);
+    }
+  }, [livePos]);
 
    useEffect(() => {
     const L = (window as any).L;
@@ -1521,6 +1550,47 @@ const RoutePlanDetailPage: React.FC<{
                           </div>
                        </div>
 
+                       {/* Current & Next Stops Logic */}
+                       {isActive && livePos && (() => {
+                          const detailed = st.route.stopsDetailed || [];
+                          const fromIdx = detailed.findIndex(s => s.name_mm === st.fromStop);
+                          const toIdx = detailed.findIndex(s => s.name_mm === st.toStop);
+                          const subStops = fromIdx >= 0 && toIdx >= 0 ? detailed.slice(fromIdx, toIdx + 1) : [];
+                          
+                          if (subStops.length > 0) {
+                            let minDist = Infinity;
+                            let currentIdx = -1;
+                            subStops.forEach((s, i) => {
+                              const d = getDistance(livePos.lat, livePos.lng, s.lat, s.lng);
+                              if (d < minDist) { minDist = d; currentIdx = i; }
+                            });
+
+                            if (currentIdx !== -1 && minDist < 0.5) {
+                              const currentStop = subStops[currentIdx];
+                              const nextStop = subStops[currentIdx + 1];
+                              return (
+                                <div className="ml-7 py-2 px-3 bg-slate-50 rounded-lg border border-slate-100 space-y-2 relative z-10">
+                                   <div className="flex items-center gap-2">
+                                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                                      <p className="text-[10px] font-bold text-slate-500 uppercase">လက်ရှိရောက်နေသည့်မှတ်တိုင်</p>
+                                   </div>
+                                   <p className="text-xs font-bold text-slate-800 ml-3.5">{currentStop.name_mm}</p>
+                                   {nextStop && (
+                                     <>
+                                       <div className="flex items-center gap-2 mt-2">
+                                          <div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div>
+                                          <p className="text-[10px] font-bold text-slate-500 uppercase">နောက်ရောက်မည့်မှတ်တိုင်</p>
+                                       </div>
+                                       <p className="text-xs font-bold text-slate-800 ml-3.5">{nextStop.name_mm}</p>
+                                     </>
+                                   )}
+                                </div>
+                              );
+                            }
+                          }
+                          return null;
+                       })()}
+
                        <div className="flex items-start gap-3 relative z-10">
                           <div className="w-4 h-4 rounded-full bg-rose-500 border-2 border-white shadow-sm mt-0.5"></div>
                           <div className="flex-1 min-w-0">
@@ -1532,10 +1602,14 @@ const RoutePlanDetailPage: React.FC<{
                                 <button 
                                   onClick={(e) => { e.stopPropagation(); handleToggleAlert(st.toStop); }}
                                   disabled={alertLoading}
-                                  className={`p-2 rounded-lg transition-colors shrink-0 ${activeAlertStop === st.toStop ? 'text-emerald-500 bg-emerald-50' : 'text-slate-300 hover:text-slate-400 hover:bg-slate-50'}`}
-                                  title="ရောက်ခါနီး သတိပေးချက်"
+                                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold transition-all border shadow-sm shrink-0 ${
+                                    activeAlertStop === st.toStop 
+                                      ? 'bg-emerald-500 text-white border-emerald-600' 
+                                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                                  }`}
                                 >
-                                  {alertLoading && activeAlertStop !== st.toStop ? <RefreshCw size={14} className="animate-spin" /> : <Bell size={14} fill={activeAlertStop === st.toStop ? 'currentColor' : 'none'} />}
+                                  {alertLoading && activeAlertStop !== st.toStop ? <RefreshCw size={12} className="animate-spin" /> : <Bell size={12} fill={activeAlertStop === st.toStop ? 'white' : 'none'} />}
+                                  <span>{activeAlertStop === st.toStop ? 'သတိပေးချက်ဖွင့်ထားသည်' : 'သတိပေးချက်ရယူပါ'}</span>
                                 </button>
                              </div>
                           </div>
