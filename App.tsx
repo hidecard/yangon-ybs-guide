@@ -1216,6 +1216,35 @@ const RoutePlanDetailPage: React.FC<{
   const [activeStepIndex, setActiveStepIndex] = useState(0);
   const [livePos, setLivePos] = useState<{ lat: number; lng: number } | null>(null);
 
+  // Telegram Alert States
+  const userId = useMemo(() => getUserId(), []);
+  const [alertLoading, setAlertLoading] = useState(false);
+  const [activeAlertStop, setActiveAlertStop] = useState<string | null>(null);
+
+  useEffect(() => {
+    getAlertStatus(userId).then(s => {
+      if (s.alert) setActiveAlertStop(s.alert.stopName);
+    });
+  }, [userId]);
+
+  const handleToggleAlert = async (stopName: string) => {
+    setAlertLoading(true);
+    try {
+      if (activeAlertStop === stopName) {
+        await cancelAlert(userId);
+        setActiveAlertStop(null);
+      } else {
+        const ok = await setAlert(userId, stopName);
+        if (ok) setActiveAlertStop(stopName);
+        else alert("Telegram ကို အရင်ချိတ်ဆက်ပေးပါ။ Settings ထဲတွင် ချိတ်ဆက်နိုင်ပါသည်။");
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setAlertLoading(false);
+    }
+  };
+
   const stopsByName = useMemo(() => {
     const m = new Map<string, BusStop>();
     steps.forEach((st) => {
@@ -1452,7 +1481,7 @@ const RoutePlanDetailPage: React.FC<{
         </div>
 
         <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
-          <div className="relative h-48 md:h-auto md:w-1/2 bg-slate-100 shrink-0">
+          <div className="relative h-[40vh] md:h-auto md:w-1/2 bg-slate-100 shrink-0">
             <div id="route-plan-map" className="w-full h-full"></div>
             {livePos && (
                <div className="absolute top-4 left-4 z-[1000]">
@@ -1494,9 +1523,21 @@ const RoutePlanDetailPage: React.FC<{
 
                        <div className="flex items-start gap-3 relative z-10">
                           <div className="w-4 h-4 rounded-full bg-rose-500 border-2 border-white shadow-sm mt-0.5"></div>
-                          <div className="min-w-0">
-                             <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Alighting</p>
-                             <p className="text-sm font-semibold text-slate-900 truncate">{st.toStop}</p>
+                          <div className="flex-1 min-w-0">
+                             <div className="flex items-center justify-between gap-2">
+                                <div className="min-w-0">
+                                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Alighting</p>
+                                   <p className="text-sm font-semibold text-slate-900 truncate">{st.toStop}</p>
+                                </div>
+                                <button 
+                                  onClick={(e) => { e.stopPropagation(); handleToggleAlert(st.toStop); }}
+                                  disabled={alertLoading}
+                                  className={`p-2 rounded-lg transition-colors shrink-0 ${activeAlertStop === st.toStop ? 'text-emerald-500 bg-emerald-50' : 'text-slate-300 hover:text-slate-400 hover:bg-slate-50'}`}
+                                  title="ရောက်ခါနီး သတိပေးချက်"
+                                >
+                                  {alertLoading && activeAlertStop !== st.toStop ? <RefreshCw size={14} className="animate-spin" /> : <Bell size={14} fill={activeAlertStop === st.toStop ? 'currentColor' : 'none'} />}
+                                </button>
+                             </div>
                           </div>
                        </div>
                     </div>
