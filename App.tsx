@@ -1227,6 +1227,8 @@ const RoutePlanDetailPage: React.FC<{
     });
   }, [userId]);
 
+  const [showLinkedModal, setShowLinkedModal] = useState<{show: boolean, stopName: string, success: boolean}>({show: false, stopName: '', success: false});
+
   const handleToggleAlert = async (stopName: string) => {
     setAlertLoading(true);
     try {
@@ -1235,8 +1237,12 @@ const RoutePlanDetailPage: React.FC<{
         setActiveAlertStop(null);
       } else {
         const ok = await setAlert(userId, stopName);
-        if (ok) setActiveAlertStop(stopName);
-        else alert("Telegram ကို အရင်ချိတ်ဆက်ပေးပါ။ Settings ထဲတွင် ချိတ်ဆက်နိုင်ပါသည်။");
+        if (ok) {
+          setActiveAlertStop(stopName);
+          setShowLinkedModal({ show: true, stopName, success: true });
+        } else {
+          setShowLinkedModal({ show: true, stopName, success: false });
+        }
       }
     } catch (e) {
       console.error(e);
@@ -1604,7 +1610,7 @@ const RoutePlanDetailPage: React.FC<{
                                   disabled={alertLoading}
                                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold transition-all border shadow-sm shrink-0 ${
                                     activeAlertStop === st.toStop 
-                                      ? 'bg-emerald-500 text-white border-emerald-600' 
+                                      ? 'bg-emerald-500 text-white border-emerald-600 ring-2 ring-emerald-100' 
                                       : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
                                   }`}
                                 >
@@ -1621,6 +1627,58 @@ const RoutePlanDetailPage: React.FC<{
             </div>
           </div>
         </div>
+
+        {showLinkedModal.show && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+             <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden animate-scale-in">
+                <div className="p-6 text-center space-y-4">
+                   <div className={`mx-auto w-16 h-16 rounded-full flex items-center justify-center ${showLinkedModal.success ? 'bg-emerald-100 text-emerald-600' : 'bg-blue-100 text-blue-600'}`}>
+                      {showLinkedModal.success ? <CheckCircle2 size={32} /> : <Bot size={32} />}
+                   </div>
+                   
+                   <div>
+                      <h4 className="text-lg font-bold text-slate-900">
+                         {showLinkedModal.success ? 'သတိပေးချက်သတ်မှတ်ပြီးပါပြီ' : 'Telegram နှင့် ချိတ်ဆက်ရန်'}
+                      </h4>
+                      <p className="text-sm text-slate-500 mt-2">
+                         {showLinkedModal.success 
+                           ? `"${showLinkedModal.stopName}" မှတ်တိုင်သို့ ရောက်ရှိရန် နီးကပ်လာပါက Telegram မှတစ်ဆင့် သတိပေးချက် ပို့ပေးပါမည်။` 
+                           : 'သတိပေးချက်များ ရယူနိုင်ရန်အတွက် သင်၏ Telegram Account ကို အရင်ဆုံး ချိတ်ဆက်ပေးဖို့ လိုအပ်ပါသည်။'}
+                      </p>
+                   </div>
+
+                   <div className="flex flex-col gap-2 pt-2">
+                      {showLinkedModal.success ? (
+                        <button 
+                          onClick={() => setShowLinkedModal({ ...showLinkedModal, show: false })}
+                          className="ui-btn ui-btn-primary w-full py-3"
+                        >
+                          ကောင်းပါပြီ
+                        </button>
+                      ) : (
+                        <>
+                          <a 
+                            href={connectUrl(userId)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="ui-btn bg-blue-500 hover:bg-blue-600 text-white w-full py-3 flex items-center justify-center gap-2"
+                          >
+                            <Send size={18} />
+                            <span>Telegram နှင့် ချိတ်ဆက်မည်</span>
+                          </a>
+                          <button 
+                            onClick={() => setShowLinkedModal({ ...showLinkedModal, show: false })}
+                            className="ui-btn-ghost w-full py-3 text-slate-500"
+                          >
+                            နောက်မှလုပ်မည်
+                          </button>
+                        </>
+                      )}
+                   </div>
+                </div>
+             </div>
+          </div>
+        )}
       </div>
     </div>
   );
