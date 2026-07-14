@@ -58,6 +58,7 @@ interface SearchResult {
 interface StopOption {
   raw: string;
   display: string;
+  id?: number; // Added to support unique identification
 }
 
 interface ChatMessage {
@@ -100,7 +101,7 @@ const performBFS = async (start: string, end: string, allRoutes: BusRoute[], all
   ];
   const visited = new Set<string>();
   const finalResults: SearchResult[] = [];
-  const MAX_TRANSFERS = 4;
+  const MAX_TRANSFERS = 2; // Reduced from 4 to 2 for better relevance and performance
 
   const calculatePathDistance = (path: PathStep[]): number => {
     let totalDistance = 0;
@@ -132,21 +133,29 @@ const performBFS = async (start: string, end: string, allRoutes: BusRoute[], all
       const positions = routeStopPositions.get(route.id)?.get(currentStop) || [];
 
       for (const pos of positions) {
-        for (let i = pos + 1; i < route.stops.length; i++) {
-          const nextStop = route.stops[i];
-          const stepPath = [...path, { route, fromStop: currentStop, toStop: nextStop }];
+        // Look ahead for the destination in the current route
+        const destIdx = route.stops.indexOf(end, pos + 1);
+        if (destIdx !== -1) {
+          const stepPath = [...path, { route, fromStop: currentStop, toStop: end }];
+          finalResults.push({ 
+            steps: stepPath, 
+            transferCount: stepPath.length - 1, 
+            totalDistance: calculatePathDistance(stepPath) 
+          });
+          continue; // Found direct path in this route, no need to explore further for this route
+        }
 
-          if (nextStop === end) {
-            finalResults.push({ steps: stepPath, transferCount: stepPath.length - 1, totalDistance: calculatePathDistance(stepPath) });
-          }
-
-          if (path.length <= MAX_TRANSFERS) {
+        // If not found, add potential transfer points (every 5th stop to keep search space manageable)
+        if (path.length <= MAX_TRANSFERS) {
+          for (let i = pos + 1; i < route.stops.length; i += 5) {
+            const nextStop = route.stops[i];
+            const stepPath = [...path, { route, fromStop: currentStop, toStop: nextStop }];
             queue.push({ currentStop: nextStop, path: stepPath, usedRouteIds: new Set(newUsedRouteIds) });
           }
         }
       }
     }
-    if (finalResults.length >= 5) break;
+    if (finalResults.length >= 10) break;
   }
   return finalResults.sort((a, b) => a.transferCount - b.transferCount || a.totalDistance - b.totalDistance);
 };
@@ -430,74 +439,72 @@ const buildDisambiguatedStops = (stops: BusStop[], routes: BusRoute[]): StopOpti
     seen.add(key);
 
     const display = `${stop.name_mm} [${road}]`;
-    options.push({ raw: stop.name_mm, display });
+    options.push({ raw: stop.name_mm, display, id: stop.id });
   });
 
-  return options.sort((a, b) =>
-    a.display.localeCompare(b.display, 'my')
-  );
+  return options.sort((a, b) => a.display.localeCompare(b.display));
 };
 
 const StopSearchInput: React.FC<{ 
-  label: string,
-  value: string,
-  onChange: (val: string) => void,
+  label: string, 
+  value: string, 
+  onChange: (v: string) => void, 
   allOptions: StopOption[],
-  placeholder: string,
-  icon?: React.ReactNode,
-  indicatorColor: string
-}> = ({ label, value, onChange, allOptions, placeholder, icon, indicatorColor }) => {
-  const [displayValue, setDisplayValue] = useState('');
+  placeholder?: string,
+  indicatorColor?: string,
+  icon?: React.ReactNode
+}> = ({ label, value, onChange, allOptions, placeholder, indicatorColor, icon }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [displayValue, setDisplayValue] = useState(value);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!value) {
-      setDisplayValue('');
-      return;
+    if (!value) setDisplayValue('');
+    else {
+      const opt = allOptions.find(o => o.raw === value);
+      if (opt) setDisplayValue(opt.display);
+      else setDisplayValue(value);
     }
-    const match = allOptions.find(o => o.raw === value);
-    setDisplayValue(match ? match.display : value);
   }, [value, allOptions]);
 
   const filtered = useMemo(() => {
     if (!displayValue) return [];
-    const term = displayValue.toLowerCase().trim();
-    return allOptions.filter(o => o.display.toLowerCase().includes(term)).slice(0, 50);
+    const term = displayValue.toLowerCase();
+    return allOptions.filter(o => 
+      o.display.toLowerCase().includes(term) || 
+      o.raw.toLowerCase().includes(term)
+    ).slice(0, 50);
   }, [displayValue, allOptions]);
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setIsOpen(false);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   return (
-    <div className="space-y-2 relative" ref={wrapperRef}>
+    <div className="space-y-2 relative" ref={containerRef}>
       <div className="flex items-center justify-between">
-        <label className="ui-label flex items-center gap-2">
-          <div className={`w-2 h-2 rounded-full ${indicatorColor}`}></div>
-          <span>{label}</span>
-        </label>
+        <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{label}</label>
         {icon}
       </div>
       <div className="relative">
+        <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-xl ${indicatorColor || 'bg-brand'}`}></div>
         <input 
           type="text"
-          className="ui-input"
+          className="ui-input pl-5 pr-4 py-3.5 text-sm md:text-base bg-slate-50 border-transparent focus:bg-white focus:border-brand/20 transition-all"
           placeholder={placeholder}
           value={displayValue}
-          onChange={(e) => {
-            const val = e.target.value;
-            setDisplayValue(val);
-            setIsOpen(true);
-            onChange(val);
-          }}
           onFocus={() => setIsOpen(true)}
+          onChange={(e) => {
+            setDisplayValue(e.target.value);
+            setIsOpen(true);
+            if (!e.target.value) onChange('');
+          }}
         />
         {isOpen && filtered.length > 0 && (
           <div className="absolute top-full left-0 right-0 mt-1.5 bg-white border border-slate-200 rounded-xl shadow-lg z-[80] max-h-60 overflow-y-auto">
@@ -819,685 +826,195 @@ const RoutesPage: React.FC<{
 
         if (r.id.toLowerCase().includes(term)) return true;
         if (r.operator && r.operator.toLowerCase().includes(term)) return true;
-        if (startTownship.toLowerCase().includes(term) || endTownship.toLowerCase().includes(term)) return true;
-        if (startStop.toLowerCase().includes(term) || endStop.toLowerCase().includes(term)) return true;
-        if (startStopEn.toLowerCase().includes(term) || endStopEn.toLowerCase().includes(term)) return true;
-
-        return r.stops.slice(0, 10).some(stop => {
-          const stopEn = stopInfoMap.get(stop)?.name_en || "";
-          return stop.toLowerCase().includes(term) || stopEn.toLowerCase().includes(term);
-        });
+        if (startStop && startStop.toLowerCase().includes(term)) return true;
+        if (endStop && endStop.toLowerCase().includes(term)) return true;
+        if (startTownship.toLowerCase().includes(term)) return true;
+        if (endTownship.toLowerCase().includes(term)) return true;
+        if (startStopEn.toLowerCase().includes(term)) return true;
+        if (endStopEn.toLowerCase().includes(term)) return true;
+        return false;
       });
     }
 
-    const seen = new Set<string>();
-    const unique = result.filter(r => {
-      if (seen.has(r.id)) return false;
-      seen.add(r.id);
-      return true;
+    return result.sort((a, b) => {
+      const isAFav = favorites.has(a.id);
+      const isBFav = favorites.has(b.id);
+      if (isAFav && !isBFav) return -1;
+      if (!isAFav && isBFav) return 1;
+      
+      const aNum = parseInt(a.id.replace(/\D/g, '')) || 999;
+      const bNum = parseInt(b.id.replace(/\D/g, '')) || 999;
+      return aNum - bNum;
     });
-
-    return unique.sort((a, b) => {
-      const numA = parseInt(a.id, 10) || 0;
-      const numB = parseInt(b.id, 10) || 0;
-      if (numA !== numB) return numA - numB;
-      return a.id.localeCompare(b.id, 'my');
-    });
-  }, [routes, search, stopInfoMap]);
-
-  const handleStopClick = (e: React.MouseEvent, stopName: string) => {
-    e.stopPropagation();
-    const stop = stops.find(s => s.name_mm === stopName);
-    if (stop) onStopClick(stop);
-  };
+  }, [routes, search, favorites, stopInfoMap]);
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-5 md:py-8 h-full flex flex-col gap-5">
-      <div className="shrink-0 space-y-2">
-        <div className="relative max-w-xl mx-auto w-full">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-          <input
-            type="text"
-            placeholder="ကားလိုင်း သို့မဟုတ် မှတ်တိုင် ရှာဖွေပါ..."
-            className="ui-input pl-11 text-sm md:text-base"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-        <p className="text-center text-xs text-slate-400">
-          {search.trim()
-            ? `${filtered.length} ခု တွေ့ရှိပါသည်`
-            : `စုစုပေါင်း လိုင်း ${filtered.length} ခု`}
-        </p>
+      <div className="relative shrink-0 max-w-xl mx-auto w-full">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+        <input 
+          type="text" 
+          placeholder="ကားလိုင်းနံပါတ် သို့မဟုတ် မြို့နယ်ဖြင့်ရှာရန်..." 
+          className="ui-input pl-11"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
       </div>
-      <div className="flex-1 overflow-y-auto pb-20 md:pb-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {filtered.map(route => (
+
+      <div className="flex-1 overflow-y-auto pb-24 md:pb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          {filtered.map(r => {
+            const isFav = favorites.has(r.id);
+            const startStop = r.stops[0];
+            const endStop = r.stops[r.stops.length - 1];
+            return (
               <div 
-                key={route.id} 
-                onClick={() => onRouteClick(route)}
-                className="ui-card ui-card-interactive p-4 flex flex-col gap-3 cursor-pointer border-l-[3px]"
-                style={{ borderLeftColor: route.color }}
+                key={r.id} 
+                onClick={() => onRouteClick(r)}
+                className="ui-card ui-card-interactive p-4 flex flex-col gap-4 group"
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-3 min-w-0 flex-1">
-                    <RouteBadge routeId={route.id} color={route.color} size="sm" />
-                    <div className="min-w-0">
-                       <div className="flex flex-wrap items-center gap-2">
-                          {route.line_name && (
-                            <span className="text-sm font-medium text-slate-800 truncate">
-                              {route.line_name}
-                            </span>
-                          )}
-                          {route.operator && <OperatorBadge name={route.operator} />}
-                       </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <RouteBadge routeId={r.id} color={r.color} />
+                    <div>
+                      <p className="text-xs text-slate-400 font-medium">YBS Route</p>
+                      {r.operator && <OperatorBadge name={r.operator} />}
                     </div>
                   </div>
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); onToggleFavorite(r.id); }}
+                    className={`p-2 rounded-lg transition-colors ${isFav ? 'text-amber-500 bg-amber-50' : 'text-slate-300 hover:text-slate-400 hover:bg-slate-50'}`}
+                  >
+                    <Star size={18} fill={isFav ? 'currentColor' : 'none'} />
+                  </button>
+                </div>
 
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onToggleFavorite(route.id);
-                      }}
-                      className={`p-2 rounded-lg transition-colors ${
-                        favorites.has(route.id)
-                          ? 'bg-brand-light text-brand'
-                          : 'text-slate-300 hover:text-slate-500 hover:bg-slate-50'
-                      }`}
-                    >
-                      <Star size={16} className={favorites.has(route.id) ? 'fill-current' : ''} />
-                    </button>
-                    <span className="ui-badge">
-                      <Hash size={10} />
-                      {route.stops.length}
-                    </span>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3">
+                    <div className="w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0"></div>
+                    <p className="text-sm text-slate-700 truncate font-medium">{startStop}</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-1.5 h-1.5 rounded-full bg-brand shrink-0"></div>
+                    <p className="text-sm text-slate-700 truncate font-medium">{endStop}</p>
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t border-slate-50 flex items-center justify-between">
+                  <span className="text-[10px] text-slate-400 font-medium">{r.stops.length} Stops</span>
+                  <div className="flex items-center gap-1 text-brand text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+                    View Detail <ChevronRight size={14} />
                   </div>
                 </div>
               </div>
-          ))}
-          {filtered.length === 0 && (
-             <div className="text-center py-16 text-slate-400 col-span-full">
-               <Search size={32} className="mx-auto mb-3 opacity-30" />
-               <p className="font-medium">ရှာဖွေမှု မတွေ့ရှိပါ</p>
-             </div>
-          )}
+            );
+          })}
         </div>
       </div>
     </div>
   );
 };
 
-const AssistantPage: React.FC<{ onRouteClick: (r: BusRoute) => void; routes: BusRoute[]; stops: BusStop[] }> = ({ onRouteClick, routes, stops }) => {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    { role: 'assistant', content: 'မင်္ဂလာပါ။ YBS Assistant မှ ကြိုဆိုပါတယ်။ ဘယ်ကို သွားချင်ပါသလဲ? စာရိုက်ပြီး မေးနိုင်ပါတယ်။ ဥပမာ- "မြေနီကုန်းကနေ လှည်းတန်းကို ဘယ်လိုသွားရမလဲ"' }
-  ]);
-  const [input, setInput] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-  const chatEndRef = useRef<HTMLDivElement>(null);
-  const [allStopNames, setAllStopNames] = useState<string[]>([]);
-
-  useEffect(() => {
-    const names = new Set<string>();
-    stops.forEach((s) => names.add(s.name_mm));
-    routes.forEach((r) => r.stops.forEach((s) => names.add(s)));
-    setAllStopNames(Array.from(names));
-  }, [routes, stops]);
-
-
-  const scrollToBottom = () => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages, isTyping]);
-
-  const handleSend = async () => {
-    const userQuery = input.trim();
-    if (!userQuery || isTyping) return;
-    
-    setInput('');
-    setMessages(prev => [...prev, { role: 'user', content: userQuery }]);
-    setIsTyping(true);
-
-    setTimeout(async () => {
-      const extracted = extractStopsFromText(userQuery, allStopNames);
-      
-      let reply = "";
-      let results: SearchResult[] = [];
-
-      if (!extracted || (!extracted.start && !extracted.end)) {
-        reply = "တောင်းပန်ပါတယ်၊ သင်ပြောတဲ့ မှတ်တိုင်အမည်ကို ရှာမတွေ့ပါဘူး။ မှတ်တိုင်အမည်လေး ပြန်စစ်ပေးပါဦး။";
-      } else if (extracted.start && !extracted.end) {
-        reply = `${extracted.start} ကနေ ဘယ်ကို သွားချင်တာလဲခင်ဗျာ?`;
-      } else if (!extracted.start && extracted.end) {
-        reply = `${extracted.end} ကို ဘယ်မှတ်တိုင်ကနေ လာမှာလဲခင်ဗျာ?`;
-      } else if (extracted.start && extracted.end) {
-        results = await performBFS(extracted.start, extracted.end, routes, stops);
-        if (results.length > 0) {
-          reply = `${extracted.start} မှ ${extracted.end} သို့ စီးရမည့် လမ်းကြောင်းများကို ရှာတွေ့ပါပြီ။`;
-        } else {
-          reply = `${extracted.start} မှ ${extracted.end} သို့ တိုက်ရိုက် သို့မဟုတ် တစ်ဆင့်ပြောင်း လမ်းကြောင်း ရှာမတွေ့ပါဘူး။`;
-        }
-      }
-
-      setMessages(prev => [...prev, { role: 'assistant', content: reply, results: results.length > 0 ? results : undefined }]);
-      setIsTyping(false);
-    }, 600);
-  };
-
-  return (
-    <div className="max-w-3xl mx-auto h-full flex flex-col bg-white md:shadow-lg md:my-4 md:rounded-2xl overflow-hidden border border-slate-100">
-      <div className="flex-1 overflow-y-auto p-4 space-y-5 bg-slate-50 pb-20 md:pb-4">
-        {messages.map((m, i) => (
-          <div key={i} className={`flex flex-col ${m.role === 'user' ? 'items-end' : 'items-start'}`}>
-            <div className="flex items-end gap-2 max-w-[90%]">
-              {m.role === 'assistant' && (
-                <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center shrink-0 mb-1">
-                  <Bot size={16} className="text-white" />
-                </div>
-              )}
-              <div className={`px-4 py-3 rounded-2xl text-sm leading-relaxed ${
-                m.role === 'user' ? 'bg-slate-900 text-white rounded-br-md' : 'bg-white text-slate-700 rounded-bl-md border border-slate-100 shadow-sm'
-              }`}>
-                {m.content}
-              </div>
-              {m.role === 'user' && (
-                <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center shrink-0 mb-1">
-                  <User size={16} className="text-slate-500" />
-                </div>
-              )}
-            </div>
-            {m.results && (
-              <div className="w-full mt-3 space-y-2.5 animate-slide-up">
-                {m.results.map((res, idx) => (
-                  <div key={idx} className="ui-card p-4 space-y-3 ml-10">
-                    <div className="flex items-center justify-between">
-                       <div className="flex gap-2">
-                         {res.steps.map((step, sidx) => (
-                           <RouteBadge key={sidx} routeId={step.route.id} color={step.route.color} size="sm" onClick={() => onRouteClick(step.route)} />
-                         ))}
-                       </div>
-                        <span className="ui-badge ui-badge-accent">
-                          {res.transferCount === 0 ? 'တိုက်ရိုက်' : `${res.transferCount} ဆင့်ပြောင်း`}
-                        </span>
-                    </div>
-                    <div className="space-y-2.5">
-                      {res.steps.map((step, sidx) => (
-                        <div key={sidx} className="flex items-start gap-3 text-sm">
-                          <div className="flex flex-col items-center mt-1.5">
-                             <div className="w-2 h-2 rounded-full" style={{ backgroundColor: step.route.color }}></div>
-                             {sidx < res.steps.length - 1 && <div className="w-px h-6 bg-slate-200"></div>}
-                          </div>
-                           <div className="flex-1">
-                             <div className="flex items-center gap-2">
-                               <p className="font-medium text-slate-800">YBS {step.route.id}</p>
-                               {step.route.qrPayment === '✅ Supported' && (
-                                 <span className="ui-badge bg-amber-50 text-amber-700 border border-amber-100" title="QR Payment ပံ့ပိုးမှု">
-                                   <CreditCard size={10} className="mr-1" />
-                                   QR
-                                 </span>
-                               )}
-                             </div>
-                             <p className="text-slate-500 text-xs mt-0.5">{step.fromStop} → {step.toStop}</p>
-                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
-        {isTyping && (
-          <div className="flex items-start gap-2">
-             <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center shrink-0">
-               <Bot size={16} className="text-white" />
-             </div>
-             <div className="bg-white px-4 py-3 rounded-2xl rounded-bl-md border border-slate-100 flex items-center gap-1.5 shadow-sm">
-                <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"></div>
-                <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-             </div>
-          </div>
-        )}
-        <div ref={chatEndRef}></div>
-      </div>
-
-      <div className="p-4 border-t border-slate-100 bg-white shrink-0 pb-20 md:pb-4">
-        <div className="flex items-center gap-2">
-          <input 
-            type="text" 
-            placeholder="ဥပမာ- ဆူးလေကနေ လှည်းတန်းကို ဘယ်လိုသွားရမလဲ"
-            className="ui-input flex-1"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-          />
-          <button 
-            onClick={handleSend}
-            disabled={!input.trim() || isTyping}
-            className="ui-btn ui-btn-primary p-3 rounded-xl disabled:opacity-50"
-          >
-            <Send size={18} />
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const StopDetailPage: React.FC<{ stop: BusStop, onClose: () => void }> = ({ stop, onClose }) => {
-  const [passingRoutes, setPassingRoutes] = useState<BusRoute[]>([]);
-
-  const [alertStatus, setAlertStatus] = useState<AlertStatus | null>(null);
-  const [alertBusy, setAlertBusy] = useState(false);
-  const [alertMsg, setAlertMsg] = useState<string>('');
-
-  const userId = useMemo(() => getUserId(), []);
-
-  useEffect(() => {
-    let cancelled = false;
-    getAlertStatus(userId)
-      .then((s) => { if (!cancelled) setAlertStatus(s); })
-      .catch(() => { if (!cancelled) setAlertStatus({ linked: false, alert: null }); });
-    return () => { cancelled = true; };
-  }, [userId, stop.id]);
-
-  const handleSetAlert = async () => {
-    setAlertBusy(true);
-    setAlertMsg('');
-    try {
-      await setAlert(userId, stop);
-      setAlertStatus({ linked: true, alert: { stopName: stop.name_mm } });
-      setAlertMsg('✅ သတိပေးချက် သတ်မှတ်ပြီးပါပြီ။ Bot သို့ Live Location ပို့ပေးပါ။');
-    } catch (e: any) {
-      setAlertMsg(e.message || 'မအောင်မြင်ပါ။');
-    } finally {
-      setAlertBusy(false);
-    }
-  };
-
-  const handleCancelAlert = async () => {
-    setAlertBusy(true);
-    setAlertMsg('');
-    try {
-      await cancelAlert(userId);
-      setAlertStatus((s) => (s ? { ...s, alert: null } : s));
-      setAlertMsg('🚫 သတိပေးချက် ပယ်ဖျက်ပြီးပါပြီ။');
-    } catch {
-      setAlertMsg('ပယ်ဖျက်၍ မရပါ။');
-    } finally {
-      setAlertBusy(false);
-    }
-  };
-
-  useEffect(() => {
-    db.busRoutes.toArray().then(routes => {
-      const filtered = routes.filter(r => r.stops.includes(stop.name_mm));
-      setPassingRoutes(filtered);
-    });
-  }, [stop]);
-
-  useEffect(() => {
-    const mapContainer = document.getElementById('stop-map');
-    if (mapContainer && (window as any).L) {
-      const L = (window as any).L;
-      const map = L.map('stop-map', { scrollWheelZoom: true }).setView([stop.lat, stop.lng], 16);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-      L.marker([stop.lat, stop.lng]).addTo(map).bindPopup(stop.name_mm).openPopup();
-      return () => map.remove();
-    }
-  }, [stop]);
-
-  return (
-    <div className="fixed inset-0 z-[60] flex md:items-center justify-center md:p-8 overflow-hidden bg-slate-900/40 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white w-full h-full md:max-w-3xl md:h-auto md:max-h-[95vh] flex flex-col md:rounded-2xl md:shadow-lg overflow-hidden animate-slide-up">
-        <div className="px-5 py-4 flex items-center justify-between border-b border-slate-100 shrink-0">
-          <h3 className="text-base font-semibold truncate text-slate-900">{stop.name_mm}</h3>
-          <button onClick={onClose} className="ui-btn-icon"><X size={18}/></button>
-        </div>
-        <div id="stop-map" className="w-full h-80 md:h-96 bg-slate-100 shrink-0"></div>
-        <div className="p-5 flex-1 overflow-y-auto space-y-6 pb-24 md:pb-6">
-          <div className="space-y-1">
-            <p className="ui-label">တည်နေရာ</p>
-            <p className="text-slate-800 font-medium">{stop.road_mm}၊ {stop.township_mm}</p>
-          </div>
-          <div className="bg-gradient-to-tr from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-4 space-y-3">
-            <div className="flex items-center gap-2">
-              <Bot size={18} className="text-blue-600" />
-              <p className="ui-label text-blue-700">ဆင်းမည့်မှတ်တိုင် သတိပေးချက်</p>
-            </div>
-
-            {alertStatus && alertStatus.alert ? (
-              <div className="space-y-2">
-                <p className="text-sm text-slate-700">
-                  🔔 <b>{alertStatus.alert.stopName}</b> မှတ်တိုင်သို့ ၅၀၀ မီတာအတွင်း ရောက်လျှင် သတိပေးပေးမည်။
-                </p>
-                <p className="text-xs text-slate-500">Telegram Bot သို့ Live Location ပို့ပေးပါ။</p>
-                <button
-                  onClick={handleCancelAlert}
-                  disabled={alertBusy}
-                  className="ui-btn-ghost w-full justify-center py-2 text-rose-600 border-rose-200 hover:bg-rose-50 disabled:opacity-50"
-                >
-                  သတိပေးချက် ပယ်ဖျက်မည်
-                </button>
-              </div>
-            ) : alertStatus && alertStatus.linked ? (
-              <button
-                onClick={handleSetAlert}
-                disabled={alertBusy}
-                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl shadow-sm transition-colors text-sm disabled:opacity-50"
-              >
-                <Bell size={16} /> ဤမှတ်တိုင်သို့ ရောက်လျှင် သတိပေးပါ
-              </button>
-            ) : (
-              <div className="space-y-3">
-                <p className="text-xs text-slate-600">Telegram နှင့် ချိတ်ဆက်ပြီး မှတ်တိုင်နီးလျှင် သတိပေးခံရန် ရွေးချယ်ပါ။</p>
-
-                <a
-                  href={connectUrl(userId)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-[#26A5E4] hover:bg-[#2297cc] text-white font-medium rounded-xl shadow-sm transition-colors text-sm"
-                >
-                  <Send size={16} /> Telegram နဲ့ ချိတ်ဆက်မည်
-                </a>
-
-                <div className="bg-white rounded-xl border border-slate-200 p-3 space-y-1.5">
-                  <p className="text-[11px] text-slate-500 leading-relaxed">
-                    Bot ကို အရင် ဖွင့်ထားပြီးသားဆိုရင် Link နှိပ်ပြီးနောက် Bot ထဲမှာ အောက်ပါ ကုဒ်ကို တိုက်ရိုက် ပို့ပါ
-                    (သို့မဟုတ် <code className="bg-slate-100 px-1 rounded">/start {userId}</code>):
-                  </p>
-                  <div className="flex items-center justify-between gap-2 bg-slate-50 rounded-lg px-3 py-2">
-                    <span className="font-mono font-semibold tracking-widest text-slate-800 select-all">{userId}</span>
-                    <button
-                      type="button"
-                      onClick={() => navigator.clipboard?.writeText(userId)}
-                      className="text-xs font-medium text-blue-600 hover:text-blue-700"
-                    >
-                      ကူးယူ
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {alertMsg && <p className="text-xs text-center text-slate-600">{alertMsg}</p>}
-          </div>
-
-          <div className="space-y-3">
-            <p className="ui-label">ဖြတ်သန်းသွားသော လိုင်းများ ({passingRoutes.length})</p>
-            <div className="flex flex-wrap gap-2">
-              {passingRoutes.map(r => (
-                <div key={r.id} className="flex flex-col items-center gap-1.5 bg-slate-50 p-3 rounded-xl border border-slate-100 min-w-[72px]">
-                  <RouteBadge routeId={r.id} color={r.color} size="sm" />
-                  {r.operator && <OperatorBadge name={r.operator} />}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const RouteDetailPage: React.FC<{ route: BusRoute, onClose: () => void, onStopClick: (s: BusStop) => void }> = ({ route, onClose, onStopClick }) => {
-  const mapContainerRef = useRef<HTMLDivElement>(null);
+const RouteDetailPage: React.FC<{ 
+  route: BusRoute, 
+  onClose: () => void,
+  onStopClick: (s: BusStop) => void 
+}> = ({ route, onClose, onStopClick }) => {
   const mapRef = useRef<any>(null);
   const markersLayerRef = useRef<any>(null);
   const routeLayerRef = useRef<any>(null);
-
+  const [livePos, setLivePos] = useState<{ lat: number, lng: number } | null>(null);
   const [isLocating, setIsLocating] = useState(false);
-  const [livePos, setLivePos] = useState<{ lat: number; lng: number } | null>(null);
 
-  const [routeStops, setRouteStops] = useState<BusStop[]>([]);
-  const [activeIndex, setActiveIndex] = useState<number>(0);
+  const routeStops = route.stopsDetailed || [];
 
-  // Use route-specific stop list from JSON (prevents cross-bus mixing)
-  useEffect(() => {
-    const detailed = route.stopsDetailed || [];
-    // Map BusStopDetailed -> BusStop (same shape)
-    const mapped: BusStop[] = detailed.map((s) : any => ({
-      id: s.id,
+  const activeIndex = useMemo(() => {
+    if (!livePos || routeStops.length === 0) return -1;
+    let minIdx = 0;
+    let minDist = getDistance(livePos.lat, livePos.lng, routeStops[0].lat, routeStops[0].lng);
+    routeStops.forEach((s, i) => {
+      const d = getDistance(livePos.lat, livePos.lng, s.lat, s.lng);
+      if (d < minDist) {
+        minDist = d;
+        minIdx = i;
+      }
+    });
+    return minDist < 0.5 ? minIdx : -1;
+  }, [livePos, routeStops]);
 
-      lat: s.lat,
-      lng: s.lng,
-      name_en: s.name_en,
-      name_mm: s.name_mm,
-      road_en: s.road_en,
-      road_mm: s.road_mm,
-      township_en: s.township_en,
-      township_mm: s.township_mm,
-    }));
-
-    setRouteStops(mapped);
-    setActiveIndex(0);
-  }, [route]);
-
-
-  // Init map
   useEffect(() => {
     const L = (window as any).L;
-    if (!L || !mapContainerRef.current || mapRef.current) return;
+    if (!L) return;
 
-    const map = L.map(mapContainerRef.current, { zoomControl: false, scrollWheelZoom: true }).setView([16.8, 96.15], 13);
+    const map = L.map('route-map', { zoomControl: false, scrollWheelZoom: true }).setView([16.8, 96.15], 12);
     mapRef.current = map;
-
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
     L.control.zoom({ position: 'topright' }).addTo(map);
 
     markersLayerRef.current = L.featureGroup().addTo(map);
     routeLayerRef.current = L.featureGroup().addTo(map);
 
-    // Resize safety (mobile modal)
-    setTimeout(() => {
-      try { map.invalidateSize(); } catch {}
-    }, 200);
+    if (routeStops.length > 0) {
+      const latlngs: [number, number][] = routeStops.map(s => [s.lat, s.lng]);
+      
+      const polyline = L.polyline(latlngs, {
+        color: route.color,
+        weight: 5,
+        opacity: 0.8,
+        lineJoin: 'round'
+      }).addTo(routeLayerRef.current);
 
-    return () => {
-      try { map.remove(); } catch {}
-      mapRef.current = null;
-    };
-  }, []);
+      routeStops.forEach((s, i) => {
+        const isStart = i === 0;
+        const isEnd = i === routeStops.length - 1;
+        
+        const marker = L.circleMarker([s.lat, s.lng], {
+          radius: isStart || isEnd ? 8 : 5,
+          fillColor: isStart ? '#10b981' : isEnd ? '#f43f5e' : '#fff',
+          color: isStart || isEnd ? '#fff' : route.color,
+          weight: 2,
+          opacity: 1,
+          fillOpacity: 1
+        });
 
-  // Draw route line + stop markers
-  useEffect(() => {
-    const L = (window as any).L;
-    const map = mapRef.current;
-    if (!L || !map || !markersLayerRef.current || !routeLayerRef.current) return;
+        marker.bindTooltip(s.name_mm, { 
+          direction: 'top', 
+          offset: [0, -5],
+          className: 'ui-map-tooltip'
+        });
 
-    markersLayerRef.current.clearLayers();
-    routeLayerRef.current.clearLayers();
+        marker.on('click', () => onStopClick(s));
+        marker.addTo(markersLayerRef.current);
+      });
 
-    // Draw line if shape exists
-    if (route.shape?.geometry?.coordinates?.length) {
-      try {
-        const coords = route.shape.geometry.coordinates.map(([lng, lat]) => [lat, lng]);
-        const polyline = L.polyline(coords, { color: route.color, weight: 4, opacity: 0.7 });
-        polyline.addTo(routeLayerRef.current);
-      } catch {}
+      map.fitBounds(polyline.getBounds(), { padding: [40, 40] });
     }
 
-    // Compute bounds
-    const latLngs = routeStops.map(s => [s.lat, s.lng] as [number, number]);
-
-    // Markers
-    routeStops.forEach((s, idx) => {
-      const isActive = idx === activeIndex;
-      const marker = L.circleMarker([s.lat, s.lng], {
-        radius: isActive ? 10 : 7,
-        fillColor: isActive ? '#10b981' : route.color,
-        color: '#fff',
-        weight: isActive ? 4 : 2,
-        opacity: 1,
-        fillOpacity: isActive ? 0.95 : 0.85,
-      });
-
-      marker.bindTooltip(s.name_mm, {
-        permanent: true,
-        direction: 'top',
-        offset: [0, -10],
-        className: 'text-[10px] font-bold text-black bg-white px-1.5 py-0.5 rounded border border-black',
-      });
-
-      marker.bindPopup(`
-        <div class="p-2 min-w-[140px]">
-          <div class="font-black text-gray-900 text-sm mb-0.5">${s.name_mm}</div>
-          <div class="text-[10px] text-gray-500 font-bold uppercase mb-2">${s.township_mm}</div>
-          <div class="text-[10px] text-emerald-700 font-semibold">${idx === activeIndex ? 'လက်ရှိနေရာ' : ''}</div>
-        </div>
-      `, { closeButton: false, autoPan: false });
-
-
-      marker.on('popupopen', () => {
-        const btn = document.getElementById(`route-stop-${s.id}`);
-        if (btn) btn.onclick = () => onStopClick(s);
-      });
-
-      marker.addTo(markersLayerRef.current);
-    });
-
-    // Fit bounds when first loaded
-    // Guard against Leaflet crash when markers/panes not ready yet
-    if (latLngs.length > 0 && mapRef.current) {
-      try {
-        const bounds = L.latLngBounds(latLngs);
-        // Leaflet has occasional timing issues in modals; delay to next tick
-        setTimeout(() => {
-          try {
-            map.fitBounds(bounds, { padding: [20, 20] });
-          } catch {}
-        }, 0);
-      } catch {}
-    }
-
-
-  }, [routeStops, activeIndex, route.color, route.shape, onStopClick]);
-
-  // Update activeIndex based on live position (nearest stop)
-  useEffect(() => {
-    const map = mapRef.current;
-    const L = (window as any).L;
-    if (!map || !L) return;
-    if (!livePos || routeStops.length === 0) return;
-
-    let bestIdx = 0;
-    let bestDist = Infinity;
-
-    for (let i = 0; i < routeStops.length; i++) {
-      const s = routeStops[i];
-      const d = getDistance(livePos.lat, livePos.lng, s.lat, s.lng);
-      if (d < bestDist) {
-        bestDist = d;
-        bestIdx = i;
-      }
-    }
-
-    setActiveIndex(bestIdx);
-
-    // Live marker
-    try {
-      // Remove old marker if any
-      if ((map as any).__liveMarker) {
-        (map as any).__liveMarker.remove();
-      }
-
-      const liveMarker = L.circleMarker([livePos.lat, livePos.lng], {
-        radius: 9,
-        fillColor: '#2563eb',
-        color: '#fff',
-        weight: 3,
-        opacity: 1,
-        fillOpacity: 0.9,
-      }).addTo(map);
-      liveMarker.bindTooltip('မိမိ နေရာ', {
-        permanent: true,
-        direction: 'top',
-        offset: [0, -10],
-        className: 'text-[10px] font-bold text-white bg-blue-600 px-1.5 py-0.5 rounded border border-blue-800',
-      });
-      (map as any).__liveMarker = liveMarker;
-    } catch {}
-
-    try {
-      // Keep map centered gently
-      map.setView([livePos.lat, livePos.lng], Math.max(map.getZoom(), 15));
-    } catch {}
-  }, [livePos, routeStops]);
-
-  // Start watchPosition
-  useEffect(() => {
-    if (!navigator.geolocation) return;
-    let watchId: number | null = null;
-
-    const startWatch = () => {
-      if (watchId !== null) return;
-      setIsLocating(true);
-      watchId = navigator.geolocation.watchPosition(
-        (pos) => {
-          setLivePos({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-          setIsLocating(false);
-        },
-        () => {
-          setIsLocating(false);
-        },
-        { enableHighAccuracy: true, maximumAge: 1000, timeout: 10000 }
-      );
-    };
-
-    startWatch();
-
-    return () => {
-      try {
-        if (watchId !== null) navigator.geolocation.clearWatch(watchId);
-      } catch {}
-    };
-  }, []);
-
-  const nextStops = useMemo(() => {
-    if (routeStops.length === 0) return [] as BusStop[];
-    const start = Math.min(activeIndex + 1, routeStops.length - 1);
-    return routeStops.slice(start, start + 8);
-  }, [routeStops, activeIndex]);
+    return () => map.remove();
+  }, [route, routeStops, onStopClick]);
 
   return (
-    <div className="fixed inset-0 z-[60] flex md:items-center justify-center md:p-8 overflow-hidden bg-slate-900/40 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white w-full h-full md:max-w-2xl md:h-[90vh] flex flex-col md:rounded-2xl md:shadow-lg overflow-hidden animate-slide-up">
-        <div className="px-5 py-4 flex items-center gap-3 border-b border-slate-100 shrink-0">
-          <button onClick={onClose} className="ui-btn-icon"><ChevronRight className="rotate-180" size={18}/></button>
-          <RouteBadge routeId={route.id} color={route.color} size="sm" />
-          {route.operator && <OperatorBadge name={route.operator} />}
-          <h3 className="font-semibold text-slate-800 text-sm">လမ်းကြောင်းအသေးစိတ်</h3>
-          <div className="ml-auto flex items-center gap-2">
-            <span className="ui-badge ui-badge-accent">{routeStops.length}/{route.stops.length}</span>
-            {route.qrPayment === '✅ Supported' && (
-              <span className="ui-badge bg-amber-50 text-amber-700 border border-amber-100" title="QR Payment ပံ့ပိုးမှု">
-                <CreditCard size={10} className="mr-1" />
-                QR
-              </span>
-            )}
+    <div className="fixed inset-0 z-[60] flex md:items-center justify-center md:p-6 overflow-hidden bg-slate-900/40 backdrop-blur-sm animate-fade-in">
+      <div className="bg-white w-full h-full md:max-w-3xl md:h-auto md:max-h-[95vh] flex flex-col md:rounded-2xl md:shadow-lg overflow-hidden">
+        <div className="px-5 py-4 flex items-center justify-between border-b border-slate-100 shrink-0">
+          <div className="flex items-center gap-3">
+            <RouteBadge routeId={route.id} color={route.color} size="sm" />
+            <div>
+              <h3 className="font-semibold text-slate-900 text-sm">{route.line_name || `YBS ${route.id}`}</h3>
+              <p className="text-[10px] text-slate-400 font-medium">{route.operator}</p>
+            </div>
           </div>
+          <button onClick={onClose} className="ui-btn-icon">
+            <X size={18} />
+          </button>
         </div>
 
-        <div className="flex flex-col flex-1 overflow-hidden">
-          <div className="relative bg-slate-100">
-            <div ref={mapContainerRef} className="w-full h-[42vh] md:h-[45vh]" />
-
-            <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2">
-              <div className="bg-white/90 backdrop-blur px-3 py-2 rounded-xl shadow-sm border border-slate-100">
-                <div className="text-xs text-slate-500">လက်ရှိနေရာ</div>
-                <div className="text-sm font-semibold text-slate-800">
-                  {routeStops[activeIndex]?.name_mm || 'ရှာဖွေနေပါသည်...'}
-                </div>
-              </div>
-
-              <button
+        <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+          <div className="relative h-48 md:h-auto md:w-1/2 bg-slate-100 shrink-0">
+            <div id="route-map" className="w-full h-full"></div>
+            <div className="absolute bottom-4 right-4 z-[1000] flex flex-col gap-2">
+              <button 
                 onClick={() => {
-                  if (!navigator.geolocation) return;
                   setIsLocating(true);
                   navigator.geolocation.getCurrentPosition(
                     (p) => setLivePos({ lat: p.coords.latitude, lng: p.coords.longitude }),
@@ -1878,8 +1395,8 @@ const RoutePlanDetailPage: React.FC<{
       marker.bindTooltip(`စီးရန်: ${fromStop.name_mm}`, {
         permanent: true,
         direction: 'top',
-        offset: [0, -10],
-        className: 'text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200',
+        offset: [0, -12],
+        className: 'text-[11px] font-bold text-white bg-emerald-600 px-2 py-1 rounded shadow-md border-none',
       });
       marker.addTo(markersLayerRef.current);
       allLatLngs.push([fromStop.lat, fromStop.lng]);
@@ -1888,7 +1405,7 @@ const RoutePlanDetailPage: React.FC<{
     if (toStop) {
       const marker = L.circleMarker([toStop.lat, toStop.lng], {
         radius: 10,
-        fillColor: '#ef4444',
+        fillColor: '#f43f5e',
         color: '#fff',
         weight: 3,
         opacity: 1,
@@ -1897,339 +1414,95 @@ const RoutePlanDetailPage: React.FC<{
       marker.bindTooltip(`ဆင်းရန်: ${toStop.name_mm}`, {
         permanent: true,
         direction: 'top',
-        offset: [0, -10],
-        className: 'text-[10px] font-bold text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200',
+        offset: [0, -12],
+        className: 'text-[11px] font-bold text-white bg-rose-600 px-2 py-1 rounded shadow-md border-none',
       });
       marker.addTo(markersLayerRef.current);
       allLatLngs.push([toStop.lat, toStop.lng]);
     }
 
-    if (livePos) {
-      try {
-        if ((map as any).__liveMarker) {
-          (map as any).__liveMarker.remove();
-        }
-        const liveMarker = L.circleMarker([livePos.lat, livePos.lng], {
-          radius: 8,
-          fillColor: '#2563eb',
-          color: '#fff',
-          weight: 3,
-          opacity: 1,
-          fillOpacity: 0.9,
-        }).addTo(map);
-        liveMarker.bindTooltip('မိမိ နေရာ', {
-          permanent: true,
-          direction: 'top',
-          offset: [0, -10],
-          className: 'text-[10px] font-bold text-white bg-blue-600 px-1.5 py-0.5 rounded border border-blue-800',
-        });
-        (map as any).__liveMarker = liveMarker;
-        allLatLngs.push([livePos.lat, livePos.lng]);
-      } catch {}
-    }
-
     if (visibleStops.length > 1) {
-      for (let i = 0; i < visibleStops.length - 1; i++) {
-        const curr = visibleStops[i];
-        const next = visibleStops[i + 1];
-        const seg = L.polyline([[curr.lat, curr.lng], [next.lat, next.lng]], {
-          color: route.color,
-          weight: 5,
-          opacity: 0.85,
-        });
-        seg.addTo(routeLayerRef.current);
-      }
+      const line = L.polyline(visibleStops.map(s => [s.lat, s.lng]), {
+        color: route.color,
+        weight: 6,
+        opacity: 0.8,
+      }).addTo(routeLayerRef.current);
+      map.fitBounds(line.getBounds(), { padding: [50, 50] });
+    } else if (allLatLngs.length > 0) {
+      map.fitBounds(L.latLngBounds(allLatLngs), { padding: [50, 50] });
     }
-
-    if (allLatLngs.length > 0) {
-      try {
-        const bounds = L.latLngBounds(allLatLngs);
-        setTimeout(() => {
-          try {
-            map.fitBounds(bounds, { padding: [40, 40] });
-          } catch {}
-        }, 0);
-      } catch {}
-    }
-  }, [steps, activeStepIndex, stopsByName, livePos]);
-
-  const getNearestStop = () => {
-    if (!livePos) return null;
-    let nearest = null;
-    let minDist = Infinity;
-    stopsByName.forEach((s) => {
-      const d = getDistance(livePos.lat, livePos.lng, s.lat, s.lng);
-      if (d < minDist) {
-        minDist = d;
-        nearest = s;
-      }
-    });
-    return nearest ? { stop: nearest, distance: minDist } : null;
-  };
-
-  const nearestInfo = getNearestStop();
-  const activeStep = steps[activeStepIndex];
-  const fromStop = activeStep ? resolveStop(activeStep.fromStop) : null;
-  const toStop = activeStep ? resolveStop(activeStep.toStop) : null;
-
-  const isAtFromStop = nearestInfo && fromStop && nearestInfo.stop.id === fromStop.id;
-  const isAtToStop = nearestInfo && toStop && nearestInfo.stop.id === toStop.id;
-
-  // Destination = final step's alight stop
-  const destStop = steps.length > 0 ? resolveStop(steps[steps.length - 1].toStop) : null;
-
-  const userId = useMemo(() => getUserId(), []);
-  const [planAlertStatus, setPlanAlertStatus] = useState<AlertStatus | null>(null);
-  const [planAlertBusy, setPlanAlertBusy] = useState(false);
-  const [planAlertMsg, setPlanAlertMsg] = useState('');
-
-  useEffect(() => {
-    let cancelled = false;
-    getAlertStatus(userId)
-      .then((s) => { if (!cancelled) setPlanAlertStatus(s); })
-      .catch(() => { if (!cancelled) setPlanAlertStatus({ linked: false, alert: null }); });
-    return () => { cancelled = true; };
-  }, [userId]);
-
-  const handleSetPlanAlert = async () => {
-    if (!destStop) return;
-    setPlanAlertBusy(true);
-    setPlanAlertMsg('');
-    try {
-      await setAlert(userId, destStop);
-      setPlanAlertStatus({ linked: true, alert: { stopName: destStop.name_mm } });
-      setPlanAlertMsg('✅ သတိပေးချက် သတ်မှတ်ပြီးပါပြီ။ Bot သို့ Live Location ပို့ပေးပါ။');
-    } catch (e: any) {
-      setPlanAlertMsg(e.message || 'မအောင်မြင်ပါ။');
-    } finally {
-      setPlanAlertBusy(false);
-    }
-  };
-
-  const handleCancelPlanAlert = async () => {
-    setPlanAlertBusy(true);
-    setPlanAlertMsg('');
-    try {
-      await cancelAlert(userId);
-      setPlanAlertStatus((s) => (s ? { ...s, alert: null } : s));
-      setPlanAlertMsg('🚫 သတိပေးချက် ပယ်ဖျက်ပြီးပါပြီ။');
-    } catch {
-      setPlanAlertMsg('ပယ်ဖျက်၍ မရပါ။');
-    } finally {
-      setPlanAlertBusy(false);
-    }
-  };
+  }, [activeStepIndex, steps, stopsByName]);
 
   return (
     <div className="fixed inset-0 z-[60] flex md:items-center justify-center md:p-6 overflow-hidden bg-slate-900/40 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white w-full h-full md:max-w-3xl md:h-auto md:max-h-[95vh] flex flex-col md:rounded-2xl md:shadow-lg overflow-hidden animate-slide-up">
+      <div className="bg-white w-full h-full md:max-w-3xl md:h-auto md:max-h-[95vh] flex flex-col md:rounded-2xl md:shadow-lg overflow-hidden">
         <div className="px-5 py-4 flex items-center justify-between border-b border-slate-100 shrink-0">
-          <div className="flex items-center gap-2 min-w-0">
-            <button onClick={onClose} className="ui-btn-icon">
-              <ChevronRight className="rotate-180" size={18} />
-            </button>
-            <h3 className="font-semibold truncate text-slate-900">လမ်းကြောင်းစီမံချက် (စီး/ဆင်း)</h3>
+          <div className="flex items-center gap-3">
+            <div className="bg-slate-900 p-2 rounded-xl text-white">
+              <Navigation size={18} />
+            </div>
+            <div>
+              <h3 className="font-semibold text-slate-900">Route Plan Detail</h3>
+              <p className="text-[10px] text-slate-400 font-medium">{steps.length - 1} Transfers</p>
+            </div>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <span className="ui-badge ui-badge-accent">Steps {steps.length}</span>
-            {steps.some(s => s.route.qrPayment === '✅ Supported') && (
-              <span className="ui-badge bg-amber-50 text-amber-700 border border-amber-100" title="QR Payment ပံ့ပိုးမှု">
-                <CreditCard size={10} className="mr-1" />
-                QR
-              </span>
-            )}
-          </div>
+          <button onClick={onClose} className="ui-btn-icon">
+            <X size={18} />
+          </button>
         </div>
 
-         <div className="flex flex-col flex-1 overflow-hidden">
-           <div className="bg-slate-100">
-             <div id="route-plan-map" className="w-full h-80 md:h-[28rem]" />
-           </div>
+        <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+          <div className="relative h-48 md:h-auto md:w-1/2 bg-slate-100 shrink-0">
+            <div id="route-plan-map" className="w-full h-full"></div>
+            {livePos && (
+               <div className="absolute top-4 left-4 z-[1000]">
+                  <span className="ui-badge bg-white/90 backdrop-blur text-emerald-600 font-bold border-emerald-100">Live GPS Active</span>
+               </div>
+            )}
+          </div>
 
-          <div ref={listRef} className="border-t border-slate-100 flex-1 overflow-y-auto bg-white">
-            <div className="p-5 space-y-4">
-              {nearestInfo && (
-                <div className="ui-card p-4 border border-emerald-200 bg-emerald-50/60">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Crosshair size={16} className="text-emerald-600" />
-                    <span className="text-sm font-semibold text-emerald-800">မှတ်တိုင် အချက်အလက်</span>
-                  </div>
-                  <div className="text-sm text-slate-700">
-                    {isAtFromStop && (
-                      <span className="font-medium text-emerald-700">သင် <b>{nearestInfo.stop.name_mm}</b> မှတ်တိုင်တွင် ရောက်နေပါပြီ။ ({fromStop?.name_mm} မှ စမည်)</span>
-                    )}
-                    {isAtToStop && (
-                      <span className="font-medium text-rose-700">သင် <b>{nearestInfo.stop.name_mm}</b> မှတ်တိုင်တွင် ရောက်နေပါပြီ။ ({toStop?.name_mm} မှဆင်းမည်)</span>
-                    )}
-                    {!isAtFromStop && !isAtToStop && (
-                      <span>
-                        သင် <b>{nearestInfo.stop.name_mm}</b> မှတ်တိုင် အနီးတွင် ရောက်နေပါသည်။
-                        {fromStop && <span className="text-emerald-600"> နောက်လာမည့် <b>{fromStop.name_mm}</b> </span>}
-                      </span>
-                    )}
-                  </div>
-                </div>
-               )}
-
-               {destStop && (
-                 <div className="ui-card p-4 border border-blue-100 bg-blue-50/60 space-y-3">
-                   <div className="flex items-center gap-2">
-                     <Bot size={18} className="text-blue-600" />
-                     <p className="ui-label text-blue-700">ဆင်းမည့်မှတ်တိုင် သတိပေးချက်</p>
-                   </div>
-                   <p className="text-xs text-slate-600">ပျင်းဆုံးဆင်းမည့် မှတ်တိုင်: <b>{destStop.name_mm}</b></p>
-
-                   {planAlertStatus && planAlertStatus.alert ? (
-                     <div className="space-y-2">
-                       <p className="text-sm text-slate-700">
-                         🔔 <b>{planAlertStatus.alert.stopName}</b> မှတ်တိုင်သို့ ရောက်လျှင် သတိပေးပေးမည်။
-                       </p>
-                       <p className="text-xs text-slate-500">Telegram Bot သို့ Live Location ပို့ပေးပါ။</p>
-                       <button
-                         onClick={handleCancelPlanAlert}
-                         disabled={planAlertBusy}
-                         className="ui-btn-ghost w-full justify-center py-2 text-rose-600 border-rose-200 hover:bg-rose-50 disabled:opacity-50"
-                       >
-                         သတိပေးချက် ပယ်ဖျက်မည်
-                       </button>
-                     </div>
-                   ) : planAlertStatus && planAlertStatus.linked ? (
-                     <button
-                       onClick={handleSetPlanAlert}
-                       disabled={planAlertBusy}
-                       className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl shadow-sm transition-colors text-sm disabled:opacity-50"
-                     >
-                       <Bell size={16} /> ဤမှတ်တိုင်သို့ ရောက်လျှင် သတိပေးပါ
-                     </button>
-                   ) : (
-                     <div className="space-y-2">
-                       <p className="text-xs text-slate-600">Telegram နှင့် ချိတ်ဆက်ပြီး မှတ်တိုင်နီးလျှင် သတိပေးခံရန် ရွေးချယ်ပါ။</p>
-                       <a
-                         href={connectUrl(userId)}
-                         target="_blank"
-                         rel="noopener noreferrer"
-                         className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-[#26A5E4] hover:bg-[#2297cc] text-white font-medium rounded-xl shadow-sm transition-colors text-sm"
-                       >
-                         <Send size={16} /> Telegram နဲ့ ချိတ်ဆက်မည်
-                       </a>
-                       <div className="bg-white rounded-xl border border-slate-200 p-3 space-y-1.5">
-                         <p className="text-[11px] text-slate-500 leading-relaxed">
-                           Bot ကို အရင် ဖွင့်ထားပြီးသားဆိုရင် Link နှိပ်ပြီးနောက် Bot ထဲမှာ အောက်ပါ ကုဒ်ကို တိုက်ရိုက် ပို့ပါ (သို့မဟုတ် <code className="bg-slate-100 px-1 rounded">/start {userId}</code>):
-                         </p>
-                         <div className="flex items-center justify-between gap-2 bg-slate-50 rounded-lg px-3 py-2">
-                           <span className="font-mono font-semibold tracking-widest text-slate-800 select-all">{userId}</span>
-                           <button
-                             type="button"
-                             onClick={() => navigator.clipboard?.writeText(userId)}
-                             className="text-xs font-medium text-blue-600 hover:text-blue-700"
-                           >
-                             ကူးယူ
-                           </button>
-                         </div>
+          <div ref={listRef} className="border-t border-slate-100 flex-1 overflow-y-auto bg-slate-50/50">
+            <div className="p-5 space-y-4 pb-24 md:pb-6">
+              {steps.map((st, idx) => {
+                const isActive = idx === activeStepIndex;
+                return (
+                  <div
+                    key={idx}
+                    ref={setStepRef(idx)}
+                    className={`ui-card p-4 transition-all border ${
+                      isActive ? 'border-brand bg-white shadow-md ring-1 ring-brand/10' : 'border-slate-100 bg-white/60 opacity-80'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                       <div className="flex items-center gap-2">
+                          <RouteBadge routeId={st.route.id} color={st.route.color} size="sm" />
+                          <span className="text-xs font-bold text-slate-800">YBS {st.route.id}</span>
                        </div>
-                     </div>
-                   )}
-
-                   {planAlertMsg && <p className="text-xs text-center text-slate-600">{planAlertMsg}</p>}
-                 </div>
-               )}
-
-               <div className="space-y-2">
-                 {steps.map((st, idx) => {
-                  const isActive = idx === activeStepIndex;
-                  const fromStop = resolveStop(st.fromStop);
-                  const toStop = resolveStop(st.toStop);
-                  const detailed = st.route.stopsDetailed || [];
-                  const fromIdx = detailed.findIndex(s => s.name_mm === st.fromStop);
-                  const toIdx = detailed.findIndex(s => s.name_mm === st.toStop);
-                  const intermediates = fromIdx >= 0 && toIdx >= 0 && fromIdx < toIdx
-                    ? detailed.slice(fromIdx + 1, toIdx)
-                    : [];
-                  return (
-                    <div
-                      key={idx}
-                      ref={setStepRef(idx)}
-                      data-step-active={isActive ? 'true' : undefined}
-                      onClick={() => setActiveStepIndex(idx)}
-                      className={`w-full text-left ui-card p-4 border transition-all ${
-                        isActive
-                          ? 'border-emerald-500 bg-emerald-600 text-white shadow-lg shadow-emerald-200'
-                          : 'border-slate-100 bg-white hover:border-slate-200'
-                      }`}
-                    >
-                       <div className="flex items-center justify-between gap-3">
-                         <div className="flex items-center gap-2 min-w-0">
-                           <RouteBadge routeId={st.route.id} color={st.route.color} size="sm" />
-                           {st.route.operator && <OperatorBadge name={st.route.operator} />}
-                           {st.route.qrPayment === '✅ Supported' && (
-                             <span className={`ui-badge ${isActive ? 'bg-white/20 text-white border-white/30' : 'bg-amber-50 text-amber-700 border border-amber-100'}`} title="QR Payment ပံ့ပိုးမှု">
-                               <CreditCard size={10} className="mr-1" />
-                               QR
-                             </span>
-                           )}
-                         </div>
-                         <span className={`ui-badge ${isActive ? 'bg-white/20 text-white border-white/30' : 'bg-slate-100 text-slate-600'}`}>{idx + 1}</span>
-                       </div>
-                      <div className="mt-2 text-sm">
-                        <div className="flex items-center justify-between gap-2 mb-1">
-                          <div className="flex items-center gap-2">
-                            <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${
-                              isActive
-                                ? 'text-emerald-900 bg-emerald-500/30'
-                                : 'text-emerald-600 bg-emerald-100'
-                            }`}>စီးရန်</span>
-                            <span className={`font-semibold truncate ${isActive ? 'text-white' : 'text-slate-800'}`}>{st.fromStop}</span>
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-2">
-                            <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${
-                              isActive
-                                ? 'text-rose-900 bg-rose-500/30'
-                                : 'text-rose-600 bg-rose-100'
-                            }`}>ဆင်းရန်</span>
-                            <span className={`font-semibold truncate ${isActive ? 'text-white' : 'text-slate-800'}`}>{st.toStop}</span>
-                          </div>
-                          {fromStop && toStop && (
-                            <span className={`text-[10px] font-medium ${isActive ? 'text-emerald-100' : 'text-slate-400'}`}>
-                              {getDistance(fromStop.lat, fromStop.lng, toStop.lat, toStop.lng).toFixed(1)} km
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      {intermediates.length > 0 && (
-                        <div className={`mt-3 flex flex-wrap gap-1.5 ${isActive ? 'opacity-90' : ''}`}>
-                          <span className={`text-[10px] font-semibold px-2 py-1 rounded-md border ${
-                            isActive
-                              ? 'bg-white/20 text-white border-white/30'
-                              : 'bg-white text-black border-black'
-                          }`}>
-                            ကြားမှတ်တိုင်များ
-                          </span>
-                          {intermediates.map((s, i) => (
-                            <span
-                              key={i}
-                              className={`text-[10px] font-medium px-2 py-1 rounded-md border ${
-                                isActive
-                                  ? 'bg-white/20 text-white border-white/30'
-                                  : 'bg-white text-black border-black'
-                              }`}
-                            >
-                              {s.name_mm}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                      {isActive && (
-                        <div className="mt-2 text-xs text-emerald-50 font-medium flex items-center gap-1">
-                          <Crosshair size={12} />
-                          လက်ရှိလှုပ်ရှားနေသော လမ်းကြောင်း
-                        </div>
-                      )}
+                       {isActive && <span className="ui-badge bg-brand-light text-brand">လက်ရှိစီးရမည့်ကား</span>}
                     </div>
-                  );
-                })}
-              </div>
+
+                    <div className="space-y-4 relative">
+                       <div className="absolute left-[7px] top-2 bottom-2 w-px bg-slate-200"></div>
+                       
+                       <div className="flex items-start gap-3 relative z-10">
+                          <div className="w-4 h-4 rounded-full bg-emerald-500 border-2 border-white shadow-sm mt-0.5"></div>
+                          <div className="min-w-0">
+                             <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Boarding</p>
+                             <p className="text-sm font-semibold text-slate-900 truncate">{st.fromStop}</p>
+                          </div>
+                       </div>
+
+                       <div className="flex items-start gap-3 relative z-10">
+                          <div className="w-4 h-4 rounded-full bg-rose-500 border-2 border-white shadow-sm mt-0.5"></div>
+                          <div className="min-w-0">
+                             <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Alighting</p>
+                             <p className="text-sm font-semibold text-slate-900 truncate">{st.toStop}</p>
+                          </div>
+                       </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -2238,8 +1511,143 @@ const RoutePlanDetailPage: React.FC<{
   );
 };
 
-const FindRoutePage: React.FC<{ onRouteClick: (r: BusRoute) => void; routes: BusRoute[]; stops: BusStop[] }> = ({ onRouteClick, routes: routesProp, stops: stopsProp }) => {
+const StopDetailPage: React.FC<{ 
+  stop: BusStop, 
+  onClose: () => void, 
+  onRouteClick: (r: BusRoute) => void,
+  favorites: Set<string>,
+  onToggleFavorite: (stopId: number) => void,
+  routes: BusRoute[]
+}> = ({ stop, onClose, onRouteClick, favorites, onToggleFavorite, routes }) => {
+  const isFav = favorites.has(stop.id.toString());
+  const passingRoutes = routes.filter(r => r.stops.includes(stop.name_mm));
 
+  const mapRef = useRef<any>(null);
+
+  useEffect(() => {
+    const L = (window as any).L;
+    if (!L) return;
+
+    const map = L.map('stop-map', { zoomControl: false, scrollWheelZoom: true }).setView([stop.lat, stop.lng], 16);
+    mapRef.current = map;
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    L.control.zoom({ position: 'topright' }).addTo(map);
+
+    L.circleMarker([stop.lat, stop.lng], {
+      radius: 10,
+      fillColor: "#2563eb",
+      color: "#fff",
+      weight: 3,
+      opacity: 1,
+      fillOpacity: 1
+    }).addTo(map).bindPopup(stop.name_mm).openPopup();
+
+    return () => map.remove();
+  }, [stop]);
+
+  const userId = useMemo(() => getUserId(), []);
+  const [alertLoading, setAlertLoading] = useState(false);
+  const [alertActive, setAlertActive] = useState(false);
+
+  useEffect(() => {
+    getAlertStatus(userId).then(s => {
+      if (s.alert && s.alert.stopName === stop.name_mm) setAlertActive(true);
+    });
+  }, [userId, stop.name_mm]);
+
+  const handleAlert = async () => {
+    setAlertLoading(true);
+    try {
+      if (alertActive) {
+        await cancelAlert(userId);
+        setAlertActive(false);
+      } else {
+        const ok = await setAlert(userId, stop.name_mm);
+        if (ok) setAlertActive(true);
+        else alert("Telegram ကို အရင်ချိတ်ဆက်ပေးပါ။ Settings ထဲတွင် ချိတ်ဆက်နိုင်ပါသည်။");
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setAlertLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[60] flex md:items-center justify-center md:p-6 overflow-hidden bg-slate-900/40 backdrop-blur-sm animate-fade-in">
+      <div className="bg-white w-full h-full md:max-w-2xl md:h-auto md:max-h-[90vh] flex flex-col md:rounded-2xl md:shadow-lg overflow-hidden">
+        <div className="px-5 py-4 flex items-center justify-between border-b border-slate-100 shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="bg-slate-100 p-2 rounded-xl text-slate-500">
+              <MapPin size={18} />
+            </div>
+            <div>
+              <h3 className="font-semibold text-slate-900 text-sm">{stop.name_mm}</h3>
+              <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">{stop.township_mm}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-1">
+            <button 
+              onClick={handleAlert}
+              disabled={alertLoading}
+              className={`ui-btn-icon ${alertActive ? 'text-emerald-500 bg-emerald-50' : 'text-slate-400'}`}
+              title="ရောက်ခါနီး သတိပေးချက်"
+            >
+              {alertLoading ? <RefreshCw size={18} className="animate-spin" /> : <Bell size={18} fill={alertActive ? 'currentColor' : 'none'} />}
+            </button>
+            <button onClick={onClose} className="ui-btn-icon">
+              <X size={18} />
+            </button>
+          </div>
+        </div>
+
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="relative h-48 md:h-64 bg-slate-100 shrink-0">
+            <div id="stop-map" className="w-full h-full"></div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-5 space-y-6 bg-slate-50/50">
+             <div className="grid grid-cols-2 gap-3">
+                <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                   <p className="ui-label">မြို့နယ်</p>
+                   <p className="text-sm font-semibold text-slate-800 mt-1">{stop.township_mm}</p>
+                </div>
+                <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                   <p className="ui-label">လမ်း</p>
+                   <p className="text-sm font-semibold text-slate-800 mt-1">{stop.road_mm || '—'}</p>
+                </div>
+             </div>
+
+             <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                   <h4 className="ui-section-title">ဖြတ်သန်းသွားသော ကားလိုင်းများ</h4>
+                   <span className="ui-badge">{passingRoutes.length} လိုင်း</span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                   {passingRoutes.map(r => (
+                     <div 
+                        key={r.id} 
+                        onClick={() => onRouteClick(r)}
+                        className="bg-white p-3 rounded-xl border border-slate-100 flex items-center gap-3 cursor-pointer hover:border-brand/30 hover:shadow-sm transition-all group"
+                     >
+                        <RouteBadge routeId={r.id} color={r.color} size="sm" />
+                        <span className="text-xs font-bold text-slate-700 group-hover:text-brand">YBS {r.id}</span>
+                     </div>
+                   ))}
+                </div>
+             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const FindRoutePage: React.FC<{ 
+  routes: BusRoute[], 
+  stops: BusStop[],
+  onRouteClick: (r: BusRoute) => void
+}> = ({ routes: routesProp, stops: stopsProp, onRouteClick }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [start, setStart] = useState('');
@@ -2498,7 +1906,6 @@ const FindRoutePage: React.FC<{ onRouteClick: (r: BusRoute) => void; routes: Bus
   );
 };
 
-// စိတ်ချရအောင် ဖုန်းနံပါတ်နဲ့ လမ်းကြောင်း Update လုပ်ပေးမယ့် လုပ်ဆောင်ချက်အားလုံး ပါဝင်ပြီးသား Code ဖြစ်ပါတယ်
 const SettingsPage: React.FC = () => {
   const [status, setStatus] = useState<'idle' | 'updating' | 'done'>('idle');
   const [cacheInfo, setCacheInfo] = useState<{ size: string; age: string } | null>(null);
@@ -2770,309 +2177,328 @@ const SettingsPage: React.FC = () => {
             <span className="font-semibold text-blue-600">YBS Guide Bot Version 3.1</span> ကို Telegram တွင် စတင်အသုံးပြုနိုင်ပြီဖြစ်ကြောင်း သတင်းကောင်းပါးအပ်ပါတယ် ✌️
           </p>
           <p className="text-sm text-slate-600 leading-relaxed mt-2">
-            ရန်ကုန်မြို့နေ မိဘပြည်သူများ ဘတ်စ်ကားစီးနင်းရာတွင် ပိုမိုအဆင်ပြေချောမွေ့စေဖို့အတွက် YBS AI Version 3.1 ကို အောက်ပါ Feature အသစ်တွေနဲ့ အဆင့်မြှင့်တင်ပေးထားပါတယ် -
+            ရန်ကုန်မြို့နေ မိဘပြည်သူများ ဘတ်စ်ကားစီးနင်းရာတွင် ပိုမိုအဆင်ပြေချောမွေ့စေဖို့အတွက် YBS AI Version 3.1 ကို အောက်ပါ Features အသစ်တွေနဲ့ မွမ်းမံထားပါတယ်။
           </p>
         </div>
 
-        {/* Features Grid */}
-  <div className="grid gap-3">
-  {/* ထပ်တိုးလမ်းကြောင်းများ */}
-  <div className="flex gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
-    <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
-    <div>
-      <h4 className="text-sm font-semibold text-slate-800 mb-2">ထပ်တိုးလမ်းကြောင်းများ</h4>
-      <p className="text-xs text-slate-500">ခရီးစဉ်လမ်းကြောင်းအသစ်များကို အပြည့်အစုံ ဖြည့်စွက်ပေးထားခြင်း။</p>
-    </div>
-  </div>
-
-  {/* ခေတ်မီဒီဇိုင်း */}
-  <div className="flex gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
-    <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
-    <div>
-      <h4 className="text-sm font-semibold text-slate-800 mb-2">ခေတ်မီဒီဇိုင်း</h4>
-      <p className="text-xs text-slate-500">အသုံးပြုရ ပိုမိုလွယ်ကူပြီး မျက်စိပသာဒဖြစ်စေမည့် UI/UX Design သို့ ပြောင်းလဲထားခြင်း။</p>
-    </div>
-  </div>
-
-  {/* အဆင့်မြင့် AI စနစ် */}
-  <div className="flex gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
-    <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
-    <div>
-      <h4 className="text-sm font-semibold text-slate-800 mb-2">အဆင့်မြင့် AI စနစ်</h4>
-      <p className="text-xs text-slate-500">မိမိသွားလိုသည့် ခရီးစဉ်ကို ပိုမိုတိကျမှန်ကန်စွာ ရှာဖွေပေးနိုင်ခြင်း။</p>
-    </div>
-  </div>
-
-  {/* Real-time မှတ်တိုင်ခြေရာခံစနစ် */}
-  <div className="flex gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
-    <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
-    <div>
-      <h4 className="text-sm font-semibold text-slate-800 mb-2">Real-time မှတ်တိုင်ခြေရာခံစနစ်</h4>
-      <p className="text-xs text-slate-500">ဆင်းရမည့်မှတ်တိုင် မကျော်သွားစေဖို့ ဘယ်မှတ်တိုင်ရောက်နေပြီလဲဆိုတာကို အချိန်နဲ့တပြေးညီ သိရှိနိုင်ခြင်း။</p>
-    </div>
-  </div>
-
-  {/* Route Detail Page */}
-  <div className="flex gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
-    <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
-    <div>
-      <h4 className="text-sm font-semibold text-slate-800 mb-2">Route Detail Page (တစ်လိုင်းချင်းစီ အသေးစိတ်ကြည့်ရှုနိုင်မှု)</h4>
-      <ol className="list-decimal pl-4 space-y-1 text-xs text-slate-500">
-        <li>လိုင်းကားတစ်လိုင်းချင်းစီရဲ့ မှတ်တိုင်အားလုံးကို နံပါတ်စဉ်တပ်ပြီး ရှင်းရှင်းလင်းလင်း ပြသပေးထားပါတယ်။</li>
-        <li>Live Location စနစ်ကြောင့် မိမိလက်ရှိရောက်နေတဲ့ မှတ်တိုင်ကို အလိုအလျောက် Highlight လုပ်ပြပေးမှာဖြစ်ပါတယ်။</li>
-        <li>Map ပေါ်မှာလည်း လက်ရှိမှတ်တိုင်နဲ့ နောက်လာမယ့်မှတ်တိုင်တွေကို ကွဲကွဲပြားပြား ရှင်းရှင်းလင်းလင်း မြင်တွေ့ရမှာပါ။</li>
-      </ol>
-    </div>
-  </div>
-
-  {/* Route Plan Detail Page */}
-  <div className="flex gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
-    <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
-    <div>
-      <h4 className="text-sm font-semibold text-slate-800 mb-2">Route Plan Detail Page (အသေးစိတ် လမ်းကြောင်းစီမံချက်)</h4>
-      <ol className="list-decimal pl-4 space-y-1 text-xs text-slate-500">
-        <li>ဘယ်မှတ်တိုင်ကနေ ဘယ်ကားစီးရမယ်၊ ဘယ်မှတ်တိုင်မှာ ဆင်းရမယ်ဆိုတာကို တစ်ဆင့်ချင်း (Step-by-Step) ရှင်းပြပေးပါတယ်။</li>
-        <li>Map ပေါ်မှာ လက်ရှိအဆင့်ရဲ့ စီးရန်နဲ့ ဆင်းရန်မှတ်တိုင်ကိုပဲ အဓိက ပြသပေးထားလို့ ရှုပ်ထွေးမှုမရှိစေပါဘူး။</li>
-        <li>Live Location နဲ့ လက်ရှိရောက်နေတဲ့ အဆင့်အတိုင်း လမ်းကြောင်းပြမြေပုံကို အလိုအလျောက် ရွှေ့ပေးသွားမှာပါ။</li>
-        <li>လမ်းကြောင်း List ထဲမှာလည်း မိမိလက်ရှိရောက်နေတဲ့ အဆင့်ကို အစိမ်းရောင်နဲ့ Highlight လုပ်ပေးမယ့်အပြင်၊ စာရင်းကို အလိုအလျောက် အပေါ်အောက် ရွှေ့ပေးမယ့် (Auto Scroll) စနစ်လည်း ပါဝင်လာပါတယ်။</li>
-      </ol>
-    </div>
-  </div>
-
-  {/* Application ထည့်သွင်းရန်မလိုခြင်း */}
-  <div className="flex gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
-    <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
-    <div>
-      <h4 className="text-sm font-semibold text-slate-800 mb-2">Application ထည့်သွင်းရန်မလိုခြင်း</h4>
-      <p className="text-xs text-slate-500">Telegram ရှိရုံဖြင့် Android ရော iOS ပါဝင်တဲ့ မည်သည့်ဖုန်းတွင်မဆို တိုက်ရိုက်အသုံးပြုနိုင်ခြင်း။</p>
-    </div>
-  </div>
-  {/* Telegram သတိပေးချက် */}
-  <div className="flex gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
-    <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
-    <div>
-      <h4 className="text-sm font-semibold text-slate-800 mb-2">Telegram သတိပေးချက် (Destination Alert)</h4>
-      <p className="text-xs text-slate-500">Telegram နှင့် ချိတ်ဆက်ပြီး ဆင်းမည့် မှတ်တိုင်သို့ ရောက်လျှင် သတိပေးချက် ပို့ပေးမည်။ Live Location ပို့ပေးပါ။ (Stop Detail ၊ Route Plan ၊ Settings မှ သတိပေးနိုင်ပါ)</p>
-    </div>
-  </div>
-</div>
-        {/* Next Update & Apology Note */}
-        <div className="bg-amber-50/70 rounded-xl p-4 border border-amber-100 space-y-1.5">
-          <div className="flex items-center gap-2 text-amber-800 font-semibold text-sm">
-            <span>💡</span>
-            <h4>Next Update & Apology</h4>
+        {/* Features List */}
+        <div className="space-y-3">
+          <div className="flex items-start gap-3">
+            <div className="mt-1 bg-emerald-100 p-1 rounded-full text-emerald-600">
+              <CheckCircle2 size={14} />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-slate-800">AI-Powered Assistant</p>
+              <p className="text-xs text-slate-500">လမ်းကြောင်းများကို မြန်မာလို မေးမြန်းနိုင်ခြင်း။</p>
+            </div>
           </div>
-          <p className="text-xs text-slate-600 leading-relaxed">
-            လက်ရှိမှာ အင်တာနက်မလိုဘဲ အသုံးပြုနိုင်မည့် Offline Version အပြင် စိတ်လှုပ်ရှားစရာ Update Feature အသစ်တွေကိုပါ ထပ်မံထည့်သွင်းနိုင်ဖို့ ကြိုးစားနေပါတယ်။ တစ်ယောက်တည်း Data စုဆောင်းရတာဖြစ်လို့ အချိန်အနည်းငယ် ကြန့်ကြာသွားပြီး Update ထွက်ဖို့ နောက်ကျသွားခဲ့တဲ့အတွက် အနူးအညွတ် တောင်းပန်အပ်ပါတယ်ခင်ဗျာ။
-          </p>
-        </div>
 
-        {/* Support & Donations */}
-        <div className="bg-rose-50/40 rounded-xl p-4 border border-rose-100/60 space-y-3">
-          <div className="flex items-center gap-2 text-rose-700 font-semibold text-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-rose-500"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
-            <h4>Support & Donation</h4>
+          <div className="flex items-start gap-3">
+            <div className="mt-1 bg-emerald-100 p-1 rounded-full text-emerald-600">
+              <CheckCircle2 size={14} />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-slate-800">Telegram Alert System</p>
+              <p className="text-xs text-slate-500">မှတ်တိုင်နီးကပ်လျှင် Telegram မှတဆင့် သတိပေးချက်ပေးပို့ခြင်း။</p>
+            </div>
           </div>
-          <p className="text-xs text-slate-600 leading-relaxed">
-            ဒီ Bot လေး ရေရှည်လည်ပတ်နိုင်ဖို့နဲ့ ပိုမိုကောင်းမွန်တဲ့ Feature တွေ ဖန်တီးနိုင်ဖို့အတွက် Support ပေးလိုပါက ကတ်ပြားကိုနှိပ်ပြီး ဖုန်းနံပါတ်ကို Copy ယူကာ လှူဒါန်းပေးနိုင်ပါတယ် -
-          </p>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-            {/* Kpay Button */}
-            <button 
-              onClick={() => handleCopy('09446941632', 'kpay')}
-              className="bg-white px-3 py-2.5 rounded-lg border border-rose-100 flex justify-between items-center text-left hover:bg-rose-50/30 active:scale-[0.99] transition-all group"
-              type="button"
-              title="Click to copy number"
-            >
-              <div className="flex flex-col">
-                <span className="text-xs font-medium text-slate-400">Kpay</span>
-                <span className="text-xs font-semibold text-slate-800 mt-0.5">09446941632 (Hmwe Kyu Kyu)</span>
-              </div>
-              <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full transition-colors ${copiedKpay ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500 group-hover:bg-rose-100 group-hover:text-rose-700'}`}>
-                {copiedKpay ? 'Copied! ✓' : 'Copy'}
-              </span>
-            </button>
 
-            {/* Wave Pay Button */}
-            <button 
-              onClick={() => handleCopy('09758430371', 'wave')}
-              className="bg-white px-3 py-2.5 rounded-lg border border-rose-100 flex justify-between items-center text-left hover:bg-rose-50/30 active:scale-[0.99] transition-all group"
-              type="button"
-              title="Click to copy number"
-            >
-              <div className="flex flex-col">
-                <span className="text-xs font-medium text-slate-400">Wave Pay</span>
-                <span className="text-xs font-semibold text-slate-800 mt-0.5">09758430371 (Arkar Yan)</span>
-              </div>
-              <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full transition-colors ${copiedWave ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500 group-hover:bg-rose-100 group-hover:text-rose-700'}`}>
-                {copiedWave ? 'Copied! ✓' : 'Copy'}
-              </span>
-            </button>
+          <div className="flex items-start gap-3">
+            <div className="mt-1 bg-emerald-100 p-1 rounded-full text-emerald-600">
+              <CheckCircle2 size={14} />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-slate-800">Advanced Route Finding</p>
+              <p className="text-xs text-slate-500">အမြန်ဆုံးနှင့် အဆင်ပြေဆုံး လမ်းကြောင်းများကို ပိုမိုတိကျစွာ ရှာဖွေပေးခြင်း။</p>
+            </div>
           </div>
-        </div>
-
-        {/* Call to Action Button */}
-        <div className="pt-2">
-          <p className="text-xs text-center text-slate-500 mb-2">ယခုပဲ Telegram Bot ကနေတစ်ဆင့် စမ်းသပ်အသုံးပြုကြည့်လိုက်ပါ ခင်ဗျာ</p>
-          <a 
-            href="https://t.me/ybsguide_bot" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-[#26A5E4] hover:bg-[#2297cc] text-white font-medium rounded-xl shadow-sm transition-colors text-sm"
-          >
-             Open YBS Guide Bot on Telegram
-          </a>
         </div>
       </div>
 
+      {/* 4. Donation Card */}
+      <div className="ui-card p-6 bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl shadow-lg text-white">
+        <div className="flex items-center gap-4 mb-6">
+          <div className="bg-white/10 p-3 rounded-xl backdrop-blur-sm">
+            <Sparkles size={20} className="text-amber-400" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-white">Support This Project</h3>
+            <p className="text-sm text-slate-300">YBS Guide ကို ဆက်လက်ဖွံ့ဖြိုးရန် ကူညီနိုင်ပါသည်</p>
+          </div>
+        </div>
+
+        <p className="text-sm text-slate-300 leading-relaxed mb-6">
+          YBS Guide ကို အခမဲ့ ဝန်ဆောင်မှုပေးနေခြင်း ဖြစ်ပါတယ်။ Server ဖိုးနှင့် အခြားကုန်ကျစရိတ်များအတွက် မိမိတတ်နိုင်သလောက် ပါဝင်လှူဒါန်းနိုင်ပါတယ်။
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="bg-white/5 rounded-2xl p-4 border border-white/10 flex items-center justify-between group">
+            <div className="flex items-center gap-3">
+              <div className="bg-blue-600 p-2 rounded-lg text-xs font-bold">K</div>
+              <div>
+                <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Kpay</p>
+                <p className="text-sm font-mono font-semibold">09420030017</p>
+              </div>
+            </div>
+            <button 
+              onClick={() => handleCopy('09420030017', 'kpay')}
+              className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+            >
+              {copiedKpay ? <CheckCircle2 size={16} className="text-emerald-400" /> : <Hash size={16} className="text-slate-400" />}
+            </button>
+          </div>
+
+          <div className="bg-white/5 rounded-2xl p-4 border border-white/10 flex items-center justify-between group">
+            <div className="flex items-center gap-3">
+              <div className="bg-yellow-500 p-2 rounded-lg text-xs font-bold text-slate-900">W</div>
+              <div>
+                <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Wave Money</p>
+                <p className="text-sm font-mono font-semibold">09420030017</p>
+              </div>
+            </div>
+            <button 
+              onClick={() => handleCopy('09420030017', 'wave')}
+              className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+            >
+              {copiedWave ? <CheckCircle2 size={16} className="text-emerald-400" /> : <Hash size={16} className="text-slate-400" />}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
 
-const App: React.FC = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [selectedRoute, setSelectedRoute] = useState<BusRoute | null>(null);
-  const [selectedStop, setSelectedStop] = useState<BusStop | null>(null);
+// --- Main App ---
 
+const App: React.FC = () => {
   const [stops, setStops] = useState<BusStop[]>([]);
   const [routes, setRoutes] = useState<BusRoute[]>([]);
-
-  // routeId driven by URL to prevent blank detail pages
-  const RouteDetailFromUrl: React.FC<{
-    routes: BusRoute[];
-    onClose: () => void;
-    onStopClick: (s: BusStop) => void;
-  }> = ({ routes, onClose, onStopClick }) => {
-    const { routeId } = useParams<{ routeId: string }>();
-    if (!routeId) return null;
-
-    const r = routes.find((x) => x.id === routeId);
-    if (!r) {
-      return (
-        <div className="fixed inset-0 z-[60] flex md:items-center justify-center md:p-8 overflow-hidden bg-slate-900/40 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white w-full h-full md:max-w-2xl md:h-auto md:max-h-[90vh] flex flex-col md:rounded-2xl md:shadow-lg overflow-hidden animate-slide-up">
-            <div className="px-5 py-4 flex items-center justify-between border-b border-slate-100 shrink-0">
-              <h3 className="font-semibold text-slate-900">Route not found</h3>
-              <button onClick={onClose} className="ui-btn-icon">
-                <X size={18} />
-              </button>
-            </div>
-            <div className="p-6 text-slate-600">{routeId} ကိုဒေတာထဲမှာ ရှာမတွေ့ပါ။</div>
-          </div>
-        </div>
-      );
-    }
-
-    return <RouteDetailPage route={r} onClose={onClose} onStopClick={onStopClick} />;
-  };
-  const [isInitializing, setIsInitializing] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [activeRoute, setActiveRoute] = useState<BusRoute | null>(null);
+  const [activeStop, setActiveStop] = useState<BusStop | null>(null);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
 
+  const navigate = useNavigate();
+
   useEffect(() => {
-    const loadAll = async () => {
+    const init = async () => {
       const cached = loadFromLocalCache();
       if (cached) {
         setStops(cached.stops);
         setRoutes(cached.routes);
-        await db.busStops.clear();
-        await db.busRoutes.clear();
-        await db.busStops.bulkPut(cached.stops as any);
-        await db.busRoutes.bulkPut(cached.routes as any);
-        setIsInitializing(false);
+        setLoading(false);
       }
 
-      try {
-        const [loadedStops, loadedRoutes] = await Promise.all([
-          loadStopsFromRouteFiles(),
-          loadRoutesFromFiles(),
-        ]);
-
-        await db.busStops.clear();
-        await db.busRoutes.clear();
-        await db.busStops.bulkPut(loadedStops as any);
-        await db.busRoutes.bulkPut(loadedRoutes as any);
-
-        setStops(loadedStops);
-        setRoutes(loadedRoutes);
-        saveToLocalCache(loadedStops, loadedRoutes);
-      } catch (error) {
-        console.error('Background data refresh failed:', error);
-        if (!cached) {
-          setIsInitializing(false);
-        }
-      } finally {
-        if (cached) {
-          setIsInitializing(false);
-        }
-      }
+      const loadedStops = await loadStopsFromRouteFiles();
+      const loadedRoutes = await loadRoutesFromFiles();
+      setStops(loadedStops);
+      setRoutes(loadedRoutes);
+      saveToLocalCache(loadedStops, loadedRoutes);
+      setLoading(false);
     };
-    loadAll();
+    init();
+
+    const favs = localStorage.getItem('ybs-favorites');
+    if (favs) setFavorites(new Set(JSON.parse(favs)));
   }, []);
 
-
-  const navigateToRoute = useCallback((r: BusRoute) => {
-    setSelectedRoute(r);
-    navigate(`/route-detail/${encodeURIComponent(r.id)}`);
-  }, [navigate]);
-
-  const navigateToStop = useCallback((s: BusStop) => {
-    setSelectedStop(s);
-    navigate('/stop-detail');
-  }, [navigate]);
-
-  const toggleFavorite = useCallback((routeId: string) => {
-    setFavorites(prev => {
-      const newFavorites = new Set(prev);
-      if (newFavorites.has(routeId)) {
-        newFavorites.delete(routeId);
-      } else {
-        newFavorites.add(routeId);
-      }
-      localStorage.setItem('ybs-favorites', JSON.stringify(Array.from(newFavorites)));
-      return newFavorites;
-    });
-  }, []);
-
-  const renderRoutes = () => {
-    if (isInitializing) {
-      return (
-        <div className="flex flex-col items-center justify-center h-full gap-4 py-20">
-          <div className="bg-slate-100 p-4 rounded-2xl">
-            <RefreshCw className="animate-spin text-slate-600" size={32} />
-          </div>
-          <p className="text-slate-500 font-medium">ဒေတာများ ပြင်ဆင်နေပါသည်...</p>
-        </div>
-      );
-    }
-
-    return (
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/routes" element={<RoutesPage onRouteClick={navigateToRoute} onStopClick={navigateToStop} favorites={favorites} onToggleFavorite={toggleFavorite} routes={routes} stops={stops} />} />
-        <Route path="/assistant" element={<AssistantPage onRouteClick={navigateToRoute} routes={routes} stops={stops} />} />
-        <Route path="/find-route" element={<FindRoutePage onRouteClick={navigateToRoute} routes={routes} stops={stops} />} />
-        <Route path="/route-plan-detail" element={<RoutePlanDetailFromState />} />
-        <Route path="/settings" element={<SettingsPage />} />
-        <Route path="/stops" element={<StopsPage stops={stops} onStopClick={navigateToStop} />} />
-        <Route path="/route-detail/:routeId" element={<RouteDetailFromUrl routes={routes} onClose={() => navigate('/routes')} onStopClick={navigateToStop} />} />
-        <Route path="/stop-detail" element={selectedStop ? <StopDetailPage stop={selectedStop} onClose={() => navigate(-1)} /> : null} />
-      </Routes>
-    );
+  const toggleFavorite = (id: string) => {
+    const next = new Set(favorites);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setFavorites(next);
+    localStorage.setItem('ybs-favorites', JSON.stringify(Array.from(next)));
   };
 
-  return (
-    <div className="min-h-screen bg-slate-50 flex flex-col overflow-x-hidden h-screen">
-      <Header />
-
-      <main className="flex-1 relative w-full overflow-hidden">
-        <div className="absolute inset-0 overflow-y-auto">
-           {renderRoutes()}
+  if (loading) {
+    return (
+      <div className="fixed inset-0 flex flex-col items-center justify-center bg-slate-50 gap-4">
+        <div className="bg-slate-900 p-4 rounded-3xl shadow-xl animate-bounce">
+          <Bus size={40} className="text-white" />
         </div>
+        <div className="flex flex-col items-center gap-2">
+          <p className="text-slate-900 font-bold text-xl tracking-tight">YBS Guide</p>
+          <div className="flex items-center gap-2 text-slate-400 text-sm font-medium">
+            <RefreshCw size={14} className="animate-spin" />
+            <span>အချက်အလက်များ ရယူနေပါသည်...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-50 flex flex-col font-sans selection:bg-brand/10 selection:text-brand">
+      <Header />
+      <main className="flex-1 relative">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/routes" element={
+            <RoutesPage 
+              routes={routes} 
+              stops={stops}
+              favorites={favorites} 
+              onToggleFavorite={toggleFavorite}
+              onRouteClick={setActiveRoute}
+              onStopClick={setActiveStop}
+            />
+          } />
+          <Route path="/stops" element={
+            <StopsPage 
+              stops={stops} 
+              onStopClick={setActiveStop} 
+            />
+          } />
+          <Route path="/find-route" element={
+            <FindRoutePage 
+              routes={routes} 
+              stops={stops} 
+              onRouteClick={setActiveRoute}
+            />
+          } />
+          <Route path="/route-plan-detail" element={<RoutePlanDetailFromState />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/assistant" element={
+             <div className="max-w-3xl mx-auto p-4 h-[calc(100vh-140px)]">
+                <ChatInterface routes={routes} stops={stops} onRouteClick={setActiveRoute} />
+             </div>
+          } />
+        </Routes>
       </main>
 
+      {activeRoute && (
+        <RouteDetailPage 
+          route={activeRoute} 
+          onClose={() => setActiveRoute(null)} 
+          onStopClick={setActiveStop}
+        />
+      )}
+
+      {activeStop && (
+        <StopDetailPage 
+          stop={activeStop} 
+          onClose={() => setActiveStop(null)} 
+          onRouteClick={setActiveRoute}
+          favorites={favorites}
+          onToggleFavorite={(id) => toggleFavorite(id.toString())}
+          routes={routes}
+        />
+      )}
+
       <MobileBottomNav />
+    </div>
+  );
+};
+
+const ChatInterface: React.FC<{ routes: BusRoute[], stops: BusStop[], onRouteClick: (r: BusRoute) => void }> = ({ routes, stops, onRouteClick }) => {
+  const [input, setInput] = useState('');
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    { role: 'assistant', content: 'မင်္ဂလာပါ! ဘယ်ကိုသွားချင်ပါသလဲ? ဥပမာ - "မြေနီကုန်းကနေ ဆူးလေကို ဘယ်လိုသွားရမလဲ" လို့ မေးမြန်းနိုင်ပါတယ်။' }
+  ]);
+  const [loading, setLoading] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+
+  const stopNames = useMemo(() => stops.map(s => s.name_mm), [stops]);
+
+  const handleSend = async () => {
+    if (!input.trim() || loading) return;
+    
+    const userMsg = input.trim();
+    setInput('');
+    setMessages(prev => [...prev, { role: 'user', content: userMsg }]);
+    setLoading(true);
+
+    const extracted = extractStopsFromText(userMsg, stopNames);
+    
+    setTimeout(async () => {
+      if (extracted && extracted.start && extracted.end) {
+        const results = await performBFS(extracted.start, extracted.end, routes, stops);
+        if (results.length > 0) {
+          setMessages(prev => [...prev, { 
+            role: 'assistant', 
+            content: `${extracted.start} မှ ${extracted.end} သို့ သွားနိုင်သော လမ်းကြောင်း ${results.length} ခု တွေ့ရှိပါသည်။`,
+            results: results.slice(0, 3)
+          }]);
+        } else {
+          setMessages(prev => [...prev, { role: 'assistant', content: 'စိတ်မရှိပါနဲ့၊ အဲ့ဒီမှတ်တိုင်နှစ်ခုကြား တိုက်ရိုက် သို့မဟုတ် တစ်ဆင့်ပြောင်း လမ်းကြောင်း ရှာမတွေ့ပါ။' }]);
+        }
+      } else {
+        setMessages(prev => [...prev, { role: 'assistant', content: 'တောင်းပန်ပါတယ်။ မှတ်တိုင်အမည်တွေကို သေချာမသိလိုက်လို့ပါ။ "A မှ B သို့" ဆိုတဲ့ ပုံစံမျိုးနဲ့ ပြန်မေးပေးပါဦး။' }]);
+      }
+      setLoading(false);
+    }, 800);
+  };
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  return (
+    <div className="flex flex-col h-full bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4" ref={scrollRef}>
+        {messages.map((m, i) => (
+          <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+            <div className={`max-w-[85%] p-3 rounded-2xl text-sm ${
+              m.role === 'user' ? 'bg-brand text-white rounded-tr-none' : 'bg-slate-100 text-slate-800 rounded-tl-none'
+            }`}>
+              <p className="leading-relaxed">{m.content}</p>
+              {m.results && (
+                <div className="mt-3 space-y-2">
+                  {m.results.map((res, ri) => (
+                    <div 
+                      key={ri} 
+                      onClick={() => navigate('/route-plan-detail', { state: { steps: res.steps } })}
+                      className="bg-white/80 p-2 rounded-xl border border-slate-200 text-slate-800 cursor-pointer hover:bg-white transition-colors"
+                    >
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {res.steps.map((s, si) => (
+                          <React.Fragment key={si}>
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-900 text-white">YBS {s.route.id}</span>
+                            {si < res.steps.length - 1 && <ChevronRight size={10} className="text-slate-400" />}
+                          </React.Fragment>
+                        ))}
+                      </div>
+                      <p className="text-[10px] mt-1.5 text-slate-500">
+                        {res.transferCount === 0 ? 'တိုက်ရိုက်' : `${res.transferCount} ဆင့်ပြောင်း`} • {res.totalDistance.toFixed(1)} km
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+        {loading && (
+          <div className="flex justify-start">
+            <div className="bg-slate-100 p-3 rounded-2xl rounded-tl-none">
+              <RefreshCw size={16} className="animate-spin text-slate-400" />
+            </div>
+          </div>
+        )}
+      </div>
+      <div className="p-4 border-t border-slate-100 bg-slate-50">
+        <div className="flex gap-2">
+          <input 
+            type="text" 
+            className="ui-input flex-1 bg-white"
+            placeholder="မေးမြန်းလိုသည်များကို ရိုက်ထည့်ပါ..."
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+          />
+          <button 
+            onClick={handleSend}
+            disabled={!input.trim() || loading}
+            className="ui-btn ui-btn-primary p-3 rounded-xl"
+          >
+            <Send size={18} />
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
