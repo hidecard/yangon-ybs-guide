@@ -306,7 +306,7 @@ const MapSelectionModal: React.FC<{
     const L = (window as any).L;
     if (!L) return;
 
-    const map = L.map('selection-map', { zoomControl: false, scrollWheelZoom: true }).setView([16.8, 96.15], 14);
+    const map = L.map('selection-map', { zoomControl: false, scrollWheelZoom: true, dragging: true, touchZoom: true, tap: false }).setView([16.8, 96.15], 14);
     mapRef.current = map;
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
     L.control.zoom({ position: 'topleft' }).addTo(map);
@@ -946,7 +946,7 @@ const RouteDetailPage: React.FC<{
     const L = (window as any).L;
     if (!L) return;
 
-    const map = L.map('route-map', { zoomControl: false, scrollWheelZoom: true }).setView([16.8, 96.15], 12);
+    const map = L.map('route-map', { zoomControl: false, scrollWheelZoom: true, dragging: true, touchZoom: true, tap: false }).setView([16.8, 96.15], 12);
     mapRef.current = map;
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
     L.control.zoom({ position: 'topright' }).addTo(map);
@@ -1310,7 +1310,7 @@ const RoutePlanDetailPage: React.FC<{
     const L = (window as any).L;
     if (!L || mapRef.current) return;
 
-    const map = L.map('route-plan-map', { zoomControl: false, scrollWheelZoom: true }).setView([16.8, 96.15], 13);
+    const map = L.map('route-plan-map', { zoomControl: false, scrollWheelZoom: true, dragging: true, touchZoom: true, tap: false }).setView([16.8, 96.15], 13);
     mapRef.current = map;
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
@@ -1528,7 +1528,7 @@ const StopDetailPage: React.FC<{
     const L = (window as any).L;
     if (!L) return;
 
-    const map = L.map('stop-map', { zoomControl: false, scrollWheelZoom: true }).setView([stop.lat, stop.lng], 16);
+    const map = L.map('stop-map', { zoomControl: false, scrollWheelZoom: true, dragging: true, touchZoom: true, tap: false }).setView([stop.lat, stop.lng], 16);
     mapRef.current = map;
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
     L.control.zoom({ position: 'topright' }).addTo(map);
