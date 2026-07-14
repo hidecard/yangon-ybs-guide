@@ -1608,14 +1608,20 @@ const RoutePlanDetailPage: React.FC<{
                                 <button 
                                   onClick={(e) => { e.stopPropagation(); handleToggleAlert(st.toStop); }}
                                   disabled={alertLoading}
-                                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold transition-all border shadow-sm shrink-0 ${
+                                  className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-[10px] font-bold transition-all border shadow-md shrink-0 active:scale-95 ${
                                     activeAlertStop === st.toStop 
-                                      ? 'bg-emerald-500 text-white border-emerald-600 ring-2 ring-emerald-100' 
-                                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                                      ? 'bg-emerald-600 text-white border-emerald-700 ring-4 ring-emerald-100 scale-105' 
+                                      : 'bg-white text-slate-700 border-slate-200 hover:border-brand/50 hover:bg-slate-50'
                                   }`}
                                 >
-                                  {alertLoading && activeAlertStop !== st.toStop ? <RefreshCw size={12} className="animate-spin" /> : <Bell size={12} fill={activeAlertStop === st.toStop ? 'white' : 'none'} />}
-                                  <span>{activeAlertStop === st.toStop ? 'သတိပေးချက်ဖွင့်ထားသည်' : 'သတိပေးချက်ရယူပါ'}</span>
+                                  {alertLoading && activeAlertStop !== st.toStop ? (
+                                    <RefreshCw size={12} className="animate-spin" />
+                                  ) : activeAlertStop === st.toStop ? (
+                                    <CheckCircle2 size={12} />
+                                  ) : (
+                                    <Bell size={12} />
+                                  )}
+                                  <span>{activeAlertStop === st.toStop ? 'သတိပေးချက် ယူပြီးပါပြီ' : 'သတိပေးချက် ရယူပါ'}</span>
                                 </button>
                              </div>
                           </div>
