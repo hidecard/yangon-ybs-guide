@@ -2416,11 +2416,11 @@ const SettingsPage: React.FC = () => {
               <div className="bg-blue-600 p-2 rounded-lg text-xs font-bold">K</div>
               <div>
                 <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Kpay</p>
-                <p className="text-sm font-mono font-semibold">09420030017</p>
+                <p className="text-sm font-mono font-semibold">09446941632</p>
               </div>
             </div>
             <button 
-              onClick={() => handleCopy('09420030017', 'kpay')}
+              onClick={() => handleCopy('09446941632', 'kpay')}
               className="p-2 hover:bg-white/10 rounded-lg transition-colors"
             >
               {copiedKpay ? <CheckCircle2 size={16} className="text-emerald-400" /> : <Hash size={16} className="text-slate-400" />}
@@ -2432,11 +2432,11 @@ const SettingsPage: React.FC = () => {
               <div className="bg-yellow-500 p-2 rounded-lg text-xs font-bold text-slate-900">W</div>
               <div>
                 <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Wave Money</p>
-                <p className="text-sm font-mono font-semibold">09420030017</p>
+                <p className="text-sm font-mono font-semibold">09758430371</p>
               </div>
             </div>
             <button 
-              onClick={() => handleCopy('09420030017', 'wave')}
+              onClick={() => handleCopy('09758430371', 'wave')}
               className="p-2 hover:bg-white/10 rounded-lg transition-colors"
             >
               {copiedWave ? <CheckCircle2 size={16} className="text-emerald-400" /> : <Hash size={16} className="text-slate-400" />}
