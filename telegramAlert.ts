@@ -32,7 +32,7 @@ export function connectUrl(userId: string): string {
 
 export interface AlertStatus {
   linked: boolean;
-  alert: { stopName: string } | null;
+  alert: { stopName: string; detail?: string } | null;
 }
 
 async function api(path: string, init?: RequestInit): Promise<any> {
@@ -55,17 +55,24 @@ export async function getAlertStatus(userId: string): Promise<AlertStatus> {
 
 export async function setAlert(
   userId: string,
-  stop: { name_mm: string; lat: number; lng: number }
-): Promise<void> {
-  await api('/api/alert', {
-    method: 'POST',
-    body: JSON.stringify({
-      userId,
-      lat: stop.lat,
-      lng: stop.lng,
-      stopName: stop.name_mm,
-    }),
-  });
+  stop: { name_mm: string; lat: number; lng: number },
+  detail?: string
+): Promise<boolean> {
+  try {
+    await api('/api/alert', {
+      method: 'POST',
+      body: JSON.stringify({
+        userId,
+        lat: stop.lat,
+        lng: stop.lng,
+        stopName: stop.name_mm,
+        detail: detail || '',
+      }),
+    });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export async function cancelAlert(userId: string): Promise<void> {

@@ -9,6 +9,10 @@ const BOT_TOKEN = process.env.BOT_TOKEN!;
 
 const ALERT_RADIUS_KM = 0.5; // 500 meters
 
+// Best-effort cooldown so we don't spam on every live-location update.
+const lastMonitorNote = new Map<string, number>();
+const MONITOR_COOLDOWN_MS = 2 * 60 * 1000;
+
 // Haversine distance in kilometers
 function getDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371;
@@ -39,8 +43,11 @@ function ensureSchema(): Promise<void> {
         target_stop_name TEXT NOT NULL,
         target_lat REAL NOT NULL,
         target_lng REAL NOT NULL,
+        detail TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )`);
+      // Add the detail column to any pre-existing table (CREATE IF NOT EXISTS won't alter it)
+      await turso.execute(`ALTER TABLE destination_alerts ADD COLUMN detail TEXT`).catch(() => {});
     })().catch((e) => {
       schemaReady = null;
       throw e;
@@ -98,16 +105,36 @@ async function checkProximity(chatId: string, lat: number, lng: number): Promise
   const distance = getDistance(lat, lng, Number(alert.target_lat), Number(alert.target_lng));
 
   if (distance <= ALERT_RADIUS_KM) {
+    const stopName = String(alert.target_stop_name);
+    let message =
+      `📢 သတိပေးချက်: ${stopName} မှတ်တိုင်သို့ ရောက်ရှိတော့မည် ဖြစ်ပါသဖြင့် ဆင်းရန် အဆင့်သင့်ပြင်ပါဗျာ။`;
+
+    const detail = alert.detail ? String(alert.detail) : '';
+    if (detail) {
+      // Telegram messages are capped at 4096 chars; keep room for the header.
+      const MAX = 3800;
+      const trimmed = detail.length > MAX ? detail.slice(0, MAX) + '\n…' : detail;
+      message += `\n\n${trimmed}`;
+    }
+
     await Promise.all([
-      sendTelegram(
-        chatId,
-        `📢 သတိပေးချက်: ${String(alert.target_stop_name)} မှတ်တိုင်သို့ ရောက်ရှိတော့မည် ဖြစ်ပါသဖြင့် ဆင်းရန် အဆင့်သင့်ပြင်ပါဗျာ။`
-      ),
+      sendTelegram(chatId, message),
       turso.execute({
         sql: 'DELETE FROM destination_alerts WHERE user_id = ?',
         args: [chatId],
       }),
     ]);
+  } else {
+    // Out of range: acknowledge we're monitoring (throttled) so the user
+    // knows the bot is receiving their Live Location.
+    const now = Date.now();
+    if ((lastMonitorNote.get(chatId) || 0) + MONITOR_COOLDOWN_MS < now) {
+      lastMonitorNote.set(chatId, now);
+      await sendTelegram(
+        chatId,
+        `📡 လက်ရှိနေရာကို ပြန်ပို့ပေးနေပါသည်။ "${String(alert.target_stop_name)}" မှတ်တိုင်သို့ ${Math.round(distance * 1000)}m အကွာတွင် ရောက်လျှင် သတိပေးချက် ပို့ပေးမည်ဖြစ်ပါသည်။`
+      );
+    }
   }
 }
 

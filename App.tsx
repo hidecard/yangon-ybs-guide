@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef, useLayoutEffe
 
 import { Routes, Route, useNavigate, useLocation, useParams } from 'react-router-dom';
 import { loadRoutesFromFiles, loadStopsFromRouteFiles, saveToLocalCache, loadFromLocalCache, clearLocalCache, CACHE_KEY, LocalCache } from './data_constants';
-import { Page, BusStop, BusRoute } from './types';
+import { Page, BusStop, BusRoute, BusStopDetailed } from './types';
 import { db } from './db';
 import {
   getUserId,
@@ -928,6 +928,75 @@ const RouteDetailPage: React.FC<{
 
   const routeStops = route.stopsDetailed || [];
 
+  const userId = useMemo(() => getUserId(), []);
+  const [alertStop, setAlertStop] = useState<string | null>(null);
+  const [showLinkedModal, setShowLinkedModal] = useState(false);
+  const [pendingAlert, setPendingAlert] = useState<{ stopName: string; lat: number; lng: number; detail: string } | null>(null);
+
+  useEffect(() => {
+    getAlertStatus(userId)
+      .then((s) => { if (s.alert) setAlertStop(s.alert.stopName); })
+      .catch(() => {});
+  }, [userId]);
+
+  const buildRouteDetail = (): string => {
+    const lines = [`🚌 YBS ${route.id}${route.line_name ? ` (${route.line_name})` : ''} လိုင်း၏ မှတ်တိုင်များ (${routeStops.length}):`];
+    routeStops.forEach((s, i) => lines.push(`${i + 1}. ${s.name_mm}`));
+    return lines.join('\n');
+  };
+
+  const verifyAndSetPending = async () => {
+    if (!pendingAlert) return;
+    try {
+      const status = await getAlertStatus(userId);
+      if (!status.linked) {
+        setShowLinkedModal(true);
+        return;
+      }
+      const ok = await setAlert(
+        userId,
+        { name_mm: pendingAlert.stopName, lat: pendingAlert.lat, lng: pendingAlert.lng },
+        pendingAlert.detail
+      );
+      if (ok) {
+        setAlertStop(pendingAlert.stopName);
+        setPendingAlert(null);
+        setShowLinkedModal(false);
+      } else {
+        setShowLinkedModal(true);
+      }
+    } catch {
+      setShowLinkedModal(true);
+    }
+  };
+
+  const handleToggleRouteAlert = async (s: BusStopDetailed) => {
+    try {
+      if (alertStop === s.name_mm) {
+        await cancelAlert(userId);
+        setAlertStop(null);
+        setPendingAlert(null);
+      } else {
+        const detail = buildRouteDetail();
+        const ok = await setAlert(
+          userId,
+          { name_mm: s.name_mm, lat: s.lat, lng: s.lng },
+          detail
+        );
+        if (ok) {
+          setAlertStop(s.name_mm);
+          setPendingAlert(null);
+        } else {
+          // Not linked yet — ask the user to connect first, then create the alert.
+          setPendingAlert({ stopName: s.name_mm, lat: s.lat, lng: s.lng, detail });
+          setShowLinkedModal(true);
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const activeIndex = useMemo(() => {
     if (!livePos || routeStops.length === 0) return -1;
     let minIdx = 0;
@@ -1089,11 +1158,19 @@ const RouteDetailPage: React.FC<{
                                 <div className={`text-sm font-semibold truncate ${isActive ? 'text-emerald-800' : 'text-slate-800'}`}>{s.name_mm}</div>
                                 <div className="text-xs text-slate-400 truncate">{s.township_mm}</div>
                               </div>
-                              {isActive && (
-                                <div className="shrink-0">
+                              <div className="flex items-center gap-2 shrink-0">
+                                {isActive && (
                                   <span className="ui-badge bg-emerald-100 text-emerald-700 border-emerald-200">လက်ရှိ</span>
-                                </div>
-                              )}
+                                )}
+                                <button
+                                  type="button"
+                                  onClick={(e) => { e.stopPropagation(); handleToggleRouteAlert(s); }}
+                                  className={`p-2 rounded-lg transition-colors ${alertStop === s.name_mm ? 'text-emerald-500 bg-emerald-50' : 'text-slate-300 hover:text-slate-400 hover:bg-slate-50'}`}
+                                  title="ရောက်ခါနီး သတိပေးချက်"
+                                >
+                                  <Bell size={16} fill={alertStop === s.name_mm ? 'currentColor' : 'none'} />
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -1110,6 +1187,48 @@ const RouteDetailPage: React.FC<{
           </div>
         </div>
       </div>
+
+        {showLinkedModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+             <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden animate-scale-in">
+                <div className="p-6 text-center space-y-4">
+                   <div className="mx-auto w-16 h-16 rounded-full flex items-center justify-center bg-blue-100 text-blue-600">
+                      <Bot size={32} />
+                   </div>
+                   <div>
+                      <h4 className="text-lg font-bold text-slate-900">Telegram နှင့် ချိတ်ဆက်ရန်</h4>
+                      <p className="text-sm text-slate-500 mt-2">သတိပေးချက် ရယူရန် သင်၏ Telegram Account ကို အရင် ချိတ်ဆက်ပေးဖို့ လိုအပ်ပါသည်။</p>
+                   </div>
+                   <div className="flex flex-col gap-2 pt-2">
+                      <a
+                        href={connectUrl(userId)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="ui-btn bg-blue-500 hover:bg-blue-600 text-white w-full py-3 flex items-center justify-center gap-2"
+                      >
+                        <Send size={18} />
+                        <span>Telegram နှင့် ချိတ်ဆက်မည်</span>
+                      </a>
+                      {pendingAlert && (
+                        <button
+                          onClick={verifyAndSetPending}
+                          className="ui-btn ui-btn-primary w-full py-3 flex items-center justify-center gap-2"
+                        >
+                          <CheckCircle2 size={16} />
+                          <span>ချိတ်ဆက်ပြီးပါပြီ — သတိပေးချက် ယူမည်</span>
+                        </button>
+                      )}
+                      <button
+                        onClick={() => setShowLinkedModal(false)}
+                        className="ui-btn-ghost w-full py-3 text-slate-500"
+                      >
+                        နောက်မှလုပ်မည်
+                      </button>
+                   </div>
+                </div>
+             </div>
+          </div>
+        )}
     </div>
   );
 };
@@ -1228,21 +1347,89 @@ const RoutePlanDetailPage: React.FC<{
   }, [userId]);
 
   const [showLinkedModal, setShowLinkedModal] = useState<{show: boolean, stopName: string, success: boolean}>({show: false, stopName: '', success: false});
+  const [pendingAlert, setPendingAlert] = useState<{ stopName: string; lat: number; lng: number; detail: string } | null>(null);
 
-  const handleToggleAlert = async (stopName: string) => {
+  const verifyAndSetPending = async () => {
+    if (!pendingAlert) return;
+    setAlertLoading(true);
+    try {
+      const status = await getAlertStatus(userId);
+      if (!status.linked) {
+        setShowLinkedModal({ show: true, stopName: pendingAlert.stopName, success: false });
+        return;
+      }
+      const ok = await setAlert(
+        userId,
+        { name_mm: pendingAlert.stopName, lat: pendingAlert.lat, lng: pendingAlert.lng },
+        pendingAlert.detail
+      );
+      if (ok) {
+        setActiveAlertStop(pendingAlert.stopName);
+        setPendingAlert(null);
+        setShowLinkedModal({ show: true, stopName: pendingAlert.stopName, success: true });
+      } else {
+        setShowLinkedModal({ show: true, stopName: pendingAlert.stopName, success: false });
+      }
+    } catch {
+      setShowLinkedModal({ show: true, stopName: pendingAlert?.stopName || '', success: false });
+    } finally {
+      setAlertLoading(false);
+    }
+  };
+
+  const buildAlertDetail = (stepIndex: number): string => {
+    const lines: string[] = ['🚌 လမ်းကြောင်းအစီအစဉ် (Route Plan):'];
+    steps.forEach((st, i) => {
+      const r = st.route;
+      const lineName = r.line_name ? ` (${r.line_name})` : '';
+      const marker = i === stepIndex ? '  ◀️ ဤမှတ်တိုင်သို့ သတိပေးထားပါသည်' : '';
+      lines.push(`${i + 1}. YBS ${r.id}${lineName} — စီး: ${st.fromStop} → ဆင်း: ${st.toStop}${marker}`);
+    });
+
+    const step = steps[stepIndex];
+    if (step) {
+      const detailed = step.route.stopsDetailed || [];
+      const fromIdx = detailed.findIndex(s => s.name_mm === step.fromStop);
+      const toIdx = detailed.findIndex(s => s.name_mm === step.toStop);
+      if (fromIdx >= 0 && toIdx >= 0) {
+        const seg = detailed.slice(Math.min(fromIdx, toIdx), Math.max(fromIdx, toIdx) + 1);
+        if (seg.length) {
+          lines.push('', `🚏 YBS ${step.route.id} ဖြတ်သန်းမည့် မှတ်တိုင်များ:`);
+          seg.forEach(s => lines.push(`• ${s.name_mm}`));
+        }
+      }
+    }
+    return lines.join('\n');
+  };
+
+  const handleToggleAlert = async (stopName: string, stepIndex: number) => {
     setAlertLoading(true);
     try {
       if (activeAlertStop === stopName) {
         await cancelAlert(userId);
         setActiveAlertStop(null);
+        setPendingAlert(null);
+        return;
+      }
+      const stop = resolveStop(stopName);
+      if (!stop) {
+        setShowLinkedModal({ show: true, stopName, success: false });
+        return;
+      }
+      const detail = buildAlertDetail(stepIndex);
+      const ok = await setAlert(
+        userId,
+        { name_mm: stopName, lat: stop.lat, lng: stop.lng },
+        detail
+      );
+      if (ok) {
+        setActiveAlertStop(stopName);
+        setPendingAlert(null);
+        setShowLinkedModal({ show: true, stopName, success: true });
       } else {
-        const ok = await setAlert(userId, stopName);
-        if (ok) {
-          setActiveAlertStop(stopName);
-          setShowLinkedModal({ show: true, stopName, success: true });
-        } else {
-          setShowLinkedModal({ show: true, stopName, success: false });
-        }
+        // Not linked yet — remember the target and ask the user to connect first.
+        setPendingAlert({ stopName, lat: stop.lat, lng: stop.lng, detail });
+        setShowLinkedModal({ show: true, stopName, success: false });
       }
     } catch (e) {
       console.error(e);
@@ -1606,7 +1793,7 @@ const RoutePlanDetailPage: React.FC<{
                                    <p className="text-sm font-semibold text-slate-900 truncate">{st.toStop}</p>
                                 </div>
                                 <button 
-                                  onClick={(e) => { e.stopPropagation(); handleToggleAlert(st.toStop); }}
+                                  onClick={(e) => { e.stopPropagation(); handleToggleAlert(st.toStop, idx); }}
                                   disabled={alertLoading}
                                   className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-[10px] font-bold transition-all border shadow-md shrink-0 active:scale-95 ${
                                     activeAlertStop === st.toStop 
@@ -1664,20 +1851,30 @@ const RoutePlanDetailPage: React.FC<{
                       ) : (
                         <>
                           <a 
-                            href={connectUrl(userId)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="ui-btn bg-blue-500 hover:bg-blue-600 text-white w-full py-3 flex items-center justify-center gap-2"
-                          >
-                            <Send size={18} />
-                            <span>Telegram နှင့် ချိတ်ဆက်မည်</span>
-                          </a>
-                          <button 
-                            onClick={() => setShowLinkedModal({ ...showLinkedModal, show: false })}
-                            className="ui-btn-ghost w-full py-3 text-slate-500"
-                          >
-                            နောက်မှလုပ်မည်
-                          </button>
+                             href={connectUrl(userId)}
+                             target="_blank"
+                             rel="noopener noreferrer"
+                             className="ui-btn bg-blue-500 hover:bg-blue-600 text-white w-full py-3 flex items-center justify-center gap-2"
+                           >
+                             <Send size={18} />
+                             <span>Telegram နှင့် ချိတ်ဆက်မည်</span>
+                           </a>
+                           {pendingAlert && (
+                             <button
+                               onClick={verifyAndSetPending}
+                               disabled={alertLoading}
+                               className="ui-btn ui-btn-primary w-full py-3 flex items-center justify-center gap-2"
+                             >
+                               {alertLoading ? <RefreshCw size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
+                               <span>ချိတ်ဆက်ပြီးပါပြီ — သတိပေးချက် ယူမည်</span>
+                             </button>
+                           )}
+                           <button 
+                             onClick={() => setShowLinkedModal({ ...showLinkedModal, show: false })}
+                             className="ui-btn-ghost w-full py-3 text-slate-500"
+                           >
+                             နောက်မှလုပ်မည်
+                           </button>
                         </>
                       )}
                    </div>
@@ -1727,6 +1924,8 @@ const StopDetailPage: React.FC<{
   const userId = useMemo(() => getUserId(), []);
   const [alertLoading, setAlertLoading] = useState(false);
   const [alertActive, setAlertActive] = useState(false);
+  const [showLinkedModal, setShowLinkedModal] = useState(false);
+  const [pendingAlert, setPendingAlert] = useState<{ stopName: string; lat: number; lng: number; detail: string } | null>(null);
 
   useEffect(() => {
     getAlertStatus(userId).then(s => {
@@ -1734,16 +1933,65 @@ const StopDetailPage: React.FC<{
     });
   }, [userId, stop.name_mm]);
 
+  const buildRouteDetail = (): string => {
+    const lines = [`🚌 ဖြတ်သန်းသွားသော ကားလိုင်းများ (${passingRoutes.length}):`];
+    passingRoutes.forEach((r) => {
+      const lineName = r.line_name ? ` (${r.line_name})` : '';
+      lines.push(`• YBS ${r.id}${lineName}${r.operator ? ` — ${r.operator}` : ''}`);
+    });
+    return lines.join('\n');
+  };
+
+  const verifyAndSetPending = async () => {
+    if (!pendingAlert) return;
+    setAlertLoading(true);
+    try {
+      const status = await getAlertStatus(userId);
+      if (!status.linked) {
+        setShowLinkedModal(true);
+        return;
+      }
+      const ok = await setAlert(
+        userId,
+        { name_mm: pendingAlert.stopName, lat: pendingAlert.lat, lng: pendingAlert.lng },
+        pendingAlert.detail
+      );
+      if (ok) {
+        setAlertActive(true);
+        setPendingAlert(null);
+        setShowLinkedModal(false);
+      } else {
+        setShowLinkedModal(true);
+      }
+    } catch {
+      setShowLinkedModal(true);
+    } finally {
+      setAlertLoading(false);
+    }
+  };
+
   const handleAlert = async () => {
     setAlertLoading(true);
     try {
       if (alertActive) {
         await cancelAlert(userId);
         setAlertActive(false);
+        setPendingAlert(null);
       } else {
-        const ok = await setAlert(userId, stop.name_mm);
-        if (ok) setAlertActive(true);
-        else alert("Telegram ကို အရင်ချိတ်ဆက်ပေးပါ။ Settings ထဲတွင် ချိတ်ဆက်နိုင်ပါသည်။");
+        const detail = buildRouteDetail();
+        const ok = await setAlert(
+          userId,
+          { name_mm: stop.name_mm, lat: stop.lat, lng: stop.lng },
+          detail
+        );
+        if (ok) {
+          setAlertActive(true);
+          setPendingAlert(null);
+        } else {
+          // Not linked yet — ask the user to connect first, then create the alert.
+          setPendingAlert({ stopName: stop.name_mm, lat: stop.lat, lng: stop.lng, detail });
+          setShowLinkedModal(true);
+        }
       }
     } catch (e) {
       console.error(e);
@@ -1814,12 +2062,55 @@ const StopDetailPage: React.FC<{
                      </div>
                    ))}
                 </div>
+              </div>
+           </div>
+         </div>
+       </div>
+
+        {showLinkedModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+             <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden animate-scale-in">
+                <div className="p-6 text-center space-y-4">
+                   <div className="mx-auto w-16 h-16 rounded-full flex items-center justify-center bg-blue-100 text-blue-600">
+                      <Bot size={32} />
+                   </div>
+                   <div>
+                      <h4 className="text-lg font-bold text-slate-900">Telegram နှင့် ချိတ်ဆက်ရန်</h4>
+                      <p className="text-sm text-slate-500 mt-2">သတိပေးချက် ရယူရန် သင်၏ Telegram Account ကို အရင် ချိတ်ဆက်ပေးဖို့ လိုအပ်ပါသည်။</p>
+                   </div>
+                   <div className="flex flex-col gap-2 pt-2">
+                      <a
+                        href={connectUrl(userId)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="ui-btn bg-blue-500 hover:bg-blue-600 text-white w-full py-3 flex items-center justify-center gap-2"
+                      >
+                        <Send size={18} />
+                        <span>Telegram နှင့် ချိတ်ဆက်မည်</span>
+                      </a>
+                      {pendingAlert && (
+                        <button
+                          onClick={verifyAndSetPending}
+                          disabled={alertLoading}
+                          className="ui-btn ui-btn-primary w-full py-3 flex items-center justify-center gap-2"
+                        >
+                          {alertLoading ? <RefreshCw size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
+                          <span>ချိတ်ဆက်ပြီးပါပြီ — သတိပေးချက် ယူမည်</span>
+                        </button>
+                      )}
+                      <button
+                        onClick={() => setShowLinkedModal(false)}
+                        className="ui-btn-ghost w-full py-3 text-slate-500"
+                      >
+                        နောက်မှလုပ်မည်
+                      </button>
+                   </div>
+                </div>
              </div>
           </div>
-        </div>
-      </div>
-    </div>
-  );
+        )}
+     </div>
+   );
 };
 
 const FindRoutePage: React.FC<{ 
