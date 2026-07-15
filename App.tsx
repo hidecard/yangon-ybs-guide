@@ -1764,46 +1764,55 @@ const RoutePlanDetailPage: React.FC<{
                           </div>
                        </div>
 
-                       {/* Current & Next Stops Logic */}
-                       {isActive && livePos && (() => {
-                          const detailed = st.route.stopsDetailed || [];
-                          const fromIdx = detailed.findIndex(s => s.name_mm === st.fromStop);
-                          const toIdx = detailed.findIndex(s => s.name_mm === st.toStop);
-                          const subStops = fromIdx >= 0 && toIdx >= 0 ? detailed.slice(fromIdx, toIdx + 1) : [];
-                          
-                          if (subStops.length > 0) {
-                            let minDist = Infinity;
-                            let currentIdx = -1;
-                            subStops.forEach((s, i) => {
-                              const d = getDistance(livePos.lat, livePos.lng, s.lat, s.lng);
-                              if (d < minDist) { minDist = d; currentIdx = i; }
-                            });
+                        {/* Current & Next Stops Logic */}
+                        {isActive && (() => {
+                           const detailed = st.route.stopsDetailed || [];
+                           const fromIdx = detailed.findIndex(s => s.name_mm === st.fromStop);
+                           const toIdx = detailed.findIndex(s => s.name_mm === st.toStop);
 
-                            if (currentIdx !== -1 && minDist < 0.5) {
-                              const currentStop = subStops[currentIdx];
-                              const nextStop = subStops[currentIdx + 1];
-                              return (
-                                <div className="ml-7 py-2 px-3 bg-slate-50 rounded-lg border border-slate-100 space-y-2 relative z-10">
-                                   <div className="flex items-center gap-2">
-                                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-                                      <p className="text-[10px] font-bold text-slate-500 uppercase">လက်ရှိရောက်နေသည့်မှတ်တိုင်</p>
-                                   </div>
-                                   <p className="text-xs font-bold text-slate-800 ml-3.5">{currentStop.name_mm}</p>
-                                   {nextStop && (
-                                     <>
-                                       <div className="flex items-center gap-2 mt-2">
-                                          <div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div>
-                                          <p className="text-[10px] font-bold text-slate-500 uppercase">နောက်ရောက်မည့်မှတ်တိုင်</p>
-                                       </div>
-                                       <p className="text-xs font-bold text-slate-800 ml-3.5">{nextStop.name_mm}</p>
-                                     </>
-                                   )}
+                           if (fromIdx < 0 || toIdx < 0) return null;
+
+                           const lo = Math.min(fromIdx, toIdx);
+                           const hi = Math.max(fromIdx, toIdx);
+                           let subStops = detailed.slice(lo, hi + 1);
+                           if (fromIdx > toIdx) subStops = subStops.slice().reverse();
+
+                           let currentIdx = 0;
+                           let hasLive = false;
+                           if (livePos) {
+                             let minDist = Infinity;
+                             subStops.forEach((s, i) => {
+                               const d = getDistance(livePos.lat, livePos.lng, s.lat, s.lng);
+                               if (d < minDist) { minDist = d; currentIdx = i; }
+                             });
+                             hasLive = minDist < 0.5;
+                             if (!hasLive) currentIdx = 0;
+                           }
+
+                           const currentStop = subStops[currentIdx];
+                           const nextStop = subStops[currentIdx + 1];
+
+                           return (
+                             <div className="ml-7 py-2 px-3 bg-slate-50 rounded-lg border border-slate-100 space-y-2 relative z-10">
+                                <div className="flex items-center gap-2">
+                                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                                   <p className="text-[10px] font-bold text-slate-500 uppercase">
+                                     လက်ရှိရောက်နေသည့်မှတ်တိုင်{!hasLive ? ' (စတင်မှတ်တိုင်)' : ''}
+                                   </p>
                                 </div>
-                              );
-                            }
-                          }
-                          return null;
-                       })()}
+                                <p className="text-xs font-bold text-slate-800 ml-3.5">{currentStop.name_mm}</p>
+                                {nextStop && (
+                                  <>
+                                    <div className="flex items-center gap-2 mt-2">
+                                       <div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div>
+                                       <p className="text-[10px] font-bold text-slate-500 uppercase">နောက်ရောက်မည့်မှတ်တိုင်</p>
+                                    </div>
+                                    <p className="text-xs font-bold text-slate-800 ml-3.5">{nextStop.name_mm}</p>
+                                  </>
+                                )}
+                             </div>
+                           );
+                        })()}
 
                        <div className="flex items-start gap-3 relative z-10">
                           <div className="w-4 h-4 rounded-full bg-rose-500 border-2 border-white shadow-sm mt-0.5"></div>
