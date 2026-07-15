@@ -39,7 +39,8 @@ import {
   User,
   ArrowRight,
   CheckCircle2,
-  Bell
+  Bell,
+  Clock
 } from 'lucide-react';
 
 // --- Types for Search Results ---
@@ -735,7 +736,132 @@ const TRAVEL_TIPS = [
   },
 ];
 
-const HomePage: React.FC = () => {
+const NearestStopsCard: React.FC<{
+  stops: BusStop[];
+  routes: BusRoute[];
+}> = ({ stops, routes }) => {
+  const navigate = useNavigate();
+  const [livePos, setLivePos] = useState<{ lat: number; lng: number } | null>(null);
+  const [locating, setLocating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const routesForStop = useCallback((stopName: string) => {
+    return routes
+      .filter(r => r.stops.includes(stopName))
+      .slice(0, 3);
+  }, [routes]);
+
+  const nearest = useMemo(() => {
+    if (!livePos || stops.length === 0) return [];
+    return stops
+      .map(s => ({ stop: s, distance: getDistance(livePos.lat, livePos.lng, s.lat, s.lng) }))
+      .sort((a, b) => a.distance - b.distance)
+      .slice(0, 5);
+  }, [livePos, stops]);
+
+  const locate = () => {
+    if (!navigator.geolocation) {
+      setError('သင့်စက်တွင် GPS မပါဝင်ပါ။');
+      return;
+    }
+    setLocating(true);
+    setError(null);
+    navigator.geolocation.getCurrentPosition(
+      (p) => { setLivePos({ lat: p.coords.latitude, lng: p.coords.longitude }); setLocating(false); },
+      () => { setError('လိုက်ရှင်းရယူ၍ မရပါ။ Location permission ကို allow လုပ်ပါ။'); setLocating(false); },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
+
+  return (
+    <section className="ui-card p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="bg-brand-light p-2 rounded-lg text-brand">
+            <Crosshair size={16} />
+          </div>
+          <h3 className="font-semibold text-slate-900 text-sm">အနီးဆုံးမှတ်တိုင်များ</h3>
+        </div>
+        {!livePos ? (
+          <button
+            onClick={locate}
+            disabled={locating}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-brand text-white shadow-sm active:scale-95 transition-all disabled:opacity-60"
+          >
+            {locating ? <RefreshCw size={13} className="animate-spin" /> : <Locate size={13} />}
+            ယခု နေရာ
+          </button>
+        ) : (
+          <button
+            onClick={locate}
+            disabled={locating}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 active:scale-95 transition-all"
+          >
+            {locating ? <RefreshCw size={13} className="animate-spin" /> : <RefreshCw size={13} />}
+            ပြန်ရယူ
+          </button>
+        )}
+      </div>
+
+      {!livePos && !error && (
+        <p className="text-xs text-slate-400 leading-relaxed">
+          "ယခု နေရာ" ကိုနှိပ်ပြီး သင့်အနီးရှိ မှတ်တိုင်များနှင့် ဖြတ်သန်းသွားသော ကားလိုင်းများကို ကြည့်ရှုနိုင်ပါသည်။
+        </p>
+      )}
+
+      {error && (
+        <p className="text-xs text-rose-500 leading-relaxed">{error}</p>
+      )}
+
+      {livePos && nearest.length > 0 && (
+        <div className="space-y-1.5">
+          {nearest.map(({ stop, distance }) => {
+            const passing = routesForStop(stop.name_mm);
+            return (
+              <button
+                key={stop.id}
+                onClick={() => navigate('/find-route', { state: { startStop: stop.name_mm } })}
+                className="w-full p-3 flex items-center justify-between gap-3 bg-slate-50 hover:bg-slate-100 border border-slate-100 rounded-xl transition-colors text-left"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="bg-white border border-slate-200 p-2 rounded-lg text-brand shrink-0">
+                    <MapPin size={14} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-slate-800 truncate">{stop.name_mm}</p>
+                    <div className="flex items-center gap-1 mt-1 flex-wrap">
+                      {passing.length > 0 ? (
+                        passing.map(r => <RouteBadge key={r.id} routeId={r.id} color={r.color} size="sm" />)
+                      ) : (
+                        <span className="text-[10px] text-slate-400">ကားလိုင်း မတွေ့ပါ</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="ui-badge ui-badge-accent">{(distance * 1000).toFixed(0)}m</span>
+                  <ChevronRight size={14} className="text-slate-300" />
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {livePos && nearest.length === 0 && (
+        <div className="flex flex-col items-center justify-center text-slate-400 py-6">
+          <Search size={22} className="mb-2 opacity-30" />
+          <p className="text-sm font-medium">အနီးတွင် မှတ်တိုင်မတွေ့ပါ</p>
+        </div>
+      )}
+    </section>
+  );
+};
+
+const HomePage: React.FC<{
+  stops: BusStop[];
+  routes: BusRoute[];
+}> = ({ stops, routes }) => {
   const navigate = useNavigate();
 
   const quickActions = [
@@ -771,6 +897,11 @@ const HomePage: React.FC = () => {
             <span className="text-sm font-semibold text-slate-800">{action.label}</span>
           </button>
         ))}
+      </section>
+
+      {/* Nearest Stops (live GPS) */}
+      <section>
+        <NearestStopsCard stops={stops} routes={routes} />
       </section>
 
       {/* Travel Tips */}
@@ -923,8 +1054,11 @@ const RouteDetailPage: React.FC<{
   const mapRef = useRef<any>(null);
   const markersLayerRef = useRef<any>(null);
   const routeLayerRef = useRef<any>(null);
-  const [livePos, setLivePos] = useState<{ lat: number, lng: number } | null>(null);
+  const liveMarkerRef = useRef<any>(null);
+  const watchIdRef = useRef<number | null>(null);
+  const [livePos, setLivePos] = useState<{ lat: number; lng: number } | null>(null);
   const [isLocating, setIsLocating] = useState(false);
+  const [tracking, setTracking] = useState(false);
 
   const routeStops = route.stopsDetailed || [];
 
@@ -1066,6 +1200,50 @@ const RouteDetailPage: React.FC<{
     return () => map.remove();
   }, [route, routeStops, onStopClick]);
 
+  useEffect(() => () => {
+    if (watchIdRef.current !== null) navigator.geolocation.clearWatch(watchIdRef.current);
+  }, []);
+
+  useEffect(() => {
+    const L = (window as any).L;
+    if (!L || !mapRef.current || !livePos) return;
+    if (liveMarkerRef.current) {
+      liveMarkerRef.current.setLatLng([livePos.lat, livePos.lng]);
+    } else {
+      liveMarkerRef.current = L.circleMarker([livePos.lat, livePos.lng], {
+        radius: 7,
+        color: '#2563eb',
+        weight: 3,
+        fillColor: '#3b82f6',
+        fillOpacity: 1
+      }).addTo(mapRef.current);
+    }
+  }, [livePos]);
+
+  const startTracking = () => {
+    if (!navigator.geolocation) return;
+    setIsLocating(true);
+    if (watchIdRef.current !== null) navigator.geolocation.clearWatch(watchIdRef.current);
+    watchIdRef.current = navigator.geolocation.watchPosition(
+      (p) => {
+        setLivePos({ lat: p.coords.latitude, lng: p.coords.longitude });
+        setIsLocating(false);
+        setTracking(true);
+      },
+      () => setIsLocating(false),
+      { enableHighAccuracy: true, maximumAge: 1000, timeout: 10000 }
+    );
+  };
+
+  const nextStopInfo = useMemo(() => {
+    if (livePos === null || activeIndex < 0) return null;
+    const next = routeStops[activeIndex + 1];
+    if (!next) return null;
+    const distKm = getDistance(livePos.lat, livePos.lng, next.lat, next.lng);
+    const etaMin = (distKm / 15) * 60;
+    return { next, distKm, etaMin };
+  }, [livePos, activeIndex, routeStops]);
+
   return (
     <div className="fixed inset-0 z-[60] flex md:items-center justify-center md:p-6 overflow-hidden bg-slate-900/40 backdrop-blur-sm animate-fade-in">
       <div className="bg-white w-full h-full md:max-w-3xl md:h-auto md:max-h-[95vh] flex flex-col md:rounded-2xl md:shadow-lg overflow-hidden">
@@ -1087,18 +1265,12 @@ const RouteDetailPage: React.FC<{
             <div id="route-map" className="w-full h-full"></div>
             <div className="absolute bottom-4 right-4 z-[1000] flex flex-col gap-2">
               <button 
-                onClick={() => {
-                  setIsLocating(true);
-                  navigator.geolocation.getCurrentPosition(
-                    (p) => setLivePos({ lat: p.coords.latitude, lng: p.coords.longitude }),
-                    () => setIsLocating(false),
-                    { enableHighAccuracy: true, timeout: 10000 }
-                  );
-                }}
+                onClick={startTracking}
                 disabled={isLocating}
                 className="ui-btn-icon bg-white/90 backdrop-blur"
+                title={tracking ? 'လက်ရှိခရီးစဉ် ခြေရာခံနေသည်' : 'ခရီးစဉ် ခြေရာခံရန်'}
               >
-                {isLocating ? <RefreshCw className="animate-spin" size={20} /> : <Locate size={20} />}
+                {isLocating ? <RefreshCw className="animate-spin" size={20} /> : (tracking ? <Navigation size={20} className="text-brand" /> : <Locate size={20} />)}
               </button>
             </div>
           </div>
@@ -1116,6 +1288,23 @@ const RouteDetailPage: React.FC<{
                   <span className="text-slate-800 font-medium text-right">{routeStops[routeStops.length - 1]?.name_mm || '—'}</span>
                 </div>
               </div>
+
+              {tracking && (
+                <div className="flex items-center gap-2 p-3 rounded-xl bg-brand-light/60 border border-brand/20 text-brand">
+                  <div className="relative flex items-center justify-center">
+                    <span className="absolute inline-flex h-2.5 w-2.5 rounded-full bg-brand opacity-75 animate-ping"></span>
+                    <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-brand"></span>
+                  </div>
+                  {nextStopInfo ? (
+                    <p className="text-xs font-semibold leading-relaxed flex items-center gap-1">
+                      <Clock size={13} />
+                      နောက်မှတ်တိုင်: <b>{nextStopInfo.next.name_mm}</b> · {(nextStopInfo.distKm * 1000).toFixed(0)}m · ~{Math.max(1, Math.round(nextStopInfo.etaMin))} မိနစ်
+                    </p>
+                  ) : (
+                    <p className="text-xs font-semibold leading-relaxed">လက်ရှိ ခရီးစဉ် ခြေရာခံနေပါသည်...</p>
+                  )}
+                </div>
+              )}
 
               <div className="space-y-2">
                 <p className="ui-label">မှတ်တိုင်များ ({routeStops.length})</p>
@@ -2150,7 +2339,7 @@ const FindRoutePage: React.FC<{
 }> = ({ routes: routesProp, stops: stopsProp, onRouteClick }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [start, setStart] = useState('');
+  const [start, setStart] = useState((location.state as any)?.startStop || '');
   const [end, setEnd] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [searching, setSearching] = useState(false);
@@ -2833,7 +3022,7 @@ const App: React.FC = () => {
       <Header />
       <main className="flex-1 relative">
         <Routes>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<HomePage stops={stops} routes={routes} />} />
           <Route path="/routes" element={
             <RoutesPage 
               routes={routes} 
