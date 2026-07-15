@@ -57,6 +57,18 @@ export interface FavoriteRoute {
   routeId: string;
 }
 
+export interface FavoriteTripStep {
+  route: BusRoute;
+  fromStop: string;
+  toStop: string;
+}
+
+export interface FavoriteTrip {
+  id: string;
+  steps: FavoriteTripStep[];
+  createdAt: number;
+}
+
 export enum Page {
   Home = 'home',
   Routes = 'routes',

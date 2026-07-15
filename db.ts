@@ -1,12 +1,13 @@
 // Use default import for Dexie to ensure class methods like .version() are correctly inherited and recognized by the TypeScript compiler.
 import Dexie, { Table } from 'dexie';
-import { BusStop, BusRoute, FavoriteStop, FavoriteRoute } from './types';
+import { BusStop, BusRoute, FavoriteStop, FavoriteRoute, FavoriteTrip } from './types';
 
 export class YBSDatabase extends Dexie {
   busStops!: Table<BusStop, number>;
   busRoutes!: Table<BusRoute, string>;
   favoriteStops!: Table<FavoriteStop, number>;
   favoriteRoutes!: Table<FavoriteRoute, string>;
+  favoriteTrips!: Table<FavoriteTrip, string>;
 
   constructor() {
     super('YBSDatabase');
@@ -17,6 +18,14 @@ export class YBSDatabase extends Dexie {
       busRoutes: 'id',
       favoriteStops: 'stopId',
       favoriteRoutes: 'routeId'
+    });
+
+    this.version(2).stores({
+      busStops: 'id, name_mm, name_en, township_mm',
+      busRoutes: 'id',
+      favoriteStops: 'stopId',
+      favoriteRoutes: 'routeId',
+      favoriteTrips: 'id, createdAt'
     });
   }
 }

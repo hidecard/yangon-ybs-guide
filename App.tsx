@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef, useLayoutEffe
 
 import { Routes, Route, useNavigate, useLocation, useParams } from 'react-router-dom';
 import { loadRoutesFromFiles, loadStopsFromRouteFiles, saveToLocalCache, loadFromLocalCache, clearLocalCache, CACHE_KEY, LocalCache } from './data_constants';
-import { Page, BusStop, BusRoute, BusStopDetailed } from './types';
+import { Page, BusStop, BusRoute, BusStopDetailed, FavoriteTrip } from './types';
 import { db } from './db';
 import {
   getUserId,
@@ -40,7 +40,9 @@ import {
   ArrowRight,
   CheckCircle2,
   Bell,
-  Clock
+  Clock,
+  Bookmark,
+  Trash2
 } from 'lucide-react';
 
 // --- Types for Search Results ---
@@ -538,6 +540,7 @@ const MobileBottomNav: React.FC = () => {
     { id: '/routes', icon: Bus, label: 'လိုင်းများ' },
     { id: '/stops', icon: MapPin, label: 'မှတ်တိုင်များ' },
     { id: '/find-route', icon: Search, label: 'လမ်းကြောင်း' },
+    { id: '/favorites', icon: Star, label: 'အကြိုက်များ' },
   ];
 
   return (
@@ -1502,7 +1505,7 @@ const StopsPage: React.FC<{ stops: BusStop[], onStopClick: (s: BusStop) => void 
   );
 };
 
-const RoutePlanDetailFromState: React.FC = () => {
+const RoutePlanDetailFromState: React.FC<{ onSaveTrip?: (steps: PathStep[]) => void }> = ({ onSaveTrip }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const state = (location.state || {}) as any;
@@ -1524,13 +1527,15 @@ const RoutePlanDetailFromState: React.FC = () => {
     );
   }
 
-  return <RoutePlanDetailPage onClose={() => navigate(-1)} steps={steps} />;
+  return <RoutePlanDetailPage onClose={() => navigate(-1)} steps={steps} onSaveTrip={onSaveTrip} />;
 };
 
 const RoutePlanDetailPage: React.FC<{
   onClose: () => void;
   steps: PathStep[];
-}> = ({ onClose, steps }) => {
+  onSaveTrip?: (steps: PathStep[]) => void;
+}> = ({ onClose, steps, onSaveTrip }) => {
+  const [tripSaved, setTripSaved] = useState(false);
   const mapRef = useRef<any>(null);
   const markersLayerRef = useRef<any>(null);
   const routeLayerRef = useRef<any>(null);
@@ -1907,9 +1912,20 @@ const RoutePlanDetailPage: React.FC<{
               <p className="text-[10px] text-slate-400 font-medium">{steps.length - 1} Transfers</p>
             </div>
           </div>
-          <button onClick={onClose} className="ui-btn-icon">
-            <X size={18} />
-          </button>
+          <div className="flex items-center gap-1">
+            {onSaveTrip && (
+              <button
+                onClick={() => { onSaveTrip(steps); setTripSaved(true); }}
+                className={`ui-btn-icon ${tripSaved ? 'text-amber-500 bg-amber-50' : 'text-slate-400'}`}
+                title="ခရီးစဉ်ကို သိမ်းဆည်းမည်"
+              >
+                {tripSaved ? <CheckCircle2 size={18} /> : <Bookmark size={18} />}
+              </button>
+            )}
+            <button onClick={onClose} className="ui-btn-icon">
+              <X size={18} />
+            </button>
+          </div>
         </div>
 
         <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
@@ -2110,11 +2126,11 @@ const StopDetailPage: React.FC<{
   stop: BusStop, 
   onClose: () => void, 
   onRouteClick: (r: BusRoute) => void,
-  favorites: Set<string>,
+  favorites: Set<number>,
   onToggleFavorite: (stopId: number) => void,
   routes: BusRoute[]
 }> = ({ stop, onClose, onRouteClick, favorites, onToggleFavorite, routes }) => {
-  const isFav = favorites.has(stop.id.toString());
+  const isFav = favorites.has(stop.id);
   const passingRoutes = routes.filter(r => r.stops.includes(stop.name_mm));
 
   const mapRef = useRef<any>(null);
@@ -2960,13 +2976,158 @@ const SettingsPage: React.FC = () => {
 
 // --- Main App ---
 
+const FavoritesPage: React.FC<{
+  routes: BusRoute[];
+  stops: BusStop[];
+  trips: FavoriteTrip[];
+  favRoutes: Set<string>;
+  favStops: Set<number>;
+  onRouteClick: (r: BusRoute) => void;
+  onStopClick: (s: BusStop) => void;
+  onToggleFavRoute: (id: string) => void;
+  onToggleFavStop: (id: number) => void;
+  onDeleteTrip: (id: string) => void;
+}> = ({ routes, stops, trips, favRoutes, favStops, onRouteClick, onStopClick, onToggleFavRoute, onToggleFavStop, onDeleteTrip }) => {
+  const navigate = useNavigate();
+
+  const favRouteList = routes.filter(r => favRoutes.has(r.id));
+  const favStopList = stops.filter(s => favStops.has(s.id));
+
+  const tripSummary = (trip: FavoriteTrip) => {
+    const first = trip.steps[0];
+    const last = trip.steps[trip.steps.length - 1];
+    return `${first?.fromStop} → ${last?.toStop}`;
+  };
+
+  const sections = [
+    { key: 'trips', title: 'သိမ်းဆည်းထားသော ခရီးစဉ်များ', empty: 'သိမ်းဆည်းထားသော ခရီးစဉ် မရှိပါ။' },
+    { key: 'stops', title: 'အကြိုက်မှတ်တိုင်များ', empty: 'အကြိုက်မှတ်တိုင် မရှိပါ။' },
+    { key: 'routes', title: 'အကြိုက်လိုင်းများ', empty: 'အကြိုက်လိုင်း မရှိပါ။' },
+  ];
+
+  const hasAny = trips.length > 0 || favStopList.length > 0 || favRouteList.length > 0;
+
+  return (
+    <div className="max-w-5xl mx-auto px-4 py-5 md:py-8 h-full overflow-y-auto pb-24 md:pb-12 space-y-6">
+      <div className="flex items-center gap-3">
+        <button onClick={() => navigate('/')} className="ui-btn-icon">
+          <ArrowRight size={18} className="rotate-180" />
+        </button>
+        <h2 className="text-lg font-bold text-slate-900">အကြိုက်များ</h2>
+      </div>
+
+      {!hasAny && (
+        <div className="flex flex-col items-center justify-center text-slate-400 py-16 space-y-3">
+          <Star size={32} className="opacity-30" />
+          <p className="text-sm font-medium">မှတ်တိုင်၊ လိုင်း သို့မဟုတ် ခရီးစဉ်များကို သိမ်းဆည်းပြီး ဤနေရာမှ အမြန်ဖွင့်နိုင်ပါသည်။</p>
+        </div>
+      )}
+
+      {trips.length > 0 && (
+        <section className="space-y-3">
+          <h3 className="ui-section-title">{sections[0].title}</h3>
+          <div className="space-y-2">
+            {trips.map(trip => (
+              <div
+                key={trip.id}
+                className="ui-card p-4 flex items-center justify-between gap-3 cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => navigate('/route-plan-detail', { state: { steps: trip.steps } })}
+              >
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+                    {trip.steps.map((step, idx) => (
+                      <React.Fragment key={idx}>
+                        <RouteBadge routeId={step.route.id} color={step.route.color} size="sm" />
+                        {idx < trip.steps.length - 1 && <ChevronRight size={14} className="text-slate-300 shrink-0" />}
+                      </React.Fragment>
+                    ))}
+                  </div>
+                  <p className="text-sm font-medium text-slate-800 mt-1.5 truncate">{tripSummary(trip)}</p>
+                </div>
+                <button
+                  onClick={(e) => { e.stopPropagation(); onDeleteTrip(trip.id); }}
+                  className="ui-btn-icon text-slate-300 hover:text-rose-500 shrink-0"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {favStopList.length > 0 && (
+        <section className="space-y-3">
+          <h3 className="ui-section-title">{sections[1].title}</h3>
+          <div className="space-y-2">
+            {favStopList.map(stop => (
+              <div
+                key={stop.id}
+                className="ui-card p-4 flex items-center justify-between gap-3 cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => onStopClick(stop)}
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="bg-brand-light p-2 rounded-lg text-brand shrink-0">
+                    <MapPin size={16} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-slate-800 truncate">{stop.name_mm}</p>
+                    <p className="text-xs text-slate-400 truncate">{stop.township_mm}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={(e) => { e.stopPropagation(); onToggleFavStop(stop.id); }}
+                  className="text-amber-500 shrink-0"
+                >
+                  <Star size={18} fill="currentColor" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {favRouteList.length > 0 && (
+        <section className="space-y-3">
+          <h3 className="ui-section-title">{sections[2].title}</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {favRouteList.map(r => (
+              <div
+                key={r.id}
+                onClick={() => onRouteClick(r)}
+                className="ui-card ui-card-interactive p-4 flex items-center justify-between gap-3 cursor-pointer"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <RouteBadge routeId={r.id} color={r.color} />
+                  <div className="min-w-0">
+                    <p className="text-xs text-slate-400 font-medium">YBS Route</p>
+                    <p className="text-sm font-semibold text-slate-800 truncate">{r.operator || r.line_name || `YBS ${r.id}`}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={(e) => { e.stopPropagation(); onToggleFavRoute(r.id); }}
+                  className="text-amber-500 shrink-0"
+                >
+                  <Star size={18} fill="currentColor" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
+  );
+};
+
 const App: React.FC = () => {
   const [stops, setStops] = useState<BusStop[]>([]);
   const [routes, setRoutes] = useState<BusRoute[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeRoute, setActiveRoute] = useState<BusRoute | null>(null);
   const [activeStop, setActiveStop] = useState<BusStop | null>(null);
-  const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const [favRoutes, setFavRoutes] = useState<Set<string>>(new Set());
+  const [favStops, setFavStops] = useState<Set<number>>(new Set());
+  const [trips, setTrips] = useState<FavoriteTrip[]>([]);
 
   const navigate = useNavigate();
 
@@ -2988,16 +3149,39 @@ const App: React.FC = () => {
     };
     init();
 
-    const favs = localStorage.getItem('ybs-favorites');
-    if (favs) setFavorites(new Set(JSON.parse(favs)));
+    const routeFavs = localStorage.getItem('ybs-fav-routes');
+    if (routeFavs) setFavRoutes(new Set(JSON.parse(routeFavs)));
+    const stopFavs = localStorage.getItem('ybs-fav-stops');
+    if (stopFavs) setFavStops(new Set(JSON.parse(stopFavs)));
+    db.favoriteTrips.orderBy('createdAt').reverse().toArray().then(setTrips).catch(() => {});
   }, []);
 
-  const toggleFavorite = (id: string) => {
-    const next = new Set(favorites);
+  const toggleFavRoute = (id: string) => {
+    const next = new Set(favRoutes);
     if (next.has(id)) next.delete(id);
     else next.add(id);
-    setFavorites(next);
-    localStorage.setItem('ybs-favorites', JSON.stringify(Array.from(next)));
+    setFavRoutes(next);
+    localStorage.setItem('ybs-fav-routes', JSON.stringify(Array.from(next)));
+  };
+
+  const toggleFavStop = (id: number) => {
+    const next = new Set(favStops);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setFavStops(next);
+    localStorage.setItem('ybs-fav-stops', JSON.stringify(Array.from(next)));
+  };
+
+  const saveTrip = async (steps: PathStep[]) => {
+    const id = (crypto.randomUUID && crypto.randomUUID()) || `trip-${Date.now()}`;
+    const trip: FavoriteTrip = { id, steps: steps as FavoriteTrip['steps'], createdAt: Date.now() };
+    await db.favoriteTrips.put(trip);
+    setTrips(prev => [trip, ...prev.filter(t => t.id !== id)]);
+  };
+
+  const deleteTrip = async (id: string) => {
+    await db.favoriteTrips.delete(id);
+    setTrips(prev => prev.filter(t => t.id !== id));
   };
 
   if (loading) {
@@ -3027,8 +3211,8 @@ const App: React.FC = () => {
             <RoutesPage 
               routes={routes} 
               stops={stops}
-              favorites={favorites} 
-              onToggleFavorite={toggleFavorite}
+              favorites={favRoutes} 
+              onToggleFavorite={toggleFavRoute}
               onRouteClick={setActiveRoute}
               onStopClick={setActiveStop}
             />
@@ -3046,7 +3230,21 @@ const App: React.FC = () => {
               onRouteClick={setActiveRoute}
             />
           } />
-          <Route path="/route-plan-detail" element={<RoutePlanDetailFromState />} />
+          <Route path="/route-plan-detail" element={<RoutePlanDetailFromState onSaveTrip={saveTrip} />} />
+          <Route path="/favorites" element={
+            <FavoritesPage
+              routes={routes}
+              stops={stops}
+              trips={trips}
+              favRoutes={favRoutes}
+              favStops={favStops}
+              onRouteClick={setActiveRoute}
+              onStopClick={setActiveStop}
+              onToggleFavRoute={toggleFavRoute}
+              onToggleFavStop={toggleFavStop}
+              onDeleteTrip={deleteTrip}
+            />
+          } />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/assistant" element={
              <div className="max-w-3xl mx-auto p-4 h-[calc(100vh-140px)]">
@@ -3069,8 +3267,8 @@ const App: React.FC = () => {
           stop={activeStop} 
           onClose={() => setActiveStop(null)} 
           onRouteClick={setActiveRoute}
-          favorites={favorites}
-          onToggleFavorite={(id) => toggleFavorite(id.toString())}
+          favorites={favStops}
+          onToggleFavorite={toggleFavStop}
           routes={routes}
         />
       )}
