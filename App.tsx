@@ -71,6 +71,21 @@ interface ChatMessage {
 }
 
 // --- Utils ---
+const speakBurmese = (text: string) => {
+  try {
+    const synth = (window as any).speechSynthesis;
+    if (!synth) return;
+    synth.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'my-MM';
+    u.rate = 1;
+    const voices = synth.getVoices ? synth.getVoices() : [];
+    const my = voices.find((v: any) => v.lang && v.lang.toLowerCase().startsWith('my'));
+    if (my) u.voice = my;
+    synth.speak(u);
+  } catch {}
+};
+
 const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
   const R = 6371; 
   const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -175,6 +190,7 @@ const triggerArrivalNotify = (message: string) => {
   if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
     try { new Notification('YBS Guide', { body: message }); } catch {}
   }
+  speakBurmese(message);
 };
 
 // --- Local NLP Logic (No AI Needed) ---
@@ -1265,18 +1281,30 @@ const RouteDetailPage: React.FC<{
     return { next, distKm, etaMin };
   }, [livePos, activeIndex, routeStops]);
 
-  // Arrival alert: notify when approaching the next stop
+  // Arrival alert: notify + speak when approaching the next stop or arriving at a stop
   useEffect(() => {
     if (!arrivalEnabled || !nextStopInfo) return;
     const { next, distKm } = nextStopInfo;
     const key = `next-${next.name_mm}`;
     if (distKm < ARRIVAL_THRESHOLD_KM && !alertedRef.current.has(key)) {
       alertedRef.current.add(key);
-      const message = `လာမည့်မှတ်တိုင် ${next.name_mm} သို့ ရောက်ရန် နီးကပ်နေပါပြီ`;
+      const message = `နောက်မှတ်တိုင် ကတော့ ${next.name_mm} ပါ`;
       setArrivalAlert({ message });
       triggerArrivalNotify(message);
     }
   }, [arrivalEnabled, nextStopInfo]);
+
+  const prevArriveIdxRef = useRef<number>(-1);
+  useEffect(() => {
+    if (!arrivalEnabled || activeIndex < 0) return;
+    if (activeIndex === prevArriveIdxRef.current) return;
+    prevArriveIdxRef.current = activeIndex;
+    const stop = routeStops[activeIndex];
+    if (!stop) return;
+    const message = `${stop.name_mm} မှတ်တိုင် ရောက်ပါပီ`;
+    setArrivalAlert({ message });
+    triggerArrivalNotify(message);
+  }, [arrivalEnabled, activeIndex, routeStops]);
 
   return (
     <div className="fixed inset-0 z-[60] flex md:items-center justify-center md:p-6 overflow-hidden bg-slate-900/40 backdrop-blur-sm animate-fade-in">
@@ -1603,6 +1631,7 @@ const RoutePlanDetailPage: React.FC<{
   const [arrivalEnabled, setArrivalEnabled] = useState(false);
   const [arrivalAlert, setArrivalAlert] = useState<{ message: string } | null>(null);
   const alertedRef = useRef<Set<string>>(new Set());
+  const prevStopKeyRef = useRef<string>('');
   const ARRIVAL_THRESHOLD_KM = 0.2;
 
   // Telegram Alert States
@@ -1826,9 +1855,21 @@ const RoutePlanDetailPage: React.FC<{
       }
     };
 
-    tryAlert(next, `next-${next?.name_mm}`, (n) => `လာမည့်မှတ်တိုင် ${n} သို့ ရောက်ရန် နီးကပ်နေပါပြီ`);
+    tryAlert(next, `next-${next?.name_mm}`, (n) => `နောက်မှတ်တိုင် ကတော့ ${n} ပါ`);
     if (isFinalLeg && destStop) {
-      tryAlert(destStop, `dest-${destStop.name_mm}`, (n) => `ဆင်းမည့်မှတ်တိုင် ${n} သို့ ရောက်ရန် နီးကပ်နေပါပြီ`);
+      tryAlert(destStop, `dest-${destStop.name_mm}`, (n) => `ဆင်းမည့်မှတ်တိုင် ကတော့ ${n} ပါ`);
+    }
+
+    // "Arrived at stop" voice + banner when the current stop advances
+    const stop = sub[cur];
+    if (stop) {
+      const key = `arrive-${activeStepIndex}-${stop.name_mm}`;
+      if (key !== prevStopKeyRef.current) {
+        prevStopKeyRef.current = key;
+        const message = `${stop.name_mm} မှတ်တိုင် ရောက်ပါပီ`;
+        setArrivalAlert({ message });
+        triggerArrivalNotify(message);
+      }
     }
   }, [livePos, activeStepIndex, steps, arrivalEnabled]);
 
