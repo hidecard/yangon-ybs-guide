@@ -163,6 +163,20 @@ const performBFS = async (start: string, end: string, allRoutes: BusRoute[], all
   return finalResults.sort((a, b) => a.transferCount - b.transferCount || a.totalDistance - b.totalDistance);
 };
 
+// --- Arrival alert notifier (vibration + optional system notification) ---
+const requestNotifyPermission = () => {
+  if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+    Notification.requestPermission().catch(() => {});
+  }
+};
+
+const triggerArrivalNotify = (message: string) => {
+  try { if (navigator.vibrate) navigator.vibrate([200, 120, 200]); } catch {}
+  if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+    try { new Notification('YBS Guide', { body: message }); } catch {}
+  }
+};
+
 // --- Local NLP Logic (No AI Needed) ---
 const extractStopsFromText = (text: string, allStopNames: string[]) => {
   const normalizedText = text.trim();
@@ -1062,6 +1076,10 @@ const RouteDetailPage: React.FC<{
   const [livePos, setLivePos] = useState<{ lat: number; lng: number } | null>(null);
   const [isLocating, setIsLocating] = useState(false);
   const [tracking, setTracking] = useState(false);
+  const [arrivalEnabled, setArrivalEnabled] = useState(false);
+  const [arrivalAlert, setArrivalAlert] = useState<{ message: string } | null>(null);
+  const alertedRef = useRef<Set<string>>(new Set());
+  const ARRIVAL_THRESHOLD_KM = 0.2;
 
   const routeStops = route.stopsDetailed || [];
 
@@ -1247,6 +1265,19 @@ const RouteDetailPage: React.FC<{
     return { next, distKm, etaMin };
   }, [livePos, activeIndex, routeStops]);
 
+  // Arrival alert: notify when approaching the next stop
+  useEffect(() => {
+    if (!arrivalEnabled || !nextStopInfo) return;
+    const { next, distKm } = nextStopInfo;
+    const key = `next-${next.name_mm}`;
+    if (distKm < ARRIVAL_THRESHOLD_KM && !alertedRef.current.has(key)) {
+      alertedRef.current.add(key);
+      const message = `လာမည့်မှတ်တိုင် ${next.name_mm} သို့ ရောက်ရန် နီးကပ်နေပါပြီ`;
+      setArrivalAlert({ message });
+      triggerArrivalNotify(message);
+    }
+  }, [arrivalEnabled, nextStopInfo]);
+
   return (
     <div className="fixed inset-0 z-[60] flex md:items-center justify-center md:p-6 overflow-hidden bg-slate-900/40 backdrop-blur-sm animate-fade-in">
       <div className="bg-white w-full h-full md:max-w-3xl md:h-auto md:max-h-[95vh] flex flex-col md:rounded-2xl md:shadow-lg overflow-hidden">
@@ -1275,6 +1306,15 @@ const RouteDetailPage: React.FC<{
               >
                 {isLocating ? <RefreshCw className="animate-spin" size={20} /> : (tracking ? <Navigation size={20} className="text-brand" /> : <Locate size={20} />)}
               </button>
+              {tracking && (
+                <button
+                  onClick={() => { const next = !arrivalEnabled; setArrivalEnabled(next); if (next) requestNotifyPermission(); }}
+                  className={`ui-btn-icon bg-white/90 backdrop-blur ${arrivalEnabled ? 'text-amber-500' : 'text-slate-400'}`}
+                  title="ရောက်ခါနီး သတိပေးချက်"
+                >
+                  <Bell size={20} fill={arrivalEnabled ? 'currentColor' : 'none'} />
+                </button>
+              )}
             </div>
           </div>
 
@@ -1306,6 +1346,16 @@ const RouteDetailPage: React.FC<{
                   ) : (
                     <p className="text-xs font-semibold leading-relaxed">လက်ရှိ ခရီးစဉ် ခြေရာခံနေပါသည်...</p>
                   )}
+                </div>
+              )}
+
+              {arrivalAlert && (
+                <div className="flex items-start gap-3 p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800">
+                  <Bell size={18} className="mt-0.5 shrink-0" />
+                  <p className="text-sm font-semibold flex-1 leading-relaxed">{arrivalAlert.message}</p>
+                  <button onClick={() => setArrivalAlert(null)} className="text-amber-500 hover:text-amber-700 shrink-0">
+                    <X size={16} />
+                  </button>
                 </div>
               )}
 
@@ -1550,6 +1600,11 @@ const RoutePlanDetailPage: React.FC<{
   const [activeStepIndex, setActiveStepIndex] = useState(0);
   const [livePos, setLivePos] = useState<{ lat: number; lng: number } | null>(null);
 
+  const [arrivalEnabled, setArrivalEnabled] = useState(false);
+  const [arrivalAlert, setArrivalAlert] = useState<{ message: string } | null>(null);
+  const alertedRef = useRef<Set<string>>(new Set());
+  const ARRIVAL_THRESHOLD_KM = 0.2;
+
   // Telegram Alert States
   const userId = useMemo(() => getUserId(), []);
   const [alertLoading, setAlertLoading] = useState(false);
@@ -1729,6 +1784,53 @@ const RoutePlanDetailPage: React.FC<{
 
     setActiveStepIndex(bestIdx);
   }, [livePos, steps, stopsByName]);
+
+  // Arrival alerts: notify when approaching the next stop or final destination
+  useEffect(() => {
+    if (!arrivalEnabled || !livePos) return;
+    const active = steps[activeStepIndex];
+    if (!active) return;
+
+    const detailed = active.route.stopsDetailed || [];
+    const fromIdx = detailed.findIndex(s => s.name_mm === active.fromStop);
+    const toIdx = detailed.findIndex(s => s.name_mm === active.toStop);
+    if (fromIdx < 0 || toIdx < 0) return;
+
+    const lo = Math.min(fromIdx, toIdx);
+    const hi = Math.max(fromIdx, toIdx);
+    let sub = detailed.slice(lo, hi + 1);
+    if (fromIdx > toIdx) sub = sub.slice().reverse();
+
+    let cur = 0;
+    let min = Infinity;
+    sub.forEach((s, i) => {
+      const d = getDistance(livePos.lat, livePos.lng, s.lat, s.lng);
+      if (d < min) { min = d; cur = i; }
+    });
+
+    const next = sub[cur + 1];
+    const isFinalLeg = activeStepIndex === steps.length - 1;
+    const last = steps[steps.length - 1];
+    const lastDetailed = last.route.stopsDetailed || [];
+    const destIdx = lastDetailed.findIndex(s => s.name_mm === last.toStop);
+    const destStop = destIdx >= 0 ? lastDetailed[destIdx] : null;
+
+    const tryAlert = (stop: BusStopDetailed | undefined, key: string, build: (n: string) => string) => {
+      if (!stop) return;
+      const dist = getDistance(livePos.lat, livePos.lng, stop.lat, stop.lng);
+      if (dist < ARRIVAL_THRESHOLD_KM && !alertedRef.current.has(key)) {
+        alertedRef.current.add(key);
+        const message = build(stop.name_mm);
+        setArrivalAlert({ message });
+        triggerArrivalNotify(message);
+      }
+    };
+
+    tryAlert(next, `next-${next?.name_mm}`, (n) => `လာမည့်မှတ်တိုင် ${n} သို့ ရောက်ရန် နီးကပ်နေပါပြီ`);
+    if (isFinalLeg && destStop) {
+      tryAlert(destStop, `dest-${destStop.name_mm}`, (n) => `ဆင်းမည့်မှတ်တိုင် ${n} သို့ ရောက်ရန် နီးကပ်နေပါပြီ`);
+    }
+  }, [livePos, activeStepIndex, steps, arrivalEnabled]);
 
   useEffect(() => {
     const el = stepRefs.current.get(activeStepIndex);
@@ -1932,14 +2034,30 @@ const RoutePlanDetailPage: React.FC<{
           <div className="relative h-[35vh] md:h-auto md:w-1/2 bg-slate-100 shrink-0">
             <div id="route-plan-map" className="w-full h-full"></div>
             {livePos && (
-               <div className="absolute top-4 left-4 z-[1000]">
+               <div className="absolute top-4 left-4 z-[1000] flex flex-col gap-2">
                   <span className="ui-badge bg-white/90 backdrop-blur text-emerald-600 font-bold border-emerald-100">Live GPS Active</span>
+                  <button
+                    onClick={() => { const next = !arrivalEnabled; setArrivalEnabled(next); if (next) requestNotifyPermission(); }}
+                    className={`ui-badge backdrop-blur border flex items-center gap-1.5 ${arrivalEnabled ? 'bg-amber-100 text-amber-700 border-amber-200' : 'bg-white/90 text-slate-500 border-slate-200'}`}
+                  >
+                    <Bell size={12} /> {arrivalEnabled ? 'ရောက်ခါနီး သတိပေးချက်: ဖွင့်' : 'ရောက်ခါနီး သတိပေးချက်'}
+                  </button>
                </div>
             )}
           </div>
 
           <div ref={listRef} className="border-t border-slate-100 flex-1 overflow-y-auto bg-slate-50/50">
             <div className="p-5 space-y-4 pb-24 md:pb-6">
+              {arrivalAlert && (
+                <div className="flex items-start gap-3 p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800">
+                  <Bell size={18} className="mt-0.5 shrink-0" />
+                  <p className="text-sm font-semibold flex-1 leading-relaxed">{arrivalAlert.message}</p>
+                  <button onClick={() => setArrivalAlert(null)} className="text-amber-500 hover:text-amber-700 shrink-0">
+                    <X size={16} />
+                  </button>
+                </div>
+              )}
+
               {steps.map((st, idx) => {
                 const isActive = idx === activeStepIndex;
                 return (
