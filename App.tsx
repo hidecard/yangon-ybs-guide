@@ -1723,7 +1723,7 @@ const RoutePlanDetailPage: React.FC<{
         </div>
 
         <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
-          <div className="relative h-[40vh] md:h-auto md:w-1/2 bg-slate-100 shrink-0">
+          <div className="relative h-[55vh] md:h-auto md:w-1/2 bg-slate-100 shrink-0">
             <div id="route-plan-map" className="w-full h-full"></div>
             {livePos && (
                <div className="absolute top-4 left-4 z-[1000]">
