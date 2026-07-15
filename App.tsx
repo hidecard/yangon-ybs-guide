@@ -1049,10 +1049,11 @@ const RouteDetailPage: React.FC<{
           fillOpacity: 1
         });
 
-        marker.bindTooltip(s.name_mm, { 
-          direction: 'top', 
-          offset: [0, -5],
-          className: 'ui-map-tooltip'
+        marker.bindTooltip(s.name_mm, {
+          permanent: true,
+          direction: 'right',
+          offset: [8, 0],
+          className: 'ui-map-label'
         });
 
         marker.on('click', () => onStopClick(s));
