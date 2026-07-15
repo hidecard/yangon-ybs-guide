@@ -970,6 +970,8 @@ const RouteDetailPage: React.FC<{
     }
   };
 
+  const [showSuccessModal, setShowSuccessModal] = useState<{show: boolean, stopName: string}>({show: false, stopName: ''});
+
   const handleToggleRouteAlert = async (s: BusStopDetailed) => {
     try {
       if (alertStop === s.name_mm) {
@@ -986,6 +988,7 @@ const RouteDetailPage: React.FC<{
         if (ok) {
           setAlertStop(s.name_mm);
           setPendingAlert(null);
+          setShowSuccessModal({ show: true, stopName: s.name_mm });
         } else {
           // Not linked yet — ask the user to connect first, then create the alert.
           setPendingAlert({ stopName: s.name_mm, lat: s.lat, lng: s.lng, detail });
@@ -1188,47 +1191,64 @@ const RouteDetailPage: React.FC<{
         </div>
       </div>
 
-        {showLinkedModal && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-             <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden animate-scale-in">
-                <div className="p-6 text-center space-y-4">
-                   <div className="mx-auto w-16 h-16 rounded-full flex items-center justify-center bg-blue-100 text-blue-600">
-                      <Bot size={32} />
-                   </div>
-                   <div>
-                      <h4 className="text-lg font-bold text-slate-900">Telegram နှင့် ချိတ်ဆက်ရန်</h4>
-                      <p className="text-sm text-slate-500 mt-2">သတိပေးချက် ရယူရန် သင်၏ Telegram Account ကို အရင် ချိတ်ဆက်ပေးဖို့ လိုအပ်ပါသည်။</p>
-                   </div>
-                   <div className="flex flex-col gap-2 pt-2">
-                      <a
-                        href={connectUrl(userId)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="ui-btn bg-blue-500 hover:bg-blue-600 text-white w-full py-3 flex items-center justify-center gap-2"
-                      >
-                        <Send size={18} />
-                        <span>Telegram နှင့် ချိတ်ဆက်မည်</span>
-                      </a>
-                      {pendingAlert && (
-                        <button
-                          onClick={verifyAndSetPending}
-                          className="ui-btn ui-btn-primary w-full py-3 flex items-center justify-center gap-2"
-                        >
-                          <CheckCircle2 size={16} />
-                          <span>ချိတ်ဆက်ပြီးပါပြီ — သတိပေးချက် ယူမည်</span>
-                        </button>
-                      )}
-                      <button
-                        onClick={() => setShowLinkedModal(false)}
-                        className="ui-btn-ghost w-full py-3 text-slate-500"
-                      >
-                        နောက်မှလုပ်မည်
-                      </button>
-                   </div>
-                </div>
-             </div>
-          </div>
-        )}
+	        {(showLinkedModal || showSuccessModal.show) && (
+	          <div className="fixed inset-0 z-[2000] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+	             <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden animate-scale-in">
+	                <div className="p-6 text-center space-y-4">
+	                   <div className={`mx-auto w-16 h-16 rounded-full flex items-center justify-center ${showSuccessModal.show ? 'bg-emerald-100 text-emerald-600' : 'bg-blue-100 text-blue-600'}`}>
+	                      {showSuccessModal.show ? <CheckCircle2 size={32} /> : <Bot size={32} />}
+	                   </div>
+	                   <div>
+	                      <h4 className="text-lg font-bold text-slate-900">
+	                        {showSuccessModal.show ? 'သတိပေးချက်သတ်မှတ်ပြီးပါပြီ' : 'Telegram နှင့် ချိတ်ဆက်ရန်'}
+	                      </h4>
+	                      <p className="text-sm text-slate-500 mt-2">
+	                        {showSuccessModal.show 
+	                          ? `"${showSuccessModal.stopName}" မှတ်တိုင်သို့ ရောက်ရှိရန် နီးကပ်လာပါက Telegram မှတစ်ဆင့် သတိပေးချက် ပို့ပေးပါမည်။`
+	                          : 'သတိပေးချက် ရယူရန် သင်၏ Telegram Account ကို အရင် ချိတ်ဆက်ပေးဖို့ လိုအပ်ပါသည်။'}
+	                      </p>
+	                   </div>
+	                   <div className="flex flex-col gap-2 pt-2">
+	                      {showSuccessModal.show ? (
+	                        <button
+	                          onClick={() => setShowSuccessModal({ show: false, stopName: '' })}
+	                          className="ui-btn ui-btn-primary w-full py-3"
+	                        >
+	                          ကောင်းပါပြီ
+	                        </button>
+	                      ) : (
+	                        <>
+	                          <a
+	                            href={connectUrl(userId)}
+	                            target="_blank"
+	                            rel="noopener noreferrer"
+	                            className="ui-btn bg-blue-500 hover:bg-blue-600 text-white w-full py-3 flex items-center justify-center gap-2"
+	                          >
+	                            <Send size={18} />
+	                            <span>Telegram နှင့် ချိတ်ဆက်မည်</span>
+	                          </a>
+	                          {pendingAlert && (
+	                            <button
+	                              onClick={verifyAndSetPending}
+	                              className="ui-btn ui-btn-primary w-full py-3 flex items-center justify-center gap-2"
+	                            >
+	                              <CheckCircle2 size={16} />
+	                              <span>ချိတ်ဆက်ပြီးပါပြီ — သတိပေးချက် ယူမည်</span>
+	                            </button>
+	                          )}
+	                          <button
+	                            onClick={() => setShowLinkedModal(false)}
+	                            className="ui-btn-ghost w-full py-3 text-slate-500"
+	                          >
+	                            နောက်မှလုပ်မည်
+	                          </button>
+	                        </>
+	                      )}
+	                   </div>
+	                </div>
+	             </div>
+	          </div>
+	        )}
     </div>
   );
 };
@@ -1822,8 +1842,8 @@ const RoutePlanDetailPage: React.FC<{
          </div>
        </div>
 
-       {showLinkedModal.show && (
-         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+        {showLinkedModal.show && (
+          <div className="fixed inset-0 z-[2000] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
             <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden animate-scale-in">
                <div className="p-6 text-center space-y-4">
                   <div className={`mx-auto w-16 h-16 rounded-full flex items-center justify-center ${showLinkedModal.success ? 'bg-emerald-100 text-emerald-600' : 'bg-blue-100 text-blue-600'}`}>
