@@ -42,8 +42,10 @@ import {
   Bell,
   Clock,
   Bookmark,
-  Trash2
+  Trash2,
+  Megaphone
 } from 'lucide-react';
+import { fetchBusUpdates, postBusUpdate, timeAgo, UPDATE_TYPE_META, type BusUpdate, type BusUpdateType } from './busUpdates';
 
 // --- Types for Search Results ---
 interface PathStep {
@@ -894,7 +896,8 @@ const NearestStopsCard: React.FC<{
 const HomePage: React.FC<{
   stops: BusStop[];
   routes: BusRoute[];
-}> = ({ stops, routes }) => {
+  onRouteClick?: (r: BusRoute) => void;
+}> = ({ stops, routes, onRouteClick }) => {
   const navigate = useNavigate();
 
   const quickActions = [
@@ -935,6 +938,11 @@ const HomePage: React.FC<{
       {/* Nearest Stops (live GPS) */}
       <section>
         <NearestStopsCard stops={stops} routes={routes} />
+      </section>
+
+      {/* Community bus updates */}
+      <section>
+        <BusUpdatesFeed limit={8} onRouteClick={onRouteClick} />
       </section>
 
       {/* Travel Tips */}
@@ -1098,6 +1106,9 @@ const RouteDetailPage: React.FC<{
   const ARRIVAL_THRESHOLD_KM = 0.2;
 
   const routeStops = route.stopsDetailed || [];
+
+  const [showReport, setShowReport] = useState(false);
+  const [reportNonce, setReportNonce] = useState(0);
 
   const userId = useMemo(() => getUserId(), []);
   const [alertStop, setAlertStop] = useState<string | null>(null);
@@ -1311,16 +1322,25 @@ const RouteDetailPage: React.FC<{
       <div className="bg-white w-full h-full md:max-w-3xl md:h-auto md:max-h-[95vh] flex flex-col md:rounded-2xl md:shadow-lg overflow-hidden">
         <div className="px-5 py-4 flex items-center justify-between border-b border-slate-100 shrink-0">
           <div className="flex items-center gap-3">
-            <RouteBadge routeId={route.id} color={route.color} size="sm" />
-            <div>
-              <h3 className="font-semibold text-slate-900 text-sm">{route.line_name || `YBS ${route.id}`}</h3>
-              <p className="text-[10px] text-slate-400 font-medium">{route.operator}</p>
+              <RouteBadge routeId={route.id} color={route.color} size="sm" />
+              <div>
+                <h3 className="font-semibold text-slate-900 text-sm">{route.line_name || `YBS ${route.id}`}</h3>
+                <p className="text-[10px] text-slate-400 font-medium">{route.operator}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setShowReport(true)}
+                className="ui-btn-icon text-amber-500"
+                title="အချက်အလက် မျှဝေရန်"
+              >
+                <Megaphone size={18} />
+              </button>
+              <button onClick={onClose} className="ui-btn-icon">
+                <X size={18} />
+              </button>
             </div>
           </div>
-          <button onClick={onClose} className="ui-btn-icon">
-            <X size={18} />
-          </button>
-        </div>
 
         <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
           <div className="relative h-48 md:h-auto md:w-1/2 bg-slate-100 shrink-0">
@@ -1457,6 +1477,13 @@ const RouteDetailPage: React.FC<{
               <div className="text-xs text-slate-400">
                 Live location အတွက် browser location permission ကို allow လုပ်ထားရပါမည်။
               </div>
+
+              <BusUpdatesFeed
+                key={reportNonce}
+                routeId={route.id}
+                limit={20}
+                title="ဤလိုင်းအချက်အလက်"
+              />
             </div>
           </div>
         </div>
@@ -1519,6 +1546,14 @@ const RouteDetailPage: React.FC<{
 	                </div>
 	             </div>
 	          </div>
+	        )}
+	        {showReport && (
+	          <ReportBusUpdateModal
+	            routeId={route.id}
+	            routeLabel={route.line_name || `YBS ${route.id}`}
+	            onClose={() => setShowReport(false)}
+	            onPosted={() => setReportNonce(n => n + 1)}
+	          />
 	        )}
     </div>
   );
@@ -3274,7 +3309,196 @@ const FavoritesPage: React.FC<{
           </div>
         </section>
       )}
+      </div>
+  );
+};
+
+const ReportBusUpdateModal: React.FC<{
+  routeId: string;
+  routeLabel: string;
+  defaultStop?: string;
+  onClose: () => void;
+  onPosted: () => void;
+}> = ({ routeId, routeLabel, defaultStop, onClose, onPosted }) => {
+  const [type, setType] = useState<BusUpdateType>('started');
+  const [stop, setStop] = useState(defaultStop || '');
+  const [note, setNote] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    setError(null);
+    const ok = await postBusUpdate({
+      routeId,
+      type,
+      stop: stop.trim() || undefined,
+      note: note.trim() || undefined,
+      userId: getUserId(),
+    });
+    setSubmitting(false);
+    if (ok) {
+      onPosted();
+      onClose();
+    } else {
+      setError('အချက်အလက် မျှဝေရာတွင် အမှားရှိပါသည်။ နောက်မှ ထပ်ကြိုးစားပါ။');
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[80] flex items-end md:items-center justify-center p-0 md:p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in">
+      <div className="bg-white w-full max-w-md rounded-t-2xl md:rounded-2xl max-h-[90vh] flex flex-col overflow-hidden shadow-lg">
+        <div className="px-5 py-4 flex items-center justify-between border-b border-slate-100 shrink-0">
+          <div className="flex items-center gap-2">
+            <div className="bg-amber-100 p-2 rounded-lg text-amber-600">
+              <Megaphone size={16} />
+            </div>
+            <h3 className="font-semibold text-slate-900 text-sm">အချက်အလက် မျှဝေရန်</h3>
+          </div>
+          <button onClick={onClose} className="ui-btn-icon"><X size={18} /></button>
+        </div>
+
+        <div className="p-5 space-y-4 overflow-y-auto">
+          <div className="flex items-center gap-2">
+            <RouteBadge routeId={routeId} color="#10b981" size="sm" />
+            <span className="text-sm font-bold text-slate-800">{routeLabel}</span>
+          </div>
+
+          <div>
+            <p className="ui-label mb-2">အချက်အလက် အမျိုးအစား</p>
+            <div className="flex flex-wrap gap-2">
+              {(Object.keys(UPDATE_TYPE_META) as BusUpdateType[]).map(t => {
+                const meta = UPDATE_TYPE_META[t];
+                const active = type === t;
+                return (
+                  <button
+                    key={t}
+                    onClick={() => setType(t)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
+                      active ? `${meta.bg} ${meta.color}` : 'bg-white text-slate-500 border-slate-200'
+                    }`}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full ${meta.dot}`} />
+                    {meta.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div>
+            <p className="ui-label mb-1.5">မှတ်တိုင် (ရှိလျှင်)</p>
+            <input
+              type="text"
+              value={stop}
+              onChange={(e) => setStop(e.target.value)}
+              placeholder="ဥပမာ - ဆူးလေမှတ်တိုင်"
+              className="ui-input"
+            />
+          </div>
+
+          <div>
+            <p className="ui-label mb-1.5">မှတ်ချက် (ရှိလျှင်)</p>
+            <textarea
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              rows={2}
+              placeholder="အသေးစိတ် အချက်အလက်..."
+              className="ui-input resize-none"
+            />
+          </div>
+
+          {error && <p className="text-xs text-rose-500">{error}</p>}
+
+          <p className="text-[11px] text-slate-400 leading-relaxed">
+            ဤအချက်အလက်ကို အခြားအသုံးပြုသူများ အားလုံး မြင်နိုင်ပါမည်။
+          </p>
+        </div>
+
+        <div className="px-5 py-4 border-t border-slate-100 shrink-0">
+          <button
+            onClick={handleSubmit}
+            disabled={submitting}
+            className="ui-btn ui-btn-primary w-full py-3 rounded-xl disabled:opacity-60"
+          >
+            {submitting ? <RefreshCw size={18} className="animate-spin" /> : <Megaphone size={18} />}
+            <span>မျှဝေမည်</span>
+          </button>
+        </div>
+      </div>
     </div>
+  );
+};
+
+const BusUpdatesFeed: React.FC<{
+  routeId?: string;
+  limit?: number;
+  title?: string;
+  onRouteClick?: (routeId: string) => void;
+}> = ({ routeId, limit = 20, title, onRouteClick }) => {
+  const [updates, setUpdates] = useState<BusUpdate[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  const load = useCallback(() => {
+    setLoading(true);
+    setError(false);
+    fetchBusUpdates({ routeId, limit })
+      .then(setUpdates)
+      .catch(() => setError(true))
+      .finally(() => setLoading(false));
+  }, [routeId, limit]);
+
+  useEffect(() => { load(); }, [load]);
+
+  return (
+    <section className="space-y-3">
+      <div className="flex items-center justify-between">
+        <h3 className="ui-section-title">{title || 'ယာဉ်လိုင်း အချက်အလက် (အသုံးပြုသူများ)'}</h3>
+        <button onClick={load} disabled={loading} className="text-slate-400 hover:text-slate-600 p-1" title="ပြန်လည်ရယူရန်">
+          <RefreshCw size={15} className={loading ? 'animate-spin' : ''} />
+        </button>
+      </div>
+
+      {loading && updates.length === 0 ? (
+        <div className="flex items-center gap-2 text-slate-400 text-sm py-4">
+          <RefreshCw size={14} className="animate-spin" /> ရယူနေပါသည်...
+        </div>
+      ) : error ? (
+        <p className="text-sm text-rose-500 py-4">အချက်အလက် ရယူ၍ မရပါ။</p>
+      ) : updates.length === 0 ? (
+        <p className="text-sm text-slate-400 py-4">လောလောဆယ် အချက်အလက် မရှိသေးပါ။ ပထမဆုံး မျှဝေသူ ဖြစ်လိုက်ပါ။</p>
+      ) : (
+        <div className="space-y-2">
+          {updates.map(u => {
+            const meta = UPDATE_TYPE_META[u.type];
+            return (
+              <div key={u.id} className="ui-card p-3 flex items-start gap-3">
+                <div className="bg-slate-100 p-2 rounded-lg text-slate-500 shrink-0">
+                  <Megaphone size={14} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <button
+                      onClick={() => onRouteClick && u.routeId && onRouteClick(u.routeId)}
+                      className={onRouteClick ? 'cursor-pointer' : 'cursor-default'}
+                    >
+                      <RouteBadge routeId={u.routeId} color="#10b981" size="sm" />
+                    </button>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${meta.bg} ${meta.color}`}>
+                      {meta.label}
+                    </span>
+                    <span className="text-[10px] text-slate-400 ml-auto">{timeAgo(u.createdAt)}</span>
+                  </div>
+                  {u.stop && <p className="text-sm font-semibold text-slate-800 mt-1.5 truncate">📍 {u.stop}</p>}
+                  {u.note && <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">{u.note}</p>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </section>
   );
 };
 
@@ -3365,7 +3589,7 @@ const App: React.FC = () => {
       <Header />
       <main className="flex-1 relative">
         <Routes>
-          <Route path="/" element={<HomePage stops={stops} routes={routes} />} />
+          <Route path="/" element={<HomePage stops={stops} routes={routes} onRouteClick={setActiveRoute} />} />
           <Route path="/routes" element={
             <RoutesPage 
               routes={routes} 
