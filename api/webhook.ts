@@ -7,7 +7,7 @@ const turso = createClient({
 
 const BOT_TOKEN = process.env.BOT_TOKEN!;
 
-const ALERT_RADIUS_KM = 0.5; // 500 meters
+const ALERT_RADIUS_KM = 0.7; // 700 meters - increased for better reliability
 
 // Best-effort cooldown so we don't spam on every live-location update.
 const lastMonitorNote = new Map<string, number>();
@@ -107,7 +107,7 @@ async function checkProximity(chatId: string, lat: number, lng: number): Promise
   if (distance <= ALERT_RADIUS_KM) {
     const stopName = String(alert.target_stop_name);
     let message =
-      `📢 သတိပေးချက်: ${stopName} မှတ်တိုင်သို့ ရောက်ရှိတော့မည် ဖြစ်ပါသဖြင့် ဆင်းရန် အဆင့်သင့်ပြင်ပါဗျာ။`;
+      `📢 သတိပေးချက်: "${stopName}" မှတ်တိုင်သို့ ရောက်ရှိတော့မည် ဖြစ်ပါသဖြင့် ဆင်းရန် အဆင့်သင့်ပြင်ပါဗျာ။`;
 
     const detail = alert.detail ? String(alert.detail) : '';
     if (detail) {
@@ -117,13 +117,13 @@ async function checkProximity(chatId: string, lat: number, lng: number): Promise
       message += `\n\n${trimmed}`;
     }
 
-    await Promise.all([
-      sendTelegram(chatId, message),
-      turso.execute({
-        sql: 'DELETE FROM destination_alerts WHERE user_id = ?',
-        args: [chatId],
-      }),
-    ]);
+    // Important: Delete alert first to prevent double-triggering, then send notification
+    await turso.execute({
+      sql: 'DELETE FROM destination_alerts WHERE user_id = ?',
+      args: [chatId],
+    });
+    
+    await sendTelegram(chatId, message);
   } else {
     // Out of range: acknowledge we're monitoring (throttled) so the user
     // knows the bot is receiving their Live Location.
