@@ -43,12 +43,14 @@ import {
   Clock,
   Bookmark,
   Trash2,
-  Megaphone
+  Megaphone,
+  Share2
 } from 'lucide-react';
 import { fetchBusUpdates, postBusUpdate, fetchPredictions, timeAgo, UPDATE_TYPE_META, type BusUpdate, type BusUpdateType, type Prediction } from './busUpdates';
 import { postFeedback, fetchFeedback, FEEDBACK_TYPE_META, type FeedbackItem, type FeedbackType } from './feedback';
 import { getTripHistory, addTripHistory, removeTripHistoryItem, clearTripHistory, type TripHistoryItem } from './tripHistory';
 import { fetchNotifications, postNotification, getLastSeenNotificationId, setLastSeenNotificationId } from './notifications';
+import { createSharedTrip, fetchSharedTrip, updateSharedTrip, getShareUrl, type SharedTrip } from './sharedTrips';
 
 // --- Types for Search Results ---
 interface PathStep {
@@ -1485,6 +1487,10 @@ const RouteDetailPage: React.FC<{
   const [busPositions, setBusPositions] = useState<Array<{ lat: number; lng: number; type: string; note?: string; createdAt: number }>>([]);
   const [loadingBusPositions, setLoadingBusPositions] = useState(false);
 
+  const [shareToken, setShareToken] = useState<string | null>(null);
+  const [shareLoading, setShareLoading] = useState(false);
+  const [shareError, setShareError] = useState('');
+
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
@@ -1540,6 +1546,39 @@ const RouteDetailPage: React.FC<{
               </div>
             </div>
             <div className="flex items-center gap-1">
+              <button
+                onClick={async () => {
+                  setShareLoading(true);
+                  setShareError('');
+                  try {
+                    const token = await createSharedTrip({
+                      userId,
+                      userName: 'User',
+                      routeId: route.id,
+                      routeLabel: route.line_name || `YBS ${route.id}`,
+                      nextStopIndex: 0,
+                      destinationStopName: route.stops[route.stops.length - 1] || '',
+                      status: 'EN_ROUTE',
+                    });
+                    if (token) {
+                      const url = getShareUrl(token.shareToken);
+                      await navigator.clipboard?.writeText(url);
+                      setShareToken(token.shareToken);
+                    } else {
+                      setShareError('Failed to create shared trip.');
+                    }
+                  } catch {
+                    setShareError('Failed to create shared trip.');
+                  } finally {
+                    setShareLoading(false);
+                  }
+                }}
+                disabled={shareLoading}
+                className="ui-btn-icon text-brand"
+                title="Trip မျှဝေရန်"
+              >
+                <Share2 size={18} />
+              </button>
               <button
                 onClick={() => setShowReport(true)}
                 className="ui-btn-icon text-amber-500"
@@ -1833,14 +1872,197 @@ const RouteDetailPage: React.FC<{
 	             </div>
 	          </div>
 	        )}
- 	        {showReport && (
- 	          <ReportBusUpdateModal
- 	            routeId={route.id}
- 	            routeLabel={route.line_name || `YBS ${route.id}`}
- 	            onClose={() => setShowReport(false)}
- 	            onPosted={() => setReportNonce(n => n + 1)}
- 	          />
- 	        )}
+   	        {showReport && (
+   	          <ReportBusUpdateModal
+   	            routeId={route.id}
+   	            routeLabel={route.line_name || `YBS ${route.id}`}
+   	            onClose={() => setShowReport(false)}
+   	            onPosted={() => setReportNonce(n => n + 1)}
+   	          />
+   	        )}
+
+            {shareToken && (
+              <div className="fixed bottom-24 left-4 right-4 md:left-auto md:right-6 md:w-80 z-[70] bg-white rounded-xl shadow-lg border border-slate-100 p-4 space-y-2 animate-fade-in">
+                <p className="text-xs font-semibold text-emerald-700">Trip link copied!</p>
+                <p className="text-[11px] text-slate-500 break-all">{getShareUrl(shareToken)}</p>
+                <button onClick={() => setShareToken(null)} className="ui-btn ui-btn-ghost text-xs w-full">Close</button>
+              </div>
+            )}
+
+            {shareError && (
+              <div className="fixed bottom-24 left-4 right-4 md:left-auto md:right-6 md:w-80 z-[70] bg-white rounded-xl shadow-lg border border-rose-100 p-4 space-y-2">
+                <p className="text-xs text-rose-600">{shareError}</p>
+                <button onClick={() => setShareError('')} className="ui-btn ui-btn-ghost text-xs w-full">Close</button>
+              </div>
+            )}
+    </div>
+  );
+};
+
+const SharedTripPage: React.FC<{ routes: BusRoute[] }> = ({ routes }) => {
+  const { token } = useParams<{ token: string }>();
+  const navigate = useNavigate();
+  const [trip, setTrip] = useState<SharedTrip | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const mapRef = useRef<any>(null);
+  const routeLayerRef = useRef<any>(null);
+  const markersLayerRef = useRef<any>(null);
+  const busMarkerRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (!token) return;
+    let cancelled = false;
+    setLoading(true);
+    fetchSharedTrip(token)
+      .then((data) => {
+        if (!cancelled && data) {
+          setTrip(data);
+        } else if (!cancelled) {
+          setError('Shared trip not found or expired.');
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setError('Failed to load shared trip.');
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [token]);
+
+  useEffect(() => {
+    if (!trip) return;
+    const route = routes.find((r) => r.id === trip.routeId);
+    if (!route) return;
+    const stops = route.stopsDetailed || [];
+    const L = (window as any).L;
+    if (!L) return;
+
+    const map = L.map('shared-trip-map', { zoomControl: false, scrollWheelZoom: true, dragging: true, touchZoom: true, tap: false }).setView([16.8, 96.15], 12);
+    mapRef.current = map;
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    L.control.zoom({ position: 'topright' }).addTo(map);
+    markersLayerRef.current = L.featureGroup().addTo(map);
+    routeLayerRef.current = L.featureGroup().addTo(map);
+
+    if (stops.length > 0) {
+      const latlngs: [number, number][] = stops.map((s) => [s.lat, s.lng]);
+      const polyline = L.polyline(latlngs, { color: route.color, weight: 5, opacity: 0.8, lineJoin: 'round' }).addTo(routeLayerRef.current);
+      stops.forEach((s, i) => {
+        const isStart = i === 0;
+        const isEnd = i === stops.length - 1;
+        const marker = L.circleMarker([s.lat, s.lng], {
+          radius: isStart || isEnd ? 8 : 5,
+          fillColor: isStart ? '#10b981' : isEnd ? '#f43f5e' : '#fff',
+          color: isStart || isEnd ? '#fff' : route.color,
+          weight: 2,
+          opacity: 1,
+          fillOpacity: 1,
+        }).addTo(markersLayerRef.current);
+        marker.bindTooltip(s.name_mm, { permanent: false, direction: 'top', offset: [0, -8], className: 'ui-map-label' });
+      });
+      map.fitBounds(polyline.getBounds().pad(0.2), { maxZoom: 15 });
+    }
+
+    return () => map.remove();
+  }, [trip, routes]);
+
+  useEffect(() => {
+    if (!trip || !mapRef.current) return;
+    const L = (window as any).L;
+    const route = routes.find((r) => r.id === trip.routeId);
+    const stops = route?.stopsDetailed || [];
+    const idx = Math.min(trip.nextStopIndex, Math.max(stops.length - 1, 0));
+    const stop = stops[idx];
+    if (!stop || !L) return;
+
+    if (busMarkerRef.current) {
+      busMarkerRef.current.setLatLng([stop.lat, stop.lng]);
+    } else {
+      busMarkerRef.current = L.circleMarker([stop.lat, stop.lng], {
+        radius: 9,
+        color: '#2563eb',
+        weight: 3,
+        fillColor: '#3b82f6',
+        fillOpacity: 1,
+      }).addTo(mapRef.current);
+      busMarkerRef.current.bindTooltip('🚌 လက်ရှိ နေရာ', { direction: 'top', offset: [0, -8], className: 'ui-map-label' });
+    }
+  }, [trip, routes]);
+
+  if (loading) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-10 text-center text-slate-400">
+        <RefreshCw className="mx-auto animate-spin mb-2" />
+        <p>Shared trip loading...</p>
+      </div>
+    );
+  }
+
+  if (error || !trip) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-10 text-center space-y-3">
+        <p className="text-rose-500 font-medium">{error || 'Shared trip not found.'}</p>
+        <button onClick={() => navigate('/')} className="ui-btn ui-btn-primary">Home</button>
+      </div>
+    );
+  }
+
+  const route = routes.find((r) => r.id === trip.routeId);
+  const stops = route?.stopsDetailed || [];
+  const currentStop = stops[Math.min(trip.nextStopIndex, Math.max(stops.length - 1, 0))];
+  const remainingStops = stops.slice(trip.nextStopIndex);
+
+  return (
+    <div className="max-w-3xl mx-auto px-4 py-5 md:py-8 space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-bold text-slate-900">Group Trip</h2>
+          <p className="text-xs text-slate-500">{trip.userName} စီးနေတဲ့ {trip.routeLabel} လိုင်း</p>
+        </div>
+        <button onClick={() => navigate('/')} className="ui-btn ui-btn-ghost text-sm">
+          <ArrowRight size={16} className="rotate-180" />
+          <span>Back</span>
+        </button>
+      </div>
+
+      <div className="ui-card p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className={`ui-badge ${trip.status === 'ARRIVED' ? 'bg-emerald-50 text-emerald-700' : 'bg-blue-50 text-blue-700'}`}>
+              {trip.status === 'ARRIVED' ? 'ရောက်ပြီ' : 'လာရောက်နေပါသည်'}
+            </span>
+            <span className="text-xs text-slate-400">{new Date(trip.updatedAt).toLocaleTimeString()}</span>
+          </div>
+        </div>
+        {currentStop && (
+          <div className="text-sm text-slate-800">
+            လက်ရှိ နေရာ: <b>{currentStop.name_mm}</b>
+          </div>
+        )}
+        {trip.destinationStopName && (
+          <div className="text-sm text-slate-600">
+            ဆင်းရမည့် မှတ်တိုင်: <b>{trip.destinationStopName}</b>
+          </div>
+        )}
+      </div>
+
+      <div id="shared-trip-map" className="w-full h-64 md:h-80 rounded-2xl border border-slate-200 bg-slate-100" />
+
+      {remainingStops.length > 0 && (
+        <div className="ui-card p-4 space-y-2">
+          <p className="ui-label">ကျန်ရှိနေသော မှတ်တိုင်များ</p>
+          <div className="space-y-1.5">
+            {remainingStops.map((s, i) => (
+              <div key={s.id} className="flex items-center justify-between text-xs">
+                <span className="text-slate-700 font-medium">{s.name_mm}</span>
+                <span className="text-slate-400">{s.township_mm}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -4503,6 +4725,7 @@ const App: React.FC = () => {
           } />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/admin" element={<AdminPage />} />
+          <Route path="/shared-trip/:token" element={<SharedTripPage routes={routes} />} />
           <Route path="/assistant" element={
              <div className="max-w-3xl mx-auto p-4 h-[calc(100vh-140px)]">
                 <ChatInterface routes={routes} stops={stops} onRouteClick={setActiveRoute} />
