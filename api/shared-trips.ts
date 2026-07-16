@@ -22,6 +22,12 @@ function ensureSchema(): Promise<void> {
         lng REAL,
         updated_at INTEGER NOT NULL
       )`);
+      try {
+        await turso.execute('ALTER TABLE shared_trips ADD COLUMN lat REAL');
+      } catch {}
+      try {
+        await turso.execute('ALTER TABLE shared_trips ADD COLUMN lng REAL');
+      } catch {}
     })().catch((e) => {
       schemaReady = null;
       throw e;
