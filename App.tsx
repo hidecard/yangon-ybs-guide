@@ -3390,8 +3390,8 @@ const ReportBusUpdateModal: React.FC<{
   };
 
   return (
-    <div className="fixed inset-0 z-[80] flex items-end md:items-center justify-center p-0 md:p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white w-full max-w-md rounded-t-2xl md:rounded-2xl max-h-[90vh] flex flex-col overflow-hidden shadow-lg">
+    <div className="fixed inset-0 z-[1100] flex items-center justify-center p-0 md:p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in">
+      <div className="bg-white w-full max-w-md rounded-2xl md:rounded-2xl max-h-[90vh] flex flex-col overflow-hidden shadow-lg">
         <div className="px-5 py-4 flex items-center justify-between border-b border-slate-100 shrink-0">
           <div className="flex items-center gap-2">
             <div className="bg-amber-100 p-2 rounded-lg text-amber-600">
