@@ -51,6 +51,7 @@ import { postFeedback, fetchFeedback, FEEDBACK_TYPE_META, type FeedbackItem, typ
 import { getTripHistory, addTripHistory, removeTripHistoryItem, clearTripHistory, type TripHistoryItem } from './tripHistory';
 import { fetchNotifications, postNotification, getLastSeenNotificationId, setLastSeenNotificationId } from './notifications';
 import { createSharedTrip, fetchSharedTrip, updateSharedTrip, getShareUrl, type SharedTrip } from './sharedTrips';
+import { fetchBusEta, type BusEstimate } from './busEta';
 
 // --- Types for Search Results ---
 interface PathStep {
@@ -1487,6 +1488,34 @@ const RouteDetailPage: React.FC<{
   const [busPositions, setBusPositions] = useState<Array<{ lat: number; lng: number; type: string; note?: string; createdAt: number }>>([]);
   const [loadingBusPositions, setLoadingBusPositions] = useState(false);
 
+  const [busEta, setBusEta] = useState<BusEstimate[]>([]);
+  const [busEtaLoading, setBusEtaLoading] = useState(false);
+  const [busEtaMessage, setBusEtaMessage] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      setBusEtaLoading(true);
+      try {
+        const data = await fetchBusEta(route.id);
+        if (!cancelled) {
+          setBusEta(data.estimates || []);
+          setBusEtaMessage(data.message || '');
+        }
+      } catch {
+        if (!cancelled) {
+          setBusEta([]);
+          setBusEtaMessage('');
+        }
+      } finally {
+        if (!cancelled) setBusEtaLoading(false);
+      }
+    };
+    load();
+    const interval = setInterval(load, 15000);
+    return () => { cancelled = true; clearInterval(interval); };
+  }, [route.id]);
+
   const [shareToken, setShareToken] = useState<string | null>(null);
   const [shareLoading, setShareLoading] = useState(false);
   const [shareError, setShareError] = useState('');
@@ -1739,6 +1768,30 @@ const RouteDetailPage: React.FC<{
                             </div>
                           );
                         })}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {(busEtaLoading || busEta.length > 0 || busEtaMessage) && (
+                  <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-100">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Clock size={14} className="text-emerald-600" />
+                      <p className="text-xs font-semibold text-emerald-700">ကားလာမည့် အချိန် ခန့်မှန်းချက်</p>
+                      <span className="text-[10px] text-emerald-500 font-medium">Live Location အခြေခံ</span>
+                    </div>
+                    {busEtaLoading ? (
+                      <p className="text-xs text-slate-400">တွက်ချက်နေပါသည်...</p>
+                    ) : busEtaMessage ? (
+                      <p className="text-xs text-slate-500">{busEtaMessage}</p>
+                    ) : (
+                      <div className="space-y-1.5">
+                        {busEta.slice(0, 6).map((est, i) => (
+                          <div key={i} className="flex items-center justify-between text-xs">
+                            <span className="text-slate-700 font-medium truncate">{est.stop}</span>
+                            <span className="text-emerald-600 shrink-0 ml-2 font-semibold">~{est.etaMinutes} မိနစ်</span>
+                          </div>
+                        ))}
                       </div>
                     )}
                   </div>
