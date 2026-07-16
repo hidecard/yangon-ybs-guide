@@ -10,9 +10,13 @@ const CACHE_KEY = 'ybs_notifications_cache';
 const LAST_SEEN_KEY = 'ybs_notifications_last_seen';
 
 async function api(path: string, init?: RequestInit): Promise<any> {
+  const mergedHeaders = {
+    'Content-Type': 'application/json',
+    ...(init?.headers || {}),
+  };
   const res = await fetch(path, {
-    headers: { 'Content-Type': 'application/json' },
     ...init,
+    headers: mergedHeaders,
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || 'Request failed');
