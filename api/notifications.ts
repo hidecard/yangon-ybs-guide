@@ -7,6 +7,25 @@ const turso = createClient({
 
 const ADMIN_PASSWORD = 'hidecard969aky';
 
+let schemaReady: Promise<void> | null = null;
+function ensureSchema(): Promise<void> {
+  if (!schemaReady) {
+    schemaReady = (async () => {
+      await turso.execute(`CREATE TABLE IF NOT EXISTS notifications (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        message TEXT NOT NULL,
+        type TEXT NOT NULL DEFAULT 'info',
+        created_at INTEGER NOT NULL
+      )`);
+    })().catch((e) => {
+      schemaReady = null;
+      throw e;
+    });
+  }
+  return schemaReady;
+}
+
 async function verify(req: any): Promise<boolean> {
   const auth = req.headers.authorization || '';
   if (auth.startsWith('Bearer ')) {
@@ -17,12 +36,10 @@ async function verify(req: any): Promise<boolean> {
 
 export default async function handler(req: any, res: any) {
   try {
-    if (req.method === 'GET') {
-      if (!(await verify(req))) {
-        return res.status(401).json({ error: 'Unauthorized' });
-      }
+    await ensureSchema();
 
-      const limit = Math.min(Math.max(parseInt(String(req.query.limit || '50'), 10) || 50, 1), 200);
+    if (req.method === 'GET') {
+      const limit = Math.min(Math.max(parseInt(String(req.query.limit || '10'), 10) || 10, 1), 50);
       const r = await turso.execute({
         sql: 'SELECT id, title, message, type, created_at FROM notifications ORDER BY created_at DESC LIMIT ?',
         args: [limit],
