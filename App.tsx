@@ -1546,7 +1546,6 @@ const RouteDetailPage: React.FC<{
  	          <ReportBusUpdateModal
  	            routeId={route.id}
  	            routeLabel={route.line_name || `YBS ${route.id}`}
- 	            route={route}
  	            onClose={() => setShowReport(false)}
  	            onPosted={() => setReportNonce(n => n + 1)}
  	          />
@@ -1655,7 +1654,6 @@ const YBSNewPage: React.FC<{ routes: BusRoute[]; onRouteClick: (r: BusRoute) => 
         <ReportBusUpdateModal
           routeId={reportRouteId}
           routeLabel={reportRouteId ? (routes.find(r => r.id === reportRouteId)?.line_name || `YBS ${reportRouteId}`) : ''}
-          route={routes.find(r => r.id === reportRouteId)}
           onClose={() => { setShowReport(false); setReportRouteId(''); }}
           onPosted={() => { setRefreshKey(n => n + 1); setShowReport(false); setReportRouteId(''); }}
         />
@@ -3362,19 +3360,15 @@ const FavoritesPage: React.FC<{
 const ReportBusUpdateModal: React.FC<{
   routeId: string;
   routeLabel: string;
-  route?: BusRoute;
   defaultStop?: string;
   onClose: () => void;
   onPosted: () => void;
-}> = ({ routeId, routeLabel, route, defaultStop, onClose, onPosted }) => {
+}> = ({ routeId, routeLabel, defaultStop, onClose, onPosted }) => {
   const [type, setType] = useState<BusUpdateType>('started');
   const [stop, setStop] = useState(defaultStop || '');
   const [note, setNote] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const mapRef = useRef<any>(null);
-  const mapContainerRef = useRef<HTMLDivElement>(null);
-  const routeLayerRef = useRef<any>(null);
 
   const handleSubmit = async () => {
     setSubmitting(true);
@@ -3395,41 +3389,6 @@ const ReportBusUpdateModal: React.FC<{
     }
   };
 
-  useEffect(() => {
-    if (!route || !mapContainerRef.current) return;
-    const L = (window as any).L;
-    if (!L) return;
-
-    const map = L.map(mapContainerRef.current, { zoomControl: false, scrollWheelZoom: false, dragging: true, touchZoom: true, tap: false }).setView([16.8, 96.15], 13);
-    mapRef.current = map;
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-    L.control.zoom({ position: 'topright' }).addTo(map);
-
-    routeLayerRef.current = L.featureGroup().addTo(map);
-
-    const stops = route.stopsDetailed || [];
-    if (stops.length > 0) {
-      const latlngs: [number, number][] = stops.map(s => [s.lat, s.lng]);
-      const polyline = L.polyline(latlngs, { color: route.color, weight: 5, opacity: 0.8, lineJoin: 'round' }).addTo(routeLayerRef.current);
-      stops.forEach((s, i) => {
-        const isStart = i === 0;
-        const isEnd = i === stops.length - 1;
-        const marker = L.circleMarker([s.lat, s.lng], {
-          radius: isStart || isEnd ? 7 : 4,
-          fillColor: isStart ? '#10b981' : isEnd ? '#f43f5e' : '#fff',
-          color: isStart || isEnd ? '#fff' : route.color,
-          weight: 2,
-          opacity: 1,
-          fillOpacity: 1,
-        }).addTo(routeLayerRef.current);
-        marker.bindTooltip(s.name_mm, { permanent: false, direction: 'top', offset: [0, -8], className: 'ui-map-label' });
-      });
-      map.fitBounds(polyline.getBounds().pad(0.2), { maxZoom: 15 });
-    }
-
-    return () => map.remove();
-  }, [route]);
-
   return (
     <div className="fixed inset-0 z-[80] flex items-end md:items-center justify-center p-0 md:p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in">
       <div className="bg-white w-full max-w-md rounded-t-2xl md:rounded-2xl max-h-[90vh] flex flex-col overflow-hidden shadow-lg">
@@ -3448,10 +3407,6 @@ const ReportBusUpdateModal: React.FC<{
             <RouteBadge routeId={routeId} color="#10b981" size="sm" />
             <span className="text-sm font-bold text-slate-800">{routeLabel}</span>
           </div>
-
-          {route && (
-            <div ref={mapContainerRef} className="w-full h-48 rounded-xl border border-slate-200 bg-slate-100 shrink-0" />
-          )}
 
           <div>
             <p className="ui-label mb-2">အချက်အလက် အမျိုးအစား</p>
