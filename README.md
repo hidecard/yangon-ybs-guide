@@ -367,11 +367,6 @@ The assistant uses a **custom keyword extractor** for Myanmar language:
 - Check IndexedDB storage in browser DevTools
 - Run data update from Settings page
 
-### Admin login not working
-- Verify password is `hidecard969aky`
-- Check browser console for API errors
-- Ensure `/api/admin-auth` is deployed
-
 ### Notifications not showing
 - Check `/api/notifications` returns 200
 - Verify notifications table exists in Turso
