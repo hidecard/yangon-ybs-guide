@@ -567,6 +567,8 @@ const MobileBottomNav: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const items = [
+    { id: '/', icon: Home, label: 'ပင်မ' },
+    { id: '/assistant', icon: MessageSquare, label: 'Assistant' },
     { id: '/ybs-new', icon: Megaphone, label: 'YBS New' },
     { id: '/routes', icon: Bus, label: 'လိုင်းများ' },
     { id: '/find-route', icon: Search, label: 'လမ်းကြောင်း' },
