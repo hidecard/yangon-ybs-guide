@@ -1660,9 +1660,9 @@ const RouteDetailPage: React.FC<{
                            <span className="text-slate-500 shrink-0 ml-2">~{p.etaMinutes} မိနစ်</span>
                          </div>
                        ))}
-                     </div>
-                   )}
-                 </div>
+                      </div>
+                    )}
+                  </div>
                 )}
 
                 {(loadingBusPositions || busPositions.length > 0) && (
@@ -3611,6 +3611,9 @@ const AdminPage: React.FC = () => {
     createdAt: number;
   }>>([]);
   const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const limit = 20;
 
   const login = async () => {
     setError('');
@@ -3623,6 +3626,7 @@ const AdminPage: React.FC = () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Login failed');
       setAuthed(true);
+      setPage(1);
       loadFeedback();
       loadNotifications();
     } catch (e: any) {
@@ -3633,12 +3637,13 @@ const AdminPage: React.FC = () => {
   const loadFeedback = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/admin-feedback', {
+      const res = await fetch(`/api/admin-feedback?limit=${limit}&offset=${(page - 1) * limit}`, {
         headers: { Authorization: 'Bearer hidecard969aky' },
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed');
       setItems(data.feedback || []);
+      setTotal(data.total || 0);
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -3811,6 +3816,28 @@ const AdminPage: React.FC = () => {
           );
         })}
       </div>
+
+      {total > limit && (
+        <div className="flex items-center justify-between">
+          <button
+            onClick={() => { setPage(p => Math.max(1, p - 1)); loadFeedback(); }}
+            disabled={page <= 1 || loading}
+            className="ui-btn ui-btn-ghost text-sm disabled:opacity-50"
+          >
+            ရှေ့သို့
+          </button>
+          <span className="text-xs text-slate-500">
+            Page {page} / {Math.ceil(total / limit)}
+          </span>
+          <button
+            onClick={() => { setPage(p => p + 1); loadFeedback(); }}
+            disabled={page >= Math.ceil(total / limit) || loading}
+            className="ui-btn ui-btn-ghost text-sm disabled:opacity-50"
+          >
+            နောက်သို့
+          </button>
+        </div>
+      )}
 
       <div className="ui-card p-6 bg-white rounded-2xl shadow-sm border border-slate-100">
         <div className="flex items-center gap-4 mb-4">

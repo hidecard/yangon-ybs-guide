@@ -24,14 +24,18 @@ export default async function handler(req: any, res: any) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  const limit = Math.min(Math.max(parseInt(String(req.query.limit || '100'), 10) || 100, 1), 500);
+  const limit = Math.min(Math.max(parseInt(String(req.query.limit || '20'), 10) || 20, 1), 100);
+  const offset = Math.max(parseInt(String(req.query.offset || '0'), 10) || 0, 0);
 
   const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
   await turso.execute('DELETE FROM feedback WHERE created_at < ?', [oneDayAgo]);
 
+  const countRow = await turso.execute('SELECT COUNT(*) as total FROM feedback WHERE created_at >= ?', [oneDayAgo]);
+  const total = Number((countRow.rows[0] as any).total);
+
   const r = await turso.execute({
-    sql: 'SELECT id, type, message, route_id, user_id, created_at FROM feedback ORDER BY created_at DESC LIMIT ?',
-    args: [limit],
+    sql: 'SELECT id, type, message, route_id, user_id, created_at FROM feedback WHERE created_at >= ? ORDER BY created_at DESC LIMIT ? OFFSET ?',
+    args: [oneDayAgo, limit, offset],
   });
   const items = r.rows.map((row: any) => ({
     id: Number(row.id),
@@ -41,5 +45,5 @@ export default async function handler(req: any, res: any) {
     userId: row.user_id != null ? String(row.user_id) : undefined,
     createdAt: Number(row.created_at),
   }));
-  return res.status(200).json({ feedback: items });
+  return res.status(200).json({ feedback: items, total, limit, offset });
 }
