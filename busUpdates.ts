@@ -86,6 +86,17 @@ export async function postBusUpdate(u: BusUpdate): Promise<boolean> {
   }
 }
 
+export interface Prediction {
+  stop: string;
+  etaMinutes: number;
+  distanceKm: number;
+}
+
+export async function fetchPredictions(routeId: string): Promise<{ predictions: Prediction[]; message?: string }> {
+  const data = await api(`/api/predictions?routeId=${encodeURIComponent(routeId)}`);
+  return data;
+}
+
 export function timeAgo(ms?: number): string {
   if (!ms) return '';
   const diff = Date.now() - ms;

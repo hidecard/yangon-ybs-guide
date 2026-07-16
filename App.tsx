@@ -45,7 +45,7 @@ import {
   Trash2,
   Megaphone
 } from 'lucide-react';
-import { fetchBusUpdates, postBusUpdate, timeAgo, UPDATE_TYPE_META, type BusUpdate, type BusUpdateType } from './busUpdates';
+import { fetchBusUpdates, postBusUpdate, fetchPredictions, timeAgo, UPDATE_TYPE_META, type BusUpdate, type BusUpdateType, type Prediction } from './busUpdates';
 
 // --- Types for Search Results ---
 interface PathStep {
@@ -1104,6 +1104,9 @@ const RouteDetailPage: React.FC<{
 
   const [showReport, setShowReport] = useState(false);
   const [reportNonce, setReportNonce] = useState(0);
+  const [predictions, setPredictions] = useState<Prediction[]>([]);
+  const [predictionMsg, setPredictionMsg] = useState<string>('');
+  const [loadingPredictions, setLoadingPredictions] = useState(false);
 
   const userId = useMemo(() => getUserId(), []);
   const [alertStop, setAlertStop] = useState<string | null>(null);
@@ -1312,6 +1315,29 @@ const RouteDetailPage: React.FC<{
     triggerArrivalNotify(message);
   }, [arrivalEnabled, activeIndex, routeStops]);
 
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      setLoadingPredictions(true);
+      try {
+        const data = await fetchPredictions(route.id);
+        if (!cancelled) {
+          setPredictions(data.predictions || []);
+          setPredictionMsg(data.message || '');
+        }
+      } catch {
+        if (!cancelled) {
+          setPredictions([]);
+          setPredictionMsg('');
+        }
+      } finally {
+        if (!cancelled) setLoadingPredictions(false);
+      }
+    };
+    load();
+    return () => { cancelled = true; };
+  }, [route.id]);
+
   return (
     <div className="fixed inset-0 z-[60] flex md:items-center justify-center md:p-6 overflow-hidden bg-slate-900/40 backdrop-blur-sm animate-fade-in">
       <div className="bg-white w-full h-full md:max-w-3xl md:h-auto md:max-h-[95vh] flex flex-col md:rounded-2xl md:shadow-lg overflow-hidden">
@@ -1392,17 +1418,40 @@ const RouteDetailPage: React.FC<{
                 </div>
               )}
 
-              {arrivalAlert && (
-                <div className="flex items-start gap-3 p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800">
-                  <Bell size={18} className="mt-0.5 shrink-0" />
-                  <p className="text-sm font-semibold flex-1 leading-relaxed">{arrivalAlert.message}</p>
-                  <button onClick={() => setArrivalAlert(null)} className="text-amber-500 hover:text-amber-700 shrink-0">
-                    <X size={16} />
-                  </button>
-                </div>
-              )}
+               {arrivalAlert && (
+                 <div className="flex items-start gap-3 p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800">
+                   <Bell size={18} className="mt-0.5 shrink-0" />
+                   <p className="text-sm font-semibold flex-1 leading-relaxed">{arrivalAlert.message}</p>
+                   <button onClick={() => setArrivalAlert(null)} className="text-amber-500 hover:text-amber-700 shrink-0">
+                     <X size={16} />
+                   </button>
+                 </div>
+               )}
 
-              <div className="space-y-2">
+               {(loadingPredictions || predictions.length > 0 || predictionMsg) && (
+                 <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                   <div className="flex items-center gap-2 mb-2">
+                     <Clock size={14} className="text-slate-500" />
+                     <p className="text-xs font-semibold text-slate-700">အချိန်နှင့်အလိုက် ရောက်မည့် မှတ်တိုင်များ</p>
+                   </div>
+                   {loadingPredictions ? (
+                     <p className="text-xs text-slate-400">တွက်ချက်နေပါသည်...</p>
+                   ) : predictionMsg ? (
+                     <p className="text-xs text-slate-500">{predictionMsg}</p>
+                   ) : (
+                     <div className="space-y-1.5">
+                       {predictions.map((p, i) => (
+                         <div key={i} className="flex items-center justify-between text-xs">
+                           <span className="text-slate-700 font-medium truncate">{p.stop}</span>
+                           <span className="text-slate-500 shrink-0 ml-2">~{p.etaMinutes} မိနစ်</span>
+                         </div>
+                       ))}
+                     </div>
+                   )}
+                 </div>
+               )}
+
+               <div className="space-y-2">
                 <p className="ui-label">မှတ်တိုင်များ ({routeStops.length})</p>
 
                 {routeStops.length === 0 ? (
@@ -1618,10 +1667,27 @@ const YBSNewPage: React.FC<{ routes: BusRoute[]; onRouteClick: (r: BusRoute) => 
   const [showReport, setShowReport] = useState(false);
   const [reportRouteId, setReportRouteId] = useState<string>('');
   const [refreshKey, setRefreshKey] = useState(0);
+  const [predictionsMap, setPredictionsMap] = useState<Record<string, Prediction[]>>({});
+  const [predictionMessages, setPredictionMessages] = useState<Record<string, string>>({});
 
   const reportForRoute = (routeId: string) => {
     setReportRouteId(routeId);
     setShowReport(true);
+  };
+
+  const loadPredictions = async (updates: BusUpdate[]) => {
+    const routeIds = Array.from(new Set(updates.map(u => u.routeId).filter(Boolean)));
+    const newMap: Record<string, Prediction[]> = {};
+    const newMsgs: Record<string, string> = {};
+    await Promise.all(routeIds.map(async rid => {
+      try {
+        const data = await fetchPredictions(rid);
+        newMap[rid] = data.predictions || [];
+        if (data.message) newMsgs[rid] = data.message;
+      } catch {}
+    }));
+    setPredictionsMap(newMap);
+    setPredictionMessages(newMsgs);
   };
 
   return (
@@ -1648,7 +1714,40 @@ const YBSNewPage: React.FC<{ routes: BusRoute[]; onRouteClick: (r: BusRoute) => 
           const r = routes.find(r => r.id === routeId);
           if (r) onRouteClick(r);
         }}
+        onLoaded={loadPredictions}
       />
+
+      {Object.keys(predictionsMap).length > 0 && (
+        <section className="space-y-3">
+          <h3 className="ui-section-title">ယာဉ် ရောက်မည့် ခန့်မှန်းချက်</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+             {Object.entries(predictionsMap).map(([routeId, preds]: [string, Prediction[]]) => {
+              const route = routes.find(r => r.id === routeId);
+              if (!route || !preds.length) return null;
+              return (
+                <div key={routeId} className="ui-card p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <RouteBadge routeId={routeId} color={route.color} size="sm" />
+                    <span className="text-sm font-semibold text-slate-800">{route.line_name || `YBS ${routeId}`}</span>
+                  </div>
+                  {predictionMessages[routeId] ? (
+                    <p className="text-xs text-slate-500">{predictionMessages[routeId]}</p>
+                  ) : (
+                    <div className="space-y-1.5">
+                      {preds.slice(0, 4).map((p, i) => (
+                        <div key={i} className="flex items-center justify-between text-xs">
+                          <span className="text-slate-700 font-medium truncate">{p.stop}</span>
+                          <span className="text-slate-500 shrink-0 ml-2">~{p.etaMinutes} မိနစ်</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {showReport && (
         <ReportBusUpdateModal
@@ -3479,7 +3578,8 @@ const BusUpdatesFeed: React.FC<{
   limit?: number;
   title?: string;
   onRouteClick?: (routeId: string) => void;
-}> = ({ routeId, limit = 20, title, onRouteClick }) => {
+  onLoaded?: (updates: BusUpdate[]) => void;
+}> = ({ routeId, limit = 20, title, onRouteClick, onLoaded }) => {
   const [updates, setUpdates] = useState<BusUpdate[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -3494,6 +3594,12 @@ const BusUpdatesFeed: React.FC<{
   }, [routeId, limit]);
 
   useEffect(() => { load(); }, [load]);
+
+  useEffect(() => {
+    if (!loading && updates.length > 0 && onLoaded) {
+      onLoaded(updates);
+    }
+  }, [loading, updates, onLoaded]);
 
   return (
     <section className="space-y-3">
