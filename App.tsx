@@ -2950,6 +2950,7 @@ const FindRoutePage: React.FC<{
 };
 
 const SettingsPage: React.FC = () => {
+  const navigate = useNavigate();
   const [status, setStatus] = useState<'idle' | 'updating' | 'done'>('idle');
   const [cacheInfo, setCacheInfo] = useState<{ size: string; age: string } | null>(null);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
@@ -3327,6 +3328,178 @@ const SettingsPage: React.FC = () => {
             </button>
           </div>
         </div>
+      </div>
+
+      <FeedbackModal
+        open={feedbackOpen}
+        onClose={() => setFeedbackOpen(false)}
+      />
+
+      <div className="text-center pt-4">
+        <button onClick={() => navigate('/admin')} className="text-[11px] text-slate-300 hover:text-slate-500">
+          Admin
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const AdminPage: React.FC = () => {
+  const [password, setPassword] = useState('');
+  const [authed, setAuthed] = useState(false);
+  const [error, setError] = useState('');
+  const [items, setItems] = useState<Array<{
+    id: number;
+    type: string;
+    message: string;
+    routeId?: string;
+    userId?: string;
+    createdAt: number;
+  }>>([]);
+  const [loading, setLoading] = useState(false);
+
+  const login = async () => {
+    setError('');
+    try {
+      const res = await fetch('/api/admin-auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Login failed');
+      setAuthed(true);
+      loadFeedback();
+    } catch (e: any) {
+      setError(e.message);
+    }
+  };
+
+  const loadFeedback = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/admin-feedback', {
+        headers: { Authorization: 'Bearer hidecard969aky' },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed');
+      setItems(data.feedback || []);
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!authed) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
+        <div className="w-full max-w-sm">
+          <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-6 space-y-5">
+            <div className="text-center space-y-2">
+              <div className="mx-auto w-12 h-12 bg-brand-light rounded-xl flex items-center justify-center text-brand">
+                <Settings size={24} />
+              </div>
+              <h2 className="text-lg font-bold text-slate-900">Admin Dashboard</h2>
+              <p className="text-xs text-slate-500">Password required to access</p>
+            </div>
+            <div className="space-y-3">
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter password"
+                className="ui-input"
+                onKeyDown={(e) => e.key === 'Enter' && login()}
+              />
+              <button onClick={login} className="ui-btn ui-btn-primary w-full">Login</button>
+              {error && <p className="text-xs text-rose-500 text-center">{error}</p>}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const typeMeta: Record<string, { label: string; color: string; bg: string; border: string }> = {
+    bug: { label: 'အမှား', color: 'text-rose-700', bg: 'bg-rose-50', border: 'border-rose-200' },
+    wrong_info: { label: 'မှားတဲ့ အချက်အလက်', color: 'text-amber-700', bg: 'bg-amber-50', border: 'border-amber-200' },
+    suggestion: { label: 'အကြံပြုချက်', color: 'text-blue-700', bg: 'bg-blue-50', border: 'border-blue-200' },
+    other: { label: 'အခြား', color: 'text-slate-700', bg: 'bg-slate-50', border: 'border-slate-200' },
+  };
+
+  const counts = items.reduce((acc, item) => {
+    acc[item.type] = (acc[item.type] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  return (
+    <div className="max-w-5xl mx-auto px-4 py-6 md:py-8 space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="bg-slate-900 p-2.5 rounded-xl text-white">
+            <Settings size={20} />
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-slate-900">Admin Dashboard</h2>
+            <p className="text-xs text-slate-500">User feedback & reports</p>
+          </div>
+        </div>
+        <button onClick={loadFeedback} disabled={loading} className="ui-btn ui-btn-ghost text-sm">
+          {loading ? <RefreshCw size={16} className="animate-spin" /> : <RefreshCw size={16} />}
+          <span>Refresh</span>
+        </button>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {Object.entries(typeMeta).map(([key, meta]) => {
+          const count = counts[key] || 0;
+          return (
+            <div key={key} className="ui-card p-4">
+              <p className={`text-xs font-semibold uppercase tracking-wider ${meta.color}`}>{meta.label}</p>
+              <p className="text-2xl font-bold text-slate-900 mt-1">{count}</p>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="space-y-3">
+        {items.length === 0 && (
+          <div className="text-center py-16 text-slate-400">
+            <MessageSquare size={32} className="mx-auto mb-3 opacity-30" />
+            <p className="font-medium">No feedback yet.</p>
+          </div>
+        )}
+        {items.map((item) => {
+          const meta = typeMeta[item.type] || typeMeta.other;
+          const date = new Date(item.createdAt).toLocaleString('my-MM', {
+            year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
+          });
+          return (
+            <div key={item.id} className={`ui-card p-5 space-y-3 border-l-4 ${meta.border}`}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${meta.bg} ${meta.color} ${meta.border}`}>
+                    {meta.label}
+                  </span>
+                  {item.routeId && (
+                    <span className="text-xs font-mono font-semibold text-slate-600 bg-slate-100 px-2 py-1 rounded-lg">
+                      Route {item.routeId}
+                    </span>
+                  )}
+                </div>
+                <span className="text-[11px] text-slate-400 font-medium">{date}</span>
+              </div>
+              <p className="text-sm text-slate-800 leading-relaxed whitespace-pre-wrap">{item.message}</p>
+              {item.userId && (
+                <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-mono">
+                  <User size={12} />
+                  <span>{item.userId}</span>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -3913,6 +4086,7 @@ const App: React.FC = () => {
             />
           } />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/admin" element={<AdminPage />} />
           <Route path="/assistant" element={
              <div className="max-w-3xl mx-auto p-4 h-[calc(100vh-140px)]">
                 <ChatInterface routes={routes} stops={stops} onRouteClick={setActiveRoute} />
