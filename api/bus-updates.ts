@@ -39,6 +39,9 @@ export default async function handler(req: any, res: any) {
       const routeId = req.query.routeId ? String(req.query.routeId) : null;
       const limit = Math.min(Math.max(parseInt(String(req.query.limit || '50'), 10) || 50, 1), 200);
 
+      const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
+      await turso.execute('DELETE FROM bus_updates WHERE created_at < ?', [oneDayAgo]);
+
       let sql =
         'SELECT id, route_id, stop, type, note, lat, lng, user_id, created_at FROM bus_updates';
       const args: any[] = [];

@@ -567,10 +567,8 @@ const MobileBottomNav: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const items = [
-    { id: '/', icon: Home, label: 'ပင်မ' },
-    { id: '/assistant', icon: MessageSquare, label: 'Assistant' },
+    { id: '/ybs-new', icon: Megaphone, label: 'YBS New' },
     { id: '/routes', icon: Bus, label: 'လိုင်းများ' },
-    { id: '/stops', icon: MapPin, label: 'မှတ်တိုင်များ' },
     { id: '/find-route', icon: Search, label: 'လမ်းကြောင်း' },
     { id: '/favorites', icon: Star, label: 'အကြိုက်များ' },
   ];
@@ -678,7 +676,7 @@ const Header: React.FC = () => {
     { id: '/', icon: Home, label: 'Home' },
     { id: '/assistant', icon: MessageSquare, label: 'Assistant' },
     { id: '/routes', icon: Bus, label: 'Routes' },
-    { id: '/stops', icon: MapPin, label: 'Stops' },
+    { id: '/ybs-new', icon: Megaphone, label: 'YBS New' },
     { id: '/find-route', icon: Search, label: 'Find Route' },
   ];
 
@@ -903,7 +901,7 @@ const HomePage: React.FC<{
   const quickActions = [
     { path: '/find-route', icon: Search, label: 'လမ်းကြောင်း ရှာရန်', color: 'bg-slate-900' },
     { path: '/routes', icon: Bus, label: 'ကားလိုင်းများ', color: 'bg-brand' },
-    { path: '/stops', icon: MapPin, label: 'မှတ်တိုင်များ', color: 'bg-emerald-600' },
+    { path: '/ybs-new', icon: Megaphone, label: 'YBS New', color: 'bg-amber-600' },
     { path: '/assistant', icon: MessageSquare, label: 'Assistant', color: 'bg-violet-600' },
   ];
 
@@ -1614,6 +1612,55 @@ const StopsPage: React.FC<{ stops: BusStop[], onStopClick: (s: BusStop) => void 
           )}
         </div>
       </div>
+    </div>
+  );
+};
+
+const YBSNewPage: React.FC<{ routes: BusRoute[]; onRouteClick: (r: BusRoute) => void }> = ({ routes, onRouteClick }) => {
+  const navigate = useNavigate();
+  const [showReport, setShowReport] = useState(false);
+  const [reportRouteId, setReportRouteId] = useState<string>('');
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const reportForRoute = (routeId: string) => {
+    setReportRouteId(routeId);
+    setShowReport(true);
+  };
+
+  return (
+    <div className="max-w-5xl mx-auto px-4 py-5 md:py-8 h-full flex flex-col gap-5">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-bold text-slate-900">YBS New</h2>
+          <p className="text-xs text-slate-500 mt-1">အသုံးပြုသူများမှ မျှဝေထားသော ကားလိုင်း အချက်အလက်များ</p>
+        </div>
+        <button
+          onClick={() => navigate('/routes')}
+          className="ui-btn ui-btn-primary py-2 px-4 rounded-xl text-sm"
+        >
+          <Megaphone size={16} />
+          <span>အချက်အလက် မျှဝေမည်</span>
+        </button>
+      </div>
+
+      <BusUpdatesFeed
+        key={refreshKey}
+        limit={50}
+        title="စူပါမက် အချက်အလက်"
+        onRouteClick={(routeId) => {
+          const r = routes.find(r => r.id === routeId);
+          if (r) onRouteClick(r);
+        }}
+      />
+
+      {showReport && (
+        <ReportBusUpdateModal
+          routeId={reportRouteId}
+          routeLabel={reportRouteId ? (routes.find(r => r.id === reportRouteId)?.line_name || `YBS ${reportRouteId}`) : ''}
+          onClose={() => { setShowReport(false); setReportRouteId(''); }}
+          onPosted={() => { setRefreshKey(n => n + 1); setShowReport(false); setReportRouteId(''); }}
+        />
+      )}
     </div>
   );
 };
@@ -3600,12 +3647,7 @@ const App: React.FC = () => {
               onStopClick={setActiveStop}
             />
           } />
-          <Route path="/stops" element={
-            <StopsPage 
-              stops={stops} 
-              onStopClick={setActiveStop} 
-            />
-          } />
+          <Route path="/ybs-new" element={<YBSNewPage routes={routes} onRouteClick={setActiveRoute} />} />
           <Route path="/find-route" element={
             <FindRoutePage 
               routes={routes} 
