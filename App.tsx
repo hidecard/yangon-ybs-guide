@@ -46,6 +46,7 @@ import {
   Megaphone
 } from 'lucide-react';
 import { fetchBusUpdates, postBusUpdate, fetchPredictions, timeAgo, UPDATE_TYPE_META, type BusUpdate, type BusUpdateType, type Prediction } from './busUpdates';
+import { postFeedback, fetchFeedback, FEEDBACK_TYPE_META, type FeedbackItem, type FeedbackType } from './feedback';
 
 // --- Types for Search Results ---
 interface PathStep {
@@ -2951,6 +2952,7 @@ const FindRoutePage: React.FC<{
 const SettingsPage: React.FC = () => {
   const [status, setStatus] = useState<'idle' | 'updating' | 'done'>('idle');
   const [cacheInfo, setCacheInfo] = useState<{ size: string; age: string } | null>(null);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
   
   // Phone Copy State များ
   const [copiedKpay, setCopiedKpay] = useState(false);
@@ -3255,6 +3257,25 @@ const SettingsPage: React.FC = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* 3. Feedback Card */}
+      <div className="ui-card p-6 bg-white rounded-2xl shadow-sm border border-slate-100">
+        <div className="flex items-center gap-4 mb-4">
+          <div className="bg-brand-light p-3 rounded-xl text-brand">
+            <MessageSquare size={20} />
+          </div>
+          <div>
+            <h3 className="font-semibold text-slate-900">အကြံပြုချက် / အမှားတွက်</h3>
+            <p className="text-sm text-slate-500">ကားလိုင်း သို့မဟုတ် App နှင့်ပတ်သက်သော အကြံပြုချက် ပို့ပါ။</p>
+          </div>
+        </div>
+        <button
+          onClick={() => setFeedbackOpen(true)}
+          className="w-full py-2.5 rounded-xl text-sm font-medium bg-brand text-white hover:bg-brand/90 active:scale-[0.98] transition-all"
+        >
+          အကြံပြုချက် ပို့မည်
+        </button>
       </div>
 
       {/* 4. Donation Card */}
@@ -3565,6 +3586,124 @@ const ReportBusUpdateModal: React.FC<{
             className="ui-btn ui-btn-primary w-full py-3 rounded-xl disabled:opacity-60"
           >
             {submitting ? <RefreshCw size={18} className="animate-spin" /> : <Megaphone size={18} />}
+            <span>မျှဝေမည်</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const FeedbackModal: React.FC<{
+  open: boolean;
+  onClose: () => void;
+  defaultRouteId?: string;
+}> = ({ open, onClose, defaultRouteId }) => {
+  const [type, setType] = useState<FeedbackType>('suggestion');
+  const [message, setMessage] = useState('');
+  const [routeId, setRouteId] = useState(defaultRouteId || '');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!message.trim()) {
+      setError('မှတ်ချက် ထည့်ပါ။');
+      return;
+    }
+    setSubmitting(true);
+    setError(null);
+    const ok = await postFeedback({
+      type,
+      message: message.trim(),
+      routeId: routeId.trim() || undefined,
+      userId: getUserId(),
+    });
+    setSubmitting(false);
+    if (ok) {
+      setSuccess(true);
+      setMessage('');
+      setRouteId(defaultRouteId || '');
+      setTimeout(() => {
+        setSuccess(false);
+        onClose();
+      }, 1500);
+    } else {
+      setError('အချက်အလက် မျှဝေရာတွင် အမှားရှိပါသည်။ နောက်မှ ထပ်ကြိုးစားပါ။');
+    }
+  };
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-[1100] flex items-center justify-center p-0 md:p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in">
+      <div className="bg-white w-full max-w-md rounded-2xl md:rounded-2xl max-h-[90vh] flex flex-col overflow-hidden shadow-lg">
+        <div className="px-5 py-4 flex items-center justify-between border-b border-slate-100 shrink-0">
+          <div className="flex items-center gap-2">
+            <div className="bg-brand-light p-2 rounded-lg text-brand">
+              <MessageSquare size={16} />
+            </div>
+            <h3 className="font-semibold text-slate-900 text-sm">အကြံပြုချက် / အမှားတွက်</h3>
+          </div>
+          <button onClick={onClose} className="ui-btn-icon"><X size={18} /></button>
+        </div>
+
+        <div className="p-5 space-y-4 overflow-y-auto">
+          <div>
+            <p className="ui-label mb-2">အမျိုးအစား</p>
+            <div className="flex flex-wrap gap-2">
+              {(Object.keys(FEEDBACK_TYPE_META) as FeedbackType[]).map(t => {
+                const meta = FEEDBACK_TYPE_META[t];
+                const active = type === t;
+                return (
+                  <button
+                    key={t}
+                    onClick={() => setType(t)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
+                      active ? `${meta.bg} ${meta.color}` : 'bg-white text-slate-500 border-slate-200'
+                    }`}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full ${active ? 'bg-brand' : 'bg-slate-300'}`} />
+                    {meta.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div>
+            <p className="ui-label mb-1.5">ကားလိုင်းနံပါတ် (ရှိလျှင်)</p>
+            <input
+              type="text"
+              value={routeId}
+              onChange={(e) => setRouteId(e.target.value)}
+              placeholder="ဥပမာ - ၁၂၃"
+              className="ui-input"
+            />
+          </div>
+
+          <div>
+            <p className="ui-label mb-1.5">မှတ်ချက်</p>
+            <textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              rows={4}
+              placeholder="အသေးစိတ် အချက်အလက်..."
+              className="ui-input resize-none"
+            />
+          </div>
+
+          {error && <p className="text-xs text-rose-500">{error}</p>}
+          {success && <p className="text-xs text-emerald-600">✅ ကျေးဇူးတင်ပါသည်။ အကြံပြုချက် လက်ခံပြီးပါပြီ။</p>}
+        </div>
+
+        <div className="px-5 py-4 border-t border-slate-100 shrink-0">
+          <button
+            onClick={handleSubmit}
+            disabled={submitting || success}
+            className="ui-btn ui-btn-primary w-full py-3 rounded-xl disabled:opacity-60"
+          >
+            {submitting ? <RefreshCw size={18} className="animate-spin" /> : <Send size={18} />}
             <span>မျှဝေမည်</span>
           </button>
         </div>
