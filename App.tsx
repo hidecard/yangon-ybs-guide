@@ -940,11 +940,6 @@ const HomePage: React.FC<{
         <NearestStopsCard stops={stops} routes={routes} />
       </section>
 
-      {/* Community bus updates */}
-      <section>
-        <BusUpdatesFeed limit={8} onRouteClick={onRouteClick} />
-      </section>
-
       {/* Travel Tips */}
       <section className="space-y-4">
         <h3 className="ui-section-title">ခရီးသွားရန် အကြံပြုချက်များ</h3>
