@@ -73,6 +73,20 @@ export default async function handler(req: any, res: any) {
           Date.now(),
         ],
       });
+
+      const countRow = await turso.execute('SELECT COUNT(*) as total FROM notifications');
+      const total = Number((countRow.rows[0] as any).total);
+      if (total > 20) {
+        const cutoff = await turso.execute({
+          sql: 'SELECT id FROM notifications ORDER BY created_at DESC LIMIT 1 OFFSET ?',
+          args: [19],
+        });
+        if (cutoff.rows.length > 0) {
+          const cutoffId = Number((cutoff.rows[0] as any).id);
+          await turso.execute('DELETE FROM notifications WHERE id <= ?', [cutoffId]);
+        }
+      }
+
       return res.status(200).json({ ok: true });
     }
 
