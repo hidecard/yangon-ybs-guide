@@ -48,6 +48,7 @@ import {
 import { fetchBusUpdates, postBusUpdate, fetchPredictions, timeAgo, UPDATE_TYPE_META, type BusUpdate, type BusUpdateType, type Prediction } from './busUpdates';
 import { postFeedback, fetchFeedback, FEEDBACK_TYPE_META, type FeedbackItem, type FeedbackType } from './feedback';
 import { getTripHistory, addTripHistory, removeTripHistoryItem, clearTripHistory, type TripHistoryItem } from './tripHistory';
+import { fetchNotifications, postNotification, getLastSeenNotificationId, setLastSeenNotificationId } from './notifications';
 
 // --- Types for Search Results ---
 interface PathStep {
@@ -901,6 +902,29 @@ const HomePage: React.FC<{
   onRouteClick?: (r: BusRoute) => void;
 }> = ({ stops, routes, onRouteClick }) => {
   const navigate = useNavigate();
+  const [notification, setNotification] = useState<{ title: string; message: string; type: string } | null>(null);
+  const [dismissed, setDismissed] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const items = await fetchNotifications();
+        if (!cancelled && items.length > 0) {
+          const latest = items[0];
+          const lastSeen = getLastSeenNotificationId();
+          if (latest.id !== lastSeen) {
+            setNotification(latest);
+            setLastSeenNotificationId(latest.id);
+          }
+        }
+      } catch {
+        // ignore
+      }
+    };
+    load();
+    return () => { cancelled = true; };
+  }, []);
 
   const quickActions = [
     { path: '/find-route', icon: Search, label: 'လမ်းကြောင်း ရှာရန်', color: 'bg-slate-900' },
@@ -920,6 +944,34 @@ const HomePage: React.FC<{
           ကားလိုင်းရှာဖွေခြင်း၊ လမ်းကြောင်းရှာခြင်းနှင့် မြေပုံကြည့်ရှုခြင်း — အားလုံးတစ်နေရာတည်း
         </p>
       </section>
+
+      {notification && !dismissed && (
+        <div className={`p-4 rounded-2xl border ${
+          notification.type === 'alert' ? 'bg-rose-50 border-rose-200' :
+          notification.type === 'update' ? 'bg-amber-50 border-amber-200' :
+          'bg-blue-50 border-blue-200'
+        }`}>
+          <div className="flex items-start gap-3">
+            <div className={`p-2 rounded-lg shrink-0 ${
+              notification.type === 'alert' ? 'bg-rose-100 text-rose-600' :
+              notification.type === 'update' ? 'bg-amber-100 text-amber-600' :
+              'bg-blue-100 text-blue-600'
+            }`}>
+              <Bell size={18} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-slate-900">{notification.title}</p>
+              <p className="text-xs text-slate-600 mt-1 leading-relaxed">{notification.message}</p>
+            </div>
+            <button
+              onClick={() => setDismissed(true)}
+              className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-600 shrink-0"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Quick Actions */}
       <section className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -3572,6 +3624,7 @@ const AdminPage: React.FC = () => {
       if (!res.ok) throw new Error(data.error || 'Login failed');
       setAuthed(true);
       loadFeedback();
+      loadNotifications();
     } catch (e: any) {
       setError(e.message);
     }
@@ -3590,6 +3643,61 @@ const AdminPage: React.FC = () => {
       setError(e.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const [notifications, setNotifications] = useState<Array<{
+    id: number;
+    title: string;
+    message: string;
+    type: string;
+    createdAt: number;
+  }>>([]);
+  const [notificationTitle, setNotificationTitle] = useState('');
+  const [notificationMessage, setNotificationMessage] = useState('');
+  const [notificationType, setNotificationType] = useState<'info' | 'update' | 'alert'>('info');
+  const [sendingNotification, setSendingNotification] = useState(false);
+  const [notificationStatus, setNotificationStatus] = useState('');
+
+  const loadNotifications = async () => {
+    try {
+      const res = await fetch('/api/notifications', {
+        headers: { Authorization: 'Bearer hidecard969aky' },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed');
+      setNotifications(data.notifications || []);
+    } catch (e: any) {
+      console.error('Failed to load notifications:', e);
+    }
+  };
+
+  const handleSendNotification = async () => {
+    if (!notificationTitle.trim() || !notificationMessage.trim()) {
+      setNotificationStatus('Title and message are required');
+      return;
+    }
+    setSendingNotification(true);
+    setNotificationStatus('');
+    try {
+      const ok = await postNotification({
+        title: notificationTitle.trim(),
+        message: notificationMessage.trim(),
+        type: notificationType,
+      });
+      if (ok) {
+        setNotificationStatus('Notification sent successfully!');
+        setNotificationTitle('');
+        setNotificationMessage('');
+        setNotificationType('info');
+        loadNotifications();
+      } else {
+        setNotificationStatus('Failed to send notification');
+      }
+    } catch {
+      setNotificationStatus('Failed to send notification');
+    } finally {
+      setSendingNotification(false);
     }
   };
 
@@ -3702,6 +3810,85 @@ const AdminPage: React.FC = () => {
             </div>
           );
         })}
+      </div>
+
+      <div className="ui-card p-6 bg-white rounded-2xl shadow-sm border border-slate-100">
+        <div className="flex items-center gap-4 mb-4">
+          <div className="bg-violet-100 p-3 rounded-xl text-violet-600">
+            <Bell size={20} />
+          </div>
+          <div>
+            <h3 className="font-semibold text-slate-900">သတိပေးချက် ပို့ရန်</h3>
+            <p className="text-sm text-slate-500">အသုံးပြုသူများသို့ အကြံပြုချက် သို့မဟုတ် အပ်ဒိတ် သတိပေးချက် ပို့လိုက်ပါ။</p>
+          </div>
+        </div>
+        <div className="space-y-3">
+          <input
+            type="text"
+            value={notificationTitle}
+            onChange={(e) => setNotificationTitle(e.target.value)}
+            placeholder="ခေါင်းစဉ်"
+            className="ui-input"
+          />
+          <textarea
+            value={notificationMessage}
+            onChange={(e) => setNotificationMessage(e.target.value)}
+            placeholder="မှတ်ချက်..."
+            rows={3}
+            className="ui-input resize-none"
+          />
+          <select
+            value={notificationType}
+            onChange={(e) => setNotificationType(e.target.value as 'info' | 'update' | 'alert')}
+            className="ui-input"
+          >
+            <option value="info">အချက်အလက်</option>
+            <option value="update">အပ်ဒိတ်</option>
+            <option value="alert">သတိပေးချက်</option>
+          </select>
+          <button
+            onClick={handleSendNotification}
+            disabled={sendingNotification}
+            className="ui-btn ui-btn-primary w-full disabled:opacity-60"
+          >
+            {sendingNotification ? <RefreshCw size={18} className="animate-spin" /> : <Send size={18} />}
+            <span>သတိပေးချက် ပို့မည်</span>
+          </button>
+          {notificationStatus && (
+            <p className={`text-xs text-center ${notificationStatus.includes('success') ? 'text-emerald-600' : 'text-rose-500'}`}>
+              {notificationStatus}
+            </p>
+          )}
+        </div>
+      </div>
+
+      <div className="ui-card p-6 bg-white rounded-2xl shadow-sm border border-slate-100">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-semibold text-slate-900">သတိပေးချက်များ မှတ်တမ်း</h3>
+          <button onClick={loadNotifications} className="ui-btn ui-btn-ghost text-sm">
+            <RefreshCw size={16} />
+            <span>Refresh</span>
+          </button>
+        </div>
+        <div className="space-y-3">
+          {notifications.length === 0 && (
+            <p className="text-sm text-slate-400">No notifications yet.</p>
+          )}
+          {notifications.map((notif) => {
+            const date = new Date(notif.createdAt).toLocaleString('my-MM', {
+              year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
+            });
+            return (
+              <div key={notif.id} className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-slate-700">{notif.title}</span>
+                  <span className="text-[11px] text-slate-400">{date}</span>
+                </div>
+                <p className="text-xs text-slate-600">{notif.message}</p>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
