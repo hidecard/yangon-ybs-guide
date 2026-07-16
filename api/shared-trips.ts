@@ -18,6 +18,8 @@ function ensureSchema(): Promise<void> {
         next_stop_index INTEGER NOT NULL DEFAULT 0,
         destination_stop_name TEXT NOT NULL,
         status TEXT NOT NULL DEFAULT 'EN_ROUTE',
+        lat REAL,
+        lng REAL,
         updated_at INTEGER NOT NULL
       )`);
     })().catch((e) => {
@@ -43,7 +45,7 @@ export default async function handler(req: any, res: any) {
       }
 
       const row = await turso.execute({
-        sql: 'SELECT share_token, user_id, user_name, route_id, route_label, next_stop_index, destination_stop_name, status, updated_at FROM shared_trips WHERE share_token = ?',
+        sql: 'SELECT share_token, user_id, user_name, route_id, route_label, next_stop_index, destination_stop_name, status, lat, lng, updated_at FROM shared_trips WHERE share_token = ?',
         args: [token],
       });
 
@@ -61,20 +63,22 @@ export default async function handler(req: any, res: any) {
         nextStopIndex: Number(r.next_stop_index),
         destinationStopName: String(r.destination_stop_name),
         status: String(r.status),
+        lat: r.lat != null ? Number(r.lat) : null,
+        lng: r.lng != null ? Number(r.lng) : null,
         updatedAt: Number(r.updated_at),
       });
     }
 
     if (req.method === 'POST') {
-      const { userId, userName, routeId, routeLabel, nextStopIndex, destinationStopName, status } = req.body || {};
+      const { userId, userName, routeId, routeLabel, nextStopIndex, destinationStopName, status, lat, lng } = req.body || {};
       if (!userId || !userName || !routeId || !routeLabel || !destinationStopName) {
         return res.status(400).json({ error: 'missing fields' });
       }
 
       const shareToken = generateToken();
       await turso.execute({
-        sql: `INSERT INTO shared_trips (share_token, user_id, user_name, route_id, route_label, next_stop_index, destination_stop_name, status, updated_at)
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        sql: `INSERT INTO shared_trips (share_token, user_id, user_name, route_id, route_label, next_stop_index, destination_stop_name, status, lat, lng, updated_at)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         args: [
           shareToken,
           String(userId),
@@ -84,6 +88,8 @@ export default async function handler(req: any, res: any) {
           Math.max(0, Number(nextStopIndex) || 0),
           String(destinationStopName),
           status ? String(status) : 'EN_ROUTE',
+          lat != null ? Number(lat) : null,
+          lng != null ? Number(lng) : null,
           Date.now(),
         ],
       });
@@ -92,7 +98,7 @@ export default async function handler(req: any, res: any) {
     }
 
     if (req.method === 'PATCH') {
-      const { token, nextStopIndex, status } = req.body || {};
+      const { token, nextStopIndex, status, lat, lng } = req.body || {};
       if (!token) {
         return res.status(400).json({ error: 'token required' });
       }
@@ -106,6 +112,14 @@ export default async function handler(req: any, res: any) {
       if (status) {
         updates.push('status = ?');
         args.push(status);
+      }
+      if (typeof lat === 'number') {
+        updates.push('lat = ?');
+        args.push(lat);
+      }
+      if (typeof lng === 'number') {
+        updates.push('lng = ?');
+        args.push(lng);
       }
       updates.push('updated_at = ?');
       args.push(Date.now());

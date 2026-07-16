@@ -7,6 +7,8 @@ export interface SharedTrip {
   nextStopIndex: number;
   destinationStopName: string;
   status: 'EN_ROUTE' | 'ARRIVED';
+  lat?: number | null;
+  lng?: number | null;
   updatedAt: number;
 }
 
@@ -18,6 +20,8 @@ export interface CreateSharedTripInput {
   nextStopIndex: number;
   destinationStopName: string;
   status?: 'EN_ROUTE' | 'ARRIVED';
+  lat?: number;
+  lng?: number;
 }
 
 async function api(path: string, init?: RequestInit): Promise<any> {
@@ -51,7 +55,7 @@ export async function fetchSharedTrip(token: string): Promise<SharedTrip | null>
   }
 }
 
-export async function updateSharedTrip(token: string, patch: { nextStopIndex?: number; status?: 'EN_ROUTE' | 'ARRIVED' }): Promise<boolean> {
+export async function updateSharedTrip(token: string, patch: { nextStopIndex?: number; status?: 'EN_ROUTE' | 'ARRIVED'; lat?: number; lng?: number }): Promise<boolean> {
   try {
     await api('/api/shared-trips', {
       method: 'PATCH',

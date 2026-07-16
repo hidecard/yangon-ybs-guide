@@ -1492,6 +1492,18 @@ const RouteDetailPage: React.FC<{
   const [shareError, setShareError] = useState('');
 
   useEffect(() => {
+    if (!shareToken) return;
+    const interval = setInterval(async () => {
+      if (!livePos) return;
+      await updateSharedTrip(shareToken, {
+        lat: livePos.lat,
+        lng: livePos.lng,
+      });
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [shareToken, livePos]);
+
+  useEffect(() => {
     let cancelled = false;
     const load = async () => {
       setLoadingBusPositions(true);
@@ -1932,6 +1944,21 @@ const SharedTripPage: React.FC<{ routes: BusRoute[] }> = ({ routes }) => {
   }, [token]);
 
   useEffect(() => {
+    if (!token) return;
+    const interval = setInterval(async () => {
+      try {
+        const data = await fetchSharedTrip(token);
+        if (data) {
+          setTrip(data);
+        }
+      } catch {
+        // ignore
+      }
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [token]);
+
+  useEffect(() => {
     if (!trip) return;
     const route = routes.find((r) => r.id === trip.routeId);
     if (!route) return;
@@ -1973,14 +2000,22 @@ const SharedTripPage: React.FC<{ routes: BusRoute[] }> = ({ routes }) => {
     const L = (window as any).L;
     const route = routes.find((r) => r.id === trip.routeId);
     const stops = route?.stopsDetailed || [];
-    const idx = Math.min(trip.nextStopIndex, Math.max(stops.length - 1, 0));
-    const stop = stops[idx];
-    if (!stop || !L) return;
+
+    let position: { lat: number; lng: number } | null = null;
+    if (typeof trip.lat === 'number' && typeof trip.lng === 'number') {
+      position = { lat: trip.lat, lng: trip.lng };
+    } else {
+      const idx = Math.min(trip.nextStopIndex, Math.max(stops.length - 1, 0));
+      const stop = stops[idx];
+      if (stop) position = { lat: stop.lat, lng: stop.lng };
+    }
+
+    if (!position || !L) return;
 
     if (busMarkerRef.current) {
-      busMarkerRef.current.setLatLng([stop.lat, stop.lng]);
+      busMarkerRef.current.setLatLng([position.lat, position.lng]);
     } else {
-      busMarkerRef.current = L.circleMarker([stop.lat, stop.lng], {
+      busMarkerRef.current = L.circleMarker([position.lat, position.lng], {
         radius: 9,
         color: '#2563eb',
         weight: 3,
