@@ -32,8 +32,11 @@ A comprehensive bus route guide application for Yangon, Myanmar, featuring inter
 - **YBS New** — community bus updates feed with user-submitted reports
 - **Report bus updates** — share live bus status, delays, and conditions
 - **Bus arrival predictions** — ETA estimates based on recent user reports
+- **Crowdsourced bus ETA** — real-time arrival estimates based on live passenger locations
 - **User feedback system** — report bugs, wrong info, or suggestions
 - **Admin notifications** — broadcast updates to all users
+- **Group trip sharing** — share your trip with friends and see each other's live locations
+- **Offline trip history** — recent searches persisted locally
 
 ### 👨‍💼 Admin Dashboard
 - Password-protected admin panel
@@ -320,6 +323,14 @@ The assistant uses a **custom keyword extractor** for Myanmar language:
 - **admin-feedback.ts** — paginated feedback management
 
 ## 📊 Version History
+
+### v3.3
+- 👥 **Group Trip Sharing** — share your route with friends via link
+- 🗺️ **Shared trip viewer** — see shared trip route map with live position
+- 📍 **Real-time location sharing** — update shared trip position every 5 seconds
+- ⏱️ **Crowdsourced bus ETA** — arrival estimates based on live passenger locations
+- 🚌 **Bus waiting time estimates** — see when the bus will arrive at your stop
+- 🔄 Auto-refresh for shared trips and ETA data
 
 ### v3.2
 - 🗑️ Removed dedicated Stops page to streamline navigation
