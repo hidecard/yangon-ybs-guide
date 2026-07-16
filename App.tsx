@@ -1092,6 +1092,7 @@ const RouteDetailPage: React.FC<{
   const markersLayerRef = useRef<any>(null);
   const routeLayerRef = useRef<any>(null);
   const liveMarkerRef = useRef<any>(null);
+  const busMarkersRef = useRef<any>(null);
   const watchIdRef = useRef<number | null>(null);
   const [livePos, setLivePos] = useState<{ lat: number; lng: number } | null>(null);
   const [isLocating, setIsLocating] = useState(false);
@@ -1339,6 +1340,52 @@ const RouteDetailPage: React.FC<{
     return () => { cancelled = true; };
   }, [route.id]);
 
+  const [busPositions, setBusPositions] = useState<Array<{ lat: number; lng: number; type: string; note?: string; createdAt: number }>>([]);
+  const [loadingBusPositions, setLoadingBusPositions] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      setLoadingBusPositions(true);
+      try {
+        const updates = await fetchBusUpdates({ routeId: route.id, limit: 50 });
+        const withPos = updates.filter(u => typeof u.lat === 'number' && typeof u.lng === 'number');
+        if (!cancelled) {
+          setBusPositions(withPos.map(u => ({ lat: u.lat!, lng: u.lng!, type: u.type, note: u.note, createdAt: u.createdAt || Date.now() })));
+        }
+      } catch {
+        if (!cancelled) setBusPositions([]);
+      } finally {
+        if (!cancelled) setLoadingBusPositions(false);
+      }
+    };
+    load();
+    const interval = setInterval(load, 30000);
+    return () => { cancelled = true; clearInterval(interval); };
+  }, [route.id]);
+
+  useEffect(() => {
+    const L = (window as any).L;
+    if (!L || !mapRef.current) return;
+    if (busMarkersRef.current) {
+      busMarkersRef.current.clearLayers();
+    }
+    if (!busPositions.length) return;
+    busMarkersRef.current = L.featureGroup().addTo(mapRef.current);
+    busPositions.forEach((pos) => {
+      const marker = L.circleMarker([pos.lat, pos.lng], {
+        radius: 8,
+        color: '#2563eb',
+        weight: 3,
+        fillColor: '#3b82f6',
+        fillOpacity: 0.9,
+      }).addTo(busMarkersRef.current);
+      const ageMin = Math.round((Date.now() - pos.createdAt) / 60000);
+      const label = pos.note ? `${UPDATE_TYPE_META[pos.type as BusUpdateType]?.label || pos.type}: ${pos.note}` : UPDATE_TYPE_META[pos.type as BusUpdateType]?.label || pos.type;
+      marker.bindTooltip(`${label} · ${ageMin} မိနစ် ကြာသွားပြီ`, { direction: 'top', offset: [0, -8], className: 'ui-map-label' });
+    });
+  }, [busPositions]);
+
   return (
     <div className="fixed inset-0 z-[60] flex md:items-center justify-center md:p-6 overflow-hidden bg-slate-900/40 backdrop-blur-sm animate-fade-in">
       <div className="bg-white w-full h-full md:max-w-3xl md:h-auto md:max-h-[95vh] flex flex-col md:rounded-2xl md:shadow-lg overflow-hidden">
@@ -1385,6 +1432,30 @@ const RouteDetailPage: React.FC<{
                   <Bell size={20} fill={arrivalEnabled ? 'currentColor' : 'none'} />
                 </button>
               )}
+              <button
+                onClick={async () => {
+                  setLoadingBusPositions(true);
+                  try {
+                    const updates = await fetchBusUpdates({ routeId: route.id, limit: 50 });
+                    const withPos = updates.filter(u => typeof u.lat === 'number' && typeof u.lng === 'number');
+                    setBusPositions(withPos.map(u => ({ lat: u.lat!, lng: u.lng!, type: u.type, note: u.note, createdAt: u.createdAt || Date.now() })));
+                  } catch {
+                    setBusPositions([]);
+                  } finally {
+                    setLoadingBusPositions(false);
+                  }
+                }}
+                disabled={loadingBusPositions}
+                className="ui-btn-icon bg-white/90 backdrop-blur text-brand"
+                title="ယာဉ်နေရာများ ပြန်လည်ရယူရန်"
+              >
+                <Bus size={20} />
+                {busPositions.length > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-brand text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                    {busPositions.length}
+                  </span>
+                )}
+              </button>
             </div>
           </div>
 
@@ -1450,9 +1521,37 @@ const RouteDetailPage: React.FC<{
                      </div>
                    )}
                  </div>
-               )}
+                )}
 
-               <div className="space-y-2">
+                {(loadingBusPositions || busPositions.length > 0) && (
+                  <div className="p-3 rounded-xl bg-blue-50 border border-blue-100">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Bus size={14} className="text-blue-600" />
+                      <p className="text-xs font-semibold text-blue-700">ယာဉ်နေရာများ</p>
+                      {!loadingBusPositions && (
+                        <span className="text-[10px] text-blue-500 font-medium">auto refresh 30s</span>
+                      )}
+                    </div>
+                    {loadingBusPositions ? (
+                      <p className="text-xs text-slate-400">ရယူနေပါသည်...</p>
+                    ) : (
+                      <div className="space-y-1.5">
+                        {busPositions.map((pos, i) => {
+                          const ageMin = Math.round((Date.now() - pos.createdAt) / 60000);
+                          const meta = UPDATE_TYPE_META[pos.type as BusUpdateType] || { label: pos.type, color: 'text-slate-600', bg: 'bg-slate-50' };
+                          return (
+                            <div key={i} className="flex items-center justify-between text-xs">
+                              <span className="text-slate-700 font-medium truncate">{meta.label}{pos.note ? `: ${pos.note}` : ''}</span>
+                              <span className="text-slate-500 shrink-0 ml-2">{ageMin} မိနစ်</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div className="space-y-2">
                 <p className="ui-label">မှတ်တိုင်များ ({routeStops.length})</p>
 
                 {routeStops.length === 0 ? (
