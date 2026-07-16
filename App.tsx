@@ -47,6 +47,7 @@ import {
 } from 'lucide-react';
 import { fetchBusUpdates, postBusUpdate, fetchPredictions, timeAgo, UPDATE_TYPE_META, type BusUpdate, type BusUpdateType, type Prediction } from './busUpdates';
 import { postFeedback, fetchFeedback, FEEDBACK_TYPE_META, type FeedbackItem, type FeedbackType } from './feedback';
+import { getTripHistory, addTripHistory, removeTripHistoryItem, clearTripHistory, type TripHistoryItem } from './tripHistory';
 
 // --- Types for Search Results ---
 interface PathStep {
@@ -959,7 +960,96 @@ const HomePage: React.FC<{
           ))}
         </div>
       </section>
+
+      <RecentSearches
+        onNavigate={(path, state) => navigate(path, state)}
+        onRouteClick={onRouteClick}
+        routes={routes}
+      />
     </div>
+  );
+};
+
+const RecentSearches: React.FC<{
+  onNavigate: (path: string, state?: any) => void;
+  onRouteClick?: (r: BusRoute) => void;
+  routes: BusRoute[];
+}> = ({ onNavigate, onRouteClick, routes }) => {
+  const [history, setHistory] = useState<TripHistoryItem[]>([]);
+
+  useEffect(() => {
+    setHistory(getTripHistory());
+  }, []);
+
+  const handleRemove = (id: string) => {
+    const updated = removeTripHistoryItem(id);
+    setHistory(updated);
+  };
+
+  const handleClear = () => {
+    clearTripHistory();
+    setHistory([]);
+  };
+
+  const handleClick = (item: TripHistoryItem) => {
+    if (item.type === 'route') {
+      const routeItem = item as { type: 'route'; routeId?: string };
+      if (routeItem.routeId) {
+        const route = routes.find(r => r.id === routeItem.routeId);
+        if (route && onRouteClick) {
+          onRouteClick(route);
+        } else {
+          onNavigate('/routes');
+        }
+      }
+    } else if (item.type === 'search' && item.subtitle) {
+      onNavigate('/find-route', { startStop: item.label, endStop: item.subtitle });
+    } else if (item.type === 'stop') {
+      onNavigate('/stops');
+    }
+  };
+
+  if (history.length === 0) return null;
+
+  return (
+    <section className="space-y-3">
+      <div className="flex items-center justify-between">
+        <h3 className="ui-section-title">မကြာခင် ရှာဖွေခဲ့</h3>
+        <button onClick={handleClear} className="text-xs text-slate-400 hover:text-rose-500 flex items-center gap-1">
+          <Trash2 size={14} />
+          <span>ဖယ်ရှားမည်</span>
+        </button>
+      </div>
+      <div className="space-y-2">
+        {history.map((item) => (
+          <div
+            key={item.id}
+            className="ui-card ui-card-interactive p-3 flex items-center justify-between gap-3"
+            onClick={() => handleClick(item)}
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <div className={`p-2 rounded-lg shrink-0 ${item.type === 'search' ? 'bg-brand-light text-brand' : item.type === 'route' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                {item.type === 'search' ? <Search size={16} /> : item.type === 'route' ? <Bus size={16} /> : <MapPin size={16} />}
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-slate-800 truncate">{item.label}</p>
+                {item.subtitle && <p className="text-xs text-slate-400 truncate">{item.subtitle}</p>}
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="text-[10px] text-slate-400">{timeAgo(item.timestamp)}</span>
+              <button
+                onClick={(e) => { e.stopPropagation(); handleRemove(item.id); }}
+                className="p-1.5 hover:bg-rose-50 rounded-lg text-slate-300 hover:text-rose-500 transition-colors"
+                title="ဖယ်ရှားမည်"
+              >
+                <X size={14} />
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 };
 
@@ -2798,6 +2888,11 @@ const FindRoutePage: React.FC<{
   const [searching, setSearching] = useState(false);
   const [locating, setLocating] = useState(false);
   const [mapPickerTarget, setMapPickerTarget] = useState<'start' | 'end' | null>(null);
+  const [history, setHistory] = useState<TripHistoryItem[]>([]);
+
+  useEffect(() => {
+    setHistory(getTripHistory());
+  }, []);
 
   const stops = stopsProp;
   const routes = routesProp;
@@ -3044,6 +3139,14 @@ const FindRoutePage: React.FC<{
           </div>
         )}
       </div>
+
+      {history.length > 0 && (
+        <RecentSearches
+          onNavigate={(path, state) => navigate(path, state)}
+          onRouteClick={onRouteClick}
+          routes={routes}
+        />
+      )}
     </div>
   );
 };
