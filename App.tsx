@@ -1519,6 +1519,8 @@ const RouteDetailPage: React.FC<{
   const [shareToken, setShareToken] = useState<string | null>(null);
   const [shareLoading, setShareLoading] = useState(false);
   const [shareError, setShareError] = useState('');
+  const [shareName, setShareName] = useState('');
+  const [askShareName, setAskShareName] = useState(false);
 
   useEffect(() => {
     if (!shareToken) return;
@@ -1589,17 +1591,23 @@ const RouteDetailPage: React.FC<{
             <div className="flex items-center gap-1">
               <button
                 onClick={async () => {
-                  setShareLoading(true);
                   setShareError('');
+                  if (!shareName.trim()) {
+                    setAskShareName(true);
+                    return;
+                  }
+                  setShareLoading(true);
                   try {
                     const token = await createSharedTrip({
                       userId,
-                      userName: 'User',
+                      userName: shareName.trim(),
                       routeId: route.id,
                       routeLabel: route.line_name || `YBS ${route.id}`,
                       nextStopIndex: 0,
                       destinationStopName: route.stops[route.stops.length - 1] || '',
                       status: 'EN_ROUTE',
+                      lat: livePos?.lat,
+                      lng: livePos?.lng,
                     });
                     if (token) {
                       const url = getShareUrl(token.shareToken);
@@ -1945,6 +1953,52 @@ const RouteDetailPage: React.FC<{
    	            onPosted={() => setReportNonce(n => n + 1)}
    	          />
    	        )}
+
+            {askShareName && (
+              <div className="fixed bottom-24 left-4 right-4 md:left-auto md:right-6 md:w-80 z-[70] bg-white rounded-xl shadow-lg border border-slate-100 p-4 space-y-3">
+                <p className="text-xs font-semibold text-slate-800">သင့်အမည်ထည့်ပါ</p>
+                <input
+                  type="text"
+                  value={shareName}
+                  onChange={(e) => setShareName(e.target.value)}
+                  placeholder="ဥပမာ - အောင်မင်း"
+                  className="ui-input"
+                  autoFocus
+                />
+                <div className="flex gap-2">
+                  <button onClick={() => setAskShareName(false)} className="ui-btn ui-btn-ghost text-xs flex-1">Cancel</button>
+                  <button onClick={async () => {
+                    setAskShareName(false);
+                    if (!shareName.trim()) return;
+                    setShareLoading(true);
+                    try {
+                      const token = await createSharedTrip({
+                        userId,
+                        userName: shareName.trim(),
+                        routeId: route.id,
+                        routeLabel: route.line_name || `YBS ${route.id}`,
+                        nextStopIndex: 0,
+                        destinationStopName: route.stops[route.stops.length - 1] || '',
+                        status: 'EN_ROUTE',
+                        lat: livePos?.lat,
+                        lng: livePos?.lng,
+                      });
+                      if (token) {
+                        const url = getShareUrl(token.shareToken);
+                        await navigator.clipboard?.writeText(url);
+                        setShareToken(token.shareToken);
+                      } else {
+                        setShareError('Failed to create shared trip.');
+                      }
+                    } catch {
+                      setShareError('Failed to create shared trip.');
+                    } finally {
+                      setShareLoading(false);
+                    }
+                  }} className="ui-btn ui-btn-primary text-xs flex-1">Share</button>
+                </div>
+              </div>
+            )}
 
             {shareToken && (
               <div className="fixed bottom-24 left-4 right-4 md:left-auto md:right-6 md:w-80 z-[70] bg-white rounded-xl shadow-lg border border-slate-100 p-4 space-y-2 animate-fade-in">
