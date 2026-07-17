@@ -2073,6 +2073,7 @@ const SharedTripPage: React.FC<{ routes: BusRoute[] }> = ({ routes }) => {
     const L = (window as any).L;
     if (!L) return;
 
+    busMarkerRef.current = null;
     const map = L.map('shared-trip-map', { zoomControl: false, scrollWheelZoom: true, dragging: true, touchZoom: true, tap: false }).setView([16.8, 96.15], 12);
     mapRef.current = map;
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
