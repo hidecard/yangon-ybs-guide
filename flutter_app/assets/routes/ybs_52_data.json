@@ -1,0 +1,509 @@
+{
+    "bus_line": "52",
+    "route_info": {
+        "Route Name": "52",
+        "Line Name": "(၅၂) ထန်းထပင် -လှိုင်သာယာ(မီးခွက်စျေး)",
+        "Agency": "Khit Thit Bayint Naung",
+        "Route Type": "route",
+        "Total Stops": "62 stops",
+        "QR Payment": "Not available"
+    },
+    "stops": [
+        {
+            "index": "1",
+            "stop_name_en": "Htantabin",
+            "stop_name_mm": "ထန်းတပင်",
+            "road": "Htantabin Road, Htantabin",
+            "latitude": 17.014389,
+            "longitude": 95.98433
+        },
+        {
+            "index": "2",
+            "stop_name_en": "Naung Pin Ngoto",
+            "stop_name_mm": "ညောင်ပင်ငုတ်တို",
+            "road": "Htantabin Road, Htantabin",
+            "latitude": 16.993309,
+            "longitude": 95.975704
+        },
+        {
+            "index": "3",
+            "stop_name_en": "Kyaung Kone Sign Board",
+            "stop_name_mm": "ကျောင်းကုန်းဆိုင်းဘုတ်",
+            "road": "Htantabin Road, Htantabin",
+            "latitude": 16.985273,
+            "longitude": 95.973043
+        },
+        {
+            "index": "4",
+            "stop_name_en": "Aye Ywar Lay",
+            "stop_name_mm": "အေးရွာလေး",
+            "road": "Htantabin Road, Htantabin",
+            "latitude": 16.972545,
+            "longitude": 95.969246
+        },
+        {
+            "index": "5",
+            "stop_name_en": "Yo Kwa",
+            "stop_name_mm": "ရိုးခွ",
+            "road": "Htantabin Road, Htantabin",
+            "latitude": 16.958324,
+            "longitude": 95.964954
+        },
+        {
+            "index": "6",
+            "stop_name_en": "Tapayar Kone",
+            "stop_name_mm": "သံပုရာကုန်း",
+            "road": "Htantabin Road, Htantabin",
+            "latitude": 16.944489,
+            "longitude": 95.967506
+        },
+        {
+            "index": "7",
+            "stop_name_en": "Thae Phyu Ywar Htae",
+            "stop_name_mm": "သဲဖြူရွာထိပ်",
+            "road": "Htantabin Road, Htantabin",
+            "latitude": 16.940221,
+            "longitude": 95.968236
+        },
+        {
+            "index": "8",
+            "stop_name_en": "Than Phyu Yeik har",
+            "stop_name_mm": "သံဖြူရိပ်သာ",
+            "road": "Htantabin Road, Htantabin",
+            "latitude": 16.936486,
+            "longitude": 95.968922
+        },
+        {
+            "index": "9",
+            "stop_name_en": "Toe Tet",
+            "stop_name_mm": "တိုးတက်",
+            "road": "Htantabin Road, Htantabin",
+            "latitude": 16.932611,
+            "longitude": 95.96961
+        },
+        {
+            "index": "10",
+            "stop_name_en": "Tathit",
+            "stop_name_mm": "တာသစ်",
+            "road": "Htantabin Road, Htantabin",
+            "latitude": 16.929755,
+            "longitude": 95.970124
+        },
+        {
+            "index": "11",
+            "stop_name_en": "Htoo Lay Su",
+            "stop_name_mm": "ထူးလေစု",
+            "road": "Htantabin Road, Htantabin",
+            "latitude": 16.923926,
+            "longitude": 95.970896
+        },
+        {
+            "index": "12",
+            "stop_name_en": "Kyat Chan",
+            "stop_name_mm": "ကြက်ခြံ",
+            "road": "Htantabin Road, Htantabin",
+            "latitude": 16.920766,
+            "longitude": 95.971454
+        },
+        {
+            "index": "13",
+            "stop_name_en": "Phoo La Zay",
+            "stop_name_mm": "ဖိုးလဈေး",
+            "road": "Htantabin Road, Htantabin",
+            "latitude": 16.916456,
+            "longitude": 95.972441
+        },
+        {
+            "index": "14",
+            "stop_name_en": "Kyaikkanar Ywar Htae",
+            "stop_name_mm": "ကျိုက်ခနားရွာထိပ်",
+            "road": "Htantabin Road, Htantabin",
+            "latitude": 16.911817,
+            "longitude": 95.9736
+        },
+        {
+            "index": "15",
+            "stop_name_en": "Kyaung Shae",
+            "stop_name_mm": "ကျောင်းရှေ့",
+            "road": "Htantabin Road, Htantabin",
+            "latitude": 16.908656,
+            "longitude": 95.974243
+        },
+        {
+            "index": "16",
+            "stop_name_en": "Dhama Pala",
+            "stop_name_mm": "ဓမ္မပါလ",
+            "road": "Htantabin Road, Htantabin",
+            "latitude": 16.904018,
+            "longitude": 95.975402
+        },
+        {
+            "index": "17",
+            "stop_name_en": "Htantabin Tar Sone",
+            "stop_name_mm": "ထန်းတပင်တာဆုံ",
+            "road": "No. 5 Main Road, Htantabin",
+            "latitude": 16.896834,
+            "longitude": 95.977805
+        },
+        {
+            "index": "18",
+            "stop_name_en": "Wa Tadar",
+            "stop_name_mm": "ဝါးတံတား",
+            "road": "No. 5 Main Road, Htantabin",
+            "latitude": 16.894617,
+            "longitude": 95.983126
+        },
+        {
+            "index": "19",
+            "stop_name_en": "Kyauk Ta Dar",
+            "stop_name_mm": "ကျောက်တံတား",
+            "road": "No. 5 Main Road, Htantabin",
+            "latitude": 16.893468,
+            "longitude": 95.986001
+        },
+        {
+            "index": "20",
+            "stop_name_en": "Tuu Chaung",
+            "stop_name_mm": "တူးချောင်း",
+            "road": "No. 5 Main Road, Htantabin",
+            "latitude": 16.890224,
+            "longitude": 95.993639
+        },
+        {
+            "index": "21",
+            "stop_name_en": "Alote Thamar Say Yone",
+            "stop_name_mm": "အလုပ်သမားဆေးရုံ",
+            "road": "No. 5 Main Road, Hlaing Tharyar",
+            "latitude": 16.888172,
+            "longitude": 95.998231
+        },
+        {
+            "index": "22",
+            "stop_name_en": "EPC",
+            "stop_name_mm": "အီးပီစီ",
+            "road": "No. 5 Main Road, Hlaing Tharyar",
+            "latitude": 16.886119,
+            "longitude": 96.00338
+        },
+        {
+            "index": "23",
+            "stop_name_en": "Mya Sein Aung",
+            "stop_name_mm": "မြစိမ်းအောင်",
+            "road": "No. 5 Main Road, Hlaing Tharyar",
+            "latitude": 16.883943,
+            "longitude": 96.009602
+        },
+        {
+            "index": "24",
+            "stop_name_en": "Sout Loke Yay",
+            "stop_name_mm": "ဆောက်လုပ်ရေး",
+            "road": "No. 5 Main Road, Hlaing Tharyar",
+            "latitude": 16.880672,
+            "longitude": 96.017311
+        },
+        {
+            "index": "25",
+            "stop_name_en": "Tet Yin 9",
+            "stop_name_mm": "တပ်ရင်း ၉",
+            "road": "No. 5 Main Road, Hlaing Tharyar",
+            "latitude": 16.879988,
+            "longitude": 96.01899
+        },
+        {
+            "index": "26",
+            "stop_name_en": "Dagon Ayar A Way Pyay",
+            "stop_name_mm": "ဒဂုံဧရာအဝေးပြေး",
+            "road": "No. 5 Main Road, Hlaing Tharyar",
+            "latitude": 16.87797,
+            "longitude": 96.024065
+        },
+        {
+            "index": "27",
+            "stop_name_en": "Thama Kone",
+            "stop_name_mm": "သမကုန်း",
+            "road": "No. 5 Main Road, Hlaing Tharyar",
+            "latitude": 16.874114,
+            "longitude": 96.033579
+        },
+        {
+            "index": "28",
+            "stop_name_en": "B.O.C",
+            "stop_name_mm": "ဘီအိုစီ",
+            "road": "No. 5 Main Road, Hlaing Tharyar",
+            "latitude": 16.87254,
+            "longitude": 96.0374
+        },
+        {
+            "index": "29",
+            "stop_name_en": "Sanay Ma",
+            "stop_name_mm": "စနေမ",
+            "road": "No. 5 Main Road, Hlaing Tharyar",
+            "latitude": 16.872309,
+            "longitude": 96.041574
+        },
+        {
+            "index": "30",
+            "stop_name_en": "5 Hteik (A Paw)",
+            "stop_name_mm": "၅ ထိပ် (အပေါ်)",
+            "road": "Nyaung Done Road, Hlaing Tharyar",
+            "latitude": 16.873263,
+            "longitude": 96.047856
+        },
+        {
+            "index": "31",
+            "stop_name_en": "Mee Khwat Zay",
+            "stop_name_mm": "မီးခွက်ဈေး",
+            "road": "Nyaung Done Road, Hlaing Tharyar",
+            "latitude": 16.87372,
+            "longitude": 96.050646
+        },
+        {
+            "index": "32",
+            "stop_name_en": "Mee Khwat Zay",
+            "stop_name_mm": "မီးခွက်ဈေး",
+            "road": "Nyaung Done Road, Hlaing Tharyar",
+            "latitude": 16.874082,
+            "longitude": 96.051997
+        },
+        {
+            "index": "33",
+            "stop_name_en": "5 Hteik (A Paw)",
+            "stop_name_mm": "၅ ထိပ် (အပေါ်)",
+            "road": "Nyaung Done Road, Hlaing Tharyar",
+            "latitude": 16.873431,
+            "longitude": 96.047872
+        },
+        {
+            "index": "34",
+            "stop_name_en": "Sanay Ma",
+            "stop_name_mm": "စနေမ",
+            "road": "No. 5 Main Road, Hlaing Tharyar",
+            "latitude": 16.872406,
+            "longitude": 96.0416
+        },
+        {
+            "index": "35",
+            "stop_name_en": "B.O.C",
+            "stop_name_mm": "ဘီအိုစီ",
+            "road": "No. 5 Main Road, Hlaing Tharyar",
+            "latitude": 16.872649,
+            "longitude": 96.03751
+        },
+        {
+            "index": "36",
+            "stop_name_en": "Thama Kone",
+            "stop_name_mm": "သမကုန်း",
+            "road": "No. 5 Main Road, Hlaing Tharyar",
+            "latitude": 16.874179,
+            "longitude": 96.033695
+        },
+        {
+            "index": "37",
+            "stop_name_en": "Dagon Ayar A Way Pyay",
+            "stop_name_mm": "ဒဂုံဧရာအဝေးပြေး",
+            "road": "No. 5 Main Road, Hlaing Tharyar",
+            "latitude": 16.878048,
+            "longitude": 96.024103
+        },
+        {
+            "index": "38",
+            "stop_name_en": "Tet Yin 9",
+            "stop_name_mm": "တပ်ရင်း ၉",
+            "road": "No. 5 Main Road, Hlaing Tharyar",
+            "latitude": 16.880112,
+            "longitude": 96.019129
+        },
+        {
+            "index": "39",
+            "stop_name_en": "Sout Loke Yay",
+            "stop_name_mm": "ဆောက်လုပ်ရေး",
+            "road": "No. 5 Main Road, Hlaing Tharyar",
+            "latitude": 16.880795,
+            "longitude": 96.017418
+        },
+        {
+            "index": "40",
+            "stop_name_en": "Mya Sein Aung",
+            "stop_name_mm": "မြစိမ်းအောင်",
+            "road": "No. 5 Main Road, Hlaing Tharyar",
+            "latitude": 16.884272,
+            "longitude": 96.009688
+        },
+        {
+            "index": "41",
+            "stop_name_en": "EPC",
+            "stop_name_mm": "အီးပီစီ",
+            "road": "No. 5 Main Road, Hlaing Tharyar",
+            "latitude": 16.886404,
+            "longitude": 96.003447
+        },
+        {
+            "index": "42",
+            "stop_name_en": "Alote Thamar Say Yone",
+            "stop_name_mm": "အလုပ်သမားဆေးရုံ",
+            "road": "No. 5 Main Road, Hlaing Tharyar",
+            "latitude": 16.888705,
+            "longitude": 95.998317
+        },
+        {
+            "index": "43",
+            "stop_name_en": "Tuu Chaung",
+            "stop_name_mm": "တူးချောင်း",
+            "road": "No. 5 Main Road, Htantabin",
+            "latitude": 16.890635,
+            "longitude": 95.993725
+        },
+        {
+            "index": "44",
+            "stop_name_en": "Kyauk Ta Dar",
+            "stop_name_mm": "ကျောက်တံတား",
+            "road": "No. 5 Main Road, Htantabin",
+            "latitude": 16.893796,
+            "longitude": 95.986216
+        },
+        {
+            "index": "45",
+            "stop_name_en": "Wa Tadar",
+            "stop_name_mm": "ဝါးတံတား",
+            "road": "No. 5 Main Road, Htantabin",
+            "latitude": 16.895028,
+            "longitude": 95.983255
+        },
+        {
+            "index": "46",
+            "stop_name_en": "Htantabin Tha Sone",
+            "stop_name_mm": "ထန်းတပင်တာဆုံ",
+            "road": "No. 5 Main Road, Htantabin",
+            "latitude": 16.897244,
+            "longitude": 95.977934
+        },
+        {
+            "index": "47",
+            "stop_name_en": "Dhama Pala",
+            "stop_name_mm": "ဓမ္မပါလ",
+            "road": "Htantabin Road, Htantabin",
+            "latitude": 16.903771,
+            "longitude": 95.975831
+        },
+        {
+            "index": "48",
+            "stop_name_en": "Kyaung Shae",
+            "stop_name_mm": "ကျောင်းရှေ့",
+            "road": "Htantabin Road, Htantabin",
+            "latitude": 16.908533,
+            "longitude": 95.97463
+        },
+        {
+            "index": "49",
+            "stop_name_en": "Kyaikkanar Ywar Htae",
+            "stop_name_mm": "ကျိုက်ခနားရွာထိပ်",
+            "road": "Htantabin Road, Htantabin",
+            "latitude": 16.911694,
+            "longitude": 95.973943
+        },
+        {
+            "index": "50",
+            "stop_name_en": "Phoo La Zay",
+            "stop_name_mm": "ဖိုးလဈေး",
+            "road": "Htantabin Road, Htantabin",
+            "latitude": 16.916415,
+            "longitude": 95.972784
+        },
+        {
+            "index": "51",
+            "stop_name_en": "Kyat Chan",
+            "stop_name_mm": "ကြက်ခြံ",
+            "road": "Htantabin Road, Htantabin",
+            "latitude": 16.920725,
+            "longitude": 95.971883
+        },
+        {
+            "index": "52",
+            "stop_name_en": "Htoo Lay Su",
+            "stop_name_mm": "ထူးလေစု",
+            "road": "Htantabin Road, Htantabin",
+            "latitude": 16.923967,
+            "longitude": 95.971283
+        },
+        {
+            "index": "53",
+            "stop_name_en": "Thathit",
+            "stop_name_mm": "တာသစ်",
+            "road": "Htantabin Road, Htantabin",
+            "latitude": 16.930042,
+            "longitude": 95.970424
+        },
+        {
+            "index": "54",
+            "stop_name_en": "Toe Tet",
+            "stop_name_mm": "တိုးတက်",
+            "road": "Htantabin Road, Htantabin",
+            "latitude": 16.932713,
+            "longitude": 95.969867
+        },
+        {
+            "index": "55",
+            "stop_name_en": "Than Phyu Yeik Thar",
+            "stop_name_mm": "သံဖြူရိပ်သာ",
+            "road": "Htantabin Road, Htantabin",
+            "latitude": 16.936773,
+            "longitude": 95.969223
+        },
+        {
+            "index": "56",
+            "stop_name_en": "Thae Phyu Ywar Htae",
+            "stop_name_mm": "သဲဖြူရွာထိပ်",
+            "road": "Htantabin Road, Htantabin",
+            "latitude": 16.940508,
+            "longitude": 95.968493
+        },
+        {
+            "index": "57",
+            "stop_name_en": "Tapayar Kone",
+            "stop_name_mm": "သံပုရာကုန်း",
+            "road": "Htantabin Road, Htantabin",
+            "latitude": 16.944653,
+            "longitude": 95.967807
+        },
+        {
+            "index": "58",
+            "stop_name_en": "Yo Kwa",
+            "stop_name_mm": "ရိုးခွ",
+            "road": "Htantabin Road, Htantabin",
+            "latitude": 16.958078,
+            "longitude": 95.965147
+        },
+        {
+            "index": "59",
+            "stop_name_en": "Aye Ywar Lay",
+            "stop_name_mm": "အေးရွာလေး",
+            "road": "Htantabin Road, Htantabin",
+            "latitude": 16.972217,
+            "longitude": 95.96931
+        },
+        {
+            "index": "60",
+            "stop_name_en": "Kyaung Kone Sign Boar",
+            "stop_name_mm": "ကျောင်းကုန်းဆိုင်းဘုတ်",
+            "road": "Htantabin Road, Htantabin",
+            "latitude": 16.985478,
+            "longitude": 95.973515
+        },
+        {
+            "index": "61",
+            "stop_name_en": "Naung Pin Ngoto",
+            "stop_name_mm": "ညောင်ပင်ငုတ်တို",
+            "road": "Htantabin Road, Htantabin",
+            "latitude": 16.993043,
+            "longitude": 95.975811
+        },
+        {
+            "index": "62",
+            "stop_name_en": "Htantabin",
+            "stop_name_mm": "ထန်းတပင်",
+            "road": "Htantabin Road, Htantabin",
+            "latitude": 17.014276,
+            "longitude": 95.984523
+        }
+    ]
+}

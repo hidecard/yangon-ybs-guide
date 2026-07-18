@@ -1,0 +1,382 @@
+{
+    "bus_line": "Dala - Twante",
+    "route_id": "204",
+    "route_info": {
+        "Route Name": "Dala - Twante",
+        "Line Name": "(စမ်းသပ်) ဒလ - တွံတေး",
+        "Agency": "YBPC",
+        "Route Type": "route",
+        "Total Stops": "46 stops",
+        "QR Payment": "✅ Supported"
+    },
+    "stops": [
+        {
+            "index": "1",
+            "stop_name_en": "Shwesandaw Pagoda",
+            "stop_name_mm": "ရွှေဆံတော်ဘုရား",
+            "road": "Dala-Twante Road, Twante",
+            "latitude": 16.703581,
+            "longitude": 95.934913
+        },
+        {
+            "index": "2",
+            "stop_name_en": "Twante Myoma Market",
+            "stop_name_mm": "တွံတေးမြို့မဈေး",
+            "road": "Dala-Twante Road, Twante",
+            "latitude": 16.712394,
+            "longitude": 95.92865
+        },
+        {
+            "index": "3",
+            "stop_name_en": "Phaya Thone Zu",
+            "stop_name_mm": "ဘုရားသုံးဆူ",
+            "road": "Dala-Twante Road, Twante",
+            "latitude": 16.720804,
+            "longitude": 95.935201
+        },
+        {
+            "index": "4",
+            "stop_name_en": "Mee That",
+            "stop_name_mm": "မီးသတ်",
+            "road": "Dala-Twante Road, Twante",
+            "latitude": 16.718771,
+            "longitude": 95.942832
+        },
+        {
+            "index": "5",
+            "stop_name_en": "Meter Yone",
+            "stop_name_mm": "မီတာရုံး",
+            "road": "Dala-Twante Road, Twante",
+            "latitude": 16.715738,
+            "longitude": 95.957892
+        },
+        {
+            "index": "6",
+            "stop_name_en": "Sout Loke Yay",
+            "stop_name_mm": "ဆောက်လုပ်ရေး",
+            "road": "Dala-Twante Road, Twante",
+            "latitude": 16.713122,
+            "longitude": 95.973641
+        },
+        {
+            "index": "7",
+            "stop_name_en": "Baung Taw Choke Junction",
+            "stop_name_mm": "ဗောင်းတောချုပ်လမ်း‌ဆုံ",
+            "road": "Dala-Twante Road, Twante",
+            "latitude": 16.708916,
+            "longitude": 95.992166
+        },
+        {
+            "index": "8",
+            "stop_name_en": "Kanbe Junction",
+            "stop_name_mm": "ကံဘဲ့လမ်းဆုံ",
+            "road": "Dala-Twante Road, Twante",
+            "latitude": 16.708722,
+            "longitude": 96.00698
+        },
+        {
+            "index": "9",
+            "stop_name_en": "Phaya Ngoke To (or Phaya Ngoketo)",
+            "stop_name_mm": "ဘုရားငုတ္တို",
+            "road": "Dala-Twante Road, Twante",
+            "latitude": 16.713623,
+            "longitude": 96.033178
+        },
+        {
+            "index": "10",
+            "stop_name_en": "Yangon Pauk",
+            "stop_name_mm": "ရန်ကုန်ပေါက်",
+            "road": "Dala-Twante Road, Twante",
+            "latitude": 16.712359,
+            "longitude": 96.049019
+        },
+        {
+            "index": "11",
+            "stop_name_en": "Peit Swal",
+            "stop_name_mm": "ပိတ်စွယ်",
+            "road": "Dala-Twante Road, Twante",
+            "latitude": 16.723787,
+            "longitude": 96.067929
+        },
+        {
+            "index": "12",
+            "stop_name_en": "Letpan Kone",
+            "stop_name_mm": "လက်ပံကုန်း",
+            "road": "Dala-Twante Road, Twante",
+            "latitude": 16.74276,
+            "longitude": 96.089494
+        },
+        {
+            "index": "13",
+            "stop_name_en": "Pyaw Bwe Lay",
+            "stop_name_mm": "ပျော်ဘွယ်လေး",
+            "road": "Dala-Twante Road, Twante",
+            "latitude": 16.74522,
+            "longitude": 96.092476
+        },
+        {
+            "index": "14",
+            "stop_name_en": "A Mite Kan",
+            "stop_name_mm": "အမှိုက်ကန်",
+            "road": "Dala-Twante Road, Dala",
+            "latitude": 16.758777,
+            "longitude": 96.12905
+        },
+        {
+            "index": "15",
+            "stop_name_en": "Sarpachaung",
+            "stop_name_mm": "ဆာပါချောင်",
+            "road": "Dala-Twante Road, Dala",
+            "latitude": 16.759591,
+            "longitude": 96.131085
+        },
+        {
+            "index": "16",
+            "stop_name_en": "Staff Housing",
+            "stop_name_mm": "ဝန်ထမ်းအိမ်ယာ",
+            "road": "Dala-Twante Road, Dala",
+            "latitude": 16.759206,
+            "longitude": 96.133526
+        },
+        {
+            "index": "17",
+            "stop_name_en": "Mhaw Set",
+            "stop_name_mm": "မှော်စက်",
+            "road": "Dala-Twante Road, Dala",
+            "latitude": 16.758394,
+            "longitude": 96.137865
+        },
+        {
+            "index": "18",
+            "stop_name_en": "Nar Yee Sin",
+            "stop_name_mm": "နာရီစင်",
+            "road": "Dala-Twante Road, Dala",
+            "latitude": 16.757475,
+            "longitude": 96.141894
+        },
+        {
+            "index": "19",
+            "stop_name_en": "Saya San",
+            "stop_name_mm": "ဆရာစံ",
+            "road": "Dala-Twante Road, Dala",
+            "latitude": 16.756838,
+            "longitude": 96.145354
+        },
+        {
+            "index": "20",
+            "stop_name_en": "Bogyoke Park",
+            "stop_name_mm": "ဗိုလ်ချုပ်ပန်းခြံ",
+            "road": "Dala-Twante Road, Dala",
+            "latitude": 16.756031,
+            "longitude": 96.148749
+        },
+        {
+            "index": "21",
+            "stop_name_en": "Aung Zeya Zay",
+            "stop_name_mm": "အောင်ဇေယျဈေး",
+            "road": "Dala-Twante Road, Dala",
+            "latitude": 16.756453,
+            "longitude": 96.15189
+        },
+        {
+            "index": "22",
+            "stop_name_en": "Dala Hospital",
+            "stop_name_mm": "ဒလဆေးရုံ",
+            "road": "Dala-Twante Road, Dala",
+            "latitude": 16.757272,
+            "longitude": 96.153437
+        },
+        {
+            "index": "23",
+            "stop_name_en": "Cherry Ferry Terminal",
+            "stop_name_mm": "ချယ်ရီသင်္ဘောဆိပ်",
+            "road": "Dala-Twante Road, Dala",
+            "latitude": 16.760568,
+            "longitude": 96.156077
+        },
+        {
+            "index": "24",
+            "stop_name_en": "Cherry Ferry Terminal",
+            "stop_name_mm": "ချယ်ရီသင်္ဘောဆိပ်",
+            "road": "Dala-Twante Road, Dala",
+            "latitude": 16.760692,
+            "longitude": 96.156041
+        },
+        {
+            "index": "25",
+            "stop_name_en": "Dala Hospital",
+            "stop_name_mm": "ဒလဆေးရုံ",
+            "road": "Dala-Twante Road, Dala",
+            "latitude": 16.757426,
+            "longitude": 96.15348
+        },
+        {
+            "index": "26",
+            "stop_name_en": "Aung Zeya Zay",
+            "stop_name_mm": "အောင်ဇေယျဈေး",
+            "road": "Dala-Twante Road, Dala",
+            "latitude": 16.756524,
+            "longitude": 96.151922
+        },
+        {
+            "index": "27",
+            "stop_name_en": "Bogyoke Park",
+            "stop_name_mm": "ဗိုလ်ချုပ်ပန်းခြံ",
+            "road": "Dala-Twante Road, Dala",
+            "latitude": 16.756098,
+            "longitude": 96.148915
+        },
+        {
+            "index": "28",
+            "stop_name_en": "Saya San",
+            "stop_name_mm": "ဆရာစံ",
+            "road": "Dala-Twante Road, Dala",
+            "latitude": 16.756915,
+            "longitude": 96.145466
+        },
+        {
+            "index": "29",
+            "stop_name_en": "Nar Yee Sin",
+            "stop_name_mm": "နာရီစင်",
+            "road": "Dala-Twante Road, Dala",
+            "latitude": 16.757552,
+            "longitude": 96.142007
+        },
+        {
+            "index": "30",
+            "stop_name_en": "Mhaw Set",
+            "stop_name_mm": "မှော်စက်",
+            "road": "Dala-Twante Road, Dala",
+            "latitude": 16.758446,
+            "longitude": 96.138084
+        },
+        {
+            "index": "31",
+            "stop_name_en": "Staff Housing",
+            "stop_name_mm": "ဝန်ထမ်းအိမ်ယာ",
+            "road": "Dala-Twante Road, Dala",
+            "latitude": 16.759268,
+            "longitude": 96.133654
+        },
+        {
+            "index": "32",
+            "stop_name_en": "Sarpachaung",
+            "stop_name_mm": "ဆာပါချောင်",
+            "road": "Dala-Twante Road, Dala",
+            "latitude": 16.759673,
+            "longitude": 96.131225
+        },
+        {
+            "index": "33",
+            "stop_name_en": "A Mite Kan",
+            "stop_name_mm": "အမှိုက်ကန်",
+            "road": "Dala-Twante Road, Dala",
+            "latitude": 16.759013,
+            "longitude": 96.1292
+        },
+        {
+            "index": "34",
+            "stop_name_en": "Pyaw Bwe Lay",
+            "stop_name_mm": "ပျော်ဘွယ်လေး",
+            "road": "Dala-Twante Road, Twante",
+            "latitude": 16.745415,
+            "longitude": 96.092573
+        },
+        {
+            "index": "35",
+            "stop_name_en": "Letpan Kone",
+            "stop_name_mm": "လက်ပံကုန်း",
+            "road": "Dala-Twante Road, Twante",
+            "latitude": 16.743089,
+            "longitude": 96.089601
+        },
+        {
+            "index": "36",
+            "stop_name_en": "Peit Swal",
+            "stop_name_mm": "ပိတ်စွယ်",
+            "road": "Dala-Twante Road, Twante",
+            "latitude": 16.723982,
+            "longitude": 96.067961
+        },
+        {
+            "index": "37",
+            "stop_name_en": "Yangon Pauk",
+            "stop_name_mm": "ရန်ကုန်ပေါက်",
+            "road": "Dala-Twante Road, Twante",
+            "latitude": 16.712544,
+            "longitude": 96.048687
+        },
+        {
+            "index": "38",
+            "stop_name_en": "Phaya Ngoke To (or Phaya Ngoketo)",
+            "stop_name_mm": "ဘုရားငုတ္တို",
+            "road": "Dala-Twante Road, Twante",
+            "latitude": 16.713705,
+            "longitude": 96.033344
+        },
+        {
+            "index": "39",
+            "stop_name_en": "Kanbe Junction",
+            "stop_name_mm": "ကံဘဲ့လမ်းဆုံ",
+            "road": "Dala-Twante Road, Twante",
+            "latitude": 16.708789,
+            "longitude": 96.007162
+        },
+        {
+            "index": "40",
+            "stop_name_en": "Baung Taw Choke Junction",
+            "stop_name_mm": "ဗောင်းတောချုပ်လမ်း‌ဆုံ",
+            "road": "Dala-Twante Road, Twante",
+            "latitude": 16.70905,
+            "longitude": 95.992487
+        },
+        {
+            "index": "41",
+            "stop_name_en": "Sout Loke Yay",
+            "stop_name_mm": "ဆောက်လုပ်ရေး",
+            "road": "Dala-Twante Road, Twante",
+            "latitude": 16.713158,
+            "longitude": 95.973781
+        },
+        {
+            "index": "42",
+            "stop_name_en": "Meter Yone",
+            "stop_name_mm": "မီတာရုံး",
+            "road": "Dala-Twante Road, Twante",
+            "latitude": 16.715872,
+            "longitude": 95.958225
+        },
+        {
+            "index": "43",
+            "stop_name_en": "Mee That",
+            "stop_name_mm": "မီးသတ်",
+            "road": "Dala-Twante Road, Twante",
+            "latitude": 16.718843,
+            "longitude": 95.943111
+        },
+        {
+            "index": "44",
+            "stop_name_en": "Phaya Thone Zu",
+            "stop_name_mm": "ဘုရားသုံးဆူ",
+            "road": "Dala-Twante Road, Twante",
+            "latitude": 16.72101,
+            "longitude": 95.935265
+        },
+        {
+            "index": "45",
+            "stop_name_en": "Twante Myoma Market",
+            "stop_name_mm": "တွံတေးမြို့မဈေး",
+            "road": "Dala-Twante Road, Twante",
+            "latitude": 16.712258,
+            "longitude": 95.928543
+        },
+        {
+            "index": "46",
+            "stop_name_en": "Shwesandaw Pagoda",
+            "stop_name_mm": "ရွှေဆံတော်ဘုရား",
+            "road": "Dala-Twante Road, Twante",
+            "latitude": 16.70355,
+            "longitude": 95.934634
+        }
+    ]
+}
