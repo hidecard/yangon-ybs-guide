@@ -81,7 +81,7 @@ void onStart(ServiceInstance service) async {
 
     await service.setAsForegroundService();
     service.setForegroundNotificationInfo(
-      title: 'YBS Guide သတိပေး အလုပ်လုပ်နေသည်',
+      title: 'YBS AI သတိပေး အလုပ်လုပ်နေသည်',
       content: 'မှတ်တိုင်အနီးရောက်လျှင် နှင့် Admin သတင်းများ ရောက်လျှင် အလိုအလျောက် သတိပေးပါမည်',
     );
   }
@@ -135,7 +135,7 @@ void onStart(ServiceInstance service) async {
     try {
       await plugin.show(
         DateTime.now().millisecondsSinceEpoch ~/ 1000,
-        'YBS Guide',
+        'YBS AI',
         '$stopName မှတ်တိုင်အနီးရောက်ပါပြီ${detail.isNotEmpty ? '\n$detail' : ''}',
         NotificationDetails(
           android: AndroidNotificationDetails(
@@ -163,18 +163,17 @@ void onStart(ServiceInstance service) async {
 
   Future<void> fireAdminNotification(Map<String, dynamic> notif) async {
     final id = (notif['id'] as num?)?.toInt() ?? 0;
-    final title = notif['title']?.toString() ?? 'YBS Guide';
     final message = notif['message']?.toString() ?? '';
     try {
       await plugin.show(
         id > 0 ? id : DateTime.now().millisecondsSinceEpoch ~/ 1000,
-        title,
+        'YBS AI',
         message,
         const NotificationDetails(
           android: AndroidNotificationDetails(
             'ybs_admin',
             'Admin Notifications',
-            channelDescription: 'Important announcements from YBS Guide',
+            channelDescription: 'Important announcements from YBS AI',
             importance: Importance.high,
             priority: Priority.high,
             visibility: NotificationVisibility.public,
@@ -284,7 +283,7 @@ Future<void> initBackgroundAlertService() async {
         const AndroidNotificationChannel(
           'ybs_admin',
           'Admin Notifications',
-          description: 'Important announcements from YBS Guide',
+          description: 'Important announcements from YBS AI',
           importance: Importance.high,
         ),
       );
@@ -296,7 +295,7 @@ Future<void> initBackgroundAlertService() async {
       autoStartOnBoot: true,
       isForegroundMode: true,
       notificationChannelId: 'ybs_bg',
-      initialNotificationTitle: 'YBS Guide',
+      initialNotificationTitle: 'YBS AI',
       initialNotificationContent: 'သတိပေး ဝန်ဆောင်မှု အလုပ်လုပ်နေသည်',
       foregroundServiceNotificationId: 888,
     ),

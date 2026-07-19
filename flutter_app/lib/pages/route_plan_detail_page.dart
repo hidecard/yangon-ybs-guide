@@ -558,6 +558,8 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
     final fromStop = _stopsByName[st.fromStop];
     final toStop = _stopsByName[st.toStop];
     final isLastStep = idx == steps.length - 1;
+    final fromLabel = _stopLabel(fromStop, st.fromStop);
+    final toLabel = _stopLabel(toStop, st.toStop);
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -576,9 +578,10 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
               RouteBadge(
                   routeId: st.route.id, color: st.route.color, small: true),
               const SizedBox(width: 8),
-              Text('YBS ${st.route.id}',
-                  style: const TextStyle(
-                      fontSize: 12, fontWeight: FontWeight.bold)),
+              if (st.route.lineName != null)
+                Text('(${st.route.lineName})',
+                    style: const TextStyle(
+                        fontSize: 12, fontWeight: FontWeight.w500)),
               const Spacer(),
               if (isTransfer)
                 const Pill('ကားပြောင်းစီးရမည့်မှတ်တိုင်',
@@ -611,7 +614,7 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
                             color: AppColors.emeraldDark)),
-                    Text(st.fromStop,
+                    Text(fromLabel,
                         style: const TextStyle(
                             fontSize: 14, fontWeight: FontWeight.w600)),
                     if (fromStop != null)
@@ -644,7 +647,7 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
                             color: AppColors.rose)),
-                    Text(st.toStop,
+                    Text(toLabel,
                         style: const TextStyle(
                             fontSize: 14, fontWeight: FontWeight.w600)),
                     if (toStop != null)
@@ -671,6 +674,15 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
       return '$road · $township';
     }
     return road ?? township ?? '';
+  }
+
+  String _stopLabel(BusStop? stop, String fallback) {
+    if (stop == null) return fallback;
+    final parts = <String>[];
+    if (stop.roadMm.isNotEmpty) parts.add(stop.roadMm);
+    if (stop.townshipMm.isNotEmpty && stop.townshipMm != stop.roadMm) parts.add(stop.townshipMm);
+    if (parts.isEmpty) return stop.nameMm;
+    return '${stop.nameMm} (${parts.join(' · ')})';
   }
 
   /// Finds the best (shortest forward) contiguous leg from [fromStop] to

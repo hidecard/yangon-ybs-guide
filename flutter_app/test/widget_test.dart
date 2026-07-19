@@ -13,6 +13,6 @@ void main() {
       ),
     );
     await tester.pump();
-    expect(find.text('YBS Guide'), findsWidgets);
+    expect(find.text('YBS AI'), findsWidgets);
   });
 }

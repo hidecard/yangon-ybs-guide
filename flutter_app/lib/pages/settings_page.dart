@@ -34,7 +34,7 @@ class SettingsPage extends StatelessWidget {
     _Section(Icons.chat_bubble_outline, AppColors.brand, 'အကြံပြုချက် / အမှားတွက်',
         'ကားလိုင်း သို့မဟုတ် App နှင့်ပတ်သက်သော အကြံပြုချက်', const _FeedbackSection()),
     _Section(Icons.favorite, AppColors.rose, 'Support This Project',
-        'YBS Guide ကို ဆက်လက်ဖွံ့ဖြိုးရန် ကူညီပါ', const _DonationSection()),
+        'YBS AI ကို ဆက်လက်ဖွံ့ဖြိုးရန် ကူညီပါ', const _DonationSection()),
   ];
 
   @override
@@ -507,13 +507,13 @@ class _NotifSetupSection extends StatelessWidget {
             ),
             const SizedBox(height: 14),
             _step(1, 'Battery (ဘက်ထရီ) သတိပေးချက်',
-                'Settings → Battery → Battery optimization သို့သွားပါ။ "YBS Guide" ကို ရှာပြီး "Don\'t optimize" (သို့မဟုတ် "Unrestricted") ဟု သတ်မှတ်ပါ။'),
+                'Settings → Battery → Battery optimization သို့သွားပါ။ "YBS AI" ကို ရှာပြီး "Don\'t optimize" (သို့မဟုတ် "Unrestricted") ဟု သတ်မှတ်ပါ။'),
             _step(2, 'Notification (အကြောင်းကြားချက်) ခွင့်ပြု',
-                'Settings → Apps → YBS Guide → Notifications သို့သွားပါ။ "Show notifications" ကို ဖွင့်ပါ။ "Admin Notifications" နှင့် "Arrival Alerts" channel များကို "Important" သို့မဟုတ် "Urgent" သတ်မှတ်ပါ။'),
+                'Settings → Apps → YBS AI → Notifications သို့သွားပါ။ "Show notifications" ကို ဖွင့်ပါ။ "Admin Notifications" နှင့် "Arrival Alerts" channel များကို "Important" သို့မဟုတ် "Urgent" သတ်မှတ်ပါ။'),
             _step(3, 'Autostart / Auto-launch',
-                'Settings → Apps → YBS Guide (သို့မဟုတ် "Manage apps") → Autostart / Auto-launch ကို ဖွင့်ပါ (Xiaomi, Oppo, Vivo, Huawei စသည့် ဖုန်းများတွင် လိုအပ်ပါသည်)။'),
+                'Settings → Apps → YBS AI (သို့မဟုတ် "Manage apps") → Autostart / Auto-launch ကို ဖွင့်ပါ (Xiaomi, Oppo, Vivo, Huawei စသည့် ဖုန်းများတွင် လိုအပ်ပါသည်)။'),
             _step(4, 'Background data (ဒေတာ) ခွင့်ပြု',
-                'Settings → Apps → YBS Guide → Mobile data သို့သွားပါ။ "Allow background data" ကို ဖွင့်ပါ သို့မဟုတ် "Data usage while Data saver is on" ကို ခွင့်ပြုပါ။'),
+                'Settings → Apps → YBS AI → Mobile data သို့သွားပါ။ "Allow background data" ကို ဖွင့်ပါ သို့မဟုတ် "Data usage while Data saver is on" ကို ခွင့်ပြုပါ။'),
             const SizedBox(height: 14),
             Container(
               padding: const EdgeInsets.all(12),
@@ -570,10 +570,10 @@ class _TeamConditionsSection extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _cardHeader(Icons.groups, AppColors.violet, 'အဖွဲ့အစည်း',
-                    'YBS Guide ကို ဖန်တီးသူများ'),
+                    'YBS AI ကို ဖန်တီးသူများ'),
                 const SizedBox(height: 16),
                 _kv('Founder & Developer', 'Arkar Yan'),
-                _kv('Design', 'YBS Guide Team'),
+                _kv('Design', 'YBS AI Team'),
                 _kv('Contact', 'info@arkaryan.net'),
                 _link('Website', 'https://www.arkaryan.net/'),
                 _link('Telegram', 'https://t.me/ybsguide'),
@@ -582,7 +582,7 @@ class _TeamConditionsSection extends StatelessWidget {
                 const Divider(),
                 const SizedBox(height: 14),
                 const Text(
-                  'YBS Guide Team သည် ရန်ကုန်မြို့တော် အများပြည်သူ၏ ကားလိုင်းသုံးစွဲအတွက် '
+                  'YBS AI Team သည် ရန်ကုန်မြို့တော် အများပြည်သူ၏ ကားလိုင်းသုံးစွဲအတွက် '
                   'လွယ်ကူပြီး အဆင်ပြေသော ဝန်ဆောင်မှုတစ်ခုကို ပံ့ပိုးပေးရန် ရည်မှန်းထားပါသည်။',
                   style: TextStyle(fontSize: 13, color: AppColors.slate600),
                 ),
@@ -649,9 +649,9 @@ class _AboutSection extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _cardHeader(Icons.info_outline, AppColors.primary, 'About Software',
-                'YBS Guide အကြောင်း'),
+                'YBS AI အကြောင်း'),
             const SizedBox(height: 16),
-            _kv('App Name', 'YBS Guide'),
+            _kv('App Name', 'YBS AI'),
             _kv('Version', AppConfig.appVersion),
             _kv('Platform', 'Flutter (Android / iOS / Web)'),
             _kv('Developer', 'Arkar Yan'),
@@ -664,7 +664,7 @@ class _AboutSection extends StatelessWidget {
             const Divider(),
             const SizedBox(height: 14),
             const Text(
-              'YBS Guide သည် ရန်ကုန်မြို့ရှိ အများပြည်သူ ကားလိုင်းများကို လမ်းကြောင်းရှာဖွေခြင်း၊ '
+              'YBS AI သည် ရန်ကုန်မြို့ရှိ အများပြည်သူ ကားလိုင်းများကို လမ်းကြောင်းရှာဖွေခြင်း၊ '
               'မြေပုံကြည့်ရှုခြင်း၊ အချိန်နှင့်အလိုက် ကားရောက်မည့်ခန့်မှန်းချက်နှင့် သတိပေးစနစ်များ ပါဝင်သော '
               'အခမဲ့ ဝန်ဆောင်မှု ဖြစ်ပါသည်။',
               style: TextStyle(fontSize: 13, color: AppColors.slate600),
@@ -715,7 +715,7 @@ class _PrivacySection extends StatelessWidget {
             const Divider(),
             const SizedBox(height: 14),
             const Text(
-              'ဤကိုယ်ရေးအချက်အလက် မူဝါဒသည် YBS Guide app အတွက် အသုံးပြုသူများ၏ '
+              'ဤကိုယ်ရေးအချက်အလက် မူဝါဒသည် YBS AI app အတွက် အသုံးပြုသူများ၏ '
               'ကိုယ်ရေးအချက်အလက်များကို လုံခြုံစွာ ထိန်းသိမ်းရန် ရည်ရွယ်ထားပါသည်။',
               style: TextStyle(fontSize: 12, color: AppColors.slate500),
             ),
@@ -856,7 +856,7 @@ class _DonationSection extends StatelessWidget {
                               color: Colors.white,
                               fontWeight: FontWeight.w600,
                               fontSize: 15)),
-                      Text('YBS Guide ကို ဆက်လက်ဖွံ့ဖြိုးရန် ကူညီနိုင်ပါသည်',
+                      Text('YBS AI ကို ဆက်လက်ဖွံ့ဖြိုးရန် ကူညီနိုင်ပါသည်',
                           style: TextStyle(
                               color: AppColors.slate300, fontSize: 12)),
                     ],

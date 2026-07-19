@@ -32,7 +32,7 @@ class YbsApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'YBS Guide',
+      title: 'YBS AI',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       darkTheme: AppTheme.light(),
@@ -91,7 +91,7 @@ class _RootShellState extends State<RootShell> {
                   size: 18, color: Colors.white),
             ),
             const SizedBox(width: 10),
-            const Text('YBS Guide',
+            const Text('YBS AI',
                 style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
@@ -165,7 +165,7 @@ class _SplashScreen extends StatelessWidget {
           children: [
             _BouncingBus(),
             SizedBox(height: 18),
-            Text('YBS Guide',
+            Text('YBS AI',
                 style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 20,

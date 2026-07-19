@@ -36,7 +36,7 @@ class NotifyService {
       const admin = AndroidNotificationChannel(
         'ybs_admin',
         'Admin Notifications',
-        description: 'Important announcements from YBS Guide',
+        description: 'Important announcements from YBS AI',
         importance: Importance.high,
       );
       await androidPlugin?.createNotificationChannel(arrival);
@@ -81,7 +81,7 @@ class NotifyService {
     try {
       await _plugin.show(
         DateTime.now().millisecondsSinceEpoch ~/ 1000,
-        'YBS Guide',
+        'YBS AI',
         message,
         const NotificationDetails(
           android: AndroidNotificationDetails(
@@ -103,13 +103,13 @@ class NotifyService {
     try {
       await _plugin.show(
         DateTime.now().millisecondsSinceEpoch ~/ 1000,
-        notif.title,
+        'YBS AI',
         notif.message,
         const NotificationDetails(
           android: AndroidNotificationDetails(
             'ybs_admin',
             'Admin Notifications',
-            channelDescription: 'Important announcements from YBS Guide',
+            channelDescription: 'Important announcements from YBS AI',
             importance: Importance.high,
             priority: Priority.high,
           ),

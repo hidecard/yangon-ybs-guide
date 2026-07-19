@@ -1,4 +1,4 @@
-# Yangon YBS Guide 🚌
+# Yangon YBS AI 🚌
 
 A comprehensive bus route guide application for Yangon, Myanmar, featuring interactive maps, an AI-powered route assistant, real-time user updates, and offline functionality.
 

@@ -197,15 +197,19 @@ List<StopOption> buildDisambiguatedStops(List<BusStop> stops) {
 /// Get disambiguated display for a stop (adds road/township if needed).
 /// Returns a tuple of (displayName, subtitle) where subtitle is the road/township.
 (String, String?) getDisambiguatedStopDisplay(BusStop stop, List<BusStop> allStops) {
-  // Check if there are other stops with the same name
   final hasDuplicates = allStops.any((s) => s.nameMm == stop.nameMm && s.id != stop.id);
   
   if (!hasDuplicates) {
     return (stop.nameMm, null);
   }
   
-  final road = stop.roadMm.isNotEmpty ? stop.roadMm : stop.townshipMm;
-  return (stop.nameMm, road);
+  final parts = <String>[];
+  if (stop.roadMm.isNotEmpty) parts.add(stop.roadMm);
+  if (stop.townshipMm.isNotEmpty && stop.townshipMm != stop.roadMm) parts.add(stop.townshipMm);
+  
+  if (parts.isEmpty) return (stop.nameMm, null);
+  if (parts.length == 1) return (stop.nameMm, parts.first);
+  return (stop.nameMm, '${parts[0]} · ${parts[1]}');
 }
 
 /// Local NLP: extract start/end stop names from Burmese text.

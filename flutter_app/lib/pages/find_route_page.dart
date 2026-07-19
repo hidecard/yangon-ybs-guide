@@ -391,8 +391,6 @@ class _FindRoutePageState extends State<FindRoutePage> {
 
   Widget _resultCard(BuildContext context, SearchResult res,
       Map<String, BusStop> stopByName) {
-    // Prefer the precisely chosen stops so distance shown for a direct route
-    // reflects the actual start/end the user picked (not a same-named other).
     final first = res.steps.first;
     final last = res.steps.last;
     final fromStop = (_startStop != null && first.fromStop == _start)
@@ -461,6 +459,8 @@ class _FindRoutePageState extends State<FindRoutePage> {
               final to = isLastStep && toStop != null
                   ? toStop
                   : stopByName[step.toStop];
+              final fromLabel = _stopLabel(from, step.fromStop);
+              final toLabel = _stopLabel(to, step.toStop);
               return Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Row(
@@ -496,7 +496,7 @@ class _FindRoutePageState extends State<FindRoutePage> {
                             ],
                           ),
                           const SizedBox(height: 4),
-                          Text('${step.fromStop} မှ ${step.toStop} အထိ',
+                          Text('$fromLabel မှ $toLabel အထိ',
                               style: const TextStyle(
                                   fontSize: 12, color: AppColors.slate500)),
                           if (from != null && to != null)
@@ -516,6 +516,15 @@ class _FindRoutePageState extends State<FindRoutePage> {
       ),
     );
   }
+}
+
+String _stopLabel(BusStop? stop, String fallback) {
+  if (stop == null) return fallback;
+  final parts = <String>[];
+  if (stop.roadMm.isNotEmpty) parts.add(stop.roadMm);
+  if (stop.townshipMm.isNotEmpty && stop.townshipMm != stop.roadMm) parts.add(stop.townshipMm);
+  if (parts.isEmpty) return stop.nameMm;
+  return '${stop.nameMm} (${parts.join(' · ')})';
 }
 
 class _StopField extends StatefulWidget {

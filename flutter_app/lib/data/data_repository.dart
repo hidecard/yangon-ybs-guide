@@ -7,6 +7,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models.dart' show BusRoute, BusStop;
+import 'route_finder.dart' show resolveStopByName;
 import 'routes_crypto.dart' show xorBytes;
 import 'sqlite_routes.dart' show SqliteRoutes;
 
@@ -285,17 +286,19 @@ class DataRepository {
     BusStop? startStop,
     BusStop? endStop,
   ) {
+    final effectiveStart = startStop ?? resolveStopByName(start, stops, hint: endStop == null ? null : (lat: endStop.lat, lng: endStop.lng));
+    final effectiveEnd = endStop ?? resolveStopByName(end, stops, hint: startStop == null ? null : (lat: startStop.lat, lng: startStop.lng));
     final out = <BusRoute>[];
     for (final r in routes) {
       int? startIndex;
       int? endIndex;
       for (int i = 0; i < r.stopsDetailed.length; i++) {
         final s = r.stopsDetailed[i];
-        if (startIndex == null && _stopMatches(s, start, startStop)) {
+        if (startIndex == null && _stopMatches(s, start, effectiveStart)) {
           startIndex = i;
         } else if (startIndex != null &&
             endIndex == null &&
-            _stopMatches(s, end, endStop)) {
+            _stopMatches(s, end, effectiveEnd)) {
           endIndex = i;
           break;
         }
