@@ -555,6 +555,9 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
   Widget _stepCard(int idx, PathStep st) {
     final isActive = idx == _activeStep;
     final isTransfer = idx > 0;
+    final fromStop = _stopsByName[st.fromStop];
+    final toStop = _stopsByName[st.toStop];
+    final isLastStep = idx == steps.length - 1;
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -600,14 +603,22 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('စီးရမည့်မှတ်တိုင်',
-                        style: TextStyle(
+                    Text(
+                        isLastStep
+                            ? 'မိမိစီးရမည့်နေရာ (သင့်တည်နေရာ)'
+                            : 'စီးရမည့်မှတ်တိုင်',
+                        style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
                             color: AppColors.emeraldDark)),
                     Text(st.fromStop,
                         style: const TextStyle(
                             fontSize: 14, fontWeight: FontWeight.w600)),
+                    if (fromStop != null)
+                      Text(
+                          _stopSubtitle(fromStop),
+                          style: const TextStyle(
+                              fontSize: 11, color: AppColors.slate400)),
                   ],
                 ),
               ),
@@ -628,7 +639,7 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('ဆင်းရမည့်မှတ်တိုင်',
+                    const Text('မိမိဆင်းရမည့်နေရာ',
                         style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
@@ -636,6 +647,11 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
                     Text(st.toStop,
                         style: const TextStyle(
                             fontSize: 14, fontWeight: FontWeight.w600)),
+                    if (toStop != null)
+                      Text(
+                          _stopSubtitle(toStop),
+                          style: const TextStyle(
+                              fontSize: 11, color: AppColors.slate400)),
                   ],
                 ),
               ),
@@ -645,6 +661,16 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
         ],
       ),
     );
+  }
+
+  /// "road · township" subtitle so a same-named stop is clearly identified.
+  String _stopSubtitle(BusStop s) {
+    final road = s.roadMm.isNotEmpty ? s.roadMm : null;
+    final township = s.townshipMm.isNotEmpty ? s.townshipMm : null;
+    if (road != null && township != null && road != township) {
+      return '$road · $township';
+    }
+    return road ?? township ?? '';
   }
 
   /// Finds the best (shortest forward) contiguous leg from [fromStop] to

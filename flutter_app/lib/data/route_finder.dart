@@ -169,18 +169,24 @@ BusStop? resolveStopByName(
   return best;
 }
 
-/// Build disambiguated stop options for autocomplete (name [road]).
+/// Build disambiguated stop options for autocomplete (name [road · township]).
 List<StopOption> buildDisambiguatedStops(List<BusStop> stops) {
   final seen = <String>{};
   final options = <StopOption>[];
   for (final stop in stops) {
-    final road = stop.roadMm.isNotEmpty ? stop.roadMm : stop.townshipMm;
-    final key = '${stop.nameMm}|$road';
+    final road = stop.roadMm.isNotEmpty ? stop.roadMm : null;
+    final township = stop.townshipMm.isNotEmpty ? stop.townshipMm : null;
+    // Prefer "road · township"; fall back to whichever is available so a
+    // same-named stop in a different area/township is still distinguishable.
+    final suffix = road != null && township != null && road != township
+        ? '$road · $township'
+        : (road ?? township ?? '');
+    final key = '${stop.nameMm}|$suffix';
     if (seen.contains(key)) continue;
     seen.add(key);
     options.add(StopOption(
       raw: stop.nameMm,
-      display: '${stop.nameMm} [$road]',
+      display: suffix.isNotEmpty ? '${stop.nameMm} [$suffix]' : stop.nameMm,
       id: stop.id,
     ));
   }
