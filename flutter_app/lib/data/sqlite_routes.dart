@@ -172,9 +172,16 @@ class SqliteRoutes {
     final db = _db;
     if (db == null) return const [];
     try {
+      // For each route we take only the SHORTEST forward span between the two
+      // groups (MIN of end_order - start_order). YBS routes store the forward
+      // + return legs under one route_id, so the same name appears at two very
+      // different stop_orders; the shortest span is always the correct
+      // (non-loop-around) segment. GROUP BY + MIN gives per-route ranking
+      // without window functions, so it runs on old-device SQLite too.
       final rows = await db.rawQuery(
         '''
-        SELECT DISTINCT r.route_id AS route_id
+        SELECT r.route_id AS route_id,
+               MIN(end_rs.stop_order - start_rs.stop_order) AS gap
         FROM route_stops start_rs
         JOIN bus_stops start_stops ON start_rs.stop_id = start_stops.stop_id
         JOIN route_stops end_rs ON start_rs.route_id = end_rs.route_id
@@ -185,6 +192,8 @@ class SqliteRoutes {
           AND end_stops.stop_name_mm = ?
           AND end_stops.township = ?
           AND start_rs.stop_order < end_rs.stop_order
+        GROUP BY r.route_id
+        ORDER BY gap ASC
         ''',
         [startName, startTownship, endName, endTownship],
       );
@@ -213,7 +222,8 @@ class SqliteRoutes {
     try {
       final rows = await db.rawQuery(
         '''
-        SELECT DISTINCT r.route_id AS route_id
+        SELECT r.route_id AS route_id,
+               MIN(end_rs.stop_order - start_rs.stop_order) AS gap
         FROM route_stops start_rs
         JOIN bus_stops start_stops ON start_rs.stop_id = start_stops.stop_id
         JOIN route_stops end_rs ON start_rs.route_id = end_rs.route_id
@@ -222,6 +232,8 @@ class SqliteRoutes {
         WHERE start_stops.stop_name_mm = ?
           AND end_stops.stop_name_mm = ?
           AND start_rs.stop_order < end_rs.stop_order
+        GROUP BY r.route_id
+        ORDER BY gap ASC
         ''',
         [startName, endName],
       );

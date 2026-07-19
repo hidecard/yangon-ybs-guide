@@ -303,26 +303,29 @@ class DataRepository {
   ) {
     final effectiveStart = startStop ?? resolveStopByName(start, stops, hint: endStop == null ? null : (lat: endStop.lat, lng: endStop.lng));
     final effectiveEnd = endStop ?? resolveStopByName(end, stops, hint: startStop == null ? null : (lat: startStop.lat, lng: startStop.lng));
-    final out = <BusRoute>[];
+    // Collect matches with their shortest forward span so out-and-back (loop)
+    // routes resolve to the correct segment and we can rank shortest-first,
+    // mirroring the SQLite MIN(gap) query and the detail page's _findLeg.
+    final scored = <({BusRoute route, int gap})>[];
     for (final r in routes) {
-      int? startIndex;
-      int? endIndex;
+      final startIdxs = <int>[];
+      final endIdxs = <int>[];
       for (int i = 0; i < r.stopsDetailed.length; i++) {
         final s = r.stopsDetailed[i];
-        if (startIndex == null && _stopMatches(s, start, effectiveStart)) {
-          startIndex = i;
-        } else if (startIndex != null &&
-            endIndex == null &&
-            _stopMatches(s, end, effectiveEnd)) {
-          endIndex = i;
-          break;
+        if (_stopMatches(s, start, effectiveStart)) startIdxs.add(i);
+        if (_stopMatches(s, end, effectiveEnd)) endIdxs.add(i);
+      }
+      if (startIdxs.isEmpty || endIdxs.isEmpty) continue;
+      int bestGap = 1 << 30;
+      for (final f in startIdxs) {
+        for (final t in endIdxs) {
+          if (t > f && (t - f) < bestGap) bestGap = t - f;
         }
       }
-      if (startIndex != null && endIndex != null && endIndex > startIndex) {
-        out.add(r);
-      }
+      if (bestGap != 1 << 30) scored.add((route: r, gap: bestGap));
     }
-    return out;
+    scored.sort((a, b) => a.gap.compareTo(b.gap));
+    return scored.map((e) => e.route).toList();
   }
 
   /// Match a detailed stop against [name], preferring the [hint] stop's exact
