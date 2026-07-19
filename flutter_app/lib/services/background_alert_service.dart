@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:flutter/services.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -8,6 +9,21 @@ import 'package:geolocator/geolocator.dart';
 import 'package:vibration/vibration.dart';
 
 import 'local_store.dart';
+
+/// Vibration pattern used for the arrival alert (ms): vibrate, pause, repeat.
+const _vibratePattern = [0, 400, 150, 400, 150, 400, 150, 400];
+
+/// Native channel used to acquire/release a wake lock + turn the screen on
+/// so the arrival alert (vibration + notification) is delivered even when the
+/// device is asleep (screen off or app closed).
+const _wakeLockChannel =
+    MethodChannel('net.arkaryan.ybs_guide/wakelock');
+
+Future<void> _releaseWakeLock() async {
+  try {
+    await _wakeLockChannel.invokeMethod('release');
+  } catch (_) {}
+}
 
 /// Threshold (km) at which the background service fires the arrival alert.
 const _arrivalThresholdKm = 0.2;
@@ -37,6 +53,7 @@ void onStart(ServiceInstance service) async {
       await service.setAsBackgroundService();
     });
     service.on('stopService').listen((e) async {
+      await _releaseWakeLock();
       await service.stopSelf();
     });
 
@@ -60,19 +77,39 @@ void onStart(ServiceInstance service) async {
     await tts.setSpeechRate(0.9);
   } catch (_) {}
 
-  Future<void> fireAlert(String stopName, String detail) async {
-    // Vibrate first (works even with screen off / app closed).
+  // Hold a partial wake lock (via the native channel) so the periodic timer
+  // keeps firing and the vibration / notification are actually delivered
+  // while the device is asleep (screen off or app closed).
+  try {
+    await _wakeLockChannel.invokeMethod('acquire');
+  } catch (_) {}
+
+  Future<void> vibrateStrong() async {
     try {
       if (await Vibration.hasVibrator()) {
         // Strong, repeating pattern so it's noticeable when not looking.
-        Vibration.vibrate(pattern: [0, 300, 100, 300, 100, 300], repeat: 1);
-        // Fallback for devices that ignore `repeat`.
-        await Future.delayed(const Duration(milliseconds: 900));
-        if (await Vibration.hasVibrator()) {
-          Vibration.vibrate(pattern: [0, 300, 100, 300]);
+        Vibration.vibrate(pattern: _vibratePattern, repeat: -1);
+        // Keep re-triggering for devices that ignore `repeat`, so the alert
+        // doesn't stop after a single burst while the screen is off.
+        for (int i = 0; i < 3; i++) {
+          await Future.delayed(const Duration(milliseconds: 1400));
+          if (await Vibration.hasVibrator()) {
+            Vibration.vibrate(pattern: _vibratePattern);
+          }
         }
+        Vibration.cancel();
       }
     } catch (_) {}
+  }
+
+  Future<void> fireAlert(String stopName, String detail) async {
+    // Wake the screen + turn it on (works even with screen off / app closed,
+    // in addition to the fullScreenIntent notification below).
+    try {
+      await _wakeLockChannel.invokeMethod('wakeScreen');
+    } catch (_) {}
+    // Vibrate first (works even with screen off / app closed).
+    vibrateStrong();
     try {
       await plugin.show(
         DateTime.now().millisecondsSinceEpoch ~/ 1000,
@@ -88,6 +125,7 @@ void onStart(ServiceInstance service) async {
             // Wake the device + show over lock screen when screen is off.
             fullScreenIntent: true,
             category: AndroidNotificationCategory.alarm,
+            visibility: NotificationVisibility.public,
           ),
           iOS: const DarwinNotificationDetails(
             presentAlert: true,
@@ -109,6 +147,9 @@ void onStart(ServiceInstance service) async {
         service.invoke('stop');
       }
       timer.cancel();
+      try {
+        await _releaseWakeLock();
+      } catch (_) {}
       try {
         await service.stopSelf();
       } catch (_) {}
