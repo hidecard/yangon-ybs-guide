@@ -1,14 +1,20 @@
 import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:shared_preferences/shared_preferences.dart';
-import '../models.dart' show BusRoute, BusStop;
-import 'database_service.dart';
 
-/// Loads and caches all YBS route/stop data from bundled JSON assets.
+import '../models.dart' show BusRoute, BusStop;
+import 'routes_crypto.dart' show xorBytes;
+
+/// Loads and caches all YBS route/stop data.
 ///
-/// Mirrors the web app's data_constants.ts (color hashing, road parsing,
-/// stop de-duplication and the local cache mechanism).
+/// The route data is bundled as an encrypted binary blob (`assets/routes.bin`,
+/// gzip + XOR) so the plain JSON is not readable by simply unzipping the APK.
+/// On first launch the blob is decoded, parsed and cached in SharedPreferences
+/// so the app works fully offline afterwards.
 class DataRepository {
   DataRepository._();
   static final DataRepository instance = DataRepository._();
@@ -18,12 +24,6 @@ class DataRepository {
   List<BusRoute> routes = [];
   List<BusStop> stops = [];
   bool loaded = false;
-
-  Future<List<String>> _manifest() async {
-    final raw = await rootBundle.loadString('assets/routes_manifest.json');
-    final list = json.decode(raw) as List;
-    return list.map((e) => e as String).toList();
-  }
 
   /// Deterministic color from an id (same algorithm as web generateColor).
   static Color _generateColor(String id) {
@@ -36,62 +36,112 @@ class DataRepository {
     return Color(0xFF000000 | c);
   }
 
-  Future<void> _parseFiles() async {
-    final files = await _manifest();
+  Future<void> load({bool forceReload = false}) async {
+    if (loaded && !forceReload) return;
+
+    // 1) Previously cached data (works offline, no re-decrypt).
+    if (!forceReload) {
+      final ok = await _loadCache();
+      if (ok) {
+        loaded = true;
+        return;
+      }
+    }
+
+    // 2) Decode the encrypted bundled blob.
+    try {
+      await _loadFromBundle();
+      if (routes.isNotEmpty) {
+        await _saveCache();
+        loaded = true;
+        return;
+      }
+    } catch (e) {
+      debugPrint('Bundle load failed: $e');
+    }
+
+    // 3) Last resort: reuse a previously saved cache even if stale.
+    loaded = await _loadCache();
+  }
+
+  /// Reads [assets/routes.bin], base64-decodes, XOR-decrypts, gunzips and
+  /// parses the packed route JSON files.
+  Future<void> _loadFromBundle() async {
+    final b64 = await rootBundle.loadString('assets/routes.bin');
+    final encrypted = base64.decode(b64);
+    final gzipped = xorBytes(Uint8List.fromList(encrypted));
+    final packed = gzip.decode(gzipped) as Uint8List;
+    final entries = (json.decode(utf8.decode(packed)) as List)
+        .cast<Map<String, dynamic>>();
+
     final Set<String> usedIds = {};
     final List<BusRoute> loadedRoutes = [];
     final Map<String, BusStop> stopsMap = {};
     int stopIdCounter = 1;
 
-    for (final file in files) {
-      try {
-        final raw = await rootBundle.loadString('assets/routes/$file');
-        final data = json.decode(raw) as Map<String, dynamic>;
+    for (final entry in entries) {
+      final name = entry['name'] as String? ?? '';
+      final data = json.decode(entry['json'] as String) as Map<String, dynamic>;
 
-        // Route id
-        final routeIdRaw = data['bus_line']?.toString() ??
-            file.replaceFirst('ybs_', '').replaceFirst('_data.json', '');
-        String routeId = routeIdRaw.trim();
-        if (usedIds.contains(routeId)) {
-          final suffix = file
-              .replaceFirst('ybs_', '')
-              .replaceFirst('_data.json', '')
-              .replaceFirst(RegExp(r'^\d+_'), '');
-          routeId = '${routeId}_$suffix';
-        }
-        usedIds.add(routeId);
+      final routeIdRaw = data['bus_line']?.toString() ??
+          name.replaceFirst('ybs_', '').replaceFirst('_data.json', '');
+      String routeId = routeIdRaw.trim();
+      if (usedIds.contains(routeId)) {
+        final suffix = name
+            .replaceFirst('ybs_', '')
+            .replaceFirst('_data.json', '')
+            .replaceFirst(RegExp(r'^\d+_'), '');
+        routeId = '${routeId}_$suffix';
+      }
+      usedIds.add(routeId);
 
-        final List<String> stopNames = [];
-        final List<BusStop> detailedStops = [];
+      final List<String> stopNames = [];
+      final List<BusStop> detailedStops = [];
 
-        final rawStops = data['stops'];
-        if (rawStops is List) {
-          for (int idx = 0; idx < rawStops.length; idx++) {
-            final stop = rawStops[idx] as Map<String, dynamic>;
-            final nameMm = stop['stop_name_mm']?.toString();
-            final nameEn = stop['stop_name_en']?.toString();
-            final lat = stop['latitude'];
-            final lng = stop['longitude'];
+      final rawStops = data['stops'];
+      if (rawStops is List) {
+        for (int idx = 0; idx < rawStops.length; idx++) {
+          final stop = rawStops[idx] as Map<String, dynamic>;
+          final nameMm = stop['stop_name_mm']?.toString();
+          final nameEn = stop['stop_name_en']?.toString();
+          final lat = stop['latitude'];
+          final lng = stop['longitude'];
 
-            if (nameMm != null && nameMm.isNotEmpty) {
-              stopNames.add(nameMm);
-            }
+          if (nameMm != null && nameMm.isNotEmpty) {
+            stopNames.add(nameMm);
+          }
 
-            if (nameMm != null &&
-                nameEn != null &&
-                lat != null &&
-                lng != null) {
-              final roadStr = stop['road']?.toString() ?? '';
-              final roadParts = roadStr.isEmpty ? ['', ''] : roadStr.split(',');
-              final road = roadParts.isNotEmpty ? roadParts[0].trim() : '';
-              final township = roadParts.length > 1
-                  ? roadParts[1].trim()
-                  : (roadParts.isNotEmpty ? roadParts[0].trim() : '');
+          if (nameMm != null &&
+              nameEn != null &&
+              lat != null &&
+              lng != null) {
+            final roadStr = stop['road']?.toString() ?? '';
+            final roadParts =
+                roadStr.isEmpty ? ['', ''] : roadStr.split(',');
+            final road = roadParts.isNotEmpty ? roadParts[0].trim() : '';
+            final township = roadParts.length > 1
+                ? roadParts[1].trim()
+                : (roadParts.isNotEmpty ? roadParts[0].trim() : '');
 
-              final ds = BusStop(
-                id: idx + 1,
-                lat: (lat as num).toDouble(),
-                lng: (lng as num).toDouble(),
+            final ds = BusStop(
+              id: idx + 1,
+              lat: (lat as num).toDouble(),
+              lng: (lng as num).toDouble(),
+              nameEn: nameEn,
+              nameMm: nameMm,
+              roadEn: road,
+              roadMm: road,
+              townshipEn: township,
+              townshipMm: township,
+            );
+            detailedStops.add(ds);
+
+            final key = '${nameMm}_${ds.lat}_${ds.lng}';
+            if (!stopsMap.containsKey(key)) {
+              stopsMap[key] = BusStop(
+                id: stopIdCounter++,
+                lat: ds.lat,
+                lng: ds.lng,
                 nameEn: nameEn,
                 nameMm: nameMm,
                 roadEn: road,
@@ -99,82 +149,29 @@ class DataRepository {
                 townshipEn: township,
                 townshipMm: township,
               );
-              detailedStops.add(ds);
-
-              // Global de-duplicated stops (matches loadStopsFromRouteFiles)
-              final key = '${nameMm}_${ds.lat}_${ds.lng}';
-              if (!stopsMap.containsKey(key)) {
-                stopsMap[key] = BusStop(
-                  id: stopIdCounter++,
-                  lat: ds.lat,
-                  lng: ds.lng,
-                  nameEn: nameEn,
-                  nameMm: nameMm,
-                  roadEn: road,
-                  roadMm: road,
-                  townshipEn: township,
-                  townshipMm: township,
-                );
-              }
             }
           }
         }
-
-        final routeInfo =
-            (data['route_info'] as Map<String, dynamic>?) ?? const {};
-
-        loadedRoutes.add(BusRoute(
-          id: routeId,
-          color: _generateColor(routeId),
-          operator: (routeInfo['Agency']?.toString().isNotEmpty ?? false)
-              ? routeInfo['Agency'].toString()
-              : '',
-          lineName: routeInfo['Line Name']?.toString(),
-          qrPayment: routeInfo['QR Payment']?.toString(),
-          stops: stopNames,
-          stopsDetailed: detailedStops,
-        ));
-      } catch (e) {
-        debugPrint('Error loading $file: $e');
       }
+
+      final routeInfo =
+          (data['route_info'] as Map<String, dynamic>?) ?? const {};
+
+      loadedRoutes.add(BusRoute(
+        id: routeId,
+        color: _generateColor(routeId),
+        operator: (routeInfo['Agency']?.toString().isNotEmpty ?? false)
+            ? routeInfo['Agency'].toString()
+            : '',
+        lineName: routeInfo['Line Name']?.toString(),
+        qrPayment: routeInfo['QR Payment']?.toString(),
+        stops: stopNames,
+        stopsDetailed: detailedStops,
+      ));
     }
 
     routes = loadedRoutes;
     stops = stopsMap.values.toList();
-  }
-
-  Future<void> load({bool forceReload = false}) async {
-    if (loaded && !forceReload) return;
-
-    // First launch: import all JSON assets into the SQLite DB, then read from it.
-    if (!await DatabaseService.instance.isImported() || forceReload) {
-      await DatabaseService.instance.importFromAssets();
-    }
-
-    try {
-      final dbRoutes = await DatabaseService.instance.loadRoutes();
-      final dbStops = await DatabaseService.instance.loadStops();
-      if (dbRoutes.isNotEmpty) {
-        routes = dbRoutes;
-        stops = dbStops;
-        loaded = true;
-        return;
-      }
-    } catch (e) {
-      debugPrint('DB load failed, falling back to assets: $e');
-    }
-
-    // Fallback: parse assets directly (also keeps old cache as a last resort).
-    final cached = await _loadCache();
-    if (cached && !forceReload) {
-      loaded = true;
-      _parseFiles().then((_) => _saveCache());
-      return;
-    }
-
-    await _parseFiles();
-    await _saveCache();
-    loaded = true;
   }
 
   Future<bool> _loadCache() async {
@@ -221,6 +218,9 @@ class DataRepository {
   Future<void> clearCache() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_cacheKey);
+    loaded = false;
+    routes = [];
+    stops = [];
   }
 
   BusRoute? routeById(String id) {
@@ -230,9 +230,35 @@ class DataRepository {
     return null;
   }
 
-  /// Phase 2 (Direct): fast SQL-path lookup for routes that go from
-  /// [startName] to [endName] in the correct forward direction. Returns full
-  /// [BusRoute] objects read from the SQLite route_stops join.
-  Future<List<BusRoute>> findDirectRoutes(String startName, String endName) =>
-      DatabaseService.instance.findDirectRoutesByName(startName, endName);
+  /// Direct-route search: returns every loaded route that passes through
+  /// [startName] before [endName] in stop order (correct forward direction
+  /// only). Matching is by Burmese stop name, with an English fallback.
+  Future<List<BusRoute>> findDirectRoutes(
+      String startName, String endName) async {
+    final start = startName.trim();
+    final end = endName.trim();
+    if (start.isEmpty || end.isEmpty) return const [];
+
+    final out = <BusRoute>[];
+    for (final r in routes) {
+      int? startIndex;
+      int? endIndex;
+      for (int i = 0; i < r.stopsDetailed.length; i++) {
+        final s = r.stopsDetailed[i];
+        if (startIndex == null &&
+            (s.nameMm == start || s.nameEn == start)) {
+          startIndex = i;
+        } else if (startIndex != null &&
+            endIndex == null &&
+            (s.nameMm == end || s.nameEn == end)) {
+          endIndex = i;
+          break;
+        }
+      }
+      if (startIndex != null && endIndex != null && endIndex > startIndex) {
+        out.add(r);
+      }
+    }
+    return out;
+  }
 }

@@ -51,6 +51,7 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/routes_manifest.json
-    - assets/routes/
+    # Encrypted route data blob (plain JSON is NOT bundled — see
+    # tools/build_routes_bundle.dart). Regenerate after editing routes.
+    - assets/routes.bin
     - assets/icons/logo.png
