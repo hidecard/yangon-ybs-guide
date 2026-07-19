@@ -86,8 +86,18 @@ class _StopDetailPageState extends State<StopDetailPage> {
   Widget build(BuildContext context) {
     final state = context.watch<AppState>();
     final stop = widget.stop;
-    final passing =
-        state.routes.where((r) => r.stops.contains(stop.nameMm)).toList();
+    // Each route has separate forward/backward entries (ids like "1" and
+    // "1_suffix"). Show each base line number only once so the stop page
+    // doesn't list the same route twice for its two directions.
+    final seenLines = <String>{};
+    final passing = <BusRoute>[];
+    for (final r in state.routes) {
+      if (!r.stops.contains(stop.nameMm)) continue;
+      final base = r.id.split('_').first;
+      if (seenLines.contains(base)) continue;
+      seenLines.add(base);
+      passing.add(r);
+    }
     final isFav = state.isFavStop(stop.id);
 
     return Scaffold(
