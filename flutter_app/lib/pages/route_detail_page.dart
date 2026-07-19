@@ -330,7 +330,10 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
           markers.add(dotMarker(LatLng(b.lat!, b.lng!), color: AppColors.blue, size: 16));
         if (_livePos != null)
           markers.add(dotMarker(LatLng(_livePos!.lat, _livePos!.lng),
-              color: AppColors.blue, size: 16, border: Colors.white));
+              color: AppColors.blue,
+              size: 16,
+              border: Colors.white,
+              label: 'မိမိ နေရာ'));
 
     final polylines = <Polyline>[
       if (uniqueStops.isNotEmpty)

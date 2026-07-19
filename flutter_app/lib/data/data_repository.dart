@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models.dart' show BusRoute, BusStop;
 import 'routes_crypto.dart' show xorBytes;
+import 'sqlite_routes.dart' show SqliteRoutes;
 
 /// Loads and caches all YBS route/stop data.
 ///
@@ -53,6 +54,13 @@ class DataRepository {
       await _loadFromBundle();
       if (routes.isNotEmpty) {
         await _saveCache();
+        // Materialize the local SQLite database (first launch only) so
+        // direct-route searches run as real JOIN queries offline.
+        try {
+          await SqliteRoutes.instance.open(routes);
+        } catch (e) {
+          debugPrint('SQLite build skipped: $e');
+        }
         loaded = true;
         return;
       }
@@ -238,6 +246,10 @@ class DataRepository {
   /// supplied they disambiguate same-named stops — the route is only a match
   /// if it physically contains the chosen stop on the forward (start → end)
   /// leg, so the backward/different-area duplicate of a name is never returned.
+  ///
+  /// When the local SQLite database is available the search runs as a JOIN
+  /// query keyed by stop group (name + township), matching the production
+  /// schema. Falls back to the in-memory scan if SQLite is unavailable.
   Future<List<BusRoute>> findDirectRoutes(
     String startName,
     String endName, {
@@ -248,6 +260,31 @@ class DataRepository {
     final end = endName.trim();
     if (start.isEmpty || end.isEmpty) return const [];
 
+    // Prefer the SQLite JOIN query (keyed by stop group = name + township).
+    if (startStop != null && endStop != null) {
+      final ids = await SqliteRoutes.instance.directRouteIds(
+        startName: startStop.nameMm,
+        startTownship: startStop.townshipMm,
+        endName: endStop.nameMm,
+        endTownship: endStop.townshipMm,
+      );
+      if (ids.isNotEmpty) {
+        final byId = {for (final r in routes) r.id: r};
+        final found = ids.where((id) => byId.containsKey(id)).map((id) => byId[id]!).toList();
+        if (found.isNotEmpty) return found;
+      }
+    }
+
+    // In-memory fallback (also handles the no-option / name-only case).
+    return _findDirectRoutesInMemory(start, end, startStop, endStop);
+  }
+
+  List<BusRoute> _findDirectRoutesInMemory(
+    String start,
+    String end,
+    BusStop? startStop,
+    BusStop? endStop,
+  ) {
     final out = <BusRoute>[];
     for (final r in routes) {
       int? startIndex;

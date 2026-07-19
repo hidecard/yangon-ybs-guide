@@ -306,10 +306,6 @@ class _FindRoutePageState extends State<FindRoutePage> {
                 options: options,
                 indicator: AppColors.rose,
                 onChanged: (o) => _setStop(false, o),
-                trailing: IconButton(
-                  onPressed: () => _openPicker(false),
-                  icon: const Icon(Icons.map_outlined, size: 18),
-                ),
               ),
               const SizedBox(height: 16),
               SizedBox(
@@ -543,33 +539,6 @@ class _StopField extends StatefulWidget {
 }
 
 class _StopFieldState extends State<_StopField> {
-  late TextEditingController _ctl;
-
-  @override
-  void initState() {
-    super.initState();
-    _ctl = TextEditingController(text: _displayFor(widget.value));
-  }
-
-  @override
-  void didUpdateWidget(covariant _StopField oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // Reflect programmatic changes (Near Me, Map picker, swap) in the field.
-    final display = _displayFor(widget.value);
-    if (_ctl.text != display) {
-      _ctl.value = _ctl.value.copyWith(
-        text: display,
-        selection: TextSelection.collapsed(offset: display.length),
-      );
-    }
-  }
-
-  @override
-  void dispose() {
-    _ctl.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -584,12 +553,18 @@ class _StopFieldState extends State<_StopField> {
           ],
         ),
         const SizedBox(height: 6),
+        // Key the Autocomplete by the selected option id so external changes
+        // (map picker, swap, Near Me) rebuild it with the correct initial
+        // text. Autocomplete fully owns its text controller — we never touch
+        // it during build, which is what previously broke the dropdown.
         Autocomplete<StopOption>(
+          key: ValueKey(widget.value?.id),
+          initialValue:
+              TextEditingValue(text: _displayFor(widget.value)),
           fieldViewBuilder:
               (context, controller, focusNode, onFieldSubmitted) {
-            // Share our controller so didUpdateWidget can push external changes.
             return TextField(
-              controller: _ctl,
+              controller: controller,
               focusNode: focusNode,
               decoration: InputDecoration(
                 hintText: 'ရှာရန်...',
