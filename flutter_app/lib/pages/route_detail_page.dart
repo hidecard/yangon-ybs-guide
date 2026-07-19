@@ -491,7 +491,7 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
                 const SizedBox(height: 8),
                 Text('မှတ်တိုင်များ (${uniqueStops.length})', style: UI.label),
                 const SizedBox(height: 8),
-                ...uniqueStops.asMap().entries.map((e) => _stopTile(e.key, e.value, active)),
+                ...uniqueStops.asMap().entries.map((e) => _stopTile(e.key, e.value, active, uniqueStops.length)),
                 const SizedBox(height: 8),
                 const Text(
                   'Live location အတွက် location permission ကို allow လုပ်ထားရပါမည်။',
@@ -674,73 +674,61 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
     );
   }
 
-  Widget _stopTile(int idx, BusStop s, int active) {
+  Widget _stopTile(int idx, BusStop s, int active, int total) {
+    final isFirst = idx == 0;
+    final isLast = idx == total - 1;
     final isActive = idx == active;
-    final isPassed = idx < active;
-    return InkWell(
+
+    return ListTile(
       onTap: () => Nav.openStop(context, s),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 6),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: isActive
-              ? const Color(0xFFECFDF5)
-              : isPassed
-                  ? const Color(0xFFF8FAFC)
-                  : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-              color: isActive
-                  ? const Color(0xFF6EE7B7)
-                  : AppColors.borderLight),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      leading: CircleAvatar(
+        backgroundColor: isFirst
+            ? Colors.green
+            : isLast
+                ? Colors.red
+                : Colors.blueGrey,
+        child: Text('${idx + 1}',
+            style: const TextStyle(color: Colors.white, fontSize: 12)),
+      ),
+      title: Text(s.nameMm,
+          style: const TextStyle(fontWeight: FontWeight.w600)),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('${s.roadMm}လမ်း၊ ${s.townshipMm}မြို့နယ်',
+              style: const TextStyle(fontSize: 12)),
+          if (isFirst)
             Container(
-              width: 24,
-              height: 24,
-              alignment: Alignment.center,
+              margin: const EdgeInsets.only(top: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                color: isActive
-                    ? AppColors.emerald
-                    : isPassed
-                        ? AppColors.slate200
-                        : AppColors.slate100,
-                shape: BoxShape.circle,
-              ),
-              child: Text('${idx + 1}',
+                  color: Colors.green.shade100,
+                  borderRadius: BorderRadius.circular(4)),
+              child: Text('📍 မိမိစီးရမည့်နေရာ (သင့်တည်နေရာ)',
                   style: TextStyle(
+                      color: Colors.green.shade900,
                       fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                      color: isActive ? Colors.white : AppColors.slate500)),
+                      fontWeight: FontWeight.bold)),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(s.nameMm,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: isActive
-                              ? AppColors.emeraldDark
-                              : AppColors.text)),
-                  Text(s.townshipMm,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          fontSize: 12, color: AppColors.slate400)),
-                ],
-              ),
+          if (isLast)
+            Container(
+              margin: const EdgeInsets.only(top: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                  color: Colors.red.shade100,
+                  borderRadius: BorderRadius.circular(4)),
+              child: Text('🏁 မိမိဆင်းရမည့်နေရာ',
+                  style: TextStyle(
+                      color: Colors.red.shade900,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold)),
             ),
-            if (isActive)
-              const Pill('လက်ရှိ',
-                  bg: Color(0xFFD1FAE5), fg: AppColors.emeraldDark),
-            IconButton(
+        ],
+      ),
+      trailing: isActive
+          ? const Pill('လက်ရှိ',
+              bg: Color(0xFFD1FAE5), fg: AppColors.emeraldDark)
+          : IconButton(
               onPressed: () => _toggleAlert(s),
               icon: Icon(
                   _alertStop == s.nameMm
@@ -751,9 +739,6 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
                       ? AppColors.emerald
                       : AppColors.slate300),
             ),
-          ],
-        ),
-      ),
     );
   }
 }
