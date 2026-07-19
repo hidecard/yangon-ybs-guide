@@ -58,6 +58,8 @@ class _SettingsPageState extends State<SettingsPage> {
           const SizedBox(height: 16),
           _telegramCard(),
           const SizedBox(height: 16),
+          _notifSetupCard(),
+          const SizedBox(height: 16),
           _developerCard(),
           const SizedBox(height: 16),
           _whatsNewCard(),
@@ -210,6 +212,94 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
     );
   }
+
+  Widget _notifSetupCard() {
+    return _card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _cardHeader(Icons.notifications_active, AppColors.amber,
+              'အကြောင်းကြားချက် ဆက်တင်',
+              'App ပိတ်ထားသည့်တိုင် သတိပေးချက် ရောက်စေရန်'),
+          const SizedBox(height: 14),
+          const Text(
+            'အချို့ ဖုန်းများတွင် ဘက်ထရီ သက်သာစေရန် App များကို အလိုအလျောက် ပိတ်တတ်ပါသည်။ '
+            'သတိပေးချက် အပြည့်အဝရရှိစေရန် အောက်ပါအဆင့်များအတိုင်း ဆက်တင် လုပ်ပေးပါ -',
+            style: TextStyle(fontSize: 13, color: AppColors.slate600),
+          ),
+          const SizedBox(height: 14),
+          _step(1, 'Battery (ဘက်ထရီ) သတိပေးချက်',
+              'Settings → Battery → Battery optimization သို့သွားပါ။ "YBS Guide" ကို ရှာပြီး "Don\'t optimize" (သို့မဟုတ် "Unrestricted") ဟု သတ်မှတ်ပါ။'),
+          _step(2, 'Notification (အကြောင်းကြားချက်) ခွင့်ပြု',
+              'Settings → Apps → YBS Guide → Notifications သို့သွားပါ။ "Show notifications" ကို ဖွင့်ပါ။ "Admin Notifications" နှင့် "Arrival Alerts" channel များကို "Important" သို့မဟုတ် "Urgent" သတ်မှတ်ပါ။'),
+          _step(3, 'Autostart / Auto-launch',
+              'Settings → Apps → YBS Guide (သို့မဟုတ် "Manage apps") → Autostart / Auto-launch ကို ဖွင့်ပါ (Xiaomi, Oppo, Vivo, Huawei စသည့် ဖုန်းများတွင် လိုအပ်ပါသည်)။'),
+          _step(4, 'Background data (ဒေတာ) ခွင့်ပြု',
+              'Settings → Apps → YBS Guide → Mobile data သို့သွားပါ။ "Allow background data" ကို ဖွင့်ပါ သို့မဟုတ် "Data usage while Data saver is on" ကို ခွင့်ပြုပါ။'),
+          const SizedBox(height: 14),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+                color: AppColors.amberLight,
+                borderRadius: BorderRadius.circular(12)),
+            child: const Row(
+              children: [
+                Icon(Icons.info_outline, color: AppColors.amber, size: 16),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'အထက်ပါအဆင့်များ ပြီးပါက App ကို ပိတ်ထားသည့်တိုင် Admin သတင်းများ နှင့် မှတ်တိုင်အနီးရောက်သတိပေးချက်များ အလိုအလျောက် ရောက်ရှိပါမည်။',
+                    style: TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF92400E),
+                        fontWeight: FontWeight.w500),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _step(int n, String title, String desc) => Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 24,
+              height: 24,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: AppColors.amber,
+                shape: BoxShape.circle,
+              ),
+              child: Text('$n',
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold)),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title,
+                      style: const TextStyle(
+                          fontSize: 13.5, fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 2),
+                  Text(desc,
+                      style: const TextStyle(
+                          fontSize: 12, color: AppColors.slate500)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
 
   Widget _infoBox(Color bg, String text) => Container(
         width: double.infinity,

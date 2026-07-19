@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:flutter/services.dart';
@@ -6,8 +7,10 @@ import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:http/http.dart' as http;
 import 'package:vibration/vibration.dart';
 
+import '../config.dart';
 import 'local_store.dart';
 
 /// Vibration pattern used for the arrival alert (ms): vibrate, pause, repeat.
@@ -16,8 +19,7 @@ const _vibratePattern = [0, 400, 150, 400, 150, 400, 150, 400];
 /// Native channel used to acquire/release a wake lock + turn the screen on
 /// so the arrival alert (vibration + notification) is delivered even when the
 /// device is asleep (screen off or app closed).
-const _wakeLockChannel =
-    MethodChannel('net.arkaryan.ybs_guide/wakelock');
+const _wakeLockChannel = MethodChannel('net.arkaryan.ybs_guide/wakelock');
 
 Future<void> _releaseWakeLock() async {
   try {
@@ -27,6 +29,11 @@ Future<void> _releaseWakeLock() async {
 
 /// Threshold (km) at which the background service fires the arrival alert.
 const _arrivalThresholdKm = 0.2;
+
+/// How often the background service polls the server for admin notifications
+/// and for the current GPS position (used for arrival alerts). Kept modest so
+/// it works without draining the battery noticeably.
+const _pollInterval = Duration(seconds: 30);
 
 double _haversineKm(double lat1, double lon1, double lat2, double lon2) {
   const R = 6371.0;
@@ -39,6 +46,21 @@ double _haversineKm(double lat1, double lon1, double lat2, double lon2) {
           math.sin(dLon / 2);
   final c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
   return R * c;
+}
+
+Future<Map<String, dynamic>?> _fetchLatestNotification() async {
+  try {
+    final res = await http
+        .get(Uri.parse('${AppConfig.apiBase}/api/notifications?limit=1'))
+        .timeout(const Duration(seconds: 10));
+    if (res.statusCode >= 400) return null;
+    final data = json.decode(res.body);
+    final list = data is Map ? (data['notifications'] as List?) : null;
+    if (list == null || list.isEmpty) return null;
+    return list.first as Map<String, dynamic>;
+  } catch (_) {
+    return null;
+  }
 }
 
 @pragma('vm:entry-point')
@@ -60,7 +82,7 @@ void onStart(ServiceInstance service) async {
     await service.setAsForegroundService();
     service.setForegroundNotificationInfo(
       title: 'YBS Guide သတိပေး အလုပ်လုပ်နေသည်',
-      content: 'မှတ်တိုင်အနီးရောက်လျှင် အလိုအလျောက် သတိပေးပါမည်',
+      content: 'မှတ်တိုင်အနီးရောက်လျှင် နှင့် Admin သတင်းများ ရောက်လျှင် အလိုအလျောက် သတိပေးပါမည်',
     );
   }
 
@@ -114,7 +136,7 @@ void onStart(ServiceInstance service) async {
       await plugin.show(
         DateTime.now().millisecondsSinceEpoch ~/ 1000,
         'YBS Guide',
-        '$stopName မှတ်တိုင် အနီးရောက်ပါပြီ${detail.isNotEmpty ? '\n$detail' : ''}',
+        '$stopName မှတ်တိုင်အနီးရောက်ပါပြီ${detail.isNotEmpty ? '\n$detail' : ''}',
         NotificationDetails(
           android: AndroidNotificationDetails(
             'ybs_arrival',
@@ -135,26 +157,57 @@ void onStart(ServiceInstance service) async {
       );
     } catch (_) {}
     try {
-      await tts.speak('$stopName မှတ်တိုင် အနီးရောက်ပါပြီ');
+      await tts.speak('$stopName မှတ်တိုင်အနီးရောက်ပါပြီ');
     } catch (_) {}
   }
 
-  Timer.periodic(const Duration(seconds: 15), (timer) async {
-    final alert = await LocalStore.instance.getBackgroundAlert();
-    if (alert == null) {
-      // No active alert -> stop the service entirely.
-      if (service is AndroidServiceInstance) {
-        service.invoke('stop');
+  Future<void> fireAdminNotification(Map<String, dynamic> notif) async {
+    final id = (notif['id'] as num?)?.toInt() ?? 0;
+    final title = notif['title']?.toString() ?? 'YBS Guide';
+    final message = notif['message']?.toString() ?? '';
+    try {
+      await plugin.show(
+        id > 0 ? id : DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        title,
+        message,
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
+            'ybs_admin',
+            'Admin Notifications',
+            channelDescription: 'Important announcements from YBS Guide',
+            importance: Importance.high,
+            priority: Priority.high,
+            visibility: NotificationVisibility.public,
+          ),
+          iOS: DarwinNotificationDetails(
+            presentAlert: true,
+            presentSound: true,
+          ),
+        ),
+      );
+    } catch (_) {}
+  }
+
+  // Poll loop runs for the whole lifetime of the service (both app-open and
+  // app-closed). It checks (a) new admin notifications and (b) the active
+  // arrival alert's GPS distance.
+  Timer.periodic(_pollInterval, (timer) async {
+    // ---- (a) Admin notifications ----
+    try {
+      final latest = await _fetchLatestNotification();
+      if (latest != null) {
+        final id = (latest['id'] as num?)?.toInt() ?? 0;
+        final lastSeen = await LocalStore.instance.lastSeenNotification();
+        if (id != lastSeen) {
+          await LocalStore.instance.setLastSeenNotification(id);
+          await fireAdminNotification(latest);
+        }
       }
-      timer.cancel();
-      try {
-        await _releaseWakeLock();
-      } catch (_) {}
-      try {
-        await service.stopSelf();
-      } catch (_) {}
-      return;
-    }
+    } catch (_) {}
+
+    // ---- (b) Arrival alert (only if a stop alert is active) ----
+    final alert = await LocalStore.instance.getBackgroundAlert();
+    if (alert == null) return; // No active stop alert -> keep polling admin only.
 
     // Already fired once -> keep monitoring but don't re-alert.
     if (alert['alerted'] == true) return;
@@ -198,7 +251,7 @@ Future<void> initBackgroundAlertService() async {
   const androidChannel = AndroidNotificationChannel(
     'ybs_bg',
     'Background Service',
-    description: 'Keeps arrival alerts running in the background',
+    description: 'Keeps arrival alerts and admin notifications running in the background',
     importance: Importance.low,
   );
 
@@ -222,18 +275,33 @@ Future<void> initBackgroundAlertService() async {
         ),
       );
 
+  // Admin notification channel: HIGH importance so it shows even when the app
+  // is closed / never opened since boot.
+  await flutterLocalNotifications
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(
+        const AndroidNotificationChannel(
+          'ybs_admin',
+          'Admin Notifications',
+          description: 'Important announcements from YBS Guide',
+          importance: Importance.high,
+        ),
+      );
+
   await service.configure(
     androidConfiguration: AndroidConfiguration(
       onStart: onStart,
-      autoStart: false,
+      autoStart: true,
+      autoStartOnBoot: true,
       isForegroundMode: true,
       notificationChannelId: 'ybs_bg',
       initialNotificationTitle: 'YBS Guide',
-      initialNotificationContent: 'သတိပေး ဝန်ဆောင်မှု',
+      initialNotificationContent: 'သတိပေး ဝန်ဆောင်မှု အလုပ်လုပ်နေသည်',
       foregroundServiceNotificationId: 888,
     ),
     iosConfiguration: IosConfiguration(
-      autoStart: false,
+      autoStart: true,
       onForeground: onStart,
       onBackground: onIosBackground,
     ),
@@ -248,6 +316,8 @@ Future<bool> onIosBackground(ServiceInstance service) async {
 }
 
 /// Starts (or restarts) the background service with an active alert.
+/// If the service is already running, we simply persist the alert and signal
+/// the running instance to keep going — there is no need to restart it.
 Future<void> startBackgroundAlert({
   required String stopName,
   required double lat,
@@ -261,19 +331,16 @@ Future<void> startBackgroundAlert({
     detail: detail,
   );
   final service = FlutterBackgroundService();
-  final running = await service.isRunning();
-  if (running) {
-    service.invoke('stopService');
-    await Future.delayed(const Duration(milliseconds: 500));
+  if (!await service.isRunning()) {
+    await service.startService();
   }
-  await service.startService();
 }
 
 /// Stops the background service and clears the persisted alert.
 Future<void> stopBackgroundAlert() async {
   await LocalStore.instance.clearBackgroundAlert();
-  final service = FlutterBackgroundService();
-  if (await service.isRunning()) {
-    service.invoke('stopService');
-  }
+  // NOTE: We intentionally do NOT stop the whole service here, because it also
+  // delivers admin notifications. The arrival-alert loop simply no-ops once
+  // there is no active alert. To fully stop the service, use
+  // `FlutterBackgroundService().invoke('stopService')`.
 }
