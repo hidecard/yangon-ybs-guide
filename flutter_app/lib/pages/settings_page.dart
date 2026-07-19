@@ -247,6 +247,33 @@ Widget _kv(String k, String v) => Padding(
       ),
     );
 
+Widget _link(String k, String url) => Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+              width: 100,
+              child: Text(k,
+                  style: const TextStyle(
+                      fontSize: 12, color: AppColors.slate400))),
+          Expanded(
+            child: InkWell(
+              onTap: () => launchUrl(Uri.parse(url),
+                  mode: LaunchMode.externalApplication),
+              child: Text(url,
+                  style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.brand),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis),
+            ),
+          ),
+        ],
+      ),
+    );
+
 Widget _feature(String title, String desc) => Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
@@ -509,6 +536,19 @@ class _NotifSetupSection extends StatelessWidget {
                 ],
               ),
             ),
+            const SizedBox(height: 14),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                style: FilledButton.styleFrom(
+                    backgroundColor: AppColors.slate700),
+                onPressed: () => launchUrl(
+                    Uri.parse('app-settings:'),
+                    mode: LaunchMode.externalApplication),
+                icon: const Icon(Icons.settings, size: 18),
+                label: const Text('Setting ကို ဖွင့်မည်'),
+              ),
+            ),
           ],
         ),
       ),
@@ -535,7 +575,17 @@ class _TeamConditionsSection extends StatelessWidget {
                 _kv('Founder & Developer', 'Arkar Yan'),
                 _kv('Design', 'YBS Guide Team'),
                 _kv('Contact', 'info@arkaryan.net'),
-                _kv('Website', 'https://www.arkaryan.net/'),
+                _link('Website', 'https://www.arkaryan.net/'),
+                _link('Telegram', 'https://t.me/ybsguide'),
+                _link('TikTok', 'https://www.tiktok.com/@ybs.ai.mm'),
+                const SizedBox(height: 14),
+                const Divider(),
+                const SizedBox(height: 14),
+                const Text(
+                  'YBS Guide Team သည် ရန်ကုန်မြို့တော် အများပြည်သူ၏ ကားလိုင်းသုံးစွဲအတွက် '
+                  'လွယ်ကူပြီး အဆင်ပြေသော ဝန်ဆောင်မှုတစ်ခုကို ပံ့ပိုးပေးရန် ရည်မှန်းထားပါသည်။',
+                  style: TextStyle(fontSize: 13, color: AppColors.slate600),
+                ),
               ],
             ),
           ),
@@ -555,6 +605,10 @@ class _TeamConditionsSection extends StatelessWidget {
                     '၃။ အသုံးပြုသူများသည် မိမိတာဝန်ခံချက်ဖြင့် အသုံးပြုရမည့် ဝန်ဆောင်မှုဖြစ်ပါသည်။'),
                 _condition(
                     '၄။ အချက်အလက်မှားယွင်းပါက အကြံပြုချက်ပေးပို့ရန် တိုက်တွန်းအပ်ပါသည်။'),
+                _condition(
+                    '၅။ App မှ ရရှိနိုင်သော အချက်အလက်များကို ကိုယ်တိုက်မှတ်ထားပြီး အခြားဝန်ဆောင်မှုများနှင့် မျှဝေပါ။'),
+                _condition(
+                    '၆။ သတိပေးချက် မှတ်တိုင်နှင့် အခြေအနေကို အသုံးပြုသူများအနေနဲ့ မိမိတာဝန်ခံချက် ဖြင့် အသုံးပြုပါ။'),
               ],
             ),
           ),
@@ -602,7 +656,10 @@ class _AboutSection extends StatelessWidget {
             _kv('Platform', 'Flutter (Android / iOS / Web)'),
             _kv('Developer', 'Arkar Yan'),
             _kv('Contact', 'info@arkaryan.net'),
-            _kv('Website', 'https://www.arkaryan.net/'),
+            _link('Website', 'https://www.arkaryan.net/'),
+            _link('Facebook', 'https://www.facebook.com/ybsguide'),
+            _link('Telegram', 'https://t.me/ybsguide'),
+            _link('TikTok', 'https://www.tiktok.com/@ybs.ai.mm'),
             const SizedBox(height: 14),
             const Divider(),
             const SizedBox(height: 14),
@@ -610,6 +667,13 @@ class _AboutSection extends StatelessWidget {
               'YBS Guide သည် ရန်ကုန်မြို့ရှိ အများပြည်သူ ကားလိုင်းများကို လမ်းကြောင်းရှာဖွေခြင်း၊ '
               'မြေပုံကြည့်ရှုခြင်း၊ အချိန်နှင့်အလိုက် ကားရောက်မည့်ခန့်မှန်းချက်နှင့် သတိပေးစနစ်များ ပါဝင်သော '
               'အခမဲ့ ဝန်ဆောင်မှု ဖြစ်ပါသည်။',
+              style: TextStyle(fontSize: 13, color: AppColors.slate600),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'ဤ app သည် လူမှုရေးရာ၊ ကျန်းမာရေး၊ ပညာရေး နှင့် အခြားအခင်းအကျင်းများအတွက် '
+              'လမ်းကြောင်းရှာဖွေရန် အသုံးပြုနိုင်ပါသည်။ လမ်းကြောင်းများသည် မကြာခဏပြောင်းလဲပါသည်။ '
+              'အချက်အလက်များသည် ခန့်မှန်းချက်သာဖြစ်ပါသည်။',
               style: TextStyle(fontSize: 13, color: AppColors.slate600),
             ),
           ],
@@ -643,6 +707,18 @@ class _PrivacySection extends StatelessWidget {
                 'ကျွန်ုပ်တို့သည် သင့်ကိုယ်ရေးအချက်အလက်ကို တတိယအဖွဲ့အစည်းသို့ မရောင်းချပါ။'),
             _privacy(
                 'အချက်အလက်ဖျက်ရန် သို့မဟုတ် မေးမြန်းလိုပါက info@arkaryan.net သို့ ဆက်သွယ်နိုင်ပါသည်။'),
+            _privacy(
+                'App သည် အချက်အလက် စုဆည်းခြင်းများ မပြုလုပ်ပါ။ လိုအပ်ပါက အချက်အလက် ရရှိနိုင်ခြေမရှိပါ။'),
+            _privacy(
+                'အသုံးပြုသူ၏ မှတ်တိုင်နှင့် တည်နေရာအချက်အလက်များကို လုံခြုံစွာ ထိန်းသိမ်းထားပါသည်။'),
+            const SizedBox(height: 14),
+            const Divider(),
+            const SizedBox(height: 14),
+            const Text(
+              'ဤကိုယ်ရေးအချက်အလက် မူဝါဒသည် YBS Guide app အတွက် အသုံးပြုသူများ၏ '
+              'ကိုယ်ရေးအချက်အလက်များကို လုံခြုံစွာ ထိန်းသိမ်းရန် ရည်ရွယ်ထားပါသည်။',
+              style: TextStyle(fontSize: 12, color: AppColors.slate500),
+            ),
           ],
         ),
       ),
@@ -689,6 +765,20 @@ class _WhatsNewSection extends StatelessWidget {
                 'မှတ်တိုင်နီးကပ်လျှင် Telegram မှတဆင့် သတိပေးချက်ပေးပို့ခြင်း။'),
             _feature('Advanced Route Finding',
                 'အမြန်ဆုံးနှင့် အဆင်ပြေဆုံး လမ်းကြောင်းများကို ရှာဖွေပေးခြင်း။'),
+            _feature('Live Bus Location',
+                'ကားများ၏ အချိန်နှင့်အလိုက် နေရာများကို မြေပုံတွင် ကြည့်ရှုနိုင်ခြင်း။'),
+            _feature('Offline Maps',
+                'Internet မရှိသည့်တိုင် လမ်းကြောင်းများနှင့် မှတ်တိုင်များကို အသုံးပြုနိုင်ခြင်း။'),
+            _feature('Stop-to-Stop Navigation',
+                'မှတ်တိုင်မှ မှတ်တိုင်သို့ အဆင့်ဆင့် လမ်းကြောင်းပြနိုင်ခြင်း။'),
+            _feature('Smart Notifications',
+                'App ပိတ်ထားသည့်တိုင် မှတ်တိုင်အနီးရောက်သတိပေးချက် ရောက်ရှိစေခြင်း။'),
+            _feature('Shared Trip',
+                'မိမိနေရာကို အခြားသူများနှင့် အချိန်နှင့်အလိုက် မျှဝေနိုင်ခြင်း။'),
+            _feature('Bus Updates Feed',
+                'လိုင်းအလိုက် ကားသွားလာချိန်နှင့် အခြေအနေများကို တင်ပြခြင်း။'),
+            _feature('Dark Mode',
+                'မြက်ကိန်းနှင့် ညနေခင်း လိုအပ်သည့်အခါ အမှောင်ရောင်အမြင်နှင့် အသုံးပြုနိုင်ခြင်း။'),
           ],
         ),
       ),
