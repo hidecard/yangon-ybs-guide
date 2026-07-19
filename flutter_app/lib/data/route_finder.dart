@@ -137,6 +137,38 @@ class _QueueItem {
   });
 }
 
+/// Resolve the precise [BusStop] for a name when several stops share the
+/// same name (e.g. the same stop on a route's forward + backward leg, or two
+/// physically different stops with identical names in different areas).
+///
+/// [hint] is the user's intended location (e.g. current GPS, or the other
+/// end of the trip). When provided we pick the same-named stop closest to it,
+/// which also keeps the chosen direction consistent with the trip. Without a
+/// hint we return the first match by id order.
+BusStop? resolveStopByName(
+  String name,
+  List<BusStop> allStops, {
+  ({double lat, double lng})? hint,
+}) {
+  BusStop? best;
+  double bestScore = double.infinity;
+  for (final s in allStops) {
+    if (s.nameMm != name) continue;
+    double score;
+    if (hint != null) {
+      // Prefer the stop nearest the hint; break ties by id for stability.
+      score = getDistance(hint.lat, hint.lng, s.lat, s.lng);
+    } else {
+      score = s.id.toDouble();
+    }
+    if (score < bestScore) {
+      bestScore = score;
+      best = s;
+    }
+  }
+  return best;
+}
+
 /// Build disambiguated stop options for autocomplete (name [road]).
 List<StopOption> buildDisambiguatedStops(List<BusStop> stops) {
   final seen = <String>{};

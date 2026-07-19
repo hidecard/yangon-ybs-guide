@@ -30,6 +30,10 @@ class FindRoutePage extends StatefulWidget {
 class _FindRoutePageState extends State<FindRoutePage> {
   String _start = '';
   String _end = '';
+  StopOption? _startOpt;
+  StopOption? _endOpt;
+  BusStop? _startStop;
+  BusStop? _endStop;
   List<SearchResult> _results = [];
   bool _searching = false;
   bool _hasSearched = false;
@@ -105,6 +109,17 @@ class _FindRoutePageState extends State<FindRoutePage> {
       _searching = true;
       _hasSearched = true;
     });
+
+    // Resolve the precise stop the user actually picked. We prefer the exact
+    // stop id chosen in the autocomplete (so a name that exists 3x in 3 areas
+    // always resolves to the one the user tapped, never a same-named other).
+    // For programmatic prefill (history) where no option was tapped we fall
+    // back to coordinate disambiguation against the other end's location.
+    _startStop = _resolveStop(state.stops, _startOpt, _start.trim(),
+        hintStop: _endStop);
+    _endStop = _resolveStop(state.stops, _endOpt, _end.trim(),
+        hintStop: _startStop);
+
     // Phase 2: prefer the fast direct-route SQL query (correct forward
     // direction, no transfers). Fall back to the BFS planner (which computes
     // connecting/transfer routes from the same normalized data) when no
@@ -112,6 +127,8 @@ class _FindRoutePageState extends State<FindRoutePage> {
     final direct = await state.repo.findDirectRoutes(
       _start.trim(),
       _end.trim(),
+      startStop: _startStop,
+      endStop: _endStop,
     );
 
     // Show each directly-serving bus line as its own result card (not all
@@ -139,6 +156,30 @@ class _FindRoutePageState extends State<FindRoutePage> {
       await LocalStore.instance.addTripHistory(
           type: 'search', label: _start.trim(), subtitle: _end.trim());
     }
+  }
+
+  /// Resolve the precise [BusStop] for a query.
+  /// [opt] is the exact option the user tapped in autocomplete — its id is
+  /// authoritative, so a same-named stop in another area/direction is never
+  /// picked. When [opt] is null (programmatic prefill) we fall back to
+  /// [resolveStopByName] which disambiguates by the [hintStop]'s location.
+  BusStop? _resolveStop(
+    List<BusStop> stops,
+    StopOption? opt,
+    String name, {
+    BusStop? hintStop,
+  }) {
+    if (opt != null) {
+      final byId = stops.where((s) => s.id == opt.id).firstOrNull;
+      if (byId != null) return byId;
+    }
+    return resolveStopByName(
+      name,
+      stops,
+      hint: hintStop != null
+          ? (lat: hintStop.lat, lng: hintStop.lng)
+          : null,
+    );
   }
 
   Future<void> _useCurrentLocation() async {
@@ -173,8 +214,31 @@ class _FindRoutePageState extends State<FindRoutePage> {
         nearest = s;
       }
     }
-    setState(() => _start = nearest.nameMm);
+    setState(() {
+      _start = nearest.nameMm;
+      _startStop = nearest;
+      _startOpt = buildDisambiguatedStops(state.stops)
+          .where((o) => o.id == nearest.id)
+          .firstOrNull;
+    });
     if (_end.trim().isNotEmpty) _search();
+  }
+
+  void _setStop(bool isStart, StopOption? opt) {
+    final stop = opt == null
+        ? null
+        : context.read<AppState>().stops.where((s) => s.id == opt.id).firstOrNull;
+    setState(() {
+      if (isStart) {
+        _startOpt = opt;
+        _startStop = stop;
+        _start = opt?.raw ?? '';
+      } else {
+        _endOpt = opt;
+        _endStop = stop;
+        _end = opt?.raw ?? '';
+      }
+    });
   }
 
   @override
@@ -196,10 +260,10 @@ class _FindRoutePageState extends State<FindRoutePage> {
             children: [
               _StopField(
                 label: 'စတင်မည့်မှတ်တိုင်',
-                value: _start,
+                value: _startOpt,
                 options: options,
                 indicator: AppColors.emerald,
-                onChanged: (v) => setState(() => _start = v),
+                onChanged: (o) => _setStop(true, o),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -227,15 +291,21 @@ class _FindRoutePageState extends State<FindRoutePage> {
                   final t = _start;
                   _start = _end;
                   _end = t;
+                  final ts = _startStop;
+                  _startStop = _endStop;
+                  _endStop = ts;
+                  final to = _startOpt;
+                  _startOpt = _endOpt;
+                  _endOpt = to;
                 }),
                 icon: const Icon(Icons.swap_vert),
               ),
               _StopField(
-                label: 'ဆင်းမည့်မှတ်တိုင်�',
-                value: _end,
+                label: 'ဆင်းမည့်မှတ်တိုင်',
+                value: _endOpt,
                 options: options,
                 indicator: AppColors.rose,
-                onChanged: (v) => setState(() => _end = v),
+                onChanged: (o) => _setStop(false, o),
                 trailing: IconButton(
                   onPressed: () => _openPicker(false),
                   icon: const Icon(Icons.map_outlined, size: 18),
@@ -316,18 +386,25 @@ class _FindRoutePageState extends State<FindRoutePage> {
               )),
     );
     if (selected != null) {
-      setState(() {
-        if (isStart) {
-          _start = selected.nameMm;
-        } else {
-          _end = selected.nameMm;
-        }
-      });
+      final opt = buildDisambiguatedStops(state.stops)
+          .where((o) => o.id == selected.id)
+          .firstOrNull;
+      _setStop(isStart, opt);
     }
   }
 
   Widget _resultCard(BuildContext context, SearchResult res,
       Map<String, BusStop> stopByName) {
+    // Prefer the precisely chosen stops so distance shown for a direct route
+    // reflects the actual start/end the user picked (not a same-named other).
+    final first = res.steps.first;
+    final last = res.steps.last;
+    final fromStop = (_startStop != null && first.fromStop == _start)
+        ? _startStop
+        : stopByName[first.fromStop];
+    final toStop = (_endStop != null && last.toStop == _end)
+        ? _endStop
+        : stopByName[last.toStop];
     return InkWell(
       onTap: () => Nav.openRoutePlan(context, res.steps),
       child: Container(
@@ -380,8 +457,14 @@ class _FindRoutePageState extends State<FindRoutePage> {
             ),
             const SizedBox(height: 12),
             ...res.steps.map((step) {
-              final from = stopByName[step.fromStop];
-              final to = stopByName[step.toStop];
+              final isFirstStep = step == first;
+              final isLastStep = step == last;
+              final from = isFirstStep && fromStop != null
+                  ? fromStop
+                  : stopByName[step.fromStop];
+              final to = isLastStep && toStop != null
+                  ? toStop
+                  : stopByName[step.toStop];
               return Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Row(
@@ -441,10 +524,10 @@ class _FindRoutePageState extends State<FindRoutePage> {
 
 class _StopField extends StatefulWidget {
   final String label;
-  final String value;
+  final StopOption? value;
   final List<StopOption> options;
   final Color indicator;
-  final ValueChanged<String> onChanged;
+  final ValueChanged<StopOption?> onChanged;
   final Widget? trailing;
   const _StopField({
     required this.label,
@@ -519,7 +602,7 @@ class _StopFieldState extends State<_StopField> {
                     const BoxConstraints(minWidth: 12, maxWidth: 12),
               ),
               onChanged: (v) {
-                if (v.isEmpty) widget.onChanged('');
+                if (v.isEmpty) widget.onChanged(null);
               },
             );
           },
@@ -532,7 +615,7 @@ class _StopFieldState extends State<_StopField> {
                     o.raw.toLowerCase().contains(term))
                 .take(50);
           },
-          onSelected: (o) => widget.onChanged(o.raw),
+          onSelected: (o) => widget.onChanged(o),
           optionsViewBuilder: (context, onSelected, opts) {
             return Align(
               alignment: Alignment.topLeft,
@@ -563,11 +646,5 @@ class _StopFieldState extends State<_StopField> {
     );
   }
 
-  String _displayFor(String raw) {
-    if (raw.isEmpty) return '';
-    for (final o in widget.options) {
-      if (o.raw == raw) return o.display;
-    }
-    return raw;
-  }
+  String _displayFor(StopOption? opt) => opt?.display ?? '';
 }

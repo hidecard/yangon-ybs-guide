@@ -233,8 +233,17 @@ class DataRepository {
   /// Direct-route search: returns every loaded route that passes through
   /// [startName] before [endName] in stop order (correct forward direction
   /// only). Matching is by Burmese stop name, with an English fallback.
+  ///
+  /// [startStop]/[endStop] are optional precise stops (with coordinates). When
+  /// supplied they disambiguate same-named stops — the route is only a match
+  /// if it physically contains the chosen stop on the forward (start → end)
+  /// leg, so the backward/different-area duplicate of a name is never returned.
   Future<List<BusRoute>> findDirectRoutes(
-      String startName, String endName) async {
+    String startName,
+    String endName, {
+    BusStop? startStop,
+    BusStop? endStop,
+  }) async {
     final start = startName.trim();
     final end = endName.trim();
     if (start.isEmpty || end.isEmpty) return const [];
@@ -245,12 +254,11 @@ class DataRepository {
       int? endIndex;
       for (int i = 0; i < r.stopsDetailed.length; i++) {
         final s = r.stopsDetailed[i];
-        if (startIndex == null &&
-            (s.nameMm == start || s.nameEn == start)) {
+        if (startIndex == null && _stopMatches(s, start, startStop)) {
           startIndex = i;
         } else if (startIndex != null &&
             endIndex == null &&
-            (s.nameMm == end || s.nameEn == end)) {
+            _stopMatches(s, end, endStop)) {
           endIndex = i;
           break;
         }
@@ -260,5 +268,16 @@ class DataRepository {
       }
     }
     return out;
+  }
+
+  /// Match a detailed stop against [name], preferring the [hint] stop's exact
+  /// coordinates when several detailed stops share [name].
+  bool _stopMatches(BusStop s, String name, BusStop? hint) {
+    if (s.nameMm != name && s.nameEn != name) return false;
+    if (hint == null) return true;
+    // Require the coordinate to match the chosen physical stop so that a
+    // duplicate name on the reverse leg / in another area is not matched.
+    return (s.lat - hint.lat).abs() < 1e-6 &&
+        (s.lng - hint.lng).abs() < 1e-6;
   }
 }
