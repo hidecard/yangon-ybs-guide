@@ -197,6 +197,43 @@ class SqliteRoutes {
     }
   }
 
+  /// Name-only directional lookup (no township disambiguation available).
+  ///
+  /// Used by entry points that only have the raw stop names typed by the user
+  /// (Re-plan, Assistant). It matches EVERY township/platform variant of each
+  /// name and relies solely on stop_order to enforce the forward direction, so
+  /// a same-name / same-road opposite-platform stop is correctly handled: only
+  /// the (start, end) pairing that actually runs forward on a line is returned.
+  Future<List<String>> directRouteIdsByName({
+    required String startName,
+    required String endName,
+  }) async {
+    final db = _db;
+    if (db == null) return const [];
+    try {
+      final rows = await db.rawQuery(
+        '''
+        SELECT DISTINCT r.route_id AS route_id
+        FROM route_stops start_rs
+        JOIN bus_stops start_stops ON start_rs.stop_id = start_stops.stop_id
+        JOIN route_stops end_rs ON start_rs.route_id = end_rs.route_id
+        JOIN bus_stops end_stops ON end_rs.stop_id = end_stops.stop_id
+        JOIN routes r ON start_rs.route_id = r.route_id
+        WHERE start_stops.stop_name_mm = ?
+          AND end_stops.stop_name_mm = ?
+          AND start_rs.stop_order < end_rs.stop_order
+        ''',
+        [startName, endName],
+      );
+      return rows
+          .map((r) => (r['route_id'] as String?) ?? '')
+          .where((id) => id.isNotEmpty)
+          .toList();
+    } catch (_) {
+      return const [];
+    }
+  }
+
   Future<void> close() async {
     await _db?.close();
     _db = null;

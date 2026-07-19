@@ -262,21 +262,36 @@ class DataRepository {
     if (start.isEmpty || end.isEmpty) return const [];
 
     // Prefer the SQLite JOIN query (keyed by stop group = name + township).
+    // The directional query resolves same-name / same-road opposite-platform
+    // stops purely by stop_order, so we never need a locked stop_id.
+    final byId = {for (final r in routes) r.id: r};
+
     if (startStop != null && endStop != null) {
+      // Precise path: the exact chosen stops disambiguate by township.
       final ids = await SqliteRoutes.instance.directRouteIds(
         startName: startStop.nameMm,
         startTownship: startStop.townshipMm,
         endName: endStop.nameMm,
         endTownship: endStop.townshipMm,
       );
-      if (ids.isNotEmpty) {
-        final byId = {for (final r in routes) r.id: r};
-        final found = ids.where((id) => byId.containsKey(id)).map((id) => byId[id]!).toList();
-        if (found.isNotEmpty) return found;
-      }
+      final found =
+          ids.where(byId.containsKey).map((id) => byId[id]!).toList();
+      if (found.isNotEmpty) return found;
+    } else {
+      // Name-only path (Re-plan / Assistant): run the directional query by
+      // name across every township variant of each name. stop_order still
+      // guarantees the correct forward direction, so opposite-platform
+      // duplicates on the same road are handled at the DB layer.
+      final ids = await SqliteRoutes.instance.directRouteIdsByName(
+        startName: start,
+        endName: end,
+      );
+      final found =
+          ids.where(byId.containsKey).map((id) => byId[id]!).toList();
+      if (found.isNotEmpty) return found;
     }
 
-    // In-memory fallback (also handles the no-option / name-only case).
+    // In-memory fallback (also handles the SQLite-unavailable case).
     return _findDirectRoutesInMemory(start, end, startStop, endStop);
   }
 
