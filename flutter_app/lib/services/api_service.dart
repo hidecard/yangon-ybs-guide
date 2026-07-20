@@ -67,6 +67,7 @@ class BusUpdate {
   final double? lat;
   final double? lng;
   final String? userId;
+  final int upvotes;
   final int? createdAt;
 
   const BusUpdate({
@@ -78,6 +79,7 @@ class BusUpdate {
     this.lat,
     this.lng,
     this.userId,
+    this.upvotes = 0,
     this.createdAt,
   });
 
@@ -90,6 +92,7 @@ class BusUpdate {
         lat: (j['lat'] as num?)?.toDouble(),
         lng: (j['lng'] as num?)?.toDouble(),
         userId: j['userId'],
+        upvotes: (j['upvotes'] as num?)?.toInt() ?? 0,
         createdAt: (j['createdAt'] as num?)?.toInt(),
       );
 }
@@ -220,9 +223,9 @@ class ApiService {
     return list.map((e) => BusUpdate.fromJson(e as Map<String, dynamic>)).toList();
   }
 
-  Future<bool> postBusUpdate(BusUpdate u) async {
+  Future<int?> postBusUpdate(BusUpdate u) async {
     try {
-      await _send('POST', '/api/bus-updates', body: {
+      final data = await _send('POST', '/api/bus-updates', body: {
         'routeId': u.routeId,
         'type': busUpdateTypeKey(u.type),
         if (u.stop != null) 'stop': u.stop,
@@ -231,9 +234,9 @@ class ApiService {
         if (u.lng != null) 'lng': u.lng,
         if (u.userId != null) 'userId': u.userId,
       });
-      return true;
+      return (data['id'] as num?)?.toInt();
     } catch (_) {
-      return false;
+      return null;
     }
   }
 
@@ -391,6 +394,37 @@ class ApiService {
         newTotal: 0,
         rewardTitle: '',
       );
+    }
+  }
+
+  Future<Map<String, dynamic>> voteUpdate({
+    required int updateId,
+    required String deviceId,
+    required int vote, // 1 or -1
+  }) async {
+    try {
+      final data = await _send('POST', '/api/votes',
+          body: {'update_id': updateId, 'device_id': deviceId, 'vote': vote});
+      return data;
+    } catch (e) {
+      return {'error': e.toString()};
+    }
+  }
+
+  Future<Map<String, dynamic>> getVoteStatus({
+    required int updateId,
+    required String deviceId,
+  }) async {
+    try {
+      final params = <String, String>{
+        'update_id': '$updateId',
+        'device_id': deviceId,
+      };
+      final q = Uri(queryParameters: params).query;
+      final data = await _get('/api/votes?$q');
+      return data;
+    } catch (_) {
+      return {'myVote': 0, 'upvotes': 0, 'downvotes': 0};
     }
   }
 }

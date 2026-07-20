@@ -173,7 +173,7 @@ class _ReportUpdateDialogState extends State<ReportUpdateDialog> {
       _submitting = true;
       _error = null;
     });
-    final ok = await ApiService.instance.postBusUpdate(BusUpdate(
+    final updateId = await ApiService.instance.postBusUpdate(BusUpdate(
       routeId: widget.routeId,
       type: _type,
       stop: _stop.text.trim().isEmpty ? null : _stop.text.trim(),
@@ -181,7 +181,7 @@ class _ReportUpdateDialogState extends State<ReportUpdateDialog> {
     ));
     if (!mounted) return;
     setState(() => _submitting = false);
-    if (ok) {
+    if (updateId != null) {
       Navigator.pop(context, true);
     } else {
       setState(() => _error = 'အမှားရှိပါသည်။ နောက်မှ ထပ်ကြိုးစားပါ။');

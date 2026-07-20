@@ -203,14 +203,14 @@ class _PostUpdateSheetState extends State<_PostUpdateSheet> {
   Future<void> _submit() async {
     setState(() => _submitting = true);
     final deviceId = await _deviceService.getDeviceId();
-    final busOk = await ApiService.instance.postBusUpdate(BusUpdate(
+    final updateId = await ApiService.instance.postBusUpdate(BusUpdate(
       routeId: _route!.id,
       type: _type,
       stop: _stop.text.trim().isEmpty ? null : _stop.text.trim(),
       note: _note.text.trim().isEmpty ? null : _note.text.trim(),
     ));
     String? pointsMsg;
-    if (busOk) {
+    if (updateId != null) {
       final lbRes = await ApiService.instance.submitLeaderboardUpdate(
         deviceId: deviceId,
         routeId: _route!.id,
@@ -230,12 +230,12 @@ class _PostUpdateSheetState extends State<_PostUpdateSheet> {
     }
     if (!mounted) return;
     setState(() => _submitting = false);
-    if (busOk) {
+    if (updateId != null) {
       widget.onPosted();
       if (mounted) {
         final msg = pointsMsg != null
-            ? '✅ အချက်အလက် မျှဝေပြီးပါပြီ။ $pointsMsg'
-            : '✅ အချက်အလက် မျှဝေပြီးပါပြီ။';
+            ? 'အချက်အလက် မျှဝေပြီးပါပြီ။ $pointsMsg'
+            : 'အချက်အလက် မျှဝေပြီးပါပြီ။';
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
         Navigator.pop(context);
       }
