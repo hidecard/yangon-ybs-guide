@@ -32,7 +32,7 @@ class _LeaderboardPageState extends State<LeaderboardPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _init();
   }
 
@@ -273,12 +273,13 @@ class _LeaderboardPageState extends State<LeaderboardPage>
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
+            Tab(text: 'Profile'),
             Tab(text: 'Leaderboard'),
             Tab(text: 'Rewards'),
           ],
         ),
         actions: [
-          if (_tabController.index == 0)
+          if (_tabController.index == 1)
             IconButton(
               onPressed: _loadLeaderboard,
               icon: const Icon(Icons.refresh, size: 18),
@@ -288,10 +289,246 @@ class _LeaderboardPageState extends State<LeaderboardPage>
       body: TabBarView(
         controller: _tabController,
         children: [
+          _buildProfileTab(),
           _buildLeaderboardTab(),
           _buildRewardsTab(),
         ],
       ),
+    );
+  }
+
+  Widget _buildProfileTab() {
+    final points = _myRank?.points ?? 0;
+    final currentBadge = badgeForPoints(points);
+    BadgeItem? nextBadge;
+    for (final b in badgeLevels) {
+      if (b.minPoints > points) {
+        nextBadge = b;
+        break;
+      }
+    }
+    final progress = nextBadge == null
+        ? 1.0
+        : (points - currentBadge.minPoints) /
+            (nextBadge.minPoints - currentBadge.minPoints);
+
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: UI.card(
+            color: currentBadge.color.withValues(alpha: 0.1),
+            border: currentBadge.color,
+          ),
+          child: Column(
+            children: [
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  color: currentBadge.color.withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Text(
+                    currentBadge.icon,
+                    style: const TextStyle(fontSize: 32),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                _userName ?? 'User',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.text,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                currentBadge.title,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: currentBadge.color,
+                ),
+              ),
+              Text(
+                currentBadge.subtitle,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppColors.slate500,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Text(
+                          '$points',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.text,
+                          ),
+                        ),
+                        const Text(
+                          'Points',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.slate500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    width: 1,
+                    height: 32,
+                    color: AppColors.border,
+                  ),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Text(
+                          '#${_myRank?.rank ?? '-'}',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.text,
+                          ),
+                        ),
+                        const Text(
+                          'Rank',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.slate500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              if (nextBadge != null) ...[
+                const SizedBox(height: 16),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '${nextBadge.icon} ${nextBadge.title}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: nextBadge.color,
+                          ),
+                        ),
+                        Text(
+                          '$points / ${nextBadge.minPoints} pts',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: AppColors.slate500,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        value: progress,
+                        minHeight: 6,
+                        color: currentBadge.color,
+                        backgroundColor: AppColors.slate200,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ],
+          ),
+        ),
+        const SizedBox(height: 24),
+        const Text(
+          'ဂုဏ်ပုဒ်များ',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 12),
+        ...List.generate(badgeLevels.length, (i) {
+          final badge = badgeLevels[i];
+          final earned = points >= badge.minPoints;
+          final isCurrent = currentBadge == badge;
+          return Container(
+            margin: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.all(14),
+            decoration: UI.card(
+              color: earned ? badge.color.withValues(alpha: 0.08) : null,
+              border: isCurrent ? badge.color : null,
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: earned
+                        ? badge.color.withValues(alpha: 0.15)
+                        : AppColors.slate100,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Text(
+                      badge.icon,
+                      style: TextStyle(fontSize: 20),
+                  ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        badge.title,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: earned ? AppColors.text : AppColors.slate400,
+                        ),
+                      ),
+                      Text(
+                        badge.subtitle,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.slate500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (earned)
+                  Icon(Icons.check_circle, color: badge.color, size: 20),
+                if (!earned)
+                  Text(
+                    '${badge.minPoints} pts',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.slate400,
+                    ),
+                  ),
+              ],
+            ),
+          );
+        }),
+      ],
     );
   }
 
@@ -410,12 +647,11 @@ class _MyRankCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [AppColors.amber, AppColors.brand]),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
-          BoxShadow(color: Color(0x20000000), blurRadius: 8, offset: Offset(0, 2)),
-        ],
+      decoration: UI.card(
+        color: AppColors.amber,
+        border: AppColors.brand,
+      ).copyWith(
+        gradient: const LinearGradient(colors: [AppColors.amber, AppColors.brand]),
       ),
       child: Row(
         children: [

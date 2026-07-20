@@ -29,6 +29,8 @@ class AppConfig {
 
   static const double avgBusSpeedKmh = 15;
 
+  static const String leaderboardSecret = 'ybs-leaderboard-secret-2026';
+
   /// OSM tile URL (same as web Leaflet).
   static const String osmTileUrl =
       'https://tile.openstreetmap.org/{z}/{x}/{y}.png';

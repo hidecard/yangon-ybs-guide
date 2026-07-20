@@ -263,3 +263,51 @@ class RedemptionResult {
         rewardTitle: j['reward_title']?.toString() ?? '',
       );
 }
+
+class BadgeItem {
+  final String title;
+  final String subtitle;
+  final int minPoints;
+  final String icon;
+  final Color color;
+
+  const BadgeItem({
+    required this.title,
+    required this.subtitle,
+    required this.minPoints,
+    required this.icon,
+    required this.color,
+  });
+}
+
+const badgeLevels = <BadgeItem>[
+  BadgeItem(
+    title: 'YBS စတင်လေ့လာသူ',
+    subtitle: 'Community သို့ ပထမဆုံး ခြေလှမ်း',
+    minPoints: 0,
+    icon: '🌱',
+    color: Color(0xFF10B981),
+  ),
+  BadgeItem(
+    title: 'YBS လမ်းညွှန်မှူး',
+    subtitle: 'လမ်းကြောင်းများကို သေချာသိသည်',
+    minPoints: 200,
+    icon: '🗺️',
+    color: Color(0xFF2563EB),
+  ),
+  BadgeItem(
+    title: 'YBS နတ်ကြီး',
+    subtitle: 'Yangon Bus Legend',
+    minPoints: 1000,
+    icon: '👑',
+    color: Color(0xFFD97706),
+  ),
+];
+
+BadgeItem badgeForPoints(int points) {
+  BadgeItem current = badgeLevels.first;
+  for (final b in badgeLevels) {
+    if (points >= b.minPoints) current = b;
+  }
+  return current;
+}

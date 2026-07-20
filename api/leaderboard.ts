@@ -1,9 +1,25 @@
 import { createClient } from '@libsql/client';
+import crypto from 'crypto';
 
 const turso = createClient({
   url: process.env.TURSO_DATABASE_URL!,
   authToken: process.env.TURSO_AUTH_TOKEN!,
 });
+
+const SHARED_SECRET = process.env.LEADERBOARD_SECRET || 'change-me-in-prod';
+
+function signPayload(deviceId: string, timestamp: number): string {
+  return crypto
+    .createHmac('sha256', SHARED_SECRET)
+    .update(`${deviceId}:${timestamp}`)
+    .digest('hex');
+}
+
+function verifySignature(deviceId: string, timestamp: number, signature: string): boolean {
+  const expected = signPayload(deviceId, timestamp);
+  if (timestamp < Date.now() - 30000) return false;
+  return signature === expected;
+}
 
 let schemaReady: Promise<void> | null = null;
 function ensureSchema(): Promise<void> {
@@ -58,7 +74,7 @@ async function checkRateLimit(deviceId: string): Promise<boolean> {
     [deviceId, 'news_report', oneHourAgo]
   );
   const cnt = Number(r.rows[0]?.cnt ?? 0);
-  return cnt < 3;
+  return cnt < 2;
 }
 
 async function addPoints(
@@ -91,6 +107,19 @@ async function addPoints(
 export default async function handler(req: any, res: any) {
   try {
     await ensureSchema();
+
+    const signature = String(req.headers?.['x-lb-signature'] || '');
+    const timestamp = Number(req.headers?.['x-lb-timestamp'] || 0);
+
+    if (req.method === 'POST') {
+      const deviceId = String(req.body?.device_id || '');
+      if (!deviceId || !signature || !timestamp) {
+        return res.status(400).json({ error: 'Missing authentication headers' });
+      }
+      if (!verifySignature(deviceId, timestamp, signature)) {
+        return res.status(401).json({ error: 'Invalid signature' });
+      }
+    }
 
     // POST /api/leaderboard/register  body: { device_id, user_name }
     if (req.method === 'POST' && req.query?.action === 'register') {
@@ -198,7 +227,7 @@ export default async function handler(req: any, res: any) {
       }
 
       if (!(await checkRateLimit(device_id))) {
-        return res.status(429).json({ error: 'Rate limit exceeded. Max 3 updates per hour.' });
+        return res.status(429).json({ error: 'Rate limit exceeded. Max 2 updates per hour.' });
       }
 
       const user = await turso.execute(

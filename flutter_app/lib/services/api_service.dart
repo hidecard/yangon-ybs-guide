@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../config.dart';
@@ -212,6 +213,17 @@ class ApiService {
     }
   }
 
+  Map<String, String> _lbHeaders(String deviceId) {
+    final ts = DateTime.now().millisecondsSinceEpoch;
+    final sig = Hmac(sha256, utf8.encode(AppConfig.leaderboardSecret))
+        .convert(utf8.encode('$deviceId:$ts'))
+        .toString();
+    return {
+      'X-LB-Timestamp': '$ts',
+      'X-LB-Signature': sig,
+    };
+  }
+
   // ---- Bus updates ----
   Future<List<BusUpdate>> fetchBusUpdates({String? routeId, int limit = 50}) async {
     final params = <String, String>{'limit': '$limit'};
@@ -340,10 +352,12 @@ class ApiService {
     required String userName,
   }) async {
     try {
-      final data = await _send('POST', '/api/leaderboard?action=register', body: {
-        'device_id': deviceId,
-        'user_name': userName,
-      });
+      final data = await _send('POST', '/api/leaderboard?action=register',
+          body: {
+            'device_id': deviceId,
+            'user_name': userName,
+          },
+          headers: _lbHeaders(deviceId));
       return data;
     } catch (e) {
       return {'error': e.toString()};
@@ -360,15 +374,17 @@ class ApiService {
     double? lng,
   }) async {
     try {
-      final data = await _send('POST', '/api/leaderboard?action=submit-update', body: {
-        'device_id': deviceId,
-        'route_id': routeId,
-        'type': type,
-        if (stop != null && stop.isNotEmpty) 'stop': stop,
-        if (note != null && note.isNotEmpty) 'note': note,
-        if (lat != null) 'lat': lat,
-        if (lng != null) 'lng': lng,
-      });
+      final data = await _send('POST', '/api/leaderboard?action=submit-update',
+          body: {
+            'device_id': deviceId,
+            'route_id': routeId,
+            'type': type,
+            if (stop != null && stop.isNotEmpty) 'stop': stop,
+            if (note != null && note.isNotEmpty) 'note': note,
+            if (lat != null) 'lat': lat,
+            if (lng != null) 'lng': lng,
+          },
+          headers: _lbHeaders(deviceId));
       return data;
     } catch (e) {
       return {'error': e.toString()};
