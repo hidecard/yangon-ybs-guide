@@ -124,7 +124,7 @@ A comprehensive bus route guide application for Yangon, Myanmar, featuring inter
 
 #### Sending Notifications
 1. Go to **Settings** → tap **Admin** link
-2. Enter password: `hidecard969aky`
+2. Enter the admin password (set via `ADMIN_PASSWORD` environment variable)
 3. Scroll to **"သတိပေးချက် ပို့ရန်"** card
 4. Enter title, message, and select type
 5. Tap **"သတိပေးချက် ပို့မည်"**

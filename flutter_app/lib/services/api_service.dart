@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../config.dart';
@@ -175,8 +174,6 @@ class ApiService {
   ApiService._();
   static final ApiService instance = ApiService._();
 
-  static const _adminToken = 'hidecard969aky';
-
   Uri _u(String path) => Uri.parse('${AppConfig.apiBase}$path');
 
   Future<Map<String, dynamic>> _get(String path) async {
@@ -211,17 +208,6 @@ class ApiService {
     } catch (_) {
       return {};
     }
-  }
-
-  Map<String, String> _lbHeaders(String deviceId) {
-    final ts = DateTime.now().millisecondsSinceEpoch;
-    final sig = Hmac(sha256, utf8.encode(AppConfig.leaderboardSecret))
-        .convert(utf8.encode('$deviceId:$ts'))
-        .toString();
-    return {
-      'X-LB-Timestamp': '$ts',
-      'X-LB-Signature': sig,
-    };
   }
 
   // ---- Bus updates ----
@@ -312,21 +298,6 @@ class ApiService {
     }
   }
 
-  Future<bool> postNotification({
-    required String title,
-    required String message,
-    String type = 'info',
-  }) async {
-    try {
-      await _send('POST', '/api/notifications',
-          headers: {'Authorization': 'Bearer $_adminToken'},
-          body: {'title': title, 'message': message, 'type': type});
-      return true;
-    } catch (_) {
-      return false;
-    }
-  }
-
   // ---- Leaderboard ----
   Future<LeaderboardResponse> fetchLeaderboard({
     String scope = 'all',
@@ -356,8 +327,7 @@ class ApiService {
           body: {
             'device_id': deviceId,
             'user_name': userName,
-          },
-          headers: _lbHeaders(deviceId));
+          });
       return data;
     } catch (e) {
       return {'error': e.toString()};
@@ -383,8 +353,7 @@ class ApiService {
             if (note != null && note.isNotEmpty) 'note': note,
             if (lat != null) 'lat': lat,
             if (lng != null) 'lng': lng,
-          },
-          headers: _lbHeaders(deviceId));
+          });
       return data;
     } catch (e) {
       return {'error': e.toString()};

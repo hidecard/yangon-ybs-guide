@@ -3654,6 +3654,7 @@ const AdminPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [authed, setAuthed] = useState(false);
   const [error, setError] = useState('');
+  const [sessionToken, setSessionToken] = useState('');
   const [items, setItems] = useState<Array<{
     id: number;
     type: string;
@@ -3677,6 +3678,7 @@ const AdminPage: React.FC = () => {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Login failed');
+      setSessionToken(data.token || '');
       setAuthed(true);
       setPage(1);
       loadFeedback();
@@ -3690,7 +3692,7 @@ const AdminPage: React.FC = () => {
     setLoading(true);
     try {
       const res = await fetch(`/api/admin-feedback?limit=${limit}&offset=${(page - 1) * limit}`, {
-        headers: { Authorization: 'Bearer hidecard969aky' },
+        headers: { Authorization: `Bearer ${sessionToken}` },
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed');
@@ -3719,7 +3721,7 @@ const AdminPage: React.FC = () => {
   const loadNotifications = async () => {
     try {
       const res = await fetch('/api/notifications', {
-        headers: { Authorization: 'Bearer hidecard969aky' },
+        headers: { Authorization: `Bearer ${sessionToken}` },
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed');
@@ -3741,6 +3743,7 @@ const AdminPage: React.FC = () => {
         title: notificationTitle.trim(),
         message: notificationMessage.trim(),
         type: notificationType,
+        token: sessionToken,
       });
       if (ok) {
         setNotificationStatus('Notification sent successfully!');

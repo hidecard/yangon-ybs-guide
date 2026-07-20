@@ -6,21 +6,6 @@ const turso = createClient({
   authToken: process.env.TURSO_AUTH_TOKEN!,
 });
 
-const SHARED_SECRET = process.env.LEADERBOARD_SECRET || 'change-me-in-prod';
-
-function signPayload(deviceId: string, timestamp: number): string {
-  return crypto
-    .createHmac('sha256', SHARED_SECRET)
-    .update(`${deviceId}:${timestamp}`)
-    .digest('hex');
-}
-
-function verifySignature(deviceId: string, timestamp: number, signature: string): boolean {
-  const expected = signPayload(deviceId, timestamp);
-  if (timestamp < Date.now() - 30000) return false;
-  return signature === expected;
-}
-
 let schemaReady: Promise<void> | null = null;
 function ensureSchema(): Promise<void> {
   if (!schemaReady) {
@@ -107,19 +92,6 @@ async function addPoints(
 export default async function handler(req: any, res: any) {
   try {
     await ensureSchema();
-
-    const signature = String(req.headers?.['x-lb-signature'] || '');
-    const timestamp = Number(req.headers?.['x-lb-timestamp'] || 0);
-
-    if (req.method === 'POST') {
-      const deviceId = String(req.body?.device_id || '');
-      if (!deviceId || !signature || !timestamp) {
-        return res.status(400).json({ error: 'Missing authentication headers' });
-      }
-      if (!verifySignature(deviceId, timestamp, signature)) {
-        return res.status(401).json({ error: 'Invalid signature' });
-      }
-    }
 
     // POST /api/leaderboard/register  body: { device_id, user_name }
     if (req.method === 'POST' && req.query?.action === 'register') {

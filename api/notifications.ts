@@ -5,7 +5,7 @@ const turso = createClient({
   authToken: process.env.TURSO_AUTH_TOKEN!,
 });
 
-const ADMIN_PASSWORD = 'hidecard969aky';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
 
 let schemaReady: Promise<void> | null = null;
 function ensureSchema(): Promise<void> {
@@ -27,6 +27,7 @@ function ensureSchema(): Promise<void> {
 }
 
 async function verify(req: any): Promise<boolean> {
+  if (!ADMIN_PASSWORD) return false;
   const auth = req.headers.authorization || '';
   if (auth.startsWith('Bearer ')) {
     return auth.slice(7) === ADMIN_PASSWORD;
