@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../config.dart';
 import '../models.dart';
-import '../services/api_service.dart';
-import '../services/local_store.dart';
 import '../state/app_state.dart';
 import '../theme.dart';
 import '../util/nav.dart';
@@ -20,66 +17,9 @@ class StopDetailPage extends StatefulWidget {
 }
 
 class _StopDetailPageState extends State<StopDetailPage> {
-  String _userId = '';
-  bool _alertActive = false;
-
   @override
   void initState() {
     super.initState();
-    _init();
-  }
-
-  Future<void> _init() async {
-    _userId = await LocalStore.instance.getUserId();
-    final status = await ApiService.instance.getAlertStatus(_userId);
-    if (mounted && status.stopName == widget.stop.nameMm) {
-      setState(() => _alertActive = true);
-    }
-  }
-
-  Future<void> _toggleAlert(List<BusRoute> passing) async {
-    final s = widget.stop;
-    if (_alertActive) {
-      await ApiService.instance.cancelAlert(_userId);
-      setState(() => _alertActive = false);
-      return;
-    }
-    final lines = <String>['🚌 ဖြတ်သန်းသွားသော ကားလိုင်းများ (${passing.length}):'];
-    for (final r in passing) {
-      lines.add('• YBS ${r.id}${r.lineName != null ? ' (${r.lineName})' : ''}');
-    }
-    final ok = await ApiService.instance.setAlert(_userId,
-        stopName: s.nameMm, lat: s.lat, lng: s.lng, detail: lines.join('\n'));
-    if (ok) {
-      setState(() => _alertActive = true);
-    } else if (mounted) {
-      _showConnect();
-    }
-  }
-
-  void _showConnect() {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        icon: const Icon(Icons.smart_toy, color: AppColors.blue, size: 40),
-        title: const Text('Telegram နှင့် ချိတ်ဆက်ရန်'),
-        content: const Text(
-            'သတိပေးချက် ရယူရန် သင်၏ Telegram Account ကို အရင် ချိတ်ဆက်ပေးဖို့ လိုအပ်ပါသည်။'),
-        actions: [
-          FilledButton.icon(
-            style: FilledButton.styleFrom(backgroundColor: AppColors.blue),
-            onPressed: () => launchUrl(
-                Uri.parse(LocalStore.instance.connectUrl(_userId)),
-                mode: LaunchMode.externalApplication),
-            icon: const Icon(Icons.send),
-            label: const Text('ချိတ်ဆက်မည်'),
-          ),
-          TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('နောက်မှလုပ်မည်')),
-        ],
-      ),
-    );
   }
 
   @override
@@ -119,14 +59,6 @@ class _StopDetailPageState extends State<StopDetailPage> {
             onPressed: () => state.toggleFavStop(stop.id),
             icon: Icon(isFav ? Icons.star : Icons.star_border,
                 color: isFav ? AppColors.amber : null),
-          ),
-          IconButton(
-            onPressed: () => _toggleAlert(passing),
-            icon: Icon(
-                _alertActive
-                    ? Icons.notifications_active
-                    : Icons.notifications_none,
-                color: _alertActive ? AppColors.emerald : null),
           ),
         ],
       ),

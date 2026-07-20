@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../config.dart';
 import '../services/api_service.dart';
-import '../services/local_store.dart';
 import 'route_badge.dart';
 
 /// Feedback dialog (bug / wrong info / suggestion / other).
@@ -38,12 +37,10 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
       _submitting = true;
       _error = null;
     });
-    final userId = await LocalStore.instance.getUserId();
     final ok = await ApiService.instance.postFeedback(
       type: _type,
       message: _msg.text.trim(),
       routeId: _route.text.trim(),
-      userId: userId,
     );
     if (!mounted) return;
     setState(() => _submitting = false);
@@ -176,13 +173,11 @@ class _ReportUpdateDialogState extends State<ReportUpdateDialog> {
       _submitting = true;
       _error = null;
     });
-    final userId = await LocalStore.instance.getUserId();
     final ok = await ApiService.instance.postBusUpdate(BusUpdate(
       routeId: widget.routeId,
       type: _type,
       stop: _stop.text.trim().isEmpty ? null : _stop.text.trim(),
       note: _note.text.trim().isEmpty ? null : _note.text.trim(),
-      userId: userId,
     ));
     if (!mounted) return;
     setState(() => _submitting = false);

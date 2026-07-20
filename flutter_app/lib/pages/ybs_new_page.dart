@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../config.dart';
 import '../models.dart';
 import '../services/api_service.dart';
-import '../services/local_store.dart';
 import '../state/app_state.dart';
 import '../util/nav.dart';
 import '../widgets/bus_updates_feed.dart';
@@ -201,13 +200,11 @@ class _PostUpdateSheetState extends State<_PostUpdateSheet> {
 
   Future<void> _submit() async {
     setState(() => _submitting = true);
-    final userId = await LocalStore.instance.getUserId();
     final ok = await ApiService.instance.postBusUpdate(BusUpdate(
       routeId: _route!.id,
       type: _type,
       stop: _stop.text.trim().isEmpty ? null : _stop.text.trim(),
       note: _note.text.trim().isEmpty ? null : _note.text.trim(),
-      userId: userId,
     ));
     if (!mounted) return;
     setState(() => _submitting = false);

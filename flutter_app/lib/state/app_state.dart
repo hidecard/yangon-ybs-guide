@@ -12,7 +12,6 @@ class AppState extends ChangeNotifier {
   Set<String> favRoutes = {};
   Set<int> favStops = {};
   List<FavoriteTrip> savedTrips = [];
-  String userId = '';
   String? pendingSearchStart;
   String? pendingSearchEnd;
 
@@ -20,7 +19,6 @@ class AppState extends ChangeNotifier {
   List<BusStop> get stops => repo.stops;
 
   Future<void> init() async {
-    userId = await store.getUserId();
     favRoutes = await store.favRoutes();
     favStops = await store.favStops();
     savedTrips = await store.savedTrips();

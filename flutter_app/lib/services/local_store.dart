@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../config.dart';
 import '../models.dart';
 
 /// Local persistence: user id, favorites, trip history, saved trips,
@@ -14,32 +13,11 @@ class LocalStore {
   Future<SharedPreferences> get _p async =>
       _prefs ??= await SharedPreferences.getInstance();
 
-  static const _userIdKey = 'ybs_telegram_user_id';
   static const _favRoutesKey = 'ybs-fav-routes';
   static const _favStopsKey = 'ybs-fav-stops';
   static const _tripHistoryKey = 'ybs_trip_history';
   static const _savedTripsKey = 'ybs_saved_trips';
   static const _lastSeenNotifKey = 'ybs_notifications_last_seen';
-
-  // ---- User id (Telegram deep-link code) ----
-  String _randomCode(int len) {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    final r = Random();
-    return List.generate(len, (_) => chars[r.nextInt(chars.length)]).join();
-  }
-
-  Future<String> getUserId() async {
-    final p = await _p;
-    var id = p.getString(_userIdKey);
-    if (id == null || id.isEmpty) {
-      id = _randomCode(8);
-      await p.setString(_userIdKey, id);
-    }
-    return id;
-  }
-
-  String connectUrl(String userId) =>
-      'https://t.me/${AppConfig.telegramBot}?start=$userId';
 
   // ---- Favorite routes ----
   Future<Set<String>> favRoutes() async {

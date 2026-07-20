@@ -3,8 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../config.dart';
-import '../services/api_service.dart';
-import '../services/local_store.dart';
 import '../state/app_state.dart';
 import '../theme.dart';
 import '../widgets/modals.dart';
@@ -15,8 +13,6 @@ class SettingsPage extends StatelessWidget {
   static final _sections = <_Section>[
     _Section(Icons.sync, AppColors.primary, 'Application Data',
         'လမ်းကြောင်းနှင့် မှတ်တိုင် အချက်အလက် အပ်ဒိတ်လုပ်ရန်', _DataSection()),
-    _Section(Icons.smart_toy, AppColors.blue, 'Telegram သတိပေးချက်',
-        'မှတ်တိုင် နီးကပ်လျှင် သတိပေးခံရန် ချိတ်ဆက်ပါ', _TelegramSection()),
     _Section(
         Icons.notifications_active,
         AppColors.amber,
@@ -221,14 +217,6 @@ Widget _step(int n, String title, String desc) => Padding(
       ),
     );
 
-Widget _infoBox(Color bg, String text) => Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(12)),
-      child: Text(text,
-          style: const TextStyle(fontSize: 14, color: AppColors.emeraldDark)),
-    );
-
 Widget _kv(String k, String v) => Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
@@ -386,105 +374,6 @@ class _DataSectionState extends State<_DataSection> {
   }
 }
 
-// ---------------- Telegram ----------------
-class _TelegramSection extends StatefulWidget {
-  const _TelegramSection();
-  @override
-  State<_TelegramSection> createState() => _TelegramSectionState();
-}
-
-class _TelegramSectionState extends State<_TelegramSection> {
-  String _userId = '';
-  AlertStatus? _tg;
-  bool _loading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _init();
-  }
-
-  Future<void> _init() async {
-    _userId = await LocalStore.instance.getUserId();
-    if (!mounted) return;
-    final tg = await ApiService.instance.getAlertStatus(_userId);
-    if (mounted) {
-      setState(() {
-        _tg = tg;
-        _loading = false;
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SettingsSectionPage(
-      title: 'Telegram သတိပေးချက်',
-      child: _card(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _cardHeader(Icons.smart_toy, AppColors.blue, 'Telegram သတိပေးချက်',
-                'မှတ်တိုင်နီးကပ်လျှင် သတိပေးခံရန် ချိတ်ဆက်ပါ'),
-            const SizedBox(height: 16),
-            if (_loading)
-              const Center(
-                  child: SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2)))
-            else if (_tg?.stopName != null)
-              _infoBox(AppColors.emeraldLight,
-                  '🔔 ${_tg!.stopName} မှတ်တိုင်သို့ ရောက်လျှင် သတိပေးပါမည်။')
-            else if (_tg?.linked == true)
-              _infoBox(AppColors.emeraldLight,
-                  '✅ ချိတ်ဆက်ပြီးပါပြီ။ မှတ်တိုင်တစ်ခုချက် ဖွင့်ပြီး "သတိပေးပါ" ကို နှိပ်ပါ။')
-            else
-              Column(
-                children: [
-                  SizedBox(
-                    width: double.infinity,
-                    child: FilledButton.icon(
-                      style: FilledButton.styleFrom(
-                          backgroundColor: const Color(0xFF26A5E4)),
-                      onPressed: () => launchUrl(
-                          Uri.parse(LocalStore.instance.connectUrl(_userId)),
-                          mode: LaunchMode.externalApplication),
-                      icon: const Icon(Icons.send),
-                      label: const Text('Telegram နဲ့ ချိတ်ဆက်မည်'),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                        color: AppColors.slate100,
-                        borderRadius: BorderRadius.circular(8)),
-                    child: Row(
-                      children: [
-                        Expanded(
-                            child: SelectableText('/start $_userId',
-                                style: const TextStyle(
-                                    fontFamily: 'monospace',
-                                    fontWeight: FontWeight.w600))),
-                        TextButton(
-                          onPressed: () => Clipboard.setData(
-                              ClipboardData(text: _userId)),
-                          child: const Text('ကူးယူ'),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 // ---------------- Notification Setup ----------------
 class _NotifSetupSection extends StatelessWidget {
   const _NotifSetupSection();
@@ -576,7 +465,6 @@ class _TeamConditionsSection extends StatelessWidget {
                 _kv('Design', 'YBS AI Team'),
                 _kv('Contact', 'info@arkaryan.net'),
                 _link('Website', 'https://www.arkaryan.net/'),
-                _link('Telegram', 'https://t.me/ybsguide'),
                 _link('TikTok', 'https://www.tiktok.com/@ybs.ai.mm'),
                 const SizedBox(height: 14),
                 const Divider(),
@@ -658,7 +546,6 @@ class _AboutSection extends StatelessWidget {
             _kv('Contact', 'info@arkaryan.net'),
             _link('Website', 'https://www.arkaryan.net/'),
             _link('Facebook', 'https://www.facebook.com/ybsguide'),
-            _link('Telegram', 'https://t.me/ybsguide'),
             _link('TikTok', 'https://www.tiktok.com/@ybs.ai.mm'),
             const SizedBox(height: 14),
             const Divider(),
@@ -701,8 +588,6 @@ class _PrivacySection extends StatelessWidget {
                 'ကားလိုင်းနှင့် မှတ်တိုင် အချက်အလက်များကို သင့်ဖုန်းအတွင်း (offline) သိုလှောင်ပါသည်။'),
             _privacy(
                 'သင်၏ တည်နေရာဒေတာကို မှတ်တိုင်အနီးရောက်သတိပေးချက်အတွက်သာ ယာယီအသုံးပြုပြီး ဆာဗာသို့ မပို့ပါ။'),
-            _privacy(
-                'Telegram သတိပေးချက်အတွက် သင့် User ID နှင့် ပစ်မှတ်မှတ်တိုင် အချက်အလက်သာ သုံးပါသည်။'),
             _privacy(
                 'ကျွန်ုပ်တို့သည် သင့်ကိုယ်ရေးအချက်အလက်ကို တတိယအဖွဲ့အစည်းသို့ မရောင်းချပါ။'),
             _privacy(
@@ -761,8 +646,6 @@ class _WhatsNewSection extends StatelessWidget {
             const SizedBox(height: 16),
             _feature('AI-Powered Assistant',
                 'လမ်းကြောင်းများကို မြန်မာလို မေးမြန်းနိုင်ခြင်း။'),
-            _feature('Telegram Alert System',
-                'မှတ်တိုင်နီးကပ်လျှင် Telegram မှတဆင့် သတိပေးချက်ပေးပို့ခြင်း။'),
             _feature('Advanced Route Finding',
                 'အမြန်ဆုံးနှင့် အဆင်ပြေဆုံး လမ်းကြောင်းများကို ရှာဖွေပေးခြင်း။'),
             _feature('Live Bus Location',

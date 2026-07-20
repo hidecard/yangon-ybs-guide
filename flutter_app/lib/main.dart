@@ -12,7 +12,6 @@ import 'pages/ybs_new_page.dart';
 import 'pages/assistant_page.dart';
 import 'pages/favorites_page.dart';
 import 'pages/settings_page.dart';
-import 'widgets/telegram_connect_sheet.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -111,11 +110,6 @@ class _RootShellState extends State<RootShell> {
           ],
         ),
         actions: [
-          IconButton(
-            tooltip: 'Telegram ချိတ်ဆက်',
-            onPressed: () => TelegramConnectSheet.show(context),
-            icon: const Icon(Icons.smart_toy_outlined),
-          ),
           IconButton(
             tooltip: 'Settings',
             onPressed: () => Navigator.push(context,

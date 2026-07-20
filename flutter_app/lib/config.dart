@@ -25,12 +25,6 @@ class AppConfig {
     return 'https://ybs-mm-v2.vercel.app';
   }
 
-  /// Telegram bot username used for deep-link account linking.
-  static const String telegramBot = 'ybsguide_bot';
-
-  /// Public web origin (used to build shareable trip links).
-  static const String webOrigin = 'https://ybs-mm-v2.vercel.app';
-
   static const String appVersion = '3.1';
 
   static const double avgBusSpeedKmh = 15;

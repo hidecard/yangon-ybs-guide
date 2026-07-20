@@ -4,13 +4,10 @@ import 'package:provider/provider.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../config.dart';
 import '../data/route_finder.dart';
 import '../models.dart';
 import '../services/api_service.dart';
-import '../services/background_alert_service.dart';
-import '../services/local_store.dart';
 import '../services/location_service.dart';
 import '../services/notify_service.dart';
 import '../state/app_state.dart';
@@ -37,9 +34,6 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
   final Set<String> _alerted = {};
   int _prevArriveIdx = -1;
 
-  String _userId = '';
-  String? _alertStop;
-
   List<Prediction> _predictions = [];
   String? _predictionMsg;
   bool _loadingPred = false;
@@ -63,11 +57,6 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
   }
 
   Future<void> _init() async {
-    _userId = await LocalStore.instance.getUserId();
-    final status = await ApiService.instance.getAlertStatus(_userId);
-    if (mounted && status.stopName != null) {
-      setState(() => _alertStop = status.stopName);
-    }
     _loadPredictions();
     _loadBusEta();
     _loadBusPositions();
@@ -166,123 +155,6 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
       final msg = '${stop.nameMm} မှတ်တိုင် ရောက်ပါပီ';
       setState(() => _arrivalMessage = msg);
       NotifyService.instance.triggerArrival(msg);
-    }
-  }
-
-  Future<void> _toggleAlert(BusStop s) async {
-    if (_alertStop == s.nameMm) {
-      await ApiService.instance.cancelAlert(_userId);
-      await stopBackgroundAlert();
-      setState(() => _alertStop = null);
-      return;
-    }
-    final detail = _buildDetail();
-    final ok = await ApiService.instance.setAlert(_userId,
-        stopName: s.nameMm, lat: s.lat, lng: s.lng, detail: detail);
-    if (ok) {
-      setState(() => _alertStop = s.nameMm);
-      // Keep alerting even when the app is closed / screen is off.
-      await startBackgroundAlert(
-          stopName: s.nameMm, lat: s.lat, lng: s.lng, detail: detail);
-      if (mounted) _showAlertSetDialog(s.nameMm);
-    } else {
-      if (mounted) _showConnectDialog(s);
-    }
-  }
-
-  String _buildDetail() {
-    final r = widget.route;
-    final lines = <String>[
-      '🚌 YBS ${r.id}${r.lineName != null ? ' (${r.lineName})' : ''} လိုင်း၏ မှတ်တိုင်များ (${_stops.length}):'
-    ];
-    for (int i = 0; i < _stops.length; i++) {
-      lines.add('${i + 1}. ${_stops[i].nameMm}');
-    }
-    return lines.join('\n');
-  }
-
-  void _showAlertSetDialog(String stopName) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        icon: const Icon(Icons.check_circle,
-            color: AppColors.emerald, size: 40),
-        title: const Text('သတိပေးချက်သတ်မှတ်ပြီးပါပြီ'),
-        content: Text(
-            '"$stopName" မှတ်တိုင်သို့ ရောက်ရှိရန် နီးကပ်လာပါက Telegram မှတစ်ဆင့် သတိပေးပါမည်။'),
-        actions: [
-          FilledButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('ကောင်းပါပြီ')),
-        ],
-      ),
-    );
-  }
-
-  void _showConnectDialog(BusStop pending) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        icon: const Icon(Icons.smart_toy, color: AppColors.blue, size: 40),
-        title: const Text('Telegram နှင့် ချိတ်ဆက်ရန်'),
-        content: const Text(
-            'သတိပေးချက် ရယူရန် သင်၏ Telegram Account ကို အရင် ချိတ်ဆက်ပေးဖို့ လိုအပ်ပါသည်။'),
-        actions: [
-          FilledButton.icon(
-            style: FilledButton.styleFrom(backgroundColor: AppColors.blue),
-            onPressed: () => launchUrl(
-                Uri.parse(LocalStore.instance.connectUrl(_userId)),
-                mode: LaunchMode.externalApplication),
-            icon: const Icon(Icons.send),
-            label: const Text('Telegram နှင့် ချိတ်ဆက်မည်'),
-          ),
-          TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('နောက်မှလုပ်မည်')),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _share() async {
-    final nameController = TextEditingController();
-    final name = await showDialog<String>(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('သင့်အမည်ထည့်ပါ'),
-        content: TextField(
-            controller: nameController,
-            decoration: const InputDecoration(hintText: 'ဥပမာ - အောင်မင်း')),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel')),
-          FilledButton(
-              onPressed: () =>
-                  Navigator.pop(context, nameController.text.trim()),
-              child: const Text('Share')),
-        ],
-      ),
-    );
-    if (name == null || name.isEmpty) return;
-    final token = await ApiService.instance.createSharedTrip(
-      userId: _userId,
-      userName: name,
-      routeId: widget.route.id,
-      routeLabel: widget.route.displayName,
-      nextStopIndex: 0,
-      destinationStopName:
-          widget.route.stops.isNotEmpty ? widget.route.stops.last : '',
-      lat: _livePos?.lat,
-      lng: _livePos?.lng,
-    );
-    if (!mounted) return;
-    if (token != null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Trip link: ${ApiService.instance.shareUrl(token)}')));
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to create shared trip.')));
     }
   }
 
@@ -413,9 +285,6 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
           ],
         ),
         actions: [
-          IconButton(
-              onPressed: _share,
-              icon: const Icon(Icons.share, color: AppColors.brand)),
           IconButton(
             onPressed: () async {
               final ok = await ReportUpdateDialog.show(context,
@@ -753,17 +622,7 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
       trailing: isActive
           ? const Pill('လက်ရှိ',
               bg: Color(0xFFD1FAE5), fg: AppColors.emeraldDark)
-          : IconButton(
-              onPressed: () => _toggleAlert(s),
-              icon: Icon(
-                  _alertStop == s.nameMm
-                      ? Icons.notifications_active
-                      : Icons.notifications_none,
-                  size: 16,
-                  color: _alertStop == s.nameMm
-                      ? AppColors.emerald
-                      : AppColors.slate300),
-            ),
+          : const SizedBox.shrink(),
     );
   }
 }

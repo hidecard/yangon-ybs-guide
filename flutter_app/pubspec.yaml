@@ -1,5 +1,5 @@
 name: ybs_guide
-description: "Yangon YBS AI - Bus routes, route finding, live tracking, Telegram alerts."
+description: "Yangon YBS AI - Bus routes, route finding, live tracking."
 publish_to: 'none'
 version: 3.1.0+1
 

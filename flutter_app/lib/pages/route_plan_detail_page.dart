@@ -4,19 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_map/flutter_map.dart';
 import '../config.dart';
 import '../data/route_finder.dart';
 import '../models.dart';
-import '../services/api_service.dart';
-import '../services/background_alert_service.dart';
 import '../services/local_store.dart';
 import '../services/location_service.dart';
 import '../services/notify_service.dart';
 import '../state/app_state.dart';
 import '../theme.dart';
-import 'package:flutter_map/flutter_map.dart';
-import '../util/nav.dart';
 import '../widgets/osm_map.dart';
 import '../widgets/route_badge.dart';
 import 'map_picker_page.dart';
@@ -42,8 +38,6 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
   final Set<String> _alerted = {};
   String _prevStopKey = '';
 
-  String _userId = '';
-  String? _activeAlertStop;
   bool _tripSaved = false;
 
   // Editable start/end so the user can re-plan from "Near Me" or a map pick.
@@ -79,11 +73,6 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
   }
 
   Future<void> _init() async {
-    _userId = await LocalStore.instance.getUserId();
-    final status = await ApiService.instance.getAlertStatus(_userId);
-    if (mounted && status.stopName != null) {
-      setState(() => _activeAlertStop = status.stopName);
-    }
   }
 
   void _startWatch() async {
@@ -167,29 +156,6 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
     }
   }
 
-  Future<void> _toggleAlert(String stopName, int stepIndex) async {
-    if (_activeAlertStop == stopName) {
-      await ApiService.instance.cancelAlert(_userId);
-      await stopBackgroundAlert();
-      setState(() => _activeAlertStop = null);
-      return;
-    }
-    final stop = _stopsByName[stopName];
-    if (stop == null) return;
-    final detail = _buildDetail(stepIndex);
-    final ok = await ApiService.instance.setAlert(_userId,
-        stopName: stopName, lat: stop.lat, lng: stop.lng, detail: detail);
-    if (ok) {
-      setState(() => _activeAlertStop = stopName);
-      // Keep alerting even when the app is closed / screen is off.
-      await startBackgroundAlert(
-          stopName: stopName, lat: stop.lat, lng: stop.lng, detail: detail);
-      if (mounted) _showSetDialog(stopName);
-    } else if (mounted) {
-      _showConnectDialog();
-    }
-  }
-
   Future<void> _useCurrentLocation() async {
     final state = context.read<AppState>();
     setState(() => _locating = true);
@@ -270,61 +236,6 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
         const SnackBar(content: Text('လမ်းကြောင်း မတွေ့ပါ')),
       );
     }
-  }
-
-  String _buildDetail(int stepIndex) {
-    final lines = <String>['🚌 လမ်းကြောင်းအစီအစဉ် (Route Plan):'];
-    for (int i = 0; i < steps.length; i++) {
-      final r = steps[i].route;
-      final ln = r.lineName != null ? ' (${r.lineName})' : '';
-      final marker = i == stepIndex ? '  ◀️ ဤမှတ်တိုင်သို့ သတိပေးထားပါသည်' : '';
-      lines.add(
-          '${i + 1}. YBS ${r.id}$ln — စီး: ${steps[i].fromStop} → ဆင်း: ${steps[i].toStop}$marker');
-    }
-    return lines.join('\n');
-  }
-
-  void _showSetDialog(String stopName) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        icon: const Icon(Icons.check_circle,
-            color: AppColors.emerald, size: 40),
-        title: const Text('သတိပေးချက်သတ်မှတ်ပြီးပါပြီ'),
-        content: Text(
-            '"$stopName" မှတ်တိုင်သို့ ရောက်ရှိရန် နီးကပ်လာပါက Telegram မှတစ်ဆင့် သတိပေးပါမည်။'),
-        actions: [
-          FilledButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('ကောင်းပါပြီ')),
-        ],
-      ),
-    );
-  }
-
-  void _showConnectDialog() {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        icon: const Icon(Icons.smart_toy, color: AppColors.blue, size: 40),
-        title: const Text('Telegram နှင့် ချိတ်ဆက်ရန်'),
-        content: const Text(
-            'သတိပေးချက်များ ရယူနိုင်ရန်အတွက် Telegram Account ကို အရင် ချိတ်ဆက်ပေးဖို့ လိုအပ်ပါသည်။'),
-        actions: [
-          FilledButton.icon(
-            style: FilledButton.styleFrom(backgroundColor: AppColors.blue),
-            onPressed: () => launchUrl(
-                Uri.parse(LocalStore.instance.connectUrl(_userId)),
-                mode: LaunchMode.externalApplication),
-            icon: const Icon(Icons.send),
-            label: const Text('ချိတ်ဆက်မည်'),
-          ),
-          TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('နောက်မှလုပ်မည်')),
-        ],
-      ),
-    );
   }
 
   @override
@@ -530,23 +441,20 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
                         const SizedBox(height: 6),
                         GestureDetector(
                           onTap: () {
-                            if (_activeAlertStop == active.toStop) {
-                              _toggleAlert(active.toStop, _activeStep);
-                            } else {
-                              _toggleAlert(active.toStop, _activeStep);
+                            setState(() => _arrivalEnabled = !_arrivalEnabled);
+                            if (_arrivalEnabled) {
+                              NotifyService.instance.requestPermission();
                             }
                           },
                           child: Pill(
-                            _activeAlertStop == active.toStop
-                                ? 'Tg မာ သတိပေးချက်: ဖွင့်'
-                                : 'Tg မာ သတိပေးရန်',
-                            icon: _activeAlertStop == active.toStop
-                                ? Icons.send
-                                : Icons.notifications_none,
-                            bg: _activeAlertStop == active.toStop
+                            _arrivalEnabled
+                                ? 'ရောက်ခါနီး သတိပေးချက်: ဖွင့်'
+                                : 'ရောက်ခါနီး သတိပေးချက်',
+                            icon: _arrivalEnabled ? Icons.notifications_active : Icons.notifications_none,
+                            bg: _arrivalEnabled
                                 ? AppColors.amber
                                 : Colors.white,
-                            fg: _activeAlertStop == active.toStop
+                            fg: _arrivalEnabled
                                 ? Colors.white
                                 : AppColors.slate500,
                           ),
