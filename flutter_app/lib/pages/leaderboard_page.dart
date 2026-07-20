@@ -237,7 +237,7 @@ class _LeaderboardPageState extends State<LeaderboardPage>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-              '✅ ${result.rewardTitle} ကို အောင်မြင်စွာ ဆုလဲလိုက်ပြီပြီ! (${result.pointsSpent} Points)'),
+              ' ${result.rewardTitle} ကို အောင်မြင်စွာ ဆုလဲလိုက်ပြီပြီ! (${result.pointsSpent} Points)'),
           backgroundColor: AppColors.emerald,
         ),
       );
@@ -373,6 +373,21 @@ class _LeaderboardPageState extends State<LeaderboardPage>
                     ),
                   ),
                 const SizedBox(height: 16),
+                if (_rewards.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 60),
+                    child: Column(
+                      children: [
+                        Icon(Icons.card_giftcard_outlined, size: 40, color: AppColors.slate300),
+                        SizedBox(height: 12),
+                        Text(
+                          'ပြီးခဲ့ပြီ ဆုများ မရှိသေးပါ။',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: AppColors.slate400, fontSize: 13),
+                        ),
+                      ],
+                    ),
+                  ),
                 ...List.generate(_rewards.length, (i) {
                   final reward = _rewards[i];
                   return _RewardCard(
