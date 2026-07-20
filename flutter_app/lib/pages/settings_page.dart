@@ -13,6 +13,8 @@ class SettingsPage extends StatelessWidget {
   static final _sections = <_Section>[
     _Section(Icons.sync, AppColors.primary, 'Application Data',
         'လမ်းကြောင်းနှင့် မှတ်တိုင် အချက်အလက် အပ်ဒိတ်လုပ်ရန်', _DataSection()),
+    _Section(Icons.emoji_events, AppColors.amber, 'Community & Leaderboard',
+        'Profile, ဂုဏ်ပုဒ် နှင့် ဆုလက်ဆောင် လမ်းညွှန်', const _LeaderboardGuideSection()),
     _Section(
         Icons.notifications_active,
         AppColors.amber,
@@ -796,3 +798,155 @@ class _DonationSection extends StatelessWidget {
   }
 }
 
+// ---------------- Leaderboard & Profile Guide ----------------
+class _LeaderboardGuideSection extends StatelessWidget {
+  const _LeaderboardGuideSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return SettingsSectionPage(
+      title: 'Community & Leaderboard',
+      child: _card(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _cardHeader(Icons.emoji_events, AppColors.amber, 'Community & Leaderboard',
+                'Profile, ဂုဏ်ပုဒ် နှင့် ဆုလက်ဆောင် လမ်းညွှန်'),
+            const SizedBox(height: 20),
+            _guideItem(
+              icon: Icons.person_outline,
+              color: AppColors.brand,
+              title: 'Profile (ကိုယ်ရေးအချက်အလက်)',
+              items: [
+                'Login မလိုပါ။ Device ID အပေါ် အခြေခံပြီး အလိုအလျောက် ဖန်တီးပါသည်။',
+                'ပထမဆုံးအကြိမ် ဖွင့်တဲ့အခါ အမည်တစ်ခု သာဖြည့်ရပါမည်။',
+                'အမည်ကို ပြောင်းလိုရင် Profile တွင် Edit နှိပ်ပြီး ပြောင်းနိုင်ပါသည်။',
+                'အခြား Device များမှာ အမည်ကို အလုပ်မလုပ်ပါ။',
+              ],
+            ),
+            const SizedBox(height: 20),
+            _guideItem(
+              icon: Icons.leaderboard,
+              color: AppColors.emerald,
+              title: 'Leaderboard (အဆင့်စာရင်း)',
+              items: [
+                'YBS New မှာ သတင်းတင်တိုင်း Point ရရှိပါမည်။',
+                'Point အများဆုံး Top 100 အဆင့်ကို ဤနေရာမှာ ကြည့်နိုင်ပါသည်။',
+                'All Time / Monthly အ themed ပြောင်းလိုက်ပြီး ကြည့်နိုင်ပါသည်။',
+                '၁ နာရီအတွင်း သတင်းတင်နိုင်ချိန် ကနေ အများဆုံး ၂ ကြိမ်သာ ရရှိနိုင်ပါမည်။',
+              ],
+            ),
+            const SizedBox(height: 20),
+            _guideItem(
+              icon: Icons.card_giftcard_outlined,
+              color: AppColors.rose,
+              title: 'Rewards (ဆုလက်ဆောင်)',
+              items: [
+                'Point များကို ဆုများ ဆုလဲရန် အသုံးပြုနိုင်ပါသည်။',
+                'ဆုလဲမည် ကို နှိပ်ပြီး အတည်ပြုပြီး ဖုန်းနံပါတ် / Telegram Username ဖြည့်ပါ။',
+                'Point လုံလောက်မှု ရှိမရှိ အလိုအလျောက် စစ်ဆေးပါသည်။',
+                'ဆုလဲပြီးသည့်အခါ Point ကို အလိုအလျောက် နှုတ်ယူပါသည်။',
+              ],
+            ),
+            const SizedBox(height: 20),
+            _guideItem(
+              icon: Icons.emoji_events_outlined,
+              color: AppColors.amber,
+              title: 'Badges (ဂုဏ်ပုဒ်များ)',
+              items: [
+                'Point အလိုက် ဂုဏ်ပုဒ်များ အလိုအလျောက် ရရှိပါသည်။',
+                '🌱 YBS စတင်လေ့လာသူ - 0 Points',
+                '🗺️ YBS လမ်းညွှန်မှူး - 100 Points',
+                '👑 YBS နတ်ကြီး (Yangon Bus Legend) - 1000 Points',
+                'Profile တွင် ဂုဏ်ပုဒ်များကို ကြည့်နိုင်ပါသည်။',
+              ],
+            ),
+            const SizedBox(height: 20),
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: AppColors.amberLight,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.amber),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.info_outline, color: AppColors.amber, size: 20),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'လုံခြုံရေး: အမည်၊ Device ID နှင့် အချက်အလက်များ မညီခွန်းမရှိဘဲ လုံခြုံစွာ သိမ်းဆည်းထားပါသည်။ API လှုပ်ရှားမှုများကို HMAC Signature ဖြင့် အတည်ပြုပါသည်။',
+                      style: TextStyle(fontSize: 12, color: AppColors.slate700),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _guideItem({
+    required IconData icon,
+    required Color color,
+    required String title,
+    required List<String> items,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, color: color, size: 18),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: color,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        ...items.map((item) => Padding(
+              padding: const EdgeInsets.only(left: 40, bottom: 6),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    margin: const EdgeInsets.only(top: 5, right: 10),
+                    width: 4,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: AppColors.slate400,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      item,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textSecondary,
+                        height: 1.5,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )),
+      ],
+    );
+  }
+}
