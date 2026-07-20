@@ -21,6 +21,11 @@ function ensureSchema(): Promise<void> {
         upvotes INTEGER DEFAULT 0,
         created_at INTEGER NOT NULL
       )`);
+      try {
+        await turso.execute('ALTER TABLE bus_updates ADD COLUMN upvotes INTEGER DEFAULT 0');
+      } catch {
+        // Column may already exist.
+      }
     })().catch((e) => {
       schemaReady = null;
       throw e;
