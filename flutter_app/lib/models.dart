@@ -212,3 +212,54 @@ class LeaderboardResponse {
             : null,
       );
 }
+
+class RewardItem {
+  final int id;
+  final String title;
+  final String description;
+  final int cost;
+  final int stock;
+  final String icon;
+  final bool isActive;
+
+  const RewardItem({
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.cost,
+    required this.stock,
+    required this.icon,
+    required this.isActive,
+  });
+
+  factory RewardItem.fromJson(Map<String, dynamic> j) => RewardItem(
+        id: (j['id'] as num).toInt(),
+        title: j['title']?.toString() ?? '',
+        description: j['description']?.toString() ?? '',
+        cost: (j['cost'] as num).toInt(),
+        stock: (j['stock'] as num).toInt(),
+        icon: j['icon']?.toString() ?? '🎁',
+        isActive: j['isActive'] == true || j['is_active'] == 1 || j['is_active'] == true,
+      );
+}
+
+class RedemptionResult {
+  final bool ok;
+  final int pointsSpent;
+  final int newTotal;
+  final String rewardTitle;
+
+  const RedemptionResult({
+    required this.ok,
+    required this.pointsSpent,
+    required this.newTotal,
+    required this.rewardTitle,
+  });
+
+  factory RedemptionResult.fromJson(Map<String, dynamic> j) => RedemptionResult(
+        ok: j['ok'] == true,
+        pointsSpent: (j['points_spent'] as num?)?.toInt() ?? 0,
+        newTotal: (j['new_total'] as num?)?.toInt() ?? 0,
+        rewardTitle: j['reward_title']?.toString() ?? '',
+      );
+}

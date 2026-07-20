@@ -374,4 +374,38 @@ class ApiService {
       return {'error': e.toString()};
     }
   }
+
+  Future<List<RewardItem>> fetchRewards({bool activeOnly = true}) async {
+    try {
+      final params = <String, String>{'active': activeOnly ? 'true' : 'false'};
+      final q = Uri(queryParameters: params).query;
+      final data = await _get('/api/rewards?$q');
+      final list = (data['rewards'] as List?) ?? [];
+      return list.map((e) => RewardItem.fromJson(e as Map<String, dynamic>)).toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  Future<RedemptionResult> redeemReward({
+    required String deviceId,
+    required int rewardId,
+    required String claimContact,
+  }) async {
+    try {
+      final data = await _send('POST', '/api/rewards', body: {
+        'device_id': deviceId,
+        'reward_id': rewardId,
+        'claim_contact': claimContact,
+      });
+      return RedemptionResult.fromJson(data);
+    } catch (e) {
+      return RedemptionResult(
+        ok: false,
+        pointsSpent: 0,
+        newTotal: 0,
+        rewardTitle: '',
+      );
+    }
+  }
 }
