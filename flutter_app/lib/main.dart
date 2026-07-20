@@ -125,24 +125,98 @@ class _RootShellState extends State<RootShell> {
         onSwitch: (i) => setState(() => _index = i),
         child: IndexedStack(index: _index, children: _pages),
       ),
-      bottomNavigationBar: NavigationBarTheme(
-        data: NavigationBarThemeData(
-          backgroundColor: Colors.white,
-          indicatorColor: AppColors.brandLight,
-          labelTextStyle: WidgetStateProperty.all(
-              const TextStyle(fontSize: 10, fontWeight: FontWeight.w600)),
+      bottomNavigationBar: _YbsBottomNav(
+        index: _index,
+        items: _navItems,
+        onTap: (i) => setState(() => _index = i),
+      ),
+    );
+  }
+}
+
+class _YbsBottomNav extends StatelessWidget {
+  final int index;
+  final List<(IconData, IconData, String)> items;
+  final ValueChanged<int> onTap;
+  const _YbsBottomNav({
+    required this.index,
+    required this.items,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x12000000),
+            blurRadius: 12,
+            offset: Offset(0, -2),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: List.generate(items.length, (i) {
+              final item = items[i];
+              final active = i == index;
+              return Expanded(
+                child: _NavItem(
+                  active: active,
+                  icon: active ? item.$2 : item.$1,
+                  label: item.$3,
+                  onTap: () => onTap(i),
+                ),
+              );
+            }),
+          ),
         ),
-        child: NavigationBar(
-          height: 66,
-          selectedIndex: _index,
-          onDestinationSelected: (i) => setState(() => _index = i),
-          destinations: _navItems
-              .map((it) => NavigationDestination(
-                    icon: Icon(it.$1, color: AppColors.slate400),
-                    selectedIcon: Icon(it.$2, color: AppColors.brand),
-                    label: it.$3,
-                  ))
-              .toList(),
+      ),
+    );
+  }
+}
+
+class _NavItem extends StatelessWidget {
+  final bool active;
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  const _NavItem({
+    required this.active,
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: AnimatedDefaultTextStyle(
+          duration: const Duration(milliseconds: 220),
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+            color: active ? AppColors.brand : AppColors.slate400,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 22, color: active ? AppColors.brand : AppColors.slate400),
+              const SizedBox(height: 4),
+              Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
+            ],
+          ),
         ),
       ),
     );

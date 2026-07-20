@@ -25,13 +25,44 @@ class _AssistantPageState extends State<AssistantPage> {
             'မင်္ဂလာပါ! YBS Assistant ပါ။ ဘယ်ကနေ ဘယ်ကို သွားချင်လဲ? ဥပမာ - "မြေနီကုန်းကနေ ဆူးလေကို ဘယ်လိုသွားရမလဲ" လို့ မေးလို့ရပါတယ်။'),
   ];
 
-  // Quick suggestion chips shown under the input.
-  final List<String> _suggestions = [
-    'ဆူးလေကနေ လှည်းတန်းကို',
-    'မြေနီကုန်းကနေ ရန်ကုန်တက္ကသိုလ်',
-    'ကန်တော်ကနေ လှိုင်ဘူတာ',
-    'အန်းလျှိုင်ကနေ သန်လျင်ကို',
-  ];
+  List<String> _suggestions = const [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSuggestions();
+  }
+
+  void _loadSuggestions() {
+    final state = context.read<AppState>();
+    final stops = state.stops;
+    if (stops.isEmpty) return;
+    
+    final seen = <String>{};
+    final picks = <String>[];
+    
+    for (final s in stops) {
+      final name = s.nameMm.trim();
+      if (name.isEmpty || seen.contains(name)) continue;
+      seen.add(name);
+      picks.add(name);
+      if (picks.length >= 20) break;
+    }
+    
+    if (picks.length >= 2 && mounted) {
+      final suggestions = <String>[];
+      for (int i = 0; i < picks.length && suggestions.length < 4; i++) {
+        final a = picks[i];
+        final b = picks[(i + 3) % picks.length];
+        if (a != b) {
+          suggestions.add('$a ကနေ $b ကို');
+        }
+      }
+      if (suggestions.isNotEmpty) {
+        setState(() => _suggestions = suggestions);
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -208,9 +239,9 @@ class _AssistantPageState extends State<AssistantPage> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: SizedBox(
-                height: 32,
+                height: 40,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: _suggestions.length,
@@ -220,6 +251,7 @@ class _AssistantPageState extends State<AssistantPage> {
                         style: const TextStyle(fontSize: 12)),
                     backgroundColor: AppColors.brandLight,
                     labelStyle: const TextStyle(color: AppColors.brandHover),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     onPressed: () => _send(_suggestions[i]),
                   ),
                 ),
