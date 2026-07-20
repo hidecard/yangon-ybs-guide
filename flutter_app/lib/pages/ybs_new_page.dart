@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../config.dart';
 import '../models.dart';
 import '../services/api_service.dart';
+import '../services/device_service.dart';
 import '../state/app_state.dart';
 import '../util/nav.dart';
 import '../widgets/bus_updates_feed.dart';
@@ -97,6 +98,7 @@ class _PostUpdateSheetState extends State<_PostUpdateSheet> {
   final _stop = TextEditingController();
   final _note = TextEditingController();
   bool _submitting = false;
+  final DeviceService _deviceService = DeviceService();
 
   @override
   Widget build(BuildContext context) {
@@ -200,19 +202,41 @@ class _PostUpdateSheetState extends State<_PostUpdateSheet> {
 
   Future<void> _submit() async {
     setState(() => _submitting = true);
-    final ok = await ApiService.instance.postBusUpdate(BusUpdate(
+    final deviceId = await _deviceService.getDeviceId();
+    final busOk = await ApiService.instance.postBusUpdate(BusUpdate(
       routeId: _route!.id,
       type: _type,
       stop: _stop.text.trim().isEmpty ? null : _stop.text.trim(),
       note: _note.text.trim().isEmpty ? null : _note.text.trim(),
     ));
+    String? pointsMsg;
+    if (busOk) {
+      final lbRes = await ApiService.instance.submitLeaderboardUpdate(
+        deviceId: deviceId,
+        routeId: _route!.id,
+        type: busUpdateTypeKey(_type),
+        stop: _stop.text.trim().isEmpty ? null : _stop.text.trim(),
+        note: _note.text.trim().isEmpty ? null : _note.text.trim(),
+      );
+      if (lbRes['ok'] == true) {
+        pointsMsg = '+${lbRes['points_earned'] ?? 0} Points';
+        if (lbRes['new_total'] != null && mounted) {
+          context.read<AppState>().store.setLeaderboardUserName(
+                context.read<AppState>().leaderboardUserName ??
+                    'User_${deviceId.substring(0, 6)}',
+              );
+        }
+      }
+    }
     if (!mounted) return;
     setState(() => _submitting = false);
-    if (ok) {
+    if (busOk) {
       widget.onPosted();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('✅ အချက်အလက် မျှဝေပြီးပါပြီ။')));
+        final msg = pointsMsg != null
+            ? '✅ အချက်အလက် မျှဝေပြီးပါပြီ။ $pointsMsg'
+            : '✅ အချက်အလက် မျှဝေပြီးပါပြီ။';
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
         Navigator.pop(context);
       }
     } else {

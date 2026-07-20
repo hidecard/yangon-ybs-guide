@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../config.dart';
+import '../models.dart';
 
 // ----- Bus updates -----
 enum BusUpdateType { started, reached, roadClosed, notRunning, other }
@@ -311,6 +312,66 @@ class ApiService {
       return true;
     } catch (_) {
       return false;
+    }
+  }
+
+  // ---- Leaderboard ----
+  Future<LeaderboardResponse> fetchLeaderboard({
+    String scope = 'all',
+    String? deviceId,
+    int limit = 100,
+  }) async {
+    try {
+      final params = <String, String>{
+        'scope': scope,
+        'limit': '$limit',
+        if (deviceId != null && deviceId.isNotEmpty) 'device_id': deviceId,
+      };
+      final q = Uri(queryParameters: params).query;
+      final data = await _get('/api/leaderboard?$q');
+      return LeaderboardResponse.fromJson(data);
+    } catch (_) {
+      return const LeaderboardResponse(leaderboard: []);
+    }
+  }
+
+  Future<Map<String, dynamic>> registerLeaderboardUser({
+    required String deviceId,
+    required String userName,
+  }) async {
+    try {
+      final data = await _send('POST', '/api/leaderboard?action=register', body: {
+        'device_id': deviceId,
+        'user_name': userName,
+      });
+      return data;
+    } catch (e) {
+      return {'error': e.toString()};
+    }
+  }
+
+  Future<Map<String, dynamic>> submitLeaderboardUpdate({
+    required String deviceId,
+    required String routeId,
+    required String type,
+    String? stop,
+    String? note,
+    double? lat,
+    double? lng,
+  }) async {
+    try {
+      final data = await _send('POST', '/api/leaderboard?action=submit-update', body: {
+        'device_id': deviceId,
+        'route_id': routeId,
+        'type': type,
+        if (stop != null && stop.isNotEmpty) 'stop': stop,
+        if (note != null && note.isNotEmpty) 'note': note,
+        if (lat != null) 'lat': lat,
+        if (lng != null) 'lng': lng,
+      });
+      return data;
+    } catch (e) {
+      return {'error': e.toString()};
     }
   }
 }

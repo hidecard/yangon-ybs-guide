@@ -14,6 +14,7 @@ class AppState extends ChangeNotifier {
   List<FavoriteTrip> savedTrips = [];
   String? pendingSearchStart;
   String? pendingSearchEnd;
+  String? leaderboardUserName;
 
   List<BusRoute> get routes => repo.routes;
   List<BusStop> get stops => repo.stops;
@@ -22,6 +23,7 @@ class AppState extends ChangeNotifier {
     favRoutes = await store.favRoutes();
     favStops = await store.favStops();
     savedTrips = await store.savedTrips();
+    leaderboardUserName = await store.leaderboardUserName();
     notifyListeners();
 
     await repo.load();

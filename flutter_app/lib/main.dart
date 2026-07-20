@@ -12,6 +12,7 @@ import 'pages/ybs_new_page.dart';
 import 'pages/assistant_page.dart';
 import 'pages/favorites_page.dart';
 import 'pages/settings_page.dart';
+import 'pages/leaderboard_page.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -57,6 +58,7 @@ class _RootShellState extends State<RootShell> {
     RoutesPage(),
     FindRoutePage(),
     FavoritesPage(),
+    LeaderboardPage(),
   ];
 
   static const _navItems = [
@@ -66,6 +68,7 @@ class _RootShellState extends State<RootShell> {
     (Icons.directions_bus_outlined, Icons.directions_bus, 'လိုင်းများ'),
     (Icons.search, Icons.search, 'လမ်းကြောင်း'),
     (Icons.star_border, Icons.star, 'အကြိုက်'),
+    (Icons.emoji_events_outlined, Icons.emoji_events, 'Leaderboard'),
   ];
 
   @override

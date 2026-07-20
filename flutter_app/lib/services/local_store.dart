@@ -18,6 +18,7 @@ class LocalStore {
   static const _tripHistoryKey = 'ybs_trip_history';
   static const _savedTripsKey = 'ybs_saved_trips';
   static const _lastSeenNotifKey = 'ybs_notifications_last_seen';
+  static const _lbUserNameKey = 'ybs_lb_user_name';
 
   // ---- Favorite routes ----
   Future<Set<String>> favRoutes() async {
@@ -184,6 +185,17 @@ class LocalStore {
   Future<void> clearBackgroundAlert() async {
     final p = await _p;
     await p.remove(_alertKey);
+  }
+
+  // ---- Leaderboard user name ----
+  Future<String?> leaderboardUserName() async {
+    final p = await _p;
+    return p.getString(_lbUserNameKey);
+  }
+
+  Future<void> setLeaderboardUserName(String name) async {
+    final p = await _p;
+    await p.setString(_lbUserNameKey, name);
   }
 }
 

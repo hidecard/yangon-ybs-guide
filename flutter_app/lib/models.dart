@@ -173,3 +173,42 @@ class ChatMessage {
 
   const ChatMessage({required this.role, required this.content, this.results});
 }
+
+class LeaderboardEntry {
+  final int rank;
+  final String userName;
+  final int points;
+
+  const LeaderboardEntry({
+    required this.rank,
+    required this.userName,
+    required this.points,
+  });
+
+  factory LeaderboardEntry.fromJson(Map<String, dynamic> j) => LeaderboardEntry(
+        rank: (j['rank'] as num).toInt(),
+        userName: j['user_name']?.toString() ?? '',
+        points: (j['points'] as num).toInt(),
+      );
+}
+
+class LeaderboardResponse {
+  final List<LeaderboardEntry> leaderboard;
+  final LeaderboardEntry? myRank;
+
+  const LeaderboardResponse({
+    required this.leaderboard,
+    this.myRank,
+  });
+
+  factory LeaderboardResponse.fromJson(Map<String, dynamic> j) =>
+      LeaderboardResponse(
+        leaderboard: (j['leaderboard'] as List?)
+                ?.map((e) => LeaderboardEntry.fromJson(e as Map<String, dynamic>))
+                .toList() ??
+            [],
+        myRank: j['my_rank'] != null
+            ? LeaderboardEntry.fromJson(j['my_rank'] as Map<String, dynamic>)
+            : null,
+      );
+}
