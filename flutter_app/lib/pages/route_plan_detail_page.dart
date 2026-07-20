@@ -375,8 +375,7 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
       final isTo = s.nameMm == active.toStop;
       if (markerNames.contains(s.nameMm)) continue;
       markerNames.add(s.nameMm);
-      final (displayName, subtitle) = getDisambiguatedStopDisplay(s, state.stops);
-      final role = roleByStop[s.nameMm];
+      final (displayName, _) = getDisambiguatedStopDisplay(s, state.stops);
       markers.add(dotMarker(
         LatLng(s.lat, s.lng),
         color: isFrom
@@ -386,8 +385,7 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
                 : Colors.white,
         border: isFrom || isTo ? Colors.white : Colors.black,
         size: isFrom || isTo ? 18 : 12,
-        label: role ?? displayName,
-        subtitle: role != null ? displayName : subtitle,
+        label: displayName,
       ));
     }
 
@@ -408,8 +406,7 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
         color: color,
         border: Colors.white,
         size: 18,
-        label: entry.value,
-        subtitle: st.nameMm,
+        label: st.nameMm,
       ));
     }
 
@@ -425,9 +422,58 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
     }
 
     if (_livePos != null) {
-      markers.add(dotMarker(LatLng(_livePos!.lat, _livePos!.lng),
-          color: AppColors.blue, size: 16, border: Colors.white,
-          label: 'မိမိနေရာ'));
+      markers.add(Marker(
+        point: LatLng(_livePos!.lat, _livePos!.lng),
+        width: 120,
+        height: 64,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: AppColors.blue,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 3),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x33000000),
+                    blurRadius: 8,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: const Icon(Icons.directions_car, size: 26, color: Colors.white),
+            ),
+            Positioned(
+              bottom: 0,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.blue,
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x33000000),
+                      blurRadius: 4,
+                      offset: Offset(0, 1),
+                    ),
+                  ],
+                ),
+                child: const Text(
+                  'မိမိ နေရာ',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ));
     }
 
     final center = uniqueVisible.isNotEmpty
@@ -484,22 +530,24 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
                         const SizedBox(height: 6),
                         GestureDetector(
                           onTap: () {
-                            setState(
-                                () => _arrivalEnabled = !_arrivalEnabled);
-                            if (_arrivalEnabled) {
-                              NotifyService.instance.requestPermission();
+                            if (_activeAlertStop == active.toStop) {
+                              _toggleAlert(active.toStop, _activeStep);
+                            } else {
+                              _toggleAlert(active.toStop, _activeStep);
                             }
                           },
                           child: Pill(
-                            _arrivalEnabled
-                                ? 'ရောက်ခါနီး သတိပေးချက်: ဖွင့်'
-                                : 'ရောက်ခါနီး သတိပေးချက်',
-                            icon: Icons.notifications_none,
-                            bg: _arrivalEnabled
-                                ? AppColors.amberLight
+                            _activeAlertStop == active.toStop
+                                ? 'Tg မာ သတိပေးချက်: ဖွင့်'
+                                : 'Tg မာ သတိပေးရန်',
+                            icon: _activeAlertStop == active.toStop
+                                ? Icons.send
+                                : Icons.notifications_none,
+                            bg: _activeAlertStop == active.toStop
+                                ? AppColors.amber
                                 : Colors.white,
-                            fg: _arrivalEnabled
-                                ? AppColors.brandHover
+                            fg: _activeAlertStop == active.toStop
+                                ? Colors.white
                                 : AppColors.slate500,
                           ),
                         ),
@@ -780,19 +828,24 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
   }
 
   Widget _alertButton(String stop, int idx) {
-    final active = _activeAlertStop == stop;
+    final isArrivalOn = _arrivalEnabled;
     return TextButton.icon(
-      onPressed: () => _toggleAlert(stop, idx),
+      onPressed: () {
+        setState(() => _arrivalEnabled = !_arrivalEnabled);
+        if (_arrivalEnabled) {
+          NotifyService.instance.requestPermission();
+        }
+      },
       style: TextButton.styleFrom(
-        backgroundColor: active ? AppColors.emerald : Colors.white,
-        foregroundColor: active ? Colors.white : AppColors.slate700,
+        backgroundColor: isArrivalOn ? AppColors.amber : Colors.white,
+        foregroundColor: isArrivalOn ? Colors.white : AppColors.slate700,
         side: BorderSide(
-            color: active ? AppColors.emeraldDark : AppColors.slate200),
+            color: isArrivalOn ? AppColors.amber : AppColors.slate200),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
-      icon: Icon(active ? Icons.check_circle : Icons.notifications_none,
+      icon: Icon(isArrivalOn ? Icons.notifications_active : Icons.notifications_none,
           size: 14),
-      label: Text(active ? 'ယူပြီးပါပြီ' : 'သတိပေးချက်',
+       label: Text(isArrivalOn ? 'ရောက်ခါနီး သတိပေးချက်: ဖွင့်' : 'ရောက်ခါနီး သတိပေးချက်',
           style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
     );
   }

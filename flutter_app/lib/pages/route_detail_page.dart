@@ -16,7 +16,6 @@ import '../services/notify_service.dart';
 import '../state/app_state.dart';
 import '../theme.dart';
 import '../util/nav.dart';
-import '../widgets/bus_updates_feed.dart';
 import '../widgets/modals.dart';
 import '../widgets/osm_map.dart';
 import '../widgets/route_badge.dart';
@@ -310,8 +309,6 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
 
         for (int i = 0; i < uniqueStops.length; i++) {
           final stop = uniqueStops[i];
-          final (displayName, subtitle) =
-              getDisambiguatedStopDisplay(stop, state.stops);
           final isFirst = i == 0;
           final isLast = i == uniqueStops.length - 1;
           markers.add(dotMarker(LatLng(stop.lat, stop.lng),
@@ -322,18 +319,64 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
                       : Colors.white,
               border: isFirst || isLast ? Colors.white : route.color,
               size: isFirst || isLast ? 16 : 10,
-              label: displayName,
-              subtitle: subtitle));
+              label: stop.nameMm));
         }
 
         for (final b in _busPositions)
           markers.add(dotMarker(LatLng(b.lat!, b.lng!), color: AppColors.blue, size: 16));
         if (_livePos != null)
-          markers.add(dotMarker(LatLng(_livePos!.lat, _livePos!.lng),
-              color: AppColors.blue,
-              size: 16,
-              border: Colors.white,
-              label: 'မိမိ နေရာ'));
+          markers.add(Marker(
+            point: LatLng(_livePos!.lat, _livePos!.lng),
+            width: 120,
+            height: 64,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: AppColors.blue,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 3),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x33000000),
+                        blurRadius: 8,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(Icons.directions_car, size: 26, color: Colors.white),
+                ),
+                Positioned(
+                  bottom: 0,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.blue,
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Color(0x33000000),
+                          blurRadius: 4,
+                          offset: Offset(0, 1),
+                        ),
+                      ],
+                    ),
+                    child: const Text(
+                      'မိမိ နေရာ',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ));
 
     final polylines = <Polyline>[
       if (uniqueStops.isNotEmpty)
@@ -493,16 +536,6 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
                 const SizedBox(height: 8),
                 ...uniqueStops.asMap().entries.map((e) => _stopTile(e.key, e.value, active, uniqueStops.length)),
                 const SizedBox(height: 8),
-                const Text(
-                  'Live location အတွက် location permission ကို allow လုပ်ထားရပါမည်။',
-                  style: TextStyle(fontSize: 12, color: AppColors.slate400),
-                ),
-                const SizedBox(height: 16),
-                BusUpdatesFeed(
-                  routeId: route.id,
-                  limit: 20,
-                  title: 'ဤလိုင်းအချက်အလက်',
-                ),
               ],
             ),
           ),
@@ -704,11 +737,7 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
               decoration: BoxDecoration(
                   color: Colors.green.shade100,
                   borderRadius: BorderRadius.circular(4)),
-              child: Text('📍 မိမိစီးရမည့်နေရာ (သင့်တည်နေရာ)',
-                  style: TextStyle(
-                      color: Colors.green.shade900,
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold)),
+              child: Text(''),
             ),
           if (isLast)
             Container(
@@ -717,11 +746,7 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
               decoration: BoxDecoration(
                   color: Colors.red.shade100,
                   borderRadius: BorderRadius.circular(4)),
-              child: Text('🏁 မိမိဆင်းရမည့်နေရာ',
-                  style: TextStyle(
-                      color: Colors.red.shade900,
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold)),
+              child: Text(''),
             ),
         ],
       ),
