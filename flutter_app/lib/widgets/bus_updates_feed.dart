@@ -164,13 +164,6 @@ class _BusUpdatesFeedState extends State<BusUpdatesFeed> {
               children: [
                 const Text('အချက်အလက် ရယူ၍ မရပါ။',
                     style: TextStyle(color: AppColors.rose)),
-                if (_errorMsg.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(_errorMsg,
-                        style: const TextStyle(
-                            color: AppColors.slate400, fontSize: 11)),
-                  ),
                 TextButton.icon(
                   onPressed: _load,
                   icon: const Icon(Icons.refresh, size: 14),
