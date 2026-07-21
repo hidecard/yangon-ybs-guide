@@ -16,6 +16,9 @@ class DeviceService {
       if (Platform.isAndroid) {
         final info = await _deviceInfo.androidInfo;
         id = info.id;
+        if (id.isEmpty || _isKnownBadId(id)) {
+          id = null;
+        }
       } else if (Platform.isIOS) {
         final info = await _deviceInfo.iosInfo;
         id = info.identifierForVendor;
@@ -30,6 +33,14 @@ class DeviceService {
 
     await prefs.setString(_key, id);
     return id;
+  }
+
+  bool _isKnownBadId(String id) {
+    const knownBadIds = {
+      '9774d56d682e549c',
+      '0000000000000000',
+    };
+    return knownBadIds.contains(id);
   }
 
   String _generateFallbackId() {

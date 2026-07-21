@@ -547,7 +547,7 @@ class _AboutSection extends StatelessWidget {
             _kv('Developer', 'Arkar Yan'),
             _kv('Contact', 'info@arkaryan.net'),
             _link('Website', 'https://www.arkaryan.net/'),
-            _link('Facebook', 'https://www.facebook.com/ybsguide'),
+            _link('Facebook', 'https://www.facebook.com/share/1d9kEym9Wq/'),
             _link('TikTok', 'https://www.tiktok.com/@ybs.ai.mm'),
             const SizedBox(height: 14),
             const Divider(),
