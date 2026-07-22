@@ -22,7 +22,7 @@ class AppConfig {
       final origin = currentWebOrigin();
       if (origin != null && origin.isNotEmpty) return origin;
     }
-    return 'https://ybs-mm-v2.vercel.app';
+    return 'https://ybs-ai.arkaryan.net/';
   }
 
   static const String appVersion = '3.1';
