@@ -7,6 +7,7 @@ import {
   sanitizeRich,
   enforceRateLimit,
   jsonError,
+  setCORS,
 } from './_security';
 
 const turso = createClient({
@@ -82,6 +83,7 @@ function validateLng(value: unknown): number | null {
 export default async function handler(req: any, res: any) {
   setSecurityHeaders(res);
   if (handlePreflight(req, res)) return;
+  if (!setCORS(req, res)) return;
 
   try {
     await ensureSchema();

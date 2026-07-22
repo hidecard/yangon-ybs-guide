@@ -4,6 +4,7 @@ import {
   handlePreflight,
   checkRequestSize,
   jsonError,
+  setCORS,
 } from './_security';
 
 const turso = createClient({
@@ -28,6 +29,7 @@ function getDistance(lat1: number, lon1: number, lat2: number, lon2: number): nu
 export default async function handler(req: any, res: any) {
   setSecurityHeaders(res);
   if (handlePreflight(req, res)) return;
+  if (!setCORS(req, res)) return;
 
   try {
     if (!checkRequestSize(req, 1024)) {

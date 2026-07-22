@@ -7,6 +7,7 @@ import {
   validateEnum,
   enforceRateLimit,
   jsonError,
+  setCORS,
 } from './_security';
 
 const turso = createClient({
@@ -47,6 +48,7 @@ async function verify(req: any): Promise<boolean> {
 export default async function handler(req: any, res: any) {
   setSecurityHeaders(res);
   if (handlePreflight(req, res)) return;
+  if (!setCORS(req, res)) return;
 
   try {
     await ensureSchema();

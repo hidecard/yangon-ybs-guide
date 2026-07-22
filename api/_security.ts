@@ -8,20 +8,34 @@ export function setSecurityHeaders(res: any): void {
   res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
   res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
   res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
 }
 
-export function setCORS(req: any, res: any): void {
-  const origin = req.headers.origin || '*';
-  res.setHeader('Access-Control-Allow-Origin', origin);
+const ALLOWED_ORIGINS = new Set(
+  (process.env.ALLOWED_ORIGINS || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+);
+
+export function setCORS(req: any, res: any): boolean {
+  const origin = req.headers.origin;
+  if (origin && ALLOWED_ORIGINS.size > 0 && !ALLOWED_ORIGINS.has(origin)) {
+    res.status(403).json({ error: 'Origin not allowed' });
+    return false;
+  }
+  const allowOrigin = origin || '*';
+  res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGINS.size > 0 ? allowOrigin : origin || '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
   res.setHeader('Access-Control-Max-Age', '86400');
-  res.setHeader('Vary', 'Origin');
+  if (origin) res.setHeader('Vary', 'Origin');
+  return true;
 }
 
 export function handlePreflight(req: any, res: any): boolean {
   if (req.method === 'OPTIONS') {
-    setCORS(req, res);
+    if (!setCORS(req, res)) return true;
     return res.status(200).json({});
   }
   return false;
@@ -70,6 +84,18 @@ export function sanitizeInput(input: unknown, maxLength: number = 1000): string 
     return null;
   }
   if (/javascript:/i.test(trimmed)) {
+    return null;
+  }
+  if (/data:\s*text\/html/i.test(trimmed)) {
+    return null;
+  }
+  if (/vbscript:/i.test(trimmed)) {
+    return null;
+  }
+  if (/<img\b[^>]*on\w+\s*=/i.test(trimmed)) {
+    return null;
+  }
+  if (/<svg\b[^>]*on\w+\s*=/i.test(trimmed)) {
     return null;
   }
   return trimmed;
@@ -126,4 +152,22 @@ export async function enforceRateLimit(
 
 export function jsonError(res: any, status: number, message: string): void {
   res.status(status).json({ error: message });
+}
+
+export async function verifyAdmin(req: any): Promise<boolean> {
+  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
+  if (!ADMIN_PASSWORD) return false;
+  const auth = req.headers.authorization || '';
+  if (auth.startsWith('Bearer ')) {
+    return auth.slice(7) === ADMIN_PASSWORD;
+  }
+  return false;
+}
+
+export async function requireAdmin(req: any, res: any): Promise<boolean> {
+  if (!(await verifyAdmin(req))) {
+    jsonError(res, 401, 'Unauthorized');
+    return false;
+  }
+  return true;
 }

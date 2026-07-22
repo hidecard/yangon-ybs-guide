@@ -4,6 +4,7 @@ import {
   handlePreflight,
   checkRequestSize,
   jsonError,
+  setCORS,
 } from './_security';
 
 const turso = createClient({
@@ -16,6 +17,7 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
 export default async function handler(req: any, res: any) {
   setSecurityHeaders(res);
   if (handlePreflight(req, res)) return;
+  if (!setCORS(req, res)) return;
 
   if (req.method === 'POST') {
     if (!checkRequestSize(req, 1024)) {
@@ -25,7 +27,7 @@ export default async function handler(req: any, res: any) {
     if (!ADMIN_PASSWORD || password !== ADMIN_PASSWORD) {
       return jsonError(res, 401, 'Invalid password');
     }
-    return res.status(200).json({ ok: true, token: ADMIN_PASSWORD });
+    return res.status(200).json({ ok: true });
   }
 
   if (req.method === 'GET') {
