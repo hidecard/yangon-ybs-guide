@@ -1,4 +1,13 @@
 import { createClient } from '@libsql/client';
+import {
+  setSecurityHeaders,
+  handlePreflight,
+  checkRequestSize,
+  sanitizeInput,
+  sanitizeRich,
+  enforceRateLimit,
+  jsonError,
+} from './_security';
 
 const turso = createClient({
   url: process.env.TURSO_DATABASE_URL!,
@@ -41,10 +50,16 @@ function ensureSchema(): Promise<void> {
 }
 
 export default async function handler(req: any, res: any) {
+  setSecurityHeaders(res);
+  if (handlePreflight(req, res)) return;
+
   try {
     await ensureSchema();
 
     if (req.method === 'GET') {
+      if (!checkRequestSize(req, 1024)) {
+        return jsonError(res, 413, 'Payload too large');
+      }
       const activeOnly = req.query?.active !== 'false';
       let sql = 'SELECT id, title, description, cost, stock, icon, is_active FROM rewards';
       const args: any[] = [];
@@ -66,62 +81,80 @@ export default async function handler(req: any, res: any) {
     }
 
     if (req.method === 'POST') {
+      if (!checkRequestSize(req, 1024)) {
+        return jsonError(res, 413, 'Payload too large');
+      }
+
+      const rate = await enforceRateLimit(req, res, 'rewards', 10);
+      if (!rate) return;
+
       const { device_id, reward_id, claim_contact } = req.body || {};
       if (!device_id || !reward_id || !claim_contact) {
-        return res.status(400).json({ error: 'device_id, reward_id, claim_contact required' });
+        return jsonError(res, 400, 'device_id, reward_id, claim_contact required');
+      }
+
+      const cleanDeviceId = sanitizeInput(device_id, 100);
+      const cleanClaimContact = sanitizeInput(claim_contact, 200);
+      const rewardIdNum = Number(reward_id);
+      if (!Number.isInteger(rewardIdNum) || rewardIdNum <= 0) {
+        return jsonError(res, 400, 'Invalid reward_id');
       }
 
       const reward = await turso.execute(
         'SELECT id, title, cost, stock, is_active FROM rewards WHERE id = ?',
-        [Number(reward_id)]
+        [rewardIdNum]
       );
       if (reward.rows.length === 0) {
-        return res.status(404).json({ error: 'Reward not found' });
+        return jsonError(res, 404, 'Reward not found');
       }
       const r = reward.rows[0];
       if (Number(r.is_active) !== 1) {
-        return res.status(400).json({ error: 'Reward is not available' });
+        return jsonError(res, 400, 'Reward is not available');
       }
       const cost = Number(r.cost);
       const stock = r.stock != null ? Number(r.stock) : -1;
       if (stock === 0) {
-        return res.status(400).json({ error: 'Out of stock' });
+        return jsonError(res, 400, 'Out of stock');
       }
 
       const user = await turso.execute(
         'SELECT total_points FROM leaderboard_users WHERE device_id = ?',
-        [device_id]
+        [cleanDeviceId]
       );
       if (user.rows.length === 0) {
-        return res.status(400).json({ error: 'User not registered' });
+        return jsonError(res, 400, 'User not registered');
       }
       const currentPoints = Number(user.rows[0].total_points ?? 0);
       if (currentPoints < cost) {
-        return res.status(400).json({ error: 'Not enough points', required: cost, current: currentPoints });
+        return res.status(400).json({
+          error: 'Not enough points',
+          required: cost,
+          current: currentPoints,
+        });
       }
 
       const newTotal = currentPoints - cost;
       await turso.execute(
         'UPDATE leaderboard_users SET total_points = ?, updated_at = ? WHERE device_id = ?',
-        [newTotal, Date.now(), device_id]
+        [newTotal, Date.now(), cleanDeviceId]
       );
       await turso.execute(
         `INSERT INTO points_history (device_id, points_changed, reason, reference_id, created_at)
          VALUES (?, ?, ?, ?, ?)`,
-        [device_id, -cost, 'gift_redeem', `reward_${reward_id}`, Date.now()]
+        [cleanDeviceId, -cost, 'gift_redeem', `reward_${reward_id}`, Date.now()]
       );
 
       if (stock > 0) {
         await turso.execute(
           'UPDATE rewards SET stock = stock - 1 WHERE id = ?',
-          [Number(reward_id)]
+          [rewardIdNum]
         );
       }
 
       await turso.execute(
         `INSERT INTO redemptions (device_id, reward_id, points_spent, claim_contact, status, note, created_at)
          VALUES (?, ?, ?, ?, 'pending', '', ?)`,
-        [device_id, Number(reward_id), cost, String(claim_contact), Date.now()]
+        [cleanDeviceId, rewardIdNum, cost, cleanClaimContact, Date.now()]
       );
 
       return res.status(200).json({

@@ -1,4 +1,13 @@
 import { createClient } from '@libsql/client';
+import {
+  setSecurityHeaders,
+  handlePreflight,
+  checkRequestSize,
+  sanitizeRich,
+  validateEnum,
+  enforceRateLimit,
+  jsonError,
+} from './_security';
 
 const turso = createClient({
   url: process.env.TURSO_DATABASE_URL!,
@@ -26,10 +35,13 @@ function ensureSchema(): Promise<void> {
   return schemaReady;
 }
 
-function cors(req: any, res: any) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+function setCORS(req: any, res: any): void {
+  const origin = req.headers.origin || '*';
+  res.setHeader('Access-Control-Allow-Origin', origin);
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Max-Age', '86400');
+  res.setHeader('Vary', 'Origin');
 }
 
 async function verify(req: any): Promise<boolean> {
@@ -42,15 +54,16 @@ async function verify(req: any): Promise<boolean> {
 }
 
 export default async function handler(req: any, res: any) {
-  cors(req, res);
-  if (req.method === 'OPTIONS') {
-    return res.status(200).json({});
-  }
+  setSecurityHeaders(res);
+  if (handlePreflight(req, res)) return;
 
   try {
     await ensureSchema();
 
     if (req.method === 'GET') {
+      if (!checkRequestSize(req, 1024)) {
+        return jsonError(res, 413, 'Payload too large');
+      }
       const limit = Math.min(Math.max(parseInt(String(req.query.limit || '10'), 10) || 10, 1), 50);
       const r = await turso.execute({
         sql: 'SELECT id, title, message, type, created_at FROM notifications ORDER BY created_at DESC LIMIT ?',
@@ -67,21 +80,43 @@ export default async function handler(req: any, res: any) {
     }
 
     if (req.method === 'POST') {
+      if (!checkRequestSize(req, 1024)) {
+        return jsonError(res, 413, 'Payload too large');
+      }
+
+      const rate = await enforceRateLimit(req, res, 'notifications', 5);
+      if (!rate) return;
+
       if (!(await verify(req))) {
-        return res.status(401).json({ error: 'Unauthorized' });
+        return jsonError(res, 401, 'Unauthorized');
       }
 
       const { title, message, type } = req.body || {};
       if (!title || !message) {
-        return res.status(400).json({ error: 'title and message required' });
+        return jsonError(res, 400, 'title and message required');
       }
+
+      const validTypes = ['info', 'update', 'alert'];
+      try {
+        validateEnum(type, validTypes, 'type');
+      } catch (e: any) {
+        return jsonError(res, 400, e.message);
+      }
+
+      const cleanTitle = sanitizeRich(title, 200);
+      const cleanMessage = sanitizeRich(message, 2000);
+      if (!cleanTitle || !cleanMessage) {
+        return jsonError(res, 400, 'Invalid title or message');
+      }
+
+      const cleanType = type && validTypes.includes(type) ? type : 'info';
 
       await turso.execute({
         sql: `INSERT INTO notifications (title, message, type, created_at) VALUES (?, ?, ?, ?)`,
         args: [
-          String(title),
-          String(message),
-          type != null ? String(type) : 'info',
+          cleanTitle,
+          cleanMessage,
+          cleanType,
           Date.now(),
         ],
       });

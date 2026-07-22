@@ -1,11 +1,20 @@
 import { createClient } from '@libsql/client';
+import {
+  setSecurityHeaders,
+  handlePreflight,
+  checkRequestSize,
+  sanitizeInput,
+  sanitizeRich,
+  enforceRateLimit,
+  jsonError,
+} from './_security';
 
 const turso = createClient({
   url: process.env.TURSO_DATABASE_URL!,
   authToken: process.env.TURSO_AUTH_TOKEN!,
 });
 
-const BOT_TOKEN = process.env.BOT_TOKEN!;
+const BOT_TOKEN = process.env.BOT_TOKEN || '';
 
 async function sendTelegram(chatId: string, text: string): Promise<boolean> {
   if (!BOT_TOKEN) {
@@ -13,10 +22,11 @@ async function sendTelegram(chatId: string, text: string): Promise<boolean> {
     return false;
   }
   try {
+    const escapedText = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     const resp = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: chatId, text }),
+      body: JSON.stringify({ chat_id: chatId, text: escapedText }),
     });
     if (!resp.ok) {
       console.error('[alert] Telegram API error:', resp.status, await resp.text());
@@ -48,7 +58,6 @@ function ensureSchema(): Promise<void> {
         detail TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )`);
-      // Add the detail column to any pre-existing table (CREATE IF NOT EXISTS won't alter it)
       await turso.execute(`ALTER TABLE destination_alerts ADD COLUMN detail TEXT`).catch(() => {});
     })().catch((e) => {
       schemaReady = null;
@@ -58,14 +67,31 @@ function ensureSchema(): Promise<void> {
   return schemaReady;
 }
 
+function validateLat(value: unknown): number | null {
+  const n = Number(value);
+  if (!Number.isFinite(n) || n < -90 || n > 90) return null;
+  return n;
+}
+
+function validateLng(value: unknown): number | null {
+  const n = Number(value);
+  if (!Number.isFinite(n) || n < -180 || n > 180) return null;
+  return n;
+}
+
 export default async function handler(req: any, res: any) {
+  setSecurityHeaders(res);
+  if (handlePreflight(req, res)) return;
+
   try {
     await ensureSchema();
 
-    // GET /api/alert?userId=...  -> current link + alert status
     if (req.method === 'GET') {
+      if (!checkRequestSize(req, 1024)) {
+        return jsonError(res, 413, 'Payload too large');
+      }
       const userId = String(req.query.userId || '');
-      if (!userId) return res.status(400).json({ error: 'userId required' });
+      if (!userId) return jsonError(res, 400, 'userId required');
 
       const user = await turso.execute({
         sql: 'SELECT chat_id FROM telegram_users WHERE user_id = ?',
@@ -93,16 +119,18 @@ export default async function handler(req: any, res: any) {
       });
     }
 
-    // DELETE /api/alert  -> cancel alert  body: { userId }
     if (req.method === 'DELETE') {
+      if (!checkRequestSize(req, 1024)) {
+        return jsonError(res, 413, 'Payload too large');
+      }
       const userId = String(req.body?.userId || '');
-      if (!userId) return res.status(400).json({ error: 'userId required' });
+      if (!userId) return jsonError(res, 400, 'userId required');
 
       const user = await turso.execute({
         sql: 'SELECT chat_id FROM telegram_users WHERE user_id = ?',
         args: [userId],
       });
-       if (user.rows.length > 0) {
+      if (user.rows.length > 0) {
         await turso.execute({
           sql: 'DELETE FROM destination_alerts WHERE user_id = ?',
           args: [String(user.rows[0].chat_id)],
@@ -111,22 +139,42 @@ export default async function handler(req: any, res: any) {
       return res.status(200).json({ ok: true });
     }
 
-    // POST /api/alert  -> create/update alert  body: { userId, lat, lng, stopName, detail }
     if (req.method === 'POST') {
-      const { userId, lat, lng, stopName, detail } = req.body || {};
-      if (!userId || typeof lat !== 'number' || typeof lng !== 'number' || !stopName) {
-        return res.status(400).json({ error: 'userId, lat, lng, stopName required' });
+      if (!checkRequestSize(req, 1024)) {
+        return jsonError(res, 413, 'Payload too large');
       }
+
+      const rate = await enforceRateLimit(req, res, 'alert', 10);
+      if (!rate) return;
+
+      const { userId, lat, lng, stopName, detail } = req.body || {};
+      if (!userId || !stopName) {
+        return jsonError(res, 400, 'userId, lat, lng, stopName required');
+      }
+
+      const cleanLat = validateLat(lat);
+      const cleanLng = validateLng(lng);
+      if (cleanLat === null || cleanLng === null) {
+        return jsonError(res, 400, 'Invalid coordinates');
+      }
+
+      const cleanStopName = sanitizeInput(stopName, 200);
+      if (!cleanStopName) {
+        return jsonError(res, 400, 'Invalid stopName');
+      }
+
+      const cleanDetail = sanitizeRich(detail, 1000);
+      const cleanUserId = sanitizeInput(userId, 100);
 
       const user = await turso.execute({
         sql: 'SELECT chat_id FROM telegram_users WHERE user_id = ?',
-        args: [userId],
+        args: [cleanUserId],
       });
 
       if (user.rows.length === 0) {
         return res.status(400).json({
           error: 'not_linked',
-          message: 'Telegram နှင့် မချိတ်ဆက်ရသေးပါ။ ဦးစွာ "Telegram နဲ့ ချိတ်ဆက်မည်" ကို နှိပ်ပါ။',
+          message: 'Telegram နှင့် မချိတ်ဆက်ရသေးပါ။',
         });
       }
 
@@ -140,14 +188,12 @@ export default async function handler(req: any, res: any) {
                 target_lng = excluded.target_lng,
                 detail = excluded.detail,
                 created_at = excluded.created_at`,
-        args: [chatId, stopName, lat, lng, detail ? String(detail) : null, Date.now()],
+        args: [chatId, cleanStopName, cleanLat, cleanLng, cleanDetail, Date.now()],
       });
 
-      // Confirm in Telegram that the alert is armed and tell the user the next step
-      // (share Live Location). This also proves the bot can reach them.
       const confirm =
         `✅ သတိပေးချက် သတ်မှတ်ပြီးပါပြီ!\n` +
-        `"${stopName}" မှတ်တိုင်သို့ ရောက်လျှင် သတိပေးချက် ပို့ပေးမည်။\n` +
+        `"${cleanStopName}" မှတ်တိုင်သို့ ရောက်လျှင် သတိပေးချက် ပို့ပေးမည်။\n` +
         `👉 ဤ Bot သို့ Live Location ကို ပို့ပေးပါ (Live Location ရွေးပြီး မိမိနေရာကို အစဉ် ပေးပို့နေစေရန်)။`;
       await sendTelegram(chatId, confirm);
 

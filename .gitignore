@@ -19,6 +19,8 @@ dist-ssr
 .env.local
 .env.*.local
 
+# Track .env.example for developers to see required vars (no secrets inside)
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

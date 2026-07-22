@@ -1,4 +1,10 @@
 import { createClient } from '@libsql/client';
+import {
+  setSecurityHeaders,
+  handlePreflight,
+  checkRequestSize,
+  jsonError,
+} from './_security';
 
 const turso = createClient({
   url: process.env.TURSO_DATABASE_URL!,
@@ -53,16 +59,23 @@ function findNearestStop(lat: number, lng: number, stops: { lat: number; lng: nu
 }
 
 export default async function handler(req: any, res: any) {
+  setSecurityHeaders(res);
+  if (handlePreflight(req, res)) return;
+
   try {
     await ensureSchema();
 
+    if (!checkRequestSize(req, 1024)) {
+      return jsonError(res, 413, 'Payload too large');
+    }
+
     if (req.method !== 'GET') {
-      return res.status(405).json({ error: 'Method Not Allowed' });
+      return jsonError(res, 405, 'Method Not Allowed');
     }
 
     const routeId = String(req.query.routeId || '');
     if (!routeId) {
-      return res.status(400).json({ error: 'routeId required' });
+      return jsonError(res, 400, 'routeId required');
     }
 
     const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;

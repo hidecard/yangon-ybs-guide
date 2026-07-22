@@ -1,5 +1,14 @@
 import { createClient } from '@libsql/client';
-import crypto from 'crypto';
+import {
+  setSecurityHeaders,
+  handlePreflight,
+  checkRequestSize,
+  sanitizeInput,
+  sanitizeRich,
+  validateEnum,
+  enforceRateLimit,
+  jsonError,
+} from './_security';
 
 const turso = createClient({
   url: process.env.TURSO_DATABASE_URL!,
@@ -90,19 +99,31 @@ async function addPoints(
 }
 
 export default async function handler(req: any, res: any) {
+  setSecurityHeaders(res);
+  if (handlePreflight(req, res)) return;
+
   try {
     await ensureSchema();
 
-    // POST /api/leaderboard/register  body: { device_id, user_name }
     if (req.method === 'POST' && req.query?.action === 'register') {
+      if (!checkRequestSize(req, 1024)) {
+        return jsonError(res, 413, 'Payload too large');
+      }
+
+      const rate = await enforceRateLimit(req, res, 'leaderboard-register', 5);
+      if (!rate) return;
+
       const { device_id, user_name } = req.body || {};
       if (!device_id || !user_name) {
-        return res.status(400).json({ error: 'device_id and user_name required' });
+        return jsonError(res, 400, 'device_id and user_name required');
       }
-      const trimmedName = String(user_name).trim().slice(0, 30);
+
+      const cleanDeviceId = sanitizeInput(device_id, 100);
+      const trimmedName = sanitizeInput(user_name, 30) || '';
       if (trimmedName.length < 2) {
-        return res.status(400).json({ error: 'user_name must be at least 2 characters' });
+        return jsonError(res, 400, 'user_name must be at least 2 characters');
       }
+
       const now = Date.now();
       await turso.execute(
         `INSERT INTO leaderboard_users (device_id, user_name, total_points, created_at, updated_at)
@@ -110,13 +131,15 @@ export default async function handler(req: any, res: any) {
          ON CONFLICT(device_id) DO UPDATE SET
            user_name = excluded.user_name,
            updated_at = excluded.updated_at`,
-        [device_id, trimmedName, now, now]
+        [cleanDeviceId, trimmedName, now, now]
       );
       return res.status(200).json({ ok: true, user_name: trimmedName, total_points: 0 });
     }
 
-    // GET /api/leaderboard?scope=monthly&limit=100&device_id=...
     if (req.method === 'GET') {
+      if (!checkRequestSize(req, 1024)) {
+        return jsonError(res, 413, 'Payload too large');
+      }
       const limit = Math.min(
         Math.max(parseInt(String(req.query?.limit || '100'), 10) || 100, 1),
         200
@@ -186,32 +209,43 @@ export default async function handler(req: any, res: any) {
       return res.status(200).json({ leaderboard: entries, my_rank: myRank });
     }
 
-    // POST /api/leaderboard/submit-update  body: { device_id, route_id, type, stop?, note?, lat?, lng? }
     if (req.method === 'POST' && req.query?.action === 'submit-update') {
+      if (!checkRequestSize(req, 1024)) {
+        return jsonError(res, 413, 'Payload too large');
+      }
+
+      const rate = await enforceRateLimit(req, res, 'leaderboard-submit', 10);
+      if (!rate) return;
+
       const { device_id, route_id, type, stop, note, lat, lng } = req.body || {};
       if (!device_id || !route_id || !type) {
-        return res.status(400).json({ error: 'device_id, route_id, type required' });
+        return jsonError(res, 400, 'device_id, route_id, type required');
       }
 
       const validTypes = ['started', 'reached', 'road_closed', 'not_running', 'other'];
-      if (!validTypes.includes(type)) {
-        return res.status(400).json({ error: 'Invalid type' });
+      try {
+        validateEnum(type, validTypes, 'type');
+      } catch (e: any) {
+        return jsonError(res, 400, e.message);
       }
 
-      if (!(await checkRateLimit(device_id))) {
-        return res.status(429).json({ error: 'Rate limit exceeded. Max 2 updates per hour.' });
+      const cleanDeviceId = sanitizeInput(device_id, 100);
+      const cleanRouteId = sanitizeInput(route_id, 100);
+
+      if (!(await checkRateLimit(cleanDeviceId))) {
+        return jsonError(res, 429, 'Rate limit exceeded. Max 2 updates per hour.');
       }
 
       const user = await turso.execute(
         'SELECT id FROM leaderboard_users WHERE device_id = ?',
-        [device_id]
+        [cleanDeviceId]
       );
       if (user.rows.length === 0) {
-        return res.status(400).json({ error: 'User not registered. Please set your name first.' });
+        return jsonError(res, 400, 'User not registered. Please set your name first.');
       }
 
       const points = getPoints(type);
-      const result = await addPoints(device_id, points, 'news_report', `${route_id}:${Date.now()}`);
+      const result = await addPoints(cleanDeviceId, points, 'news_report', `${cleanRouteId}:${Date.now()}`);
       return res.status(200).json({
         ok: true,
         points_earned: points,

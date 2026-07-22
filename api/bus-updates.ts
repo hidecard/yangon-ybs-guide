@@ -1,4 +1,14 @@
 import { createClient } from '@libsql/client';
+import {
+  setSecurityHeaders,
+  handlePreflight,
+  checkRequestSize,
+  sanitizeInput,
+  sanitizeRich,
+  validateEnum,
+  enforceRateLimit,
+  jsonError,
+} from './_security';
 
 const turso = createClient({
   url: process.env.TURSO_DATABASE_URL!,
@@ -37,11 +47,16 @@ function ensureSchema(): Promise<void> {
 const VALID_TYPES = ['started', 'reached', 'road_closed', 'not_running', 'other'];
 
 export default async function handler(req: any, res: any) {
+  setSecurityHeaders(res);
+  if (handlePreflight(req, res)) return;
+
   try {
     await ensureSchema();
 
-    // GET /api/bus-updates?routeId=...&limit=...  -> recent updates (newest first)
     if (req.method === 'GET') {
+      if (!checkRequestSize(req, 1024)) {
+        return jsonError(res, 413, 'Payload too large');
+      }
       const routeId = req.query.routeId ? String(req.query.routeId) : null;
       const limit = Math.min(Math.max(parseInt(String(req.query.limit || '50'), 10) || 50, 1), 200);
 
@@ -74,24 +89,44 @@ export default async function handler(req: any, res: any) {
       return res.status(200).json({ updates });
     }
 
-    // POST /api/bus-updates  body: { routeId, stop?, type, note?, lat?, lng?, userId? }
     if (req.method === 'POST') {
-      const { routeId, stop, type, note, lat, lng, userId } = req.body || {};
-      if (!routeId || !type || !VALID_TYPES.includes(type)) {
-        return res.status(400).json({ error: 'routeId and valid type required' });
+      if (!checkRequestSize(req, 1024)) {
+        return jsonError(res, 413, 'Payload too large');
       }
+
+      const rate = await enforceRateLimit(req, res, 'bus-updates', 30);
+      if (!rate) return;
+
+      const { routeId, stop, type, note, lat, lng, userId } = req.body || {};
+      if (!routeId || !type) {
+        return jsonError(res, 400, 'routeId and valid type required');
+      }
+
+      try {
+        validateEnum(type, VALID_TYPES, 'type');
+      } catch (e: any) {
+        return jsonError(res, 400, e.message);
+      }
+
+      const cleanRouteId = sanitizeInput(routeId, 100);
+      const cleanStop = sanitizeInput(stop, 100);
+      const cleanNote = sanitizeRich(note, 500);
+      const cleanUserId = sanitizeInput(userId, 100);
+
+      const latNum = typeof lat === 'number' && Number.isFinite(lat) ? lat : null;
+      const lngNum = typeof lng === 'number' && Number.isFinite(lng) ? lng : null;
 
       await turso.execute({
         sql: `INSERT INTO bus_updates (route_id, stop, type, note, lat, lng, user_id, upvotes, created_at)
               VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?)`,
         args: [
-          String(routeId),
-          stop != null ? String(stop) : null,
-          String(type),
-          note != null ? String(note) : null,
-          typeof lat === 'number' ? lat : null,
-          typeof lng === 'number' ? lng : null,
-          userId != null ? String(userId) : null,
+          cleanRouteId,
+          cleanStop,
+          type,
+          cleanNote,
+          latNum,
+          lngNum,
+          cleanUserId,
           Date.now(),
         ],
       });

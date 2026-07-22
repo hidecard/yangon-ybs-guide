@@ -1,19 +1,24 @@
 import { createClient } from '@libsql/client';
+import {
+  setSecurityHeaders,
+  handlePreflight,
+  checkRequestSize,
+  sanitizeRich,
+  jsonError,
+} from './_security';
 
 const turso = createClient({
   url: process.env.TURSO_DATABASE_URL!,
   authToken: process.env.TURSO_AUTH_TOKEN!,
 });
 
-const BOT_TOKEN = process.env.BOT_TOKEN!;
+const BOT_TOKEN = process.env.BOT_TOKEN || '';
 
-const ALERT_RADIUS_KM = 0.7; // 700 meters - increased for better reliability
+const ALERT_RADIUS_KM = 0.7;
 
-// Best-effort cooldown so we don't spam on every live-location update.
 const lastMonitorNote = new Map<string, number>();
 const MONITOR_COOLDOWN_MS = 2 * 60 * 1000;
 
-// Haversine distance in kilometers
 function getDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371;
   const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -26,7 +31,6 @@ function getDistance(lat1: number, lon1: number, lat2: number, lon2: number): nu
   return R * c;
 }
 
-// Schema is created once per lambda warm instance
 let schemaReady: Promise<void> | null = null;
 function ensureSchema(): Promise<void> {
   if (!schemaReady) {
@@ -46,7 +50,6 @@ function ensureSchema(): Promise<void> {
         detail TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )`);
-      // Add the detail column to any pre-existing table (CREATE IF NOT EXISTS won't alter it)
       await turso.execute(`ALTER TABLE destination_alerts ADD COLUMN detail TEXT`).catch(() => {});
     })().catch((e) => {
       schemaReady = null;
@@ -58,14 +61,15 @@ function ensureSchema(): Promise<void> {
 
 async function sendTelegram(chatId: string, text: string): Promise<boolean> {
   if (!BOT_TOKEN) {
-    console.error('[sendTelegram] BOT_TOKEN is not set (check Vercel Environment Variables)');
+    console.error('[sendTelegram] BOT_TOKEN is not set');
     return false;
   }
   try {
+    const escapedText = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     const resp = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: chatId, text }),
+      body: JSON.stringify({ chat_id: chatId, text: escapedText }),
     });
     if (!resp.ok) {
       const body = await resp.text();
@@ -80,11 +84,15 @@ async function sendTelegram(chatId: string, text: string): Promise<boolean> {
 }
 
 async function linkUser(payload: string, chatId: string, from: any): Promise<void> {
+  const cleanPayload = sanitizeRich(payload, 50);
+  const cleanUsername = sanitizeRich(from.username, 100);
+  const cleanFirstName = sanitizeRich(from.first_name, 100);
+
   await turso.execute({
     sql: `INSERT INTO telegram_users (user_id, chat_id, username, first_name, linked_at)
           VALUES (?, ?, ?, ?, ?)
           ON CONFLICT(user_id) DO UPDATE SET chat_id = excluded.chat_id, linked_at = excluded.linked_at`,
-    args: [payload, chatId, from.username ?? null, from.first_name ?? null, Date.now()],
+    args: [cleanPayload, chatId, cleanUsername, cleanFirstName, Date.now()],
   });
   await sendTelegram(
     chatId,
@@ -102,7 +110,12 @@ async function checkProximity(chatId: string, lat: number, lng: number): Promise
   if (result.rows.length === 0) return;
 
   const alert = result.rows[0] as any;
-  const distance = getDistance(lat, lng, Number(alert.target_lat), Number(alert.target_lng));
+  const targetLat = Number(alert.target_lat);
+  const targetLng = Number(alert.target_lng);
+
+  if (!Number.isFinite(targetLat) || !Number.isFinite(targetLng)) return;
+
+  const distance = getDistance(lat, lng, targetLat, targetLng);
 
   if (distance <= ALERT_RADIUS_KM) {
     const stopName = String(alert.target_stop_name);
@@ -111,13 +124,11 @@ async function checkProximity(chatId: string, lat: number, lng: number): Promise
 
     const detail = alert.detail ? String(alert.detail) : '';
     if (detail) {
-      // Telegram messages are capped at 4096 chars; keep room for the header.
       const MAX = 3800;
       const trimmed = detail.length > MAX ? detail.slice(0, MAX) + '\n…' : detail;
       message += `\n\n${trimmed}`;
     }
 
-    // Important: Delete alert first to prevent double-triggering, then send notification
     await turso.execute({
       sql: 'DELETE FROM destination_alerts WHERE user_id = ?',
       args: [chatId],
@@ -125,8 +136,6 @@ async function checkProximity(chatId: string, lat: number, lng: number): Promise
     
     await sendTelegram(chatId, message);
   } else {
-    // Out of range: acknowledge we're monitoring (throttled) so the user
-    // knows the bot is receiving their Live Location.
     const now = Date.now();
     if ((lastMonitorNote.get(chatId) || 0) + MONITOR_COOLDOWN_MS < now) {
       lastMonitorNote.set(chatId, now);
@@ -139,30 +148,36 @@ async function checkProximity(chatId: string, lat: number, lng: number): Promise
 }
 
 export default async function handler(req: any, res: any) {
+  setSecurityHeaders(res);
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
   try {
     await ensureSchema();
+
+    if (!checkRequestSize(req, 1024 * 100)) {
+      return jsonError(res, 413, 'Payload too large');
+    }
+
     const update = req.body;
 
-    // --- Regular message (commands, first live-location share) ---
     if (update.message) {
       const msg = update.message;
       const chatId = String(msg.chat.id);
       const from = msg.from || {};
 
       if (msg.text) {
-        const text: string = msg.text;
+        const text: string = String(msg.text);
 
         if (text.startsWith('/start')) {
-          const payload = text.split(' ')[1];
+          const parts = text.split(' ');
+          const payload = parts.length > 1 ? parts.slice(1).join(' ').trim() : '';
           if (payload) {
             await linkUser(payload, chatId, from);
             return res.status(200).json({ status: 'ok' });
           }
-          // /start with no payload: guide the user to link with their code
           await sendTelegram(
             chatId,
             '👋 မင်္ဂလာပါ! ကျွန်ုပ်သည် YBS Guide Bot ဖြစ်ပါသည်။\n\n' +
@@ -172,8 +187,7 @@ export default async function handler(req: any, res: any) {
           return res.status(200).json({ status: 'ok' });
         }
 
-        // Bare linking code pasted directly into the chat (e.g. already-started users)
-        if (/^[A-HJ-NP-Z2-9]{6,12}$/.test(text.trim())) {
+        if (/^[A-HJ-NP-Z2-9]{6,12}$/i.test(text.trim())) {
           await linkUser(text.trim(), chatId, from);
           return res.status(200).json({ status: 'ok' });
         }
@@ -205,7 +219,7 @@ export default async function handler(req: any, res: any) {
             chatId,
             '🆘 လမ်းညွှန်:\n' +
             '• App မှ Telegram ကို ချိတ်ဆက်ပါ\n' +
-            '• ဆင်းမည့်မှတ်တိုင်၌ "သတိပေးပါ" နှိပ်ပါ\n' +
+            '• ဆင်းမည့်မှတ်တိုင်၍ "သတိပေးပါ" နှိပ်ပါ\n' +
             '• ဤ Bot သို့ Live Location ပို့ပါ\n' +
             '• /cancel — သတိပေးချက် ပယ်ဖျက်ရန်\n' +
             '• /status — လက်ရှိအခြေအနေ ကြည့်ရန်'
@@ -214,25 +228,21 @@ export default async function handler(req: any, res: any) {
         }
       }
 
-      // First live-location share arrives as a normal message with location
       if (msg.location) {
         await checkProximity(chatId, msg.location.latitude, msg.location.longitude);
         return res.status(200).json({ status: 'ok' });
       }
     }
 
-    // --- Live location updates arrive as edited_message ---
     if (update.edited_message && update.edited_message.location) {
       const loc = update.edited_message.location;
       const chatId = String(update.edited_message.chat.id);
       await checkProximity(chatId, loc.latitude, loc.longitude);
     }
 
-    // Always respond 200 quickly so Telegram does not retry
     return res.status(200).json({ status: 'ok' });
   } catch (error) {
     console.error('Webhook Error:', error);
-    // Still return 200 to avoid Telegram retry storms on transient errors
     return res.status(200).json({ status: 'error', message: 'internal' });
   }
 }

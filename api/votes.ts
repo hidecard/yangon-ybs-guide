@@ -1,4 +1,13 @@
 import { createClient } from '@libsql/client';
+import {
+  setSecurityHeaders,
+  handlePreflight,
+  checkRequestSize,
+  sanitizeInput,
+  validateEnum,
+  enforceRateLimit,
+  jsonError,
+} from './_security';
 
 const turso = createClient({
   url: process.env.TURSO_DATABASE_URL!,
@@ -31,18 +40,35 @@ function ensureSchema(): Promise<void> {
 }
 
 export default async function handler(req: any, res: any) {
+  setSecurityHeaders(res);
+  if (handlePreflight(req, res)) return;
+
   try {
     await ensureSchema();
 
-    // POST /api/votes  body: { update_id, device_id, vote }
     if (req.method === 'POST') {
+      if (!checkRequestSize(req, 1024)) {
+        return jsonError(res, 413, 'Payload too large');
+      }
+
+      const rate = await enforceRateLimit(req, res, 'votes', 20);
+      if (!rate) return;
+
       const { update_id, device_id, vote } = req.body || {};
       if (!update_id || !device_id || ![1, -1].includes(vote)) {
-        return res.status(400).json({ error: 'update_id, device_id, vote (1 or -1) required' });
+        return jsonError(res, 400, 'update_id, device_id, vote (1 or -1) required');
       }
 
       const updateId = Number(update_id);
-      const deviceId = String(device_id);
+      if (!Number.isInteger(updateId) || updateId <= 0) {
+        return jsonError(res, 400, 'Invalid update_id');
+      }
+
+      const deviceId = sanitizeInput(device_id, 100);
+      if (!deviceId) {
+        return jsonError(res, 400, 'Invalid device_id');
+      }
+
       const voteValue = Number(vote);
 
       const existing = await turso.execute(
@@ -54,7 +80,7 @@ export default async function handler(req: any, res: any) {
         const row = existing.rows[0] as any;
         const currentVote = Number(row.vote);
         if (currentVote === voteValue) {
-          return res.status(400).json({ error: 'Already voted' });
+          return jsonError(res, 400, 'Already voted');
         }
 
         const voteId = Number(row.id);
@@ -141,12 +167,14 @@ export default async function handler(req: any, res: any) {
       return res.status(200).json({ ok: true, upvotes: newScore, vote: voteValue });
     }
 
-    // GET /api/votes?update_id=123&device_id=xxx
     if (req.method === 'GET') {
+      if (!checkRequestSize(req, 1024)) {
+        return jsonError(res, 413, 'Payload too large');
+      }
       const updateId = Number(req.query?.update_id || 0);
       const deviceId = String(req.query?.device_id || '');
       if (!updateId || !deviceId) {
-        return res.status(400).json({ error: 'update_id and device_id required' });
+        return jsonError(res, 400, 'update_id and device_id required');
       }
 
       const myVoteRow = await turso.execute(
