@@ -29,7 +29,6 @@ class _BusUpdatesFeedState extends State<BusUpdatesFeed> {
   List<BusUpdate> _updates = [];
   bool _loading = true;
   bool _error = false;
-  String _errorMsg = '';
   int _attempt = 0;
   final DeviceService _deviceService = DeviceService();
   final Map<int, int> _myVotes = {};
@@ -45,7 +44,6 @@ class _BusUpdatesFeedState extends State<BusUpdatesFeed> {
     setState(() {
       _loading = true;
       _error = false;
-      _errorMsg = '';
     });
     try {
       final data = await ApiService.instance
@@ -69,7 +67,6 @@ class _BusUpdatesFeedState extends State<BusUpdatesFeed> {
       }
       setState(() {
         _error = true;
-        _errorMsg = e.toString();
         _loading = false;
       });
     }
