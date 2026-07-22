@@ -3671,7 +3671,7 @@ const AdminPage: React.FC = () => {
   const login = async () => {
     setError('');
     try {
-      const res = await fetch('/api/admin-auth', {
+      const res = await fetch('/api/admin?action=auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password }),
@@ -3691,7 +3691,7 @@ const AdminPage: React.FC = () => {
   const loadFeedback = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/admin-feedback?limit=${limit}&offset=${(page - 1) * limit}`, {
+      const res = await fetch(`/api/admin?action=feedback&limit=${limit}&offset=${(page - 1) * limit}`, {
         headers: { Authorization: `Bearer ${sessionToken}` },
       });
       const data = await res.json();

@@ -151,13 +151,12 @@ All API calls target **`https://ybs-mm-v2.vercel.app`**
 
 Endpoints consumed:
 - `/api/bus-updates` — CRUD for community bus updates
-- `/api/predictions` — Route stop predictions
-- `/api/bus-eta` — Live bus ETA
+- `/api/bus?action=predictions` — Route stop predictions
+- `/api/bus?action=eta` — Live bus ETA
 - `/api/feedback` — User feedback submission
 - `/api/notifications` — Admin push-style notifications (polled)
-- `/api/leaderboard` — Register, submit update, rank
+- `/api/leaderboard` — Register, submit update, rank, vote
 - `/api/rewards` — List + redemption
-- `/api/votes` — Upvote/downvote on updates
 
 No authentication layer; device ID serves as user identity.
 

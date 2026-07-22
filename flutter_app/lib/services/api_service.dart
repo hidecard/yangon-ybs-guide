@@ -243,7 +243,7 @@ class ApiService {
   Future<(List<Prediction>, String?)> fetchPredictions(String routeId) async {
     try {
       final data =
-          await _get('/api/predictions?routeId=${Uri.encodeComponent(routeId)}');
+          await _get('/api/bus?action=predictions&routeId=${Uri.encodeComponent(routeId)}');
       final list = (data['predictions'] as List?) ?? [];
       return (
         list.map((e) => Prediction.fromJson(e as Map<String, dynamic>)).toList(),
@@ -257,7 +257,7 @@ class ApiService {
   Future<BusEtaResponse> fetchBusEta(String routeId) async {
     try {
       final data =
-          await _get('/api/bus-eta?routeId=${Uri.encodeComponent(routeId)}');
+          await _get('/api/bus?action=eta&routeId=${Uri.encodeComponent(routeId)}');
       final list = (data['estimates'] as List?) ?? [];
       return BusEtaResponse(
         list.map((e) => BusEstimate.fromJson(e as Map<String, dynamic>)).toList(),
@@ -403,7 +403,7 @@ class ApiService {
     required int vote, // 1 or -1
   }) async {
     try {
-      final data = await _send('POST', '/api/votes',
+      final data = await _send('POST', '/api/leaderboard?action=vote',
           body: {'update_id': updateId, 'device_id': deviceId, 'vote': vote});
       return data;
     } catch (e) {
@@ -421,7 +421,7 @@ class ApiService {
         'device_id': deviceId,
       };
       final q = Uri(queryParameters: params).query;
-      final data = await _get('/api/votes?$q');
+      final data = await _get('/api/leaderboard?action=vote&$q');
       return data;
     } catch (_) {
       return {'myVote': 0, 'upvotes': 0, 'downvotes': 0};

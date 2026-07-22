@@ -93,7 +93,7 @@ export interface Prediction {
 }
 
 export async function fetchPredictions(routeId: string): Promise<{ predictions: Prediction[]; message?: string }> {
-  const data = await api(`/api/predictions?routeId=${encodeURIComponent(routeId)}`);
+  const data = await api(`/api/bus?action=predictions&routeId=${encodeURIComponent(routeId)}`);
   return data;
 }
 

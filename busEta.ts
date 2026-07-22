@@ -23,6 +23,6 @@ async function api(path: string, init?: RequestInit): Promise<any> {
 }
 
 export async function fetchBusEta(routeId: string): Promise<BusEtaResponse> {
-  const data = await api(`/api/bus-eta?routeId=${encodeURIComponent(routeId)}`);
+  const data = await api(`/api/bus?action=eta&routeId=${encodeURIComponent(routeId)}`);
   return data as BusEtaResponse;
 }
