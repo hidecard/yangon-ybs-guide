@@ -8,6 +8,7 @@ import '../config.dart';
 import '../data/route_finder.dart';
 import '../models.dart';
 import '../services/api_service.dart';
+import '../services/live_activity_service.dart';
 import '../services/location_service.dart';
 import '../services/notify_service.dart';
 import '../state/app_state.dart';
@@ -29,6 +30,8 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
   StreamSubscription<Position>? _posSub;
   ({double lat, double lng})? _livePos;
   bool _tracking = false;
+  int _lastTargetIdx = 0;
+  int _lastConfirmedIdx = 0;
   bool _arrivalEnabled = false;
   String? _arrivalMessage;
   final Set<String> _alerted = {};
@@ -45,6 +48,7 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
   String? _busEtaMsg;
   Timer? _etaTimer;
   Timer? _busPosTimer;
+  Timer? _activityTimer;
 
   static const _arrivalThresholdKm = 0.2;
 
@@ -70,6 +74,8 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
     _posSub?.cancel();
     _etaTimer?.cancel();
     _busPosTimer?.cancel();
+    _activityTimer?.cancel();
+    LiveActivityService.instance.stopTracking();
     super.dispose();
   }
 
@@ -83,6 +89,7 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
       _predictionMsg = msg;
       _loadingPred = false;
     });
+    _refreshLiveActivity();
   }
 
   Future<void> _loadBusEta() async {
@@ -92,6 +99,7 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
       _busEta = data.estimates;
       _busEtaMsg = data.message;
     });
+    _refreshLiveActivity();
   }
 
   Future<void> _loadBusPositions() async {
@@ -104,22 +112,71 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
           updates.where((u) => u.lat != null && u.lng != null).toList();
       _loadingBusPos = false;
     });
+    _refreshLiveActivity();
   }
 
   int get _activeIndex {
     if (_livePos == null || _stops.isEmpty) return -1;
-    int minIdx = 0;
-    double minDist =
-        getDistance(_livePos!.lat, _livePos!.lng, _stops[0].lat, _stops[0].lng);
-    for (int i = 0; i < _stops.length; i++) {
-      final d = getDistance(
-          _livePos!.lat, _livePos!.lng, _stops[i].lat, _stops[i].lng);
-      if (d < minDist) {
-        minDist = d;
-        minIdx = i;
+
+    final distances = List.generate(
+      _stops.length,
+      (i) => getDistance(
+        _livePos!.lat,
+        _livePos!.lng,
+        _stops[i].lat,
+        _stops[i].lng,
+      ),
+    );
+
+    if (_lastConfirmedIdx < 0 || _lastConfirmedIdx >= _stops.length) {
+      _lastConfirmedIdx = 0;
+    }
+
+    int candidate = _lastConfirmedIdx;
+
+    if (candidate + 1 < _stops.length &&
+        distances[candidate + 1] < distances[candidate] - 0.18 &&
+        distances[candidate + 1] < 0.7) {
+      candidate = candidate + 1;
+    } else if (candidate > 0 &&
+        distances[candidate - 1] < distances[candidate] - 0.18 &&
+        distances[candidate - 1] < 0.7) {
+      candidate = candidate - 1;
+    }
+
+    if (distances[candidate] > 1.2) {
+      int best = 0;
+      double bestDist = distances[0];
+      for (int i = 1; i < distances.length; i++) {
+        if (distances[i] < bestDist) {
+          bestDist = distances[i];
+          best = i;
+        }
+      }
+      if (bestDist < 1.0) {
+        candidate = best;
       }
     }
-    return minDist < 0.5 ? minIdx : -1;
+
+    _lastConfirmedIdx = candidate;
+    final distToCandidate = distances[candidate];
+    if (distToCandidate < 0.6) {
+      _lastTargetIdx = candidate;
+      return candidate;
+    }
+    return -1;
+  }
+
+  int get _targetStopIndex {
+    final active = _activeIndex;
+    if (active >= 0) {
+      if (active + 1 < _stops.length) {
+        _lastTargetIdx = active + 1;
+        return active + 1;
+      }
+      return active;
+    }
+    return _lastTargetIdx < _stops.length ? _lastTargetIdx : 0;
   }
 
   void _startTracking() async {
@@ -130,7 +187,19 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
         _livePos = (lat: p.latitude, lng: p.longitude);
         _tracking = true;
       });
+      _refreshLiveActivity();
       _checkArrival();
+    });
+
+    LiveActivityService.instance.startTracking(
+      routeName: widget.route.displayName,
+      stopName: _stops.isNotEmpty ? _stops.first.nameMm : '—',
+      distanceKm: 0.0,
+      etaMinutes: 0,
+    );
+
+    _activityTimer = Timer.periodic(const Duration(seconds: 10), (_) {
+      _refreshLiveActivity();
     });
   }
 
@@ -156,6 +225,27 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
       setState(() => _arrivalMessage = msg);
       NotifyService.instance.triggerArrival(msg);
     }
+  }
+
+  void _refreshLiveActivity() {
+    if (_livePos == null || _stops.isEmpty) return;
+
+    final targetIdx = _targetStopIndex;
+    final target = _stops[targetIdx];
+
+    final distanceKm = getDistance(
+        _livePos!.lat, _livePos!.lng, target.lat, target.lng);
+
+    final pred = _predictions.firstWhere(
+        (p) => p.stop == target.nameMm,
+        orElse: () => Prediction(target.nameMm, 0, distanceKm),
+    );
+
+    LiveActivityService.instance.updateTracking(
+      stopName: target.nameMm,
+      distanceKm: pred.distanceKm > 0 ? pred.distanceKm : distanceKm,
+      etaMinutes: pred.etaMinutes,
+    );
   }
 
   @override

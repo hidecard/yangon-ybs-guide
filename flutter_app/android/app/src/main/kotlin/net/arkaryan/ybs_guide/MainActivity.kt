@@ -8,6 +8,9 @@ import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
+import com.istornz.live_activities.LiveActivityManagerHolder
+import net.arkaryan.ybs_guide.CustomLiveActivityManager
+
 class MainActivity : FlutterActivity() {
     companion object {
         private const val CHANNEL = "net.arkaryan.ybs_guide/wakelock"
@@ -17,6 +20,7 @@ class MainActivity : FlutterActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        LiveActivityManagerHolder.instance = CustomLiveActivityManager(this)
         MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
             CHANNEL

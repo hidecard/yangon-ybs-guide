@@ -21,10 +21,16 @@ class AppState extends ChangeNotifier {
 
   Future<void> init() async {
     try {
-      favRoutes = await store.favRoutes();
-      favStops = await store.favStops();
-      savedTrips = await store.savedTrips();
-      leaderboardUserName = await store.leaderboardUserName();
+      final results = await Future.wait<dynamic>([
+        store.favRoutes(),
+        store.favStops(),
+        store.savedTrips(),
+        store.leaderboardUserName(),
+      ]);
+      favRoutes = results[0] as Set<String>;
+      favStops = results[1] as Set<int>;
+      savedTrips = results[2] as List<FavoriteTrip>;
+      leaderboardUserName = results[3] as String?;
 
       await repo.load();
     } catch (_) {}

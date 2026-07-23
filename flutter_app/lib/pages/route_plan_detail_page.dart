@@ -9,6 +9,7 @@ import '../config.dart';
 import '../data/route_finder.dart';
 import '../models.dart';
 import '../services/local_store.dart';
+import '../services/live_activity_service.dart';
 import '../services/location_service.dart';
 import '../services/notify_service.dart';
 import '../state/app_state.dart';
@@ -45,6 +46,7 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
   String _end = '';
   bool _searching = false;
   bool _locating = false;
+  int _lastPlanStep = 0;
 
   List<PathStep> get steps => widget.steps;
 
@@ -69,6 +71,7 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
   @override
   void dispose() {
     _posSub?.cancel();
+    LiveActivityService.instance.stopTracking();
     super.dispose();
   }
 
@@ -77,31 +80,89 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
 
   void _startWatch() async {
     if (!await LocationService.instance.ensurePermission()) return;
+    _posSub?.cancel();
     _posSub = LocationService.instance.watchPosition().listen((p) {
       setState(() => _livePos = (lat: p.latitude, lng: p.longitude));
       _recomputeActive();
       _checkArrival();
+      _refreshPlanActivity();
     });
+
+    final active = steps.isNotEmpty ? steps[_activeStep] : null;
+    final stop = active != null ? active.fromStop : '—';
+    LiveActivityService.instance.startTracking(
+      routeName: 'Route Plan',
+      stopName: stop,
+      distanceKm: 0.0,
+      etaMinutes: 0,
+    );
+    _refreshPlanActivity();
   }
 
   void _recomputeActive() {
     if (_livePos == null || steps.isEmpty) return;
-    int best = 0;
-    double bestDist = double.infinity;
-    for (int idx = 0; idx < steps.length; idx++) {
-      final from = _stopsByName[steps[idx].fromStop];
-      final to = _stopsByName[steps[idx].toStop];
-      if (from == null || to == null) continue;
-      final dFrom =
-          getDistance(_livePos!.lat, _livePos!.lng, from.lat, from.lng);
-      final dTo = getDistance(_livePos!.lat, _livePos!.lng, to.lat, to.lng);
-      final m = dFrom < dTo ? dFrom : dTo;
-      if (m < bestDist) {
-        bestDist = m;
-        best = idx;
+
+    final from = _stopsByName[steps[_lastPlanStep].fromStop];
+    final to = _stopsByName[steps[_lastPlanStep].toStop];
+    if (from == null || to == null) return;
+
+    final dFrom =
+        getDistance(_livePos!.lat, _livePos!.lng, from.lat, from.lng);
+    final dTo =
+        getDistance(_livePos!.lat, _livePos!.lng, to.lat, to.lng);
+    final onCurrent = dFrom < dTo ? dFrom : dTo;
+
+    int candidate = _lastPlanStep;
+
+    if (candidate + 1 < steps.length) {
+      final nextFrom = _stopsByName[steps[candidate + 1].fromStop];
+      final nextTo = _stopsByName[steps[candidate + 1].toStop];
+      if (nextFrom != null && nextTo != null) {
+        final dNextFrom =
+            getDistance(_livePos!.lat, _livePos!.lng, nextFrom.lat, nextFrom.lng);
+        final dNextTo =
+            getDistance(_livePos!.lat, _livePos!.lng, nextTo.lat, nextTo.lng);
+        final onNext = dNextFrom < dNextTo ? dNextFrom : dNextTo;
+        if (onNext < onCurrent - 0.2 && onNext < 0.7) {
+          candidate = candidate + 1;
+        }
       }
     }
-    if (best != _activeStep) setState(() => _activeStep = best);
+
+    if (candidate > 0) {
+      final prevFrom = _stopsByName[steps[candidate - 1].fromStop];
+      final prevTo = _stopsByName[steps[candidate - 1].toStop];
+      if (prevFrom != null && prevTo != null) {
+        final dPrevFrom =
+            getDistance(_livePos!.lat, _livePos!.lng, prevFrom.lat, prevFrom.lng);
+        final dPrevTo =
+            getDistance(_livePos!.lat, _livePos!.lng, prevTo.lat, prevTo.lng);
+        final onPrev = dPrevFrom < dPrevTo ? dPrevFrom : dPrevTo;
+        if (onPrev < onCurrent - 0.2 && onPrev < 0.7) {
+          candidate = candidate - 1;
+        }
+      }
+    }
+
+    if (onCurrent > 1.5 && candidate == _lastPlanStep) {
+      for (int idx = 0; idx < steps.length; idx++) {
+        final f = _stopsByName[steps[idx].fromStop];
+        final t = _stopsByName[steps[idx].toStop];
+        if (f == null || t == null) continue;
+        final dF =
+            getDistance(_livePos!.lat, _livePos!.lng, f.lat, f.lng);
+        final dT =
+            getDistance(_livePos!.lat, _livePos!.lng, t.lat, t.lng);
+        final m = dF < dT ? dF : dT;
+        if (m < 1.0) {
+          candidate = idx;
+          break;
+        }
+      }
+    }
+
+    _lastPlanStep = candidate;
+    if (candidate != _activeStep) setState(() => _activeStep = candidate);
   }
 
   void _checkArrival() {
@@ -154,6 +215,67 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
       setState(() => _arrivalMessage = msg);
       NotifyService.instance.triggerArrival(msg);
     }
+  }
+
+  void _refreshPlanActivity() {
+    if (_livePos == null || steps.isEmpty) return;
+    final active = steps[_activeStep];
+    final targetStop = active.fromStop;
+
+    if (_lastPlanStep != _activeStep) {
+      _lastPlanStep = _activeStep;
+      final detailed = active.route.stopsDetailed;
+      final target = detailed.firstWhere(
+        (s) => s.nameMm == targetStop,
+        orElse: () => detailed.isNotEmpty
+            ? detailed.first
+            : BusStop(
+                id: 0,
+                lat: 0,
+                lng: 0,
+                nameEn: targetStop,
+                nameMm: targetStop,
+                roadEn: '',
+                roadMm: '',
+                townshipEn: '',
+                townshipMm: '',
+              ),
+      );
+
+      final distanceKm = getDistance(_livePos!.lat, _livePos!.lng, target.lat, target.lng);
+      LiveActivityService.instance.startTracking(
+        routeName: 'Route Plan',
+        stopName: targetStop,
+        distanceKm: distanceKm,
+        etaMinutes: 0,
+      );
+      return;
+    }
+
+    final detailed = active.route.stopsDetailed;
+    final target = detailed.firstWhere(
+      (s) => s.nameMm == targetStop,
+      orElse: () => detailed.isNotEmpty
+          ? detailed.first
+          : BusStop(
+              id: 0,
+              lat: 0,
+              lng: 0,
+              nameEn: targetStop,
+              nameMm: targetStop,
+              roadEn: '',
+              roadMm: '',
+              townshipEn: '',
+              townshipMm: '',
+            ),
+    );
+
+    final distanceKm = getDistance(_livePos!.lat, _livePos!.lng, target.lat, target.lng);
+    LiveActivityService.instance.updateTracking(
+      stopName: targetStop,
+      distanceKm: distanceKm,
+      etaMinutes: 0,
+    );
   }
 
   Future<void> _useCurrentLocation() async {

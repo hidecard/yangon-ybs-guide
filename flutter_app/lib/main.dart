@@ -4,6 +4,7 @@ import 'config.dart';
 import 'state/app_state.dart';
 import 'services/notify_service.dart';
 import 'services/background_alert_service.dart';
+import 'services/live_activity_service.dart';
 import 'theme.dart';
 import 'pages/home_page.dart';
 import 'pages/routes_page.dart';
@@ -14,20 +15,26 @@ import 'pages/favorites_page.dart';
 import 'pages/settings_page.dart';
 import 'pages/leaderboard_page.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  try {
-    NotifyService.instance.init();
-  } catch (_) {}
-  try {
-    initBackgroundAlertService();
-  } catch (_) {}
+  FlutterError.onError = (details) {
+    FlutterError.presentError(details);
+  };
   runApp(
     ChangeNotifierProvider(
       create: (_) => AppState()..init(),
       child: const YbsApp(),
     ),
   );
+  try {
+    NotifyService.instance.init();
+  } catch (_) {}
+  try {
+    initBackgroundAlertService();
+  } catch (_) {}
+  try {
+    await LiveActivityService.instance.init();
+  } catch (_) {}
 }
 
 class YbsApp extends StatelessWidget {
@@ -54,6 +61,7 @@ class RootShell extends StatefulWidget {
 
 class _RootShellState extends State<RootShell> {
   int _index = 0;
+  bool _loading = true;
 
   final _pages = const [
     HomePage(),
@@ -77,63 +85,79 @@ class _RootShellState extends State<RootShell> {
 
   @override
   Widget build(BuildContext context) {
-    final state = context.watch<AppState>();
-
-    if (state.loading) {
-      return const _SplashScreen();
-    }
-
-    return Scaffold(
-      appBar: AppBar(
-        titleSpacing: 16,
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(7),
-              decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(10)),
-              child: const Icon(Icons.directions_bus,
-                  size: 18, color: Colors.white),
-            ),
-            const SizedBox(width: 10),
-            const Text('YBS AI',
+    final appBar = AppBar(
+      titleSpacing: 16,
+      title: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(7),
+            decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(10)),
+            child: const Icon(Icons.directions_bus,
+                size: 18, color: Colors.white),
+          ),
+          const SizedBox(width: 10),
+          const Text('YBS AI',
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: AppColors.text)),
+          const SizedBox(width: 6),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+                color: AppColors.slate100,
+                borderRadius: BorderRadius.circular(4)),
+            child: const Text(AppConfig.appVersion,
                 style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: AppColors.text)),
-            const SizedBox(width: 6),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                  color: AppColors.slate100,
-                  borderRadius: BorderRadius.circular(4)),
-              child: const Text(AppConfig.appVersion,
-                  style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.slate400)),
-            ),
-          ],
-        ),
-        actions: [
-          IconButton(
-            tooltip: 'Settings',
-            onPressed: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const SettingsPage())),
-            icon: const Icon(Icons.settings_outlined),
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.slate400)),
           ),
         ],
       ),
+      actions: [
+        IconButton(
+          tooltip: 'Settings',
+          onPressed: () => Navigator.push(context,
+              MaterialPageRoute(builder: (_) => const SettingsPage())),
+          icon: const Icon(Icons.settings_outlined),
+        ),
+      ],
+    );
+
+    final bottomNav = _YbsBottomNav(
+      index: _index,
+      items: _navItems,
+      onTap: (i) => setState(() => _index = i),
+    );
+
+    final content = Scaffold(
+      appBar: appBar,
       body: TabSwitcher(
         onSwitch: (i) => setState(() => _index = i),
         child: IndexedStack(index: _index, children: _pages),
       ),
-      bottomNavigationBar: _YbsBottomNav(
-        index: _index,
-        items: _navItems,
-        onTap: (i) => setState(() => _index = i),
-      ),
+      bottomNavigationBar: bottomNav,
+    );
+
+    final state = Provider.of<AppState>(context);
+    if (state.loading != _loading) {
+      if (mounted) setState(() => _loading = state.loading);
+    }
+
+    if (!_loading) return content;
+
+    return Stack(
+      children: [
+        content,
+        IgnorePointer(
+          ignoring: true,
+          child: Container(color: AppColors.bg),
+        ),
+        const Center(child: _SplashScreen()),
+      ],
     );
   }
 }
