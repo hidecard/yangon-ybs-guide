@@ -16,8 +16,12 @@ import 'pages/leaderboard_page.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  NotifyService.instance.init();
-  initBackgroundAlertService();
+  try {
+    NotifyService.instance.init();
+  } catch (_) {}
+  try {
+    initBackgroundAlertService();
+  } catch (_) {}
   runApp(
     ChangeNotifierProvider(
       create: (_) => AppState()..init(),

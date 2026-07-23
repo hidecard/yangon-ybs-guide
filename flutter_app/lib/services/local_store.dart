@@ -25,7 +25,11 @@ class LocalStore {
     final p = await _p;
     final raw = p.getString(_favRoutesKey);
     if (raw == null) return {};
-    return (json.decode(raw) as List).map((e) => e.toString()).toSet();
+    try {
+      return (json.decode(raw) as List).map((e) => e.toString()).toSet();
+    } catch (_) {
+      return {};
+    }
   }
 
   Future<void> setFavRoutes(Set<String> ids) async {
@@ -38,7 +42,11 @@ class LocalStore {
     final p = await _p;
     final raw = p.getString(_favStopsKey);
     if (raw == null) return {};
-    return (json.decode(raw) as List).map((e) => (e as num).toInt()).toSet();
+    try {
+      return (json.decode(raw) as List).map((e) => (e as num).toInt()).toSet();
+    } catch (_) {
+      return {};
+    }
   }
 
   Future<void> setFavStops(Set<int> ids) async {

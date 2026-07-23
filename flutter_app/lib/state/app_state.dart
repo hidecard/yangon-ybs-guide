@@ -20,13 +20,15 @@ class AppState extends ChangeNotifier {
   List<BusStop> get stops => repo.stops;
 
   Future<void> init() async {
-    favRoutes = await store.favRoutes();
-    favStops = await store.favStops();
-    savedTrips = await store.savedTrips();
-    leaderboardUserName = await store.leaderboardUserName();
-    notifyListeners();
+    try {
+      favRoutes = await store.favRoutes();
+      favStops = await store.favStops();
+      savedTrips = await store.savedTrips();
+      leaderboardUserName = await store.leaderboardUserName();
 
-    await repo.load();
+      await repo.load();
+    } catch (_) {}
+
     loading = false;
     notifyListeners();
   }
