@@ -98,7 +98,7 @@ class _PostUpdateSheetState extends State<_PostUpdateSheet> {
   final _stop = TextEditingController();
   final _note = TextEditingController();
   bool _submitting = false;
-  final DeviceService _deviceService = DeviceService();
+  final DeviceService _deviceService = DeviceService.instance;
 
   @override
   Widget build(BuildContext context) {

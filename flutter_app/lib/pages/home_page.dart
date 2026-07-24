@@ -207,6 +207,8 @@ class _NearestStopsCardState extends State<_NearestStopsCard> {
   ({double lat, double lng})? _pos;
   bool _locating = false;
   String? _error;
+  List<BusRoute>? _cachedRoutes;
+  Map<String, List<BusRoute>> _routesByStop = {};
 
   Future<void> _locate() async {
     setState(() {
@@ -231,6 +233,15 @@ class _NearestStopsCardState extends State<_NearestStopsCard> {
   @override
   Widget build(BuildContext context) {
     final state = widget.state;
+    if (_cachedRoutes != state.routes) {
+      _cachedRoutes = state.routes;
+      _routesByStop = {};
+      for (final r in state.routes) {
+        for (final stopName in r.stops) {
+          _routesByStop.putIfAbsent(stopName, () => []).add(r);
+        }
+      }
+    }
     final nearest = _pos == null
         ? <(BusStop, double)>[]
         : (state.stops
@@ -299,7 +310,7 @@ class _NearestStopsCardState extends State<_NearestStopsCard> {
 
   Widget _stopRow(
       BuildContext context, AppState state, BusStop stop, double distance) {
-    final passing = state.routesForStop(stop.nameMm, limit: 3);
+    final passing = _routesByStop[stop.nameMm]?.take(3) ?? [];
     return Padding(
       padding: const EdgeInsets.only(top: 8),
       child: InkWell(

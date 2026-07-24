@@ -30,7 +30,7 @@ class _BusUpdatesFeedState extends State<BusUpdatesFeed> {
   bool _loading = true;
   bool _error = false;
   int _attempt = 0;
-  final DeviceService _deviceService = DeviceService();
+  final DeviceService _deviceService = DeviceService.instance;
   final Map<int, int> _myVotes = {};
   final Map<int, bool> _voting = {};
 

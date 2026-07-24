@@ -38,6 +38,9 @@ class _FindRoutePageState extends State<FindRoutePage> {
   bool _searching = false;
   bool _hasSearched = false;
   bool _locating = false;
+  List<BusStop>? _cachedStops;
+  List<StopOption>? _cachedOptions;
+  Map<String, BusStop>? _cachedStopByName;
 
   @override
   void initState() {
@@ -244,11 +247,16 @@ class _FindRoutePageState extends State<FindRoutePage> {
   @override
   Widget build(BuildContext context) {
     final state = context.watch<AppState>();
-    final options = buildDisambiguatedStops(state.stops);
-    final stopByName = <String, BusStop>{};
-    for (final s in state.stops) {
-      stopByName.putIfAbsent(s.nameMm, () => s);
+    if (_cachedStops != state.stops) {
+      _cachedStops = state.stops;
+      _cachedOptions = buildDisambiguatedStops(state.stops);
+      _cachedStopByName = {};
+      for (final s in state.stops) {
+        _cachedStopByName!.putIfAbsent(s.nameMm, () => s);
+      }
     }
+    final options = _cachedOptions!;
+    final stopByName = _cachedStopByName!;
 
     final body = ListView(
       padding: const EdgeInsets.all(16),
@@ -382,7 +390,7 @@ class _FindRoutePageState extends State<FindRoutePage> {
               )),
     );
     if (selected != null) {
-      final opt = buildDisambiguatedStops(state.stops)
+      final opt = _cachedOptions!
           .where((o) => o.id == selected.id)
           .firstOrNull;
       _setStop(isStart, opt);

@@ -16,7 +16,7 @@ class LeaderboardPage extends StatefulWidget {
 
 class _LeaderboardPageState extends State<LeaderboardPage>
     with SingleTickerProviderStateMixin {
-  final DeviceService _deviceService = DeviceService();
+  final DeviceService _deviceService = DeviceService.instance;
   late TabController _tabController;
 
   List<LeaderboardEntry> _entries = [];
@@ -237,18 +237,16 @@ class _LeaderboardPageState extends State<LeaderboardPage>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-              ' ${result.rewardTitle} ကို အောင်မြင်စွာ ဆုလဲလိုက်ပြီပြီ! (${result.pointsSpent} Points)'),
+              '${result.rewardTitle} ကို အောင်မြင်စွာ ဆုလဲလိုက်ပြီပြီ! (${result.pointsSpent} Points)'),
           backgroundColor: AppColors.emerald,
         ),
       );
       await _loadLeaderboard();
       await _loadRewards();
     } else {
-      final err = result.ok
-          ? 'Redeem failed'
-          : (result.pointsSpent > 0
-              ? 'Not enough points'
-              : 'Redeem failed');
+final err = result.pointsSpent > 0
+          ? 'Not enough points'
+          : 'Redeem failed';
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(err), backgroundColor: AppColors.rose),
       );
@@ -532,44 +530,53 @@ class _LeaderboardPageState extends State<LeaderboardPage>
     );
   }
 
+  List<Widget> get _headerItems {
+    final items = <Widget>[];
+    if (_myRank != null) {
+      items.add(_MyRankCard(entry: _myRank!));
+      items.add(const SizedBox(height: 16));
+    }
+    items.add(Row(
+      children: [
+        const Text('အဆင့်',
+            style: TextStyle(
+                fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.slate500)),
+        const Spacer(),
+        SegmentedButton<bool>(
+          segments: const [
+            ButtonSegment(value: false, label: Text('All Time')),
+            ButtonSegment(value: true, label: Text('Monthly')),
+          ],
+          selected: {_monthly},
+          onSelectionChanged: (set) {
+            setState(() {
+              _monthly = set.first;
+              _loading = true;
+            });
+            _loadLeaderboard();
+          },
+        ),
+      ],
+    ));
+    items.add(const SizedBox(height: 8));
+    return items;
+  }
+
   Widget _buildLeaderboardTab() {
     return _loading
         ? const Center(child: CircularProgressIndicator())
         : RefreshIndicator(
             onRefresh: _loadLeaderboard,
-            child: ListView(
+            child: ListView.builder(
               padding: const EdgeInsets.all(16),
-              children: [
-                if (_myRank != null) _MyRankCard(entry: _myRank!),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    const Text('အဆင့်',
-                        style: TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.slate500)),
-                    const Spacer(),
-                    SegmentedButton<bool>(
-                      segments: const [
-                        ButtonSegment(value: false, label: Text('All Time')),
-                        ButtonSegment(value: true, label: Text('Monthly')),
-                      ],
-                      selected: {_monthly},
-                      onSelectionChanged: (set) {
-                        setState(() {
-                          _monthly = set.first;
-                          _loading = true;
-                        });
-                        _loadLeaderboard();
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                ...List.generate(_entries.length, (i) {
-                  final entry = _entries[i];
-                  return _RankTile(entry: entry, index: i);
-                }),
-              ],
+              itemCount: _headerItems.length + _entries.length,
+              itemBuilder: (context, i) {
+                if (i < _headerItems.length) {
+                  return _headerItems[i];
+                }
+                final entry = _entries[i - _headerItems.length];
+                return _RankTile(entry: entry, index: i - _headerItems.length);
+              },
             ),
           );
   }
@@ -579,63 +586,72 @@ class _LeaderboardPageState extends State<LeaderboardPage>
         ? const Center(child: CircularProgressIndicator())
         : RefreshIndicator(
             onRefresh: _loadRewards,
-            child: ListView(
+            child: ListView.builder(
               padding: const EdgeInsets.all(16),
-              children: [
-                if (_myRank != null)
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppColors.amberLight,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.amber),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.star, color: AppColors.amber, size: 20),
-                        const SizedBox(width: 8),
-                        Text(
-                          'သင့်လက်ရှိ Point : ',
-                          style: TextStyle(color: AppColors.slate700),
-                        ),
-                        Text(
-                          '${_myRank!.points}',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: AppColors.amber,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                const SizedBox(height: 16),
-                if (_rewards.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 60),
-                    child: Column(
-                      children: [
-                        Icon(Icons.card_giftcard_outlined, size: 40, color: AppColors.slate300),
-                        SizedBox(height: 12),
-                        Text(
-                          'ပြီးခဲ့ပြီ ဆုများ မရှိသေးပါ။',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: AppColors.slate400, fontSize: 13),
-                        ),
-                      ],
-                    ),
-                  ),
-                ...List.generate(_rewards.length, (i) {
-                  final reward = _rewards[i];
-                  return _RewardCard(
-                    reward: reward,
-                    myPoints: _myRank?.points ?? 0,
-                    onRedeem: () => _onRedeem(reward),
-                  );
-                }),
-              ],
+              itemCount: _rewardHeaderItems.length + _rewards.length,
+              itemBuilder: (context, i) {
+                if (i < _rewardHeaderItems.length) {
+                  return _rewardHeaderItems[i];
+                }
+                final reward = _rewards[i - _rewardHeaderItems.length];
+                return _RewardCard(
+                  reward: reward,
+                  myPoints: _myRank?.points ?? 0,
+                  onRedeem: () => _onRedeem(reward),
+                );
+              },
             ),
           );
+  }
+
+  List<Widget> get _rewardHeaderItems {
+    final items = <Widget>[];
+    if (_myRank != null) {
+      items.add(Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.amberLight,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.amber),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.star, color: AppColors.amber, size: 20),
+            const SizedBox(width: 8),
+            Text(
+              'သင့်လက်ရှိ Point : ',
+              style: TextStyle(color: AppColors.slate700),
+            ),
+            Text(
+              '${_myRank!.points}',
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: AppColors.amber,
+              ),
+            ),
+          ],
+        ),
+      ));
+      items.add(const SizedBox(height: 16));
+    }
+    if (_rewards.isEmpty) {
+      items.add(const Padding(
+        padding: EdgeInsets.symmetric(vertical: 60),
+        child: Column(
+          children: [
+            Icon(Icons.card_giftcard_outlined, size: 40, color: AppColors.slate300),
+            SizedBox(height: 12),
+            Text(
+              'ပြီးခဲ့ပြီ ဆုများ မရှိသေးပါ။',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: AppColors.slate400, fontSize: 13),
+            ),
+          ],
+        ),
+      ));
+    }
+    return items;
   }
 }
 
