@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -7,6 +8,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models.dart' show BusRoute, BusStop;
+import '../services/api_service.dart' show ApiService;
 import 'route_finder.dart' show resolveStopByName;
 import 'routes_crypto.dart' show xorBytes;
 import 'sqlite_routes.dart' show SqliteRoutes;
@@ -22,6 +24,7 @@ class DataRepository {
   static final DataRepository instance = DataRepository._();
 
   static const _cacheKey = 'ybs-local-cache-v1';
+  static const _versionKey = 'ybs-routes-data-version';
 
   List<BusRoute> routes = [];
   List<BusStop> stops = [];
@@ -38,6 +41,16 @@ class DataRepository {
     return Color(0xFF000000 | c);
   }
 
+  Future<int> getCurrentVersion() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(_versionKey) ?? 0;
+  }
+
+  Future<void> setCurrentVersion(int v) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_versionKey, v);
+  }
+
   Future<void> load({bool forceReload = false}) async {
     if (loaded && !forceReload) return;
 
@@ -46,6 +59,12 @@ class DataRepository {
       final ok = await _loadCache();
       if (ok) {
         loaded = true;
+        try {
+          await SqliteRoutes.instance.open(routes);
+        } catch (e) {
+          debugPrint('SQLite open skipped: $e');
+        }
+        unawaited(syncRoutes());
         return;
       }
     }
@@ -63,6 +82,7 @@ class DataRepository {
           debugPrint('SQLite build skipped: $e');
         }
         loaded = true;
+        unawaited(syncRoutes());
         return;
       }
     } catch (e) {
@@ -201,6 +221,55 @@ class DataRepository {
     }
   }
 
+  /// Fetches changed routes from the backend delta API and applies them
+  /// to both the in-memory cache and the local SQLite store.
+  Future<bool> syncRoutes() async {
+    try {
+      final version = await getCurrentVersion();
+      final delta = await ApiService.instance.fetchRoutesDelta(since: version);
+      if (delta == null || delta.routes.isEmpty) return false;
+      if (delta.version <= version) return false;
+
+      for (final r in delta.routes) {
+        final idx = routes.indexWhere((x) => x.id == r.id);
+        if (idx >= 0) {
+          routes[idx] = r;
+        } else {
+          routes.add(r);
+        }
+        final stopKeys = <String, BusStop>{
+          for (final s in stops) '${s.nameMm}|${s.lat}|${s.lng}': s
+        };
+        for (final ds in r.stopsDetailed) {
+          final key = '${ds.nameMm}|${ds.lat}|${ds.lng}';
+          if (!stopKeys.containsKey(key)) {
+            stopKeys[key] = ds;
+            stops.add(ds);
+          }
+        }
+      }
+
+      if (delta.deletedRouteIds != null) {
+        routes.removeWhere((r) => delta.deletedRouteIds!.contains(r.id));
+      }
+
+      try {
+        await SqliteRoutes.instance.applyDelta(
+          delta.routes,
+          deletedRouteIds: delta.deletedRouteIds,
+        );
+      } catch (e) {
+        debugPrint('SQLite delta apply skipped: $e');
+      }
+
+      await _saveCache();
+      await setCurrentVersion(delta.version);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   Future<void> _saveCache() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -227,6 +296,7 @@ class DataRepository {
   Future<void> clearCache() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_cacheKey);
+    await prefs.remove(_versionKey);
     loaded = false;
     routes = [];
     stops = [];

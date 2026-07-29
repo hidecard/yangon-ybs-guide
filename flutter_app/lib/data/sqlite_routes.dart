@@ -220,6 +220,93 @@ class SqliteRoutes {
     }
   }
 
+  /// Incrementally applies a delta update (new / changed / deleted routes)
+  /// without rebuilding the entire database from scratch.
+  Future<void> applyDelta(
+    List<BusRoute> newRoutes, {
+    List<String>? deletedRouteIds,
+  }) async {
+    final db = _db;
+    if (db == null) return;
+
+    await db.transaction((txn) async {
+      if (deletedRouteIds != null) {
+        for (final id in deletedRouteIds) {
+          await txn.delete('route_stops', where: 'route_id = ?', whereArgs: [id]);
+          await txn.delete('routes', where: 'route_id = ?', whereArgs: [id]);
+        }
+      }
+
+      final groupIdMap = <String, int>{};
+      final stopIdMap = <String, int>{};
+
+      for (final row in await txn.query('stop_groups',
+          columns: ['group_id', 'group_name_mm', 'township'])) {
+        final key = '${row['group_name_mm']}|${row['township']}';
+        groupIdMap[key] = row['group_id'] as int;
+      }
+
+      for (final row in await txn.query('bus_stops',
+          columns: ['stop_id', 'stop_name_mm', 'latitude', 'longitude'])) {
+        final key = '${row['stop_name_mm']}|${row['latitude']}|${row['longitude']}';
+        stopIdMap[key] = row['stop_id'] as int;
+      }
+
+      int nextGroupId =
+          groupIdMap.values.fold(0, (a, b) => a > b ? a : b) + 1;
+      int nextStopId = stopIdMap.values.fold(0, (a, b) => a > b ? a : b) + 1;
+
+      for (final r in newRoutes) {
+        await txn.delete('route_stops', where: 'route_id = ?', whereArgs: [r.id]);
+
+        await txn.insert('routes', {
+          'route_id': r.id,
+          'bus_line': r.id,
+          'agency': r.operator ?? '',
+          'line_name': r.lineName ?? '',
+          'qr_payment': r.qrPayment ?? '',
+        }, conflictAlgorithm: ConflictAlgorithm.replace);
+
+        for (int i = 0; i < r.stopsDetailed.length; i++) {
+          final s = r.stopsDetailed[i];
+          final township = s.townshipMm.isNotEmpty ? s.townshipMm : '';
+          final gKey = '${s.nameMm}|$township';
+          final gId = groupIdMap.putIfAbsent(gKey, () {
+            nextGroupId++;
+            txn.insert('stop_groups', {
+              'group_id': nextGroupId,
+              'group_name_mm': s.nameMm,
+              'township': township,
+            });
+            return nextGroupId;
+          });
+
+          final sKey = '${s.nameMm}|${s.lat}|${s.lng}';
+          final sId = stopIdMap.putIfAbsent(sKey, () {
+            nextStopId++;
+            txn.insert('bus_stops', {
+              'stop_id': nextStopId,
+              'group_id': gId,
+              'stop_name_en': s.nameEn,
+              'stop_name_mm': s.nameMm,
+              'road': s.roadMm,
+              'township': township,
+              'latitude': s.lat,
+              'longitude': s.lng,
+            });
+            return nextStopId;
+          });
+
+          await txn.insert('route_stops', {
+            'route_id': r.id,
+            'stop_id': sId,
+            'stop_order': i,
+          }, conflictAlgorithm: ConflictAlgorithm.replace);
+        }
+      }
+    });
+  }
+
   /// Returns route_ids whose forward leg passes through the [startName] group
   /// (in [startTownship]) before the [endName] group (in [endTownship]).
   ///

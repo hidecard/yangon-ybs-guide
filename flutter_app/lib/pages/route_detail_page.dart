@@ -451,37 +451,35 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('စုစုပေါင်းမှတ်တိုင်', style: UI.label),
-                        Text('${uniqueStops.length}',
-                             style: const TextStyle(
-                                 fontSize: 24, fontWeight: FontWeight.bold)),
-                      ],
-                    ),
-                    const Spacer(),
-                    Flexible(
+                    Expanded(
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                              _stops.isNotEmpty ? _stops.first.nameMm : '—',
-                              textAlign: TextAlign.end,
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.w500)),
-                          Container(
-                              width: 1,
-                              height: 12,
-                              color: AppColors.slate200,
-                              margin:
-                                  const EdgeInsets.symmetric(vertical: 4)),
-                          Text(_stops.isNotEmpty ? _stops.last.nameMm : '—',
-                              textAlign: TextAlign.end,
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.w500)),
+                          const Text('စုစုပေါင်းမှတ်တိုင်', style: UI.label),
+                          Text('${uniqueStops.length}',
+                               style: const TextStyle(
+                                   fontSize: 24, fontWeight: FontWeight.bold)),
                         ],
                       ),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                            _stops.isNotEmpty ? _stops.first.nameMm : '—',
+                            textAlign: TextAlign.end,
+                            style: const TextStyle(
+                                fontWeight: FontWeight.w600, fontSize: 13)),
+                        Container(
+                            width: 1,
+                            height: 14,
+                            color: AppColors.slate200,
+                            margin: const EdgeInsets.symmetric(vertical: 6)),
+                        Text(_stops.isNotEmpty ? _stops.last.nameMm : '—',
+                            textAlign: TextAlign.end,
+                            style: const TextStyle(
+                                fontWeight: FontWeight.w600, fontSize: 13)),
+                      ],
                     ),
                   ],
                 ),
@@ -671,48 +669,49 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
     final isLast = idx == total - 1;
     final isActive = idx == active;
 
-    return ListTile(
-      onTap: () => Nav.openStop(context, s),
-      leading: CircleAvatar(
-        backgroundColor: isFirst
-            ? Colors.green
-            : isLast
-                ? Colors.red
-                : Colors.blueGrey,
-        child: Text('${idx + 1}',
-            style: const TextStyle(color: Colors.white, fontSize: 12)),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.borderLight),
       ),
-      title: Text(s.nameMm,
-          style: const TextStyle(fontWeight: FontWeight.w600)),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('${s.roadMm}လမ်း၊ ${s.townshipMm}မြို့နယ်',
-              style: const TextStyle(fontSize: 12)),
-          if (isFirst)
-            Container(
-              margin: const EdgeInsets.only(top: 4),
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                  color: Colors.green.shade100,
-                  borderRadius: BorderRadius.circular(4)),
-              child: Text(''),
-            ),
-          if (isLast)
-            Container(
-              margin: const EdgeInsets.only(top: 4),
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                  color: Colors.red.shade100,
-                  borderRadius: BorderRadius.circular(4)),
-              child: Text(''),
-            ),
-        ],
+      child: ListTile(
+        onTap: () => Nav.openStop(context, s),
+        leading: CircleAvatar(
+          backgroundColor: isFirst
+              ? Colors.green
+              : isLast
+                  ? Colors.red
+                  : AppColors.slate200,
+          child: Text('${idx + 1}',
+              style: TextStyle(
+                  color: isFirst || isLast ? Colors.white : AppColors.slate600,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600)),
+        ),
+        title: Text(s.nameMm,
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+        subtitle: Text('${s.roadMm}လမ်း၊ ${s.townshipMm}မြို့နယ်',
+            style: const TextStyle(fontSize: 12, color: AppColors.slate500)),
+        trailing: _stopTrailing(isActive, isFirst, isLast),
       ),
-      trailing: isActive
-          ? const Pill('လက်ရှိ',
-              bg: Color(0xFFD1FAE5), fg: AppColors.emeraldDark)
-          : const SizedBox.shrink(),
     );
+  }
+
+  Widget _stopTrailing(bool isActive, bool isFirst, bool isLast) {
+    if (isActive) {
+      return const Pill('လက်ရှိ',
+          bg: Color(0xFFD1FAE5), fg: AppColors.emeraldDark);
+    }
+    if (isFirst) {
+      return const Pill('အစ',
+          bg: Color(0xFFD1FAE5), fg: AppColors.emeraldDark);
+    }
+    if (isLast) {
+      return const Pill('အဆုံး',
+          bg: Color(0xFFFFF1F2), fg: AppColors.rose);
+    }
+    return const SizedBox.shrink();
   }
 }

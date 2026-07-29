@@ -1,8 +1,39 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../config.dart';
 import '../models.dart';
+
+class RouteDelta {
+  final int version;
+  final List<BusRoute> routes;
+  final List<String>? deletedRouteIds;
+
+  const RouteDelta({
+    required this.version,
+    required this.routes,
+    this.deletedRouteIds,
+  });
+
+  factory RouteDelta.fromJson(Map<String, dynamic> j) {
+    final changes = (j['changes'] as List?) ?? [];
+    final routes = <BusRoute>[];
+    for (final c in changes) {
+      final data = c['data'] as Map<String, dynamic>?;
+      if (data != null) {
+        routes.add(BusRoute.fromJson(data));
+      }
+    }
+    final deleted = (j['deleted_route_ids'] as List?)?.map((e) => e.toString()).toList();
+    return RouteDelta(
+      version: (j['version'] as num?)?.toInt() ?? 0,
+      routes: routes,
+      deletedRouteIds: deleted,
+    );
+  }
+}
 
 // ----- Bus updates -----
 enum BusUpdateType { started, reached, roadClosed, notRunning, other }
@@ -177,11 +208,33 @@ class ApiService {
   ApiService._();
   static final ApiService instance = ApiService._();
 
+  final http.Client _client = http.Client();
+
   Uri _u(String path) => Uri.parse('${AppConfig.apiBase}$path');
 
+  Future<T> _retry<T>(Future<T> Function() fn, {int maxAttempts = 2}) async {
+    var attempt = 0;
+    while (true) {
+      try {
+        return await fn();
+      } on TimeoutException catch (_) {
+        attempt++;
+        if (attempt >= maxAttempts) rethrow;
+      } on http.ClientException catch (_) {
+        attempt++;
+        if (attempt >= maxAttempts) rethrow;
+      } on SocketException catch (_) {
+        attempt++;
+        if (attempt >= maxAttempts) rethrow;
+      }
+      await Future.delayed(const Duration(milliseconds: 1500));
+    }
+  }
+
   Future<Map<String, dynamic>> _get(String path) async {
-    final res = await http
-        .get(_u(path), headers: {'Content-Type': 'application/json'});
+    final res = await _client
+        .get(_u(path), headers: {'Content-Type': 'application/json'})
+        .timeout(const Duration(seconds: 30));
     final data = _decode(res.body);
     if (res.statusCode >= 400) {
       throw Exception(data['error'] ?? 'Request failed');
@@ -195,8 +248,10 @@ class ApiService {
     req.headers['Content-Type'] = 'application/json';
     if (headers != null) req.headers.addAll(headers);
     if (body != null) req.body = json.encode(body);
-    final streamed = await http.Client().send(req);
-    final res = await http.Response.fromStream(streamed);
+    final streamed =
+        await _client.send(req).timeout(const Duration(seconds: 30));
+    final res =
+        await http.Response.fromStream(streamed).timeout(const Duration(seconds: 30));
     final data = _decode(res.body);
     if (res.statusCode >= 400) {
       throw Exception(data['error'] ?? data['message'] ?? 'Request failed');
@@ -225,7 +280,7 @@ class ApiService {
 
   Future<int?> postBusUpdate(BusUpdate u) async {
     try {
-      final data = await _send('POST', '/api/bus-updates', body: {
+      final data = await _retry(() => _send('POST', '/api/bus-updates', body: {
         'routeId': u.routeId,
         'type': busUpdateTypeKey(u.type),
         if (u.stop != null) 'stop': u.stop,
@@ -233,7 +288,7 @@ class ApiService {
         if (u.lat != null) 'lat': u.lat,
         if (u.lng != null) 'lng': u.lng,
         if (u.userId != null) 'userId': u.userId,
-      });
+      }));
       return (data['id'] as num?)?.toInt();
     } catch (_) {
       return null;
@@ -276,12 +331,12 @@ class ApiService {
     String? userId,
   }) async {
     try {
-      await _send('POST', '/api/feedback', body: {
+      await _retry(() => _send('POST', '/api/feedback', body: {
         'type': feedbackTypeKey(type),
         'message': message,
         if (routeId != null && routeId.isNotEmpty) 'routeId': routeId,
         if (userId != null) 'userId': userId,
-      });
+      }));
       return true;
     } catch (_) {
       return false;
@@ -326,11 +381,11 @@ class ApiService {
     required String userName,
   }) async {
     try {
-      final data = await _send('POST', '/api/leaderboard?action=register',
+      final data = await _retry(() => _send('POST', '/api/leaderboard?action=register',
           body: {
             'device_id': deviceId,
             'user_name': userName,
-          });
+          }));
       return data;
     } catch (e) {
       return {'error': e.toString()};
@@ -347,7 +402,7 @@ class ApiService {
     double? lng,
   }) async {
     try {
-      final data = await _send('POST', '/api/leaderboard?action=submit-update',
+      final data = await _retry(() => _send('POST', '/api/leaderboard?action=submit-update',
           body: {
             'device_id': deviceId,
             'route_id': routeId,
@@ -356,7 +411,7 @@ class ApiService {
             if (note != null && note.isNotEmpty) 'note': note,
             if (lat != null) 'lat': lat,
             if (lng != null) 'lng': lng,
-          });
+          }));
       return data;
     } catch (e) {
       return {'error': e.toString()};
@@ -381,11 +436,11 @@ class ApiService {
     required String claimContact,
   }) async {
     try {
-      final data = await _send('POST', '/api/rewards', body: {
+      final data = await _retry(() => _send('POST', '/api/rewards', body: {
         'device_id': deviceId,
         'reward_id': rewardId,
         'claim_contact': claimContact,
-      });
+      }));
       return RedemptionResult.fromJson(data);
     } catch (e) {
       return RedemptionResult(
@@ -403,8 +458,8 @@ class ApiService {
     required int vote, // 1 or -1
   }) async {
     try {
-      final data = await _send('POST', '/api/leaderboard?action=vote',
-          body: {'update_id': updateId, 'device_id': deviceId, 'vote': vote});
+      final data = await _retry(() => _send('POST', '/api/leaderboard?action=vote',
+          body: {'update_id': updateId, 'device_id': deviceId, 'vote': vote}));
       return data;
     } catch (e) {
       return {'error': e.toString()};
@@ -425,6 +480,18 @@ class ApiService {
       return data;
     } catch (_) {
       return {'myVote': 0, 'upvotes': 0, 'downvotes': 0};
+    }
+  }
+
+  Future<RouteDelta?> fetchRoutesDelta({int since = 0}) async {
+    try {
+      final params = <String, String>{'since': '$since'};
+      final q = Uri(queryParameters: params).query;
+      final data = await _get('/api/routes/delta?$q');
+      if (data['version'] == null) return null;
+      return RouteDelta.fromJson(data);
+    } catch (_) {
+      return null;
     }
   }
 }

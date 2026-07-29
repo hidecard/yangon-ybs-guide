@@ -1,8 +1,11 @@
 package net.arkaryan.ybs_guide
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.PowerManager
+import android.provider.Settings
 import androidx.annotation.RequiresApi
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -36,6 +39,10 @@ class MainActivity : FlutterActivity() {
                 }
                 "wakeScreen" -> {
                     wakeScreen()
+                    result.success(null)
+                }
+                "requestIgnoreBatteryOptimizations" -> {
+                    requestIgnoreBatteryOptimizations()
                     result.success(null)
                 }
                 else -> result.notImplemented()
@@ -84,5 +91,15 @@ class MainActivity : FlutterActivity() {
         screenLock.setReferenceCounted(false)
         screenLock.acquire(5000)
         screenLock.release()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun requestIgnoreBatteryOptimizations() {
+        val pm = powerManager() ?: return
+        if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+            val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+            intent.data = Uri.parse("package:$packageName")
+            startActivity(intent)
+        }
     }
 }

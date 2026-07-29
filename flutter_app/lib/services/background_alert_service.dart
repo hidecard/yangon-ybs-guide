@@ -17,8 +17,6 @@ import 'local_store.dart';
 const _vibratePattern = [0, 400, 150, 400, 150, 400, 150, 400];
 
 /// Native channel used to acquire/release a wake lock + turn the screen on
-/// so the arrival alert (vibration + notification) is delivered even when the
-/// device is asleep (screen off or app closed).
 const _wakeLockChannel = MethodChannel('net.arkaryan.ybs_guide/wakelock');
 
 Future<void> _releaseWakeLock() async {
@@ -58,42 +56,27 @@ Future<Map<String, dynamic>?> _fetchLatestNotification() async {
   }
 }
 
-/// Polling interval (ms) when no arrival alert is active (admin notifications only).
+/// Polling intervals (ms) configuration
 const _idlePollIntervalMs = 60000;
-
-/// Polling interval (ms) when the bus stop is far away (> 2 km).
 const _farPollIntervalMs = 60000;
-
-/// Polling interval (ms) when the bus stop is moderately approaching (0.5–2 km).
 const _approachingPollIntervalMs = 30000;
-
-/// Polling interval (ms) when the bus stop is very close (< 0.5 km).
 const _closePollIntervalMs = 10000;
 
-/// Distance threshold (km) at which polling switches from far to approaching.
-const _approachingThresholdKm = 2.0;
+/// Speed-based backoff interval (ms) when the vehicle is stationary or stuck in traffic (< 2 m/s)
+const _trafficJamBackoffIntervalMs = 30000;
 
-/// Distance threshold (km) at which polling switches from approaching to close.
+const _approachingThresholdKm = 2.0;
 const _closeThresholdKm = 0.5;
 
+/// Computes the dynamic polling interval by considering both Proximity and Speed.
 Future<int> _computePollInterval() async {
   final alert = await LocalStore.instance.getBackgroundAlert();
-  if (alert == null) return _idlePollIntervalMs;
-  if (alert['alerted'] == true) return _idlePollIntervalMs;
+  if (alert == null || alert['alerted'] == true) return _idlePollIntervalMs;
 
   Position? pos;
   try {
-    pos = await Geolocator.getCurrentPosition(
-      locationSettings: LocationSettings(
-        accuracy: LocationAccuracy.low,
-        timeLimit: const Duration(seconds: 5),
-      ),
-    );
-  } catch (_) {
-    try {
-      pos = await Geolocator.getLastKnownPosition();
-    } catch (_) {}
-  }
+    pos = await Geolocator.getLastKnownPosition();
+  } catch (_) {}
 
   if (pos == null) return _farPollIntervalMs;
 
@@ -105,14 +88,26 @@ Future<int> _computePollInterval() async {
   );
 
   if (d > _approachingThresholdKm) return _farPollIntervalMs;
+
+  try {
+    pos = await Geolocator.getCurrentPosition(
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.medium,
+        timeLimit: Duration(seconds: 3),
+      ),
+    );
+  } catch (_) {}
+
+  if (pos != null && pos.speed < 2.0 && d <= _closeThresholdKm) {
+    return _trafficJamBackoffIntervalMs;
+  }
+
   if (d > _closeThresholdKm) return _approachingPollIntervalMs;
   return _closePollIntervalMs;
 }
 
 @pragma('vm:entry-point')
 void onStart(ServiceInstance service) async {
-  // Android foreground service notification (keeps the service alive even
-  // when the app is closed / screen is off).
   if (service is AndroidServiceInstance) {
     service.on('setAsForeground').listen((e) async {
       await service.setAsForegroundService();
@@ -127,27 +122,25 @@ void onStart(ServiceInstance service) async {
 
     await service.setAsForegroundService();
     service.setForegroundNotificationInfo(
-      title: 'YBS AI သတိပေး အလုပ်လုပ်နေသည်',
-      content: 'မှတ်တိုင်အနီးရောက်လျှင် နှင့် Admin သတင်းများ ရောက်လျှင် အလိုအလျောက် သတိပေးပါမည်',
+      title: 'YBS Guide သတိပေးချက် မောင်းနှင်နေသည်',
+      content: 'မှတ်တိုင်အနီးရောက်လျှင် အလိုအလျောက် အသံဖြင့် သတိပေးပါမည်။',
     );
   }
 
   final plugin = FlutterLocalNotificationsPlugin();
   final tts = FlutterTts();
+
   try {
-    // Explicitly use the launcher icon (the logo) as the default small icon.
     await plugin.initialize(const InitializationSettings(
       android: AndroidInitializationSettings('@mipmap/ic_launcher'),
     ));
   } catch (_) {}
+
   try {
     await tts.setLanguage('my-MM');
-    await tts.setSpeechRate(0.9);
+    await tts.setSpeechRate(0.85);
   } catch (_) {}
 
-  // Hold a partial wake lock (via the native channel) so the periodic timer
-  // keeps firing and the vibration / notification are actually delivered
-  // while the device is asleep (screen off or app closed).
   try {
     await _wakeLockChannel.invokeMethod('acquire');
   } catch (_) {}
@@ -155,10 +148,7 @@ void onStart(ServiceInstance service) async {
   Future<void> vibrateStrong() async {
     try {
       if (await Vibration.hasVibrator()) {
-        // Strong, repeating pattern so it's noticeable when not looking.
         Vibration.vibrate(pattern: _vibratePattern, repeat: -1);
-        // Keep re-triggering for devices that ignore `repeat`, so the alert
-        // doesn't stop after a single burst while the screen is off.
         for (int i = 0; i < 3; i++) {
           await Future.delayed(const Duration(milliseconds: 1400));
           if (await Vibration.hasVibrator()) {
@@ -171,39 +161,38 @@ void onStart(ServiceInstance service) async {
   }
 
   Future<void> fireAlert(String stopName, String detail) async {
-    // Wake the screen + turn it on (works even with screen off / app closed,
-    // in addition to the fullScreenIntent notification below).
     try {
       await _wakeLockChannel.invokeMethod('wakeScreen');
     } catch (_) {}
-    // Vibrate first (works even with screen off / app closed).
+
     vibrateStrong();
+
     try {
       await plugin.show(
         DateTime.now().millisecondsSinceEpoch ~/ 1000,
-        'YBS AI',
-        '$stopName မှတ်တိုင်အနီးရောက်ပါပြီ${detail.isNotEmpty ? '\n$detail' : ''}',
-        NotificationDetails(
+        'YBS Guide ရောက်ရှိခြင်း သတိပေးချက်',
+        '$stopName မှတ်တိုင်သို့ ရောက်ရှိရန် မီတာ ၂၀၀ သာ လိုပါတော့သည်။${detail.isNotEmpty ? '\n$detail' : ''}',
+        const NotificationDetails(
           android: AndroidNotificationDetails(
             'ybs_arrival',
             'Arrival Alerts',
             channelDescription: 'Notifies when approaching a bus stop',
             importance: Importance.max,
             priority: Priority.max,
-            // Wake the device + show over lock screen when screen is off.
             fullScreenIntent: true,
             category: AndroidNotificationCategory.alarm,
             visibility: NotificationVisibility.public,
           ),
-          iOS: const DarwinNotificationDetails(
+          iOS: DarwinNotificationDetails(
             presentAlert: true,
             presentSound: true,
           ),
         ),
       );
     } catch (_) {}
+
     try {
-      await tts.speak('$stopName မှတ်တိုင်အနီးရောက်ပါပြီ');
+      await tts.speak('$stopName မှတ်တိုင် အနီးသို့ ရောက်ရှိပါတော့မည်။ ဆင်းရန် ပြင်ဆင်ပါ။');
     } catch (_) {}
   }
 
@@ -213,7 +202,7 @@ void onStart(ServiceInstance service) async {
     try {
       await plugin.show(
         id > 0 ? id : DateTime.now().millisecondsSinceEpoch ~/ 1000,
-        'YBS AI',
+        'YBS သတင်းဦးရရှိသည်',
         message,
         const NotificationDetails(
           android: AndroidNotificationDetails(
@@ -233,15 +222,13 @@ void onStart(ServiceInstance service) async {
     } catch (_) {}
   }
 
-  // ---- Dynamic polling based on proximity to destination ----
-  // When far from the stop, poll less frequently to save battery.
-  // When approaching, poll more frequently for timely alerts.
   Timer? dynTimer;
+
   void schedulePoll() async {
     dynTimer?.cancel();
     final pollInterval = await _computePollInterval();
+
     dynTimer = Timer(Duration(milliseconds: pollInterval), () async {
-      // ---- (a) Admin notifications ----
       try {
         final latest = await _fetchLatestNotification();
         if (latest != null) {
@@ -254,13 +241,8 @@ void onStart(ServiceInstance service) async {
         }
       } catch (_) {}
 
-      // ---- (b) Arrival alert ----
       final alert = await LocalStore.instance.getBackgroundAlert();
-      if (alert == null) {
-        schedulePoll();
-        return;
-      }
-      if (alert['alerted'] == true) {
+      if (alert == null || alert['alerted'] == true) {
         schedulePoll();
         return;
       }
@@ -268,9 +250,9 @@ void onStart(ServiceInstance service) async {
       Position? pos;
       try {
         pos = await Geolocator.getCurrentPosition(
-          locationSettings: LocationSettings(
+          locationSettings: const LocationSettings(
             accuracy: LocationAccuracy.high,
-            timeLimit: const Duration(seconds: 10),
+            timeLimit: Duration(seconds: 8),
           ),
         );
       } catch (_) {
@@ -278,6 +260,7 @@ void onStart(ServiceInstance service) async {
           pos = await Geolocator.getLastKnownPosition();
         } catch (_) {}
       }
+
       if (pos == null) {
         schedulePoll();
         return;
@@ -290,6 +273,13 @@ void onStart(ServiceInstance service) async {
         (alert['lng'] as num).toDouble(),
       );
 
+      if (service is AndroidServiceInstance && await service.isForegroundService()) {
+        service.setForegroundNotificationInfo(
+          title: 'YBS Guide သတိပေးချက် မောင်းနှင်နေသည်',
+          content: 'ပန်းတိုင်မှတ်တိုင်သို့ ရောက်ရန် အကွာအဝေး - ${d.toStringAsFixed(2)} ကီလိုမီတာ',
+        );
+      }
+
       if (d <= _arrivalThresholdKm) {
         await fireAlert(
           alert['stopName'] as String,
@@ -297,6 +287,7 @@ void onStart(ServiceInstance service) async {
         );
         await LocalStore.instance.setBackgroundAlertFired(true);
       }
+
       schedulePoll();
     });
   }
@@ -304,28 +295,23 @@ void onStart(ServiceInstance service) async {
   schedulePoll();
 }
 
-/// Initializes the background service (configuration only; does not start it).
 Future<void> initBackgroundAlertService() async {
   final service = FlutterBackgroundService();
-
-  const androidChannel = AndroidNotificationChannel(
-    'ybs_bg',
-    'Background Service',
-    description: 'Keeps arrival alerts and admin notifications running in the background',
-    importance: Importance.low,
-  );
-
   final flutterLocalNotifications = FlutterLocalNotificationsPlugin();
-  await flutterLocalNotifications
-      .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>()
-      ?.createNotificationChannel(androidChannel);
 
-  // Arrival alert channel: must be MAX importance so fullScreenIntent can wake
-  // the device / show over the lock screen when the screen is off.
   await flutterLocalNotifications
-      .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>()
+      .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(
+        const AndroidNotificationChannel(
+          'ybs_bg',
+          'Background Service',
+          description: 'Keeps arrival alerts and admin notifications running in the background',
+          importance: Importance.high,
+        ),
+      );
+
+  await flutterLocalNotifications
+      .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
       ?.createNotificationChannel(
         const AndroidNotificationChannel(
           'ybs_arrival',
@@ -335,11 +321,8 @@ Future<void> initBackgroundAlertService() async {
         ),
       );
 
-  // Admin notification channel: HIGH importance so it shows even when the app
-  // is closed / never opened since boot.
   await flutterLocalNotifications
-      .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>()
+      .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
       ?.createNotificationChannel(
         const AndroidNotificationChannel(
           'ybs_admin',
@@ -356,7 +339,7 @@ Future<void> initBackgroundAlertService() async {
       autoStartOnBoot: true,
       isForegroundMode: true,
       notificationChannelId: 'ybs_bg',
-      initialNotificationTitle: 'YBS AI',
+      initialNotificationTitle: 'YBS Guide',
       initialNotificationContent: 'သတိပေး ဝန်ဆောင်မှု အလုပ်လုပ်နေသည်',
       foregroundServiceNotificationId: 888,
     ),
@@ -370,14 +353,10 @@ Future<void> initBackgroundAlertService() async {
 
 @pragma('vm:entry-point')
 Future<bool> onIosBackground(ServiceInstance service) async {
-  // iOS background execution; monitoring handled by the same onStart logic.
   onStart(service);
   return true;
 }
 
-/// Starts (or restarts) the background service with an active alert.
-/// If the service is already running, we simply persist the alert and signal
-/// the running instance to keep going — there is no need to restart it.
 Future<void> startBackgroundAlert({
   required String stopName,
   required double lat,
@@ -396,11 +375,6 @@ Future<void> startBackgroundAlert({
   }
 }
 
-/// Stops the background service and clears the persisted alert.
 Future<void> stopBackgroundAlert() async {
   await LocalStore.instance.clearBackgroundAlert();
-  // NOTE: We intentionally do NOT stop the whole service here, because it also
-  // delivers admin notifications. The arrival-alert loop simply no-ops once
-  // there is no active alert. To fully stop the service, use
-  // `FlutterBackgroundService().invoke('stopService')`.
 }

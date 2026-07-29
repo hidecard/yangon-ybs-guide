@@ -31,6 +31,7 @@ Offline-first Flutter app for navigating Yangon's bus network with Burmese-langu
 ### Settings & Utilities
 - **Data Sync** — Refresh route bundle from assets and rebuild SQLite cache
 - **Notification Setup** — Guided setup for background alert service and notification permissions
+- **TTS Troubleshooting** — Check and test Burmese text-to-speech availability; open system TTS settings
 - **Privacy & Feedback** — Privacy policy, feedback dialog, donation (KPay/Wave)
 - **About / What's New** — App info and changelog
 
@@ -47,7 +48,7 @@ Offline-first Flutter app for navigating Yangon's bus network with Burmese-langu
 | **Maps** | `flutter_map` + OpenStreetMap tiles (`latlong2`, `flutter_map_cancellable_location`) |
 | **Location** | `geolocator` (GPS, streaming positions, geocoding) |
 | **Notifications** | `flutter_local_notifications` (arrival + admin channels) |
-| **Background Service** | `flutter_background_service` with dynamic polling interval (10s near stop → 60s far away) for battery optimization |
+| **Background Service** | `flutter_background_service` with speed-based dynamic polling interval for battery optimization |
 | **Vibration / TTS** | `vibration`, `flutter_tts` (Burmese `my-MM` locale) |
 | **Device ID** | Random UUID per installation (SharedPreferences) |
 | **NLP** | Myanmar Soundex phonetic matching for fuzzy Burmese stop-name resolution |
@@ -112,9 +113,37 @@ Not production-grade encryption (key is in binary), but prevents casual APK extr
 **In-app:** `NotifyService.triggerArrival()` → vibration + system notification + Burmese TTS
 
 **Background (app closed/screen off):**
-- `flutter_background_service` polls GPS + server with dynamic interval (10s near stop → 60s far away) for battery optimization
+- `flutter_background_service` polls GPS + server with dynamic interval based on proximity and vehicle speed for battery optimization
 - Fires full-screen intent + vibration + TTS + screen wake lock
 - Native `MainActivity.kt` wake-lock channel via `MethodChannel`
+- Foreground notification displays live remaining distance to destination
+
+---
+
+## Recent Changes & Improvements
+
+### Background Alert Service — Speed-Based Dynamic Polling
+- Polling interval now considers both **proximity** and **vehicle speed**
+- When speed is below 2 m/s (stationary / traffic jam) and within close range (< 0.5 km), polling backs off to 30s to preserve battery
+- Foreground notification updates live with remaining distance to destination (km)
+- Burmese TTS speech rate tuned to 0.85 for clearer pronunciation; alert text optimized for user comprehension
+
+### Settings — System Links
+- "Setting ကိုဖွင့်မည်" button now opens the app's system settings page using the `package:` URI scheme with `app-settings:` fallback
+- Android manifest updated with `<queries>` for `package:`, `market:`, and `http(s)` schemes so external intents resolve correctly on Android 11+
+
+### TTS Troubleshooting
+- System TTS settings button opens Google TTS Play Store page directly (intent URI replaced with reliable Play Store link)
+- Ensures users can download/install Burmese language pack even when the system TTS settings intent cannot be resolved
+
+### YBS New Page
+- `DropdownButtonFormField` uses the correct `initialValue` API for route selection
+- Const-correctness fixed in widget trees to avoid compile errors from mixing const parents with dynamic children
+- Post-update sheet preserves existing AppState architecture (`state.routes`, `state.repo.routeById`)
+
+### Feedback
+- Backend endpoint verified: `POST /api/feedback` returns `200 OK` with `{"ok":true}`
+- Feedback dialog posts `type`, `message`, and optional `routeId` to the server
 
 ---
 
@@ -148,7 +177,7 @@ lib/
 
 ## Backend
 
-All API calls target **`https://ybs-mm-v2.vercel.app`**
+All API calls target **`https://ybs-ai.arkaryan.net/`**
 
 Endpoints consumed:
 - `/api/bus-updates` — CRUD for community bus updates
@@ -158,6 +187,7 @@ Endpoints consumed:
 - `/api/notifications` — Admin push-style notifications (polled)
 - `/api/leaderboard` — Register, submit update, rank, vote
 - `/api/rewards` — List + redemption
+- `/api/routes/delta` — Incremental route data updates
 
 No authentication layer; device ID serves as user identity.
 
@@ -168,8 +198,9 @@ No authentication layer; device ID serves as user identity.
 ```bash
 flutter pub get
 flutter run
-flutter build apk --release    # Android
-flutter build ios --release    # iOS
+flutter build apk --debug    # Android debug
+flutter build apk --release  # Android release
+flutter build ios --release  # iOS
 ```
 
 > Note: Background alert service requires Android foreground service + boot receiver permissions configured in `android/app/src/main/AndroidManifest.xml`.

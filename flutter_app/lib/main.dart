@@ -1,4 +1,7 @@
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'dart:io' show Platform;
 import 'package:provider/provider.dart';
 import 'config.dart';
 import 'state/app_state.dart';
@@ -30,10 +33,25 @@ Future<void> main() async {
     NotifyService.instance.init();
   } catch (_) {}
   try {
-    initBackgroundAlertService();
+    await NotifyService.instance.requestPermission();
+  } catch (_) {}
+  try {
+    await initBackgroundAlertService();
   } catch (_) {}
   try {
     await LiveActivityService.instance.init();
+  } catch (_) {}
+  try {
+    final bg = FlutterBackgroundService();
+    if (!await bg.isRunning()) {
+      await bg.startService();
+    }
+  } catch (_) {}
+  try {
+    if (Platform.isAndroid) {
+      const MethodChannel('net.arkaryan.ybs_guide/wakelock')
+          .invokeMethod('requestIgnoreBatteryOptimizations');
+    }
   } catch (_) {}
 }
 

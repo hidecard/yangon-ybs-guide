@@ -440,11 +440,16 @@ class _NotifSetupSection extends StatelessWidget {
               child: FilledButton.icon(
                 style: FilledButton.styleFrom(
                     backgroundColor: AppColors.slate700),
-                onPressed: () => launchUrl(
-                    Uri.parse('app-settings:'),
-                    mode: LaunchMode.externalApplication),
+                onPressed: () async {
+                  final uri = Uri.parse('package:net.arkaryan.ybs_guide');
+                  if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+                    await launchUrl(
+                        Uri.parse('app-settings:'),
+                        mode: LaunchMode.externalApplication);
+                  }
+                },
                 icon: const Icon(Icons.settings, size: 18),
-                label: const Text('Setting ကို ဖွင့်မည်'),
+                label: const Text('Setting ကိုဖွင့်မည်'),
               ),
             ),
           ],

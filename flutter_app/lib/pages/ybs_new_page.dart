@@ -29,15 +29,15 @@ class _YbsNewPageState extends State<YbsNewPage> {
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
+            children: [
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('YBS New',
+                    const Text('YBS New',
                         style: TextStyle(
                             fontSize: 20, fontWeight: FontWeight.bold)),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
                         'အသုံးပြုသူများမှ မျှဝေထားသော ကားလိုင်း အချက်အလက်များ',
                         style: TextStyle(

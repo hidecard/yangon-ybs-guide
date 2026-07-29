@@ -137,16 +137,13 @@ class NotifyService {
   /// Opens the system TTS settings so the user can enable Google TTS /
   /// install the Myanmar language pack if missing.
   Future<void> openSystemTtsSettings() async {
-    final androidTtsUri = Uri.parse(
-        'intent:#Intent;action=com.android.settings.TTS_SETTINGS;end');
-    if (await canLaunchUrl(androidTtsUri)) {
-      await launchUrl(androidTtsUri, mode: LaunchMode.externalApplication);
-      return;
-    }
     final playStoreUri = Uri.parse('market://details?id=com.google.android.tts');
     if (await canLaunchUrl(playStoreUri)) {
       await launchUrl(playStoreUri, mode: LaunchMode.externalApplication);
+      return;
     }
+    final webUri = Uri.parse('https://play.google.com/store/apps/details?id=com.google.android.tts');
+    await launchUrl(webUri, mode: LaunchMode.externalApplication);
   }
 
   /// Speaks a short test phrase so the user can verify TTS output right away.
