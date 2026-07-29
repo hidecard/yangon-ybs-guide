@@ -177,7 +177,7 @@ lib/
 
 ## Backend
 
-All API calls target **`https://ybs-ai.arkaryan.net/`**
+All API calls target **`https://ybs-ai.arkaryan.net`**
 
 Endpoints consumed:
 - `/api/bus-updates` — CRUD for community bus updates

@@ -208,6 +208,7 @@ class _PostUpdateSheetState extends State<_PostUpdateSheet> {
       type: _type,
       stop: _stop.text.trim().isEmpty ? null : _stop.text.trim(),
       note: _note.text.trim().isEmpty ? null : _note.text.trim(),
+      userId: deviceId,
     ));
     String? pointsMsg;
     if (updateId != null) {
