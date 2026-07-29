@@ -6,6 +6,7 @@ import '../config.dart';
 import '../state/app_state.dart';
 import '../theme.dart';
 import '../widgets/modals.dart';
+import '../services/notify_service.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -21,6 +22,12 @@ class SettingsPage extends StatelessWidget {
         'အကြောင်းကြားချက် ဆက်တင်',
         'App ပိတ်ထားသည့်တိုင် သတိပေးချက် ရောက်စေရန်',
         const _NotifSetupSection()),
+    _Section(
+        Icons.volume_up,
+        AppColors.emerald,
+        'အသံထွက်စနစ် ပြင်ဆင်ရန်',
+        'TTS အသံထွက်စနစ် စစ်ဆေးလိုက်ရန်',
+        const _TtsTroubleshootSection()),
     _Section(Icons.groups, AppColors.violet, 'အဖွဲ့အစည်း နှင့် စည်းကမ်းချက်များ',
         'ဖန်တီးသူများနှင့် အသုံးပြုမှု စည်းကမ်းများ', const _TeamConditionsSection()),
     _Section(Icons.info_outline, AppColors.primary, 'ဆော့ဝဲအကြောင်း',
@@ -930,23 +937,187 @@ class _LeaderboardGuideSection extends StatelessWidget {
                     height: 4,
                     decoration: BoxDecoration(
                       color: AppColors.slate400,
-                      shape: BoxShape.circle,
-                    ),
+                       shape: BoxShape.circle,
+                     ),
+                   ),
+                   Expanded(
+                     child: Text(
+                       item,
+                       style: const TextStyle(
+                         fontSize: 13,
+                         color: AppColors.textSecondary,
+                         height: 1.5,
+                       ),
+                     ),
+                   ),
+                 ],
+               ),
+             )),
+       ],
+     );
+   }
+ }
+
+// ---------------- TTS Troubleshooting ----------------
+class _TtsTroubleshootSection extends StatefulWidget {
+  const _TtsTroubleshootSection();
+  @override
+  State<_TtsTroubleshootSection> createState() =>
+      _TtsTroubleshootSectionState();
+}
+
+class _TtsTroubleshootSectionState extends State<_TtsTroubleshootSection> {
+  bool _ttsReady = false;
+  bool _checking = true;
+  bool _tested = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkTts();
+  }
+
+  Future<void> _checkTts() async {
+    setState(() {
+      _checking = true;
+      _tested = false;
+    });
+    final ready = await NotifyService.instance.checkBurmeseTtsAvailability();
+    if (!mounted) return;
+    setState(() {
+      _ttsReady = ready;
+      _checking = false;
+    });
+  }
+
+  Future<void> _speakTest() async {
+    setState(() => _tested = true);
+    await NotifyService.instance.speakTest();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SettingsSectionPage(
+      title: 'အသံထွက်စနစ် ပြင်ဆင်ရန်',
+      child: _card(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _cardHeader(
+                Icons.volume_up, AppColors.emerald,
+                'အသံဖြင့် အကြောင်းကြားချက်စနစ် (TTS)',
+                'ဖုန်းထဲမှာ မြန်မာအသံစနစ် ရှိလာသေးသလား စစ်ဆေးပါ'),
+            const SizedBox(height: 16),
+            if (_checking)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20),
+                  child: CircularProgressIndicator(),
+                ),
+              )
+            else
+              Column(
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        _ttsReady ? Icons.check_circle : Icons.error,
+                        color: _ttsReady ? Colors.green : Colors.orange,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          _ttsReady
+                              ? 'မြန်မာအသံစနစ် (my-MM) အသင့်ရှိနေပါပြီ။'
+                              : 'ဖုန်းထဲတွင် မြန်မာအသံ (Google TTS) မရှိသေးပါ။',
+                          style: const TextStyle(fontSize: 13),
+                        ),
+                      ),
+                    ],
                   ),
-                  Expanded(
-                    child: Text(
-                      item,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: AppColors.textSecondary,
-                        height: 1.5,
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      ElevatedButton.icon(
+                        icon: const Icon(Icons.volume_up),
+                        label: const Text('အသံစမ်းရန်'),
+                        onPressed: _ttsReady ? _speakTest : null,
+                      ),
+                      OutlinedButton.icon(
+                        icon: const Icon(Icons.settings),
+                        label: const Text('ပြင်ဆင်ရန် သွားမည်'),
+                        onPressed: NotifyService.instance.openSystemTtsSettings,
+                      ),
+                    ],
+                  ),
+                  if (!_ttsReady) ...[
+                    const SizedBox(height: 14),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.amberLight,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.amber),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.info_outline,
+                              color: AppColors.amber, size: 16),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              '* ပြင်ဆင်ရန်သွားမည်ကို နှိပ်ပြီး Preferred Engine တွင် Speech Services by Google ကိုရွေးချယ်ကာ Language တွင် မြန်မာ (မြန်မာ) ကို ဒေါင်းလုဒ်လုပ်ပေးပါ။',
+                              style: TextStyle(
+                                  color: AppColors.slate700, fontSize: 11),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
+                  ],
+                  if (_tested) ...[
+                    const SizedBox(height: 10),
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color:
+                            _ttsReady ? AppColors.emeraldLight : Colors.red[50],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            _ttsReady ? Icons.check : Icons.volume_off,
+                            color: _ttsReady ? AppColors.emerald : Colors.red,
+                            size: 16,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            _ttsReady
+                                ? 'အသံစမ်းခြင်း အေးချမ်းစွာ အလုပ်လုပ်နေပါသည်။'
+                                : 'အသံစမ်းခြင်း မအေးချမ်းနိုင်ပါ။ ဖုန်း TTS ပြင်ဆင်မှုကို စစ်ဆေးပါ။',
+                            style: TextStyle(
+                                fontSize: 12,
+                                color: _ttsReady
+                                    ? AppColors.emeraldDark
+                                    : Colors.red),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ],
               ),
-            )),
-      ],
+            const SizedBox(height: 10),
+            TextButton.icon(
+              onPressed: _checkTts,
+              icon: const Icon(Icons.refresh, size: 16),
+              label: const Text('စစ်ဆေးရန်'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

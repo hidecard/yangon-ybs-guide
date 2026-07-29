@@ -1,5 +1,6 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:vibration/vibration.dart';
 import 'api_service.dart';
 
@@ -116,6 +117,46 @@ class NotifyService {
           iOS: DarwinNotificationDetails(),
         ),
       );
+    } catch (_) {}
+  }
+
+  /// Checks whether Burmese TTS (my-MM) is available on this device.
+  Future<bool> checkBurmeseTtsAvailability() async {
+    try {
+      final languages = await _tts.getLanguages;
+      if (languages.contains('my-MM') || languages.contains('my_MM')) {
+        return true;
+      }
+      final supported = await _tts.isLanguageAvailable('my-MM');
+      return supported;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Opens the system TTS settings so the user can enable Google TTS /
+  /// install the Myanmar language pack if missing.
+  Future<void> openSystemTtsSettings() async {
+    final androidTtsUri = Uri.parse(
+        'intent:#Intent;action=com.android.settings.TTS_SETTINGS;end');
+    if (await canLaunchUrl(androidTtsUri)) {
+      await launchUrl(androidTtsUri, mode: LaunchMode.externalApplication);
+      return;
+    }
+    final playStoreUri = Uri.parse('market://details?id=com.google.android.tts');
+    if (await canLaunchUrl(playStoreUri)) {
+      await launchUrl(playStoreUri, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  /// Speaks a short test phrase so the user can verify TTS output right away.
+  Future<void> speakTest() async {
+    await init();
+    try {
+      await _tts.setLanguage('my-MM');
+      await _tts.setSpeechRate(0.5);
+      await _tts.speak(
+          'ဝိုင် ဘီ အက်စ် လမ်းညွှန်မှ ကြိုဆိုပါသည်။ အသံစနစ် ကောင်းမွန်စွာ အလုပ်လုပ်နေပါသည်။');
     } catch (_) {}
   }
 }

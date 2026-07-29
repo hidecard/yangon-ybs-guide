@@ -30,11 +30,6 @@ Future<void> _releaseWakeLock() async {
 /// Threshold (km) at which the background service fires the arrival alert.
 const _arrivalThresholdKm = 0.2;
 
-/// How often the background service polls the server for admin notifications
-/// and for the current GPS position (used for arrival alerts). Kept modest so
-/// it works without draining the battery noticeably.
-const _pollInterval = Duration(seconds: 30);
-
 double _haversineKm(double lat1, double lon1, double lat2, double lon2) {
   const R = 6371.0;
   final dLat = (lat2 - lat1) * math.pi / 180;
@@ -61,6 +56,57 @@ Future<Map<String, dynamic>?> _fetchLatestNotification() async {
   } catch (_) {
     return null;
   }
+}
+
+/// Polling interval (ms) when no arrival alert is active (admin notifications only).
+const _idlePollIntervalMs = 60000;
+
+/// Polling interval (ms) when the bus stop is far away (> 2 km).
+const _farPollIntervalMs = 60000;
+
+/// Polling interval (ms) when the bus stop is moderately approaching (0.5–2 km).
+const _approachingPollIntervalMs = 30000;
+
+/// Polling interval (ms) when the bus stop is very close (< 0.5 km).
+const _closePollIntervalMs = 10000;
+
+/// Distance threshold (km) at which polling switches from far to approaching.
+const _approachingThresholdKm = 2.0;
+
+/// Distance threshold (km) at which polling switches from approaching to close.
+const _closeThresholdKm = 0.5;
+
+Future<int> _computePollInterval() async {
+  final alert = await LocalStore.instance.getBackgroundAlert();
+  if (alert == null) return _idlePollIntervalMs;
+  if (alert['alerted'] == true) return _idlePollIntervalMs;
+
+  Position? pos;
+  try {
+    pos = await Geolocator.getCurrentPosition(
+      locationSettings: LocationSettings(
+        accuracy: LocationAccuracy.low,
+        timeLimit: const Duration(seconds: 5),
+      ),
+    );
+  } catch (_) {
+    try {
+      pos = await Geolocator.getLastKnownPosition();
+    } catch (_) {}
+  }
+
+  if (pos == null) return _farPollIntervalMs;
+
+  final d = _haversineKm(
+    pos.latitude,
+    pos.longitude,
+    (alert['lat'] as num).toDouble(),
+    (alert['lng'] as num).toDouble(),
+  );
+
+  if (d > _approachingThresholdKm) return _farPollIntervalMs;
+  if (d > _closeThresholdKm) return _approachingPollIntervalMs;
+  return _closePollIntervalMs;
 }
 
 @pragma('vm:entry-point')
@@ -187,60 +233,75 @@ void onStart(ServiceInstance service) async {
     } catch (_) {}
   }
 
-  // Poll loop runs for the whole lifetime of the service (both app-open and
-  // app-closed). It checks (a) new admin notifications and (b) the active
-  // arrival alert's GPS distance.
-  Timer.periodic(_pollInterval, (timer) async {
-    // ---- (a) Admin notifications ----
-    try {
-      final latest = await _fetchLatestNotification();
-      if (latest != null) {
-        final id = (latest['id'] as num?)?.toInt() ?? 0;
-        final lastSeen = await LocalStore.instance.lastSeenNotification();
-        if (id != lastSeen) {
-          await LocalStore.instance.setLastSeenNotification(id);
-          await fireAdminNotification(latest);
-        }
-      }
-    } catch (_) {}
-
-    // ---- (b) Arrival alert (only if a stop alert is active) ----
-    final alert = await LocalStore.instance.getBackgroundAlert();
-    if (alert == null) return; // No active stop alert -> keep polling admin only.
-
-    // Already fired once -> keep monitoring but don't re-alert.
-    if (alert['alerted'] == true) return;
-
-    Position? pos;
-    try {
-      pos = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-          timeLimit: Duration(seconds: 10),
-        ),
-      );
-    } catch (_) {
+  // ---- Dynamic polling based on proximity to destination ----
+  // When far from the stop, poll less frequently to save battery.
+  // When approaching, poll more frequently for timely alerts.
+  Timer? dynTimer;
+  void schedulePoll() async {
+    dynTimer?.cancel();
+    final pollInterval = await _computePollInterval();
+    dynTimer = Timer(Duration(milliseconds: pollInterval), () async {
+      // ---- (a) Admin notifications ----
       try {
-        pos = await Geolocator.getLastKnownPosition();
+        final latest = await _fetchLatestNotification();
+        if (latest != null) {
+          final id = (latest['id'] as num?)?.toInt() ?? 0;
+          final lastSeen = await LocalStore.instance.lastSeenNotification();
+          if (id != lastSeen) {
+            await LocalStore.instance.setLastSeenNotification(id);
+            await fireAdminNotification(latest);
+          }
+        }
       } catch (_) {}
-    }
-    if (pos == null) return;
 
-    final d = _haversineKm(
-      pos.latitude,
-      pos.longitude,
-      (alert['lat'] as num).toDouble(),
-      (alert['lng'] as num).toDouble(),
-    );
+      // ---- (b) Arrival alert ----
+      final alert = await LocalStore.instance.getBackgroundAlert();
+      if (alert == null) {
+        schedulePoll();
+        return;
+      }
+      if (alert['alerted'] == true) {
+        schedulePoll();
+        return;
+      }
 
-    if (d <= _arrivalThresholdKm) {
-      await fireAlert(
-        alert['stopName'] as String,
-        (alert['detail'] as String?) ?? '',
+      Position? pos;
+      try {
+        pos = await Geolocator.getCurrentPosition(
+          locationSettings: LocationSettings(
+            accuracy: LocationAccuracy.high,
+            timeLimit: const Duration(seconds: 10),
+          ),
+        );
+      } catch (_) {
+        try {
+          pos = await Geolocator.getLastKnownPosition();
+        } catch (_) {}
+      }
+      if (pos == null) {
+        schedulePoll();
+        return;
+      }
+
+      final d = _haversineKm(
+        pos.latitude,
+        pos.longitude,
+        (alert['lat'] as num).toDouble(),
+        (alert['lng'] as num).toDouble(),
       );
-      await LocalStore.instance.setBackgroundAlertFired(true);
-    }
-  });
+
+      if (d <= _arrivalThresholdKm) {
+        await fireAlert(
+          alert['stopName'] as String,
+          (alert['detail'] as String?) ?? '',
+        );
+        await LocalStore.instance.setBackgroundAlertFired(true);
+      }
+      schedulePoll();
+    });
+  }
+
+  schedulePoll();
 }
 
 /// Initializes the background service (configuration only; does not start it).

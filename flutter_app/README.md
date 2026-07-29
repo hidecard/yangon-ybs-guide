@@ -43,13 +43,14 @@ Offline-first Flutter app for navigating Yangon's bus network with Burmese-langu
 | **Framework** | Flutter 3.x, Dart 3.12+, Material 3 |
 | **State Management** | `provider` (`ChangeNotifier`) |
 | **Networking** | `http` (REST client → Vercel backend) |
-| **Offline Data** | Encrypted `assets/routes.bin` → `SharedPreferences` cache → `sqflite` SQLite |
+| **Offline Data** | Encrypted `assets/routes.bin` → `SharedPreferences` cache → `sqflite` SQLite with FTS5 full-text search on stops and routes |
 | **Maps** | `flutter_map` + OpenStreetMap tiles (`latlong2`, `flutter_map_cancellable_location`) |
 | **Location** | `geolocator` (GPS, streaming positions, geocoding) |
 | **Notifications** | `flutter_local_notifications` (arrival + admin channels) |
-| **Background Service** | `flutter_background_service` + `flutter_background_service_android` (foreground service, boot receiver) |
+| **Background Service** | `flutter_background_service` with dynamic polling interval (10s near stop → 60s far away) for battery optimization |
 | **Vibration / TTS** | `vibration`, `flutter_tts` (Burmese `my-MM` locale) |
-| **Device ID** | `device_info_plus` (Android ID / iOS identifierForVendor + fallback) |
+| **Device ID** | Random UUID per installation (SharedPreferences) |
+| **NLP** | Myanmar Soundex phonetic matching for fuzzy Burmese stop-name resolution |
 | **Web Support** | Conditional `dart:html` import for same-origin CORS workaround |
 
 ---
@@ -94,7 +95,7 @@ App Boot
 
 1. **SQLite direct-route JOIN** — Correct forward direction by township group + `stop_order`. Handles same-name stops across townships.
 2. **In-memory BFS planner** — Max 2 transfers, sorts by transfer count then distance when no direct route exists.
-3. **Local NLP** — `extractStopsFromText()` extracts start/end from Burmese text; `resolveStopName()` fuzzy-resolves via Levenshtein.
+3. **Local NLP** — `extractStopsFromText()` extracts start/end from Burmese text; `resolveStopName()` fuzzy-resolves via Levenshtein + Myanmar Soundex phonetic matching for dialect/variant names.
 4. **Disambiguation** — Duplicate stop names get `"road · township"` suffix.
 
 ### Encrypted Route Bundle
@@ -111,7 +112,7 @@ Not production-grade encryption (key is in binary), but prevents casual APK extr
 **In-app:** `NotifyService.triggerArrival()` → vibration + system notification + Burmese TTS
 
 **Background (app closed/screen off):**
-- `flutter_background_service` polls GPS + server every 30s
+- `flutter_background_service` polls GPS + server with dynamic interval (10s near stop → 60s far away) for battery optimization
 - Fires full-screen intent + vibration + TTS + screen wake lock
 - Native `MainActivity.kt` wake-lock channel via `MethodChannel`
 
@@ -127,13 +128,13 @@ lib/
 ├── theme.dart             # AppTheme + Material 3 light theme
 ├── data/
 │   ├── data_repository.dart   # Bundle loading, caching, SQLite init
-│   ├── route_finder.dart      # BFS planner, NLP, disambiguation, fuzzy matching
+│   ├── route_finder.dart       # BFS planner, NLP, disambiguation, fuzzy + Soundex matching
 │   ├── routes_crypto.dart     # XOR obfuscation key
 │   └── sqlite_routes.dart     # SQLite JOIN queries for offline search
 ├── services/
 │   ├── api_service.dart           # REST client (bus updates, predictions, feedback, leaderboard, rewards)
 │   ├── background_alert_service.dart  # Foreground service for arrival alerts + admin polling
-│   ├── device_service.dart        # Device ID via device_info_plus
+│   ├── device_service.dart        # Random UUID device ID via SharedPreferences
 │   ├── local_store.dart           # SharedPreferences (favorites, trips, notifications)
 │   ├── location_service.dart      # Geolocator wrapper
 │   └── notify_service.dart        # Local notifications + Burmese TTS

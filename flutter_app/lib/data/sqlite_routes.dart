@@ -59,6 +59,37 @@ class SqliteRoutes {
       )
     ''');
     await db.execute('''
+      CREATE VIRTUAL TABLE IF NOT EXISTS routes_fts USING fts5(
+        route_id UNINDEXED,
+        bus_line,
+        agency,
+        line_name,
+        qr_payment,
+        content=routes,
+        content_rowid=rowid
+      )
+    ''');
+    await db.execute('''
+      CREATE TRIGGER IF NOT EXISTS routes_ai AFTER INSERT ON routes BEGIN
+        INSERT INTO routes_fts(rowid, route_id, bus_line, agency, line_name, qr_payment)
+        VALUES (new.rowid, new.route_id, new.bus_line, new.agency, new.line_name, new.qr_payment);
+      END
+    ''');
+    await db.execute('''
+      CREATE TRIGGER IF NOT EXISTS routes_ad AFTER DELETE ON routes BEGIN
+        INSERT INTO routes_fts(routes_fts, rowid, route_id, bus_line, agency, line_name, qr_payment)
+        VALUES ('delete', old.rowid, old.route_id, old.bus_line, old.agency, old.line_name, old.qr_payment);
+      END
+    ''');
+    await db.execute('''
+      CREATE TRIGGER IF NOT EXISTS routes_au AFTER UPDATE ON routes BEGIN
+        INSERT INTO routes_fts(routes_fts, rowid, route_id, bus_line, agency, line_name, qr_payment)
+        VALUES ('delete', old.rowid, old.route_id, old.bus_line, old.agency, old.line_name, old.qr_payment);
+        INSERT INTO routes_fts(rowid, route_id, bus_line, agency, line_name, qr_payment)
+        VALUES (new.rowid, new.route_id, new.bus_line, new.agency, new.line_name, new.qr_payment);
+      END
+    ''');
+    await db.execute('''
       CREATE TABLE IF NOT EXISTS stop_groups (
         group_id INTEGER PRIMARY KEY AUTOINCREMENT,
         group_name_mm TEXT NOT NULL,
@@ -77,6 +108,38 @@ class SqliteRoutes {
         longitude REAL NOT NULL,
         FOREIGN KEY (group_id) REFERENCES stop_groups(group_id) ON DELETE SET NULL
       )
+    ''');
+    await db.execute('''
+      CREATE VIRTUAL TABLE IF NOT EXISTS bus_stops_fts USING fts5(
+        stop_id UNINDEXED,
+        group_id UNINDEXED,
+        stop_name_en,
+        stop_name_mm,
+        road,
+        township,
+        content=bus_stops,
+        content_rowid=rowid
+      )
+    ''');
+    await db.execute('''
+      CREATE TRIGGER IF NOT EXISTS bus_stops_ai AFTER INSERT ON bus_stops BEGIN
+        INSERT INTO bus_stops_fts(rowid, stop_id, group_id, stop_name_en, stop_name_mm, road, township)
+        VALUES (new.rowid, new.stop_id, new.group_id, new.stop_name_en, new.stop_name_mm, new.road, new.township);
+      END
+    ''');
+    await db.execute('''
+      CREATE TRIGGER IF NOT EXISTS bus_stops_ad AFTER DELETE ON bus_stops BEGIN
+        INSERT INTO bus_stops_fts(bus_stops_fts, rowid, stop_id, group_id, stop_name_en, stop_name_mm, road, township)
+        VALUES ('delete', old.rowid, old.stop_id, old.group_id, old.stop_name_en, old.stop_name_mm, old.road, old.township);
+      END
+    ''');
+    await db.execute('''
+      CREATE TRIGGER IF NOT EXISTS bus_stops_au AFTER UPDATE ON bus_stops BEGIN
+        INSERT INTO bus_stops_fts(bus_stops_fts, rowid, stop_id, group_id, stop_name_en, stop_name_mm, road, township)
+        VALUES ('delete', old.rowid, old.stop_id, old.group_id, old.stop_name_en, old.stop_name_mm, old.road, old.township);
+        INSERT INTO bus_stops_fts(rowid, stop_id, group_id, stop_name_en, stop_name_mm, road, township)
+        VALUES (new.rowid, new.stop_id, new.group_id, new.stop_name_en, new.stop_name_mm, new.road, new.township);
+      END
     ''');
     await db.execute('''
       CREATE TABLE IF NOT EXISTS route_stops (
@@ -246,8 +309,80 @@ class SqliteRoutes {
     }
   }
 
-  Future<void> close() async {
-    await _db?.close();
-    _db = null;
+  /// Full-text search on stop names using FTS5.
+  ///
+  /// Returns matching stops ranked by FTS5 relevance (bm25).
+  /// Supports both Burmese and English stop names.
+  Future<List<Map<String, dynamic>>> searchStopsFTS({
+    required String query,
+    int limit = 20,
+  }) async {
+    final db = _db;
+    if (db == null) return const [];
+    try {
+      final q = query.trim().replaceAll("'", "''");
+      if (q.isEmpty) return const [];
+      final rows = await db.rawQuery(
+        '''
+        SELECT b.stop_id, b.stop_name_mm, b.stop_name_en, b.road, b.township,
+               b.latitude, b.longitude, b.group_id,
+               bm25(bus_stops_fts, 10.0, 10.0, 1.0, 1.0) as score
+        FROM bus_stops_fts
+        JOIN bus_stops b ON bus_stops_fts.stop_id = b.stop_id
+        WHERE bus_stops_fts MATCH ?
+        ORDER BY score ASC
+        LIMIT ?
+        ''',
+        ['$q*', limit],
+      );
+      return rows.map((r) => {
+            'stop_id': r['stop_id'] as int,
+            'stop_name_mm': r['stop_name_mm'] as String?,
+            'stop_name_en': r['stop_name_en'] as String?,
+            'road': r['road'] as String?,
+            'township': r['township'] as String?,
+            'latitude': r['latitude'] as double?,
+            'longitude': r['longitude'] as double?,
+            'group_id': r['group_id'] as int?,
+            'score': (r['score'] as num?)?.toDouble() ?? 0.0,
+          }).toList();
+    } catch (_) {
+      return const [];
+    }
+  }
+
+  /// Full-text search on route names using FTS5.
+  Future<List<Map<String, dynamic>>> searchRoutesFTS({
+    required String query,
+    int limit = 20,
+  }) async {
+    final db = _db;
+    if (db == null) return const [];
+    try {
+      final q = query.trim().replaceAll("'", "''");
+      if (q.isEmpty) return const [];
+      final rows = await db.rawQuery(
+        '''
+        SELECT r.route_id, r.bus_line, r.agency, r.line_name, r.qr_payment,
+               bm25(routes_fts, 10.0, 10.0, 1.0, 1.0, 1.0) as score
+        FROM routes_fts
+        JOIN routes r ON routes_fts.route_id = r.route_id
+        WHERE routes_fts MATCH ?
+        ORDER BY score ASC
+        LIMIT ?
+        ''',
+        ['$q*', limit],
+      );
+      return rows.map((r) => {
+            'route_id': r['route_id'] as String,
+            'bus_line': r['bus_line'] as String,
+            'agency': r['agency'] as String?,
+            'line_name': r['line_name'] as String?,
+            'qr_payment': r['qr_payment'] as String?,
+            'score': (r['score'] as num?)?.toDouble() ?? 0.0,
+          }).toList();
+    } catch (_) {
+      return const [];
+    }
   }
 }

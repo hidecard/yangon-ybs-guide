@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import '../models.dart';
+import 'myanmar_soundex.dart';
 
 double getDistance(double lat1, double lon1, double lat2, double lon2) {
   const R = 6371.0;
@@ -331,7 +332,26 @@ String? resolveStopName(String query, List<String> allStopNames) {
       fuzzy = name;
     }
   }
-  return fuzzyDist <= threshold ? fuzzy : null;
+  if (fuzzyDist <= threshold) return fuzzy;
+
+  // 5) Myanmar phonetic (Soundex) matching for dialect/variant names.
+  final queryPhonetic = myanmarSoundex(q);
+  if (queryPhonetic.isNotEmpty) {
+    String? phoneticMatch;
+    int phoneticDist = threshold + 1;
+    for (final name in allStopNames) {
+      final namePhonetic = myanmarSoundex(name);
+      if (namePhonetic.isEmpty) continue;
+      final d = _levenshtein(queryPhonetic, namePhonetic);
+      if (d < phoneticDist) {
+        phoneticDist = d;
+        phoneticMatch = name;
+      }
+    }
+    if (phoneticDist <= threshold) return phoneticMatch;
+  }
+
+  return null;
 }
 
 String timeAgo(int? ms) {
