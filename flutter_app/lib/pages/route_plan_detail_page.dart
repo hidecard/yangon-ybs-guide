@@ -658,6 +658,8 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
               const SizedBox(width: 8),
               if (st.route.lineName != null)
                 Text('(${st.route.lineName})',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                         fontSize: 12, fontWeight: FontWeight.w500)),
               const Spacer(),
@@ -684,22 +686,28 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                        isLastStep
-                            ? 'မိမိစီးရမည့်နေရာ (သင့်တည်နေရာ)'
-                            : 'စီးရမည့်မှတ်တိုင်',
-                        style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.emeraldDark)),
-                    Text(fromLabel,
-                        style: const TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.w600)),
-                    if (fromStop != null)
-                      Text(
-                          _stopSubtitle(fromStop),
-                          style: const TextStyle(
-                              fontSize: 11, color: AppColors.slate400)),
+                     Text(
+                         isLastStep
+                             ? 'မိမိစီးရမည့်နေရာ (သင့်တည်နေရာ)'
+                             : 'စီးရမည့်မှတ်တိုင်',
+                         maxLines: 1,
+                         overflow: TextOverflow.ellipsis,
+                         style: const TextStyle(
+                             fontSize: 11,
+                             fontWeight: FontWeight.bold,
+                             color: AppColors.emeraldDark)),
+                     Text(fromLabel,
+                         maxLines: 1,
+                         overflow: TextOverflow.ellipsis,
+                         style: const TextStyle(
+                             fontSize: 14, fontWeight: FontWeight.w600)),
+                     if (fromStop != null)
+                       Text(
+                           _stopSubtitle(fromStop),
+                           maxLines: 1,
+                           overflow: TextOverflow.ellipsis,
+                           style: const TextStyle(
+                               fontSize: 11, color: AppColors.slate400)),
                   ],
                 ),
               ),
@@ -720,19 +728,23 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('မိမိဆင်းရမည့်နေရာ',
-                        style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.rose)),
-                    Text(toLabel,
-                        style: const TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.w600)),
-                    if (toStop != null)
-                      Text(
-                          _stopSubtitle(toStop),
-                          style: const TextStyle(
-                              fontSize: 11, color: AppColors.slate400)),
+                     const Text('မိမိဆင်းရမည့်နေရာ',
+                         style: TextStyle(
+                             fontSize: 11,
+                             fontWeight: FontWeight.bold,
+                             color: AppColors.rose)),
+                     Text(toLabel,
+                         maxLines: 1,
+                         overflow: TextOverflow.ellipsis,
+                         style: const TextStyle(
+                             fontSize: 14, fontWeight: FontWeight.w600)),
+                     if (toStop != null)
+                       Text(
+                           _stopSubtitle(toStop),
+                           maxLines: 1,
+                           overflow: TextOverflow.ellipsis,
+                           style: const TextStyle(
+                               fontSize: 11, color: AppColors.slate400)),
                   ],
                 ),
               ),
@@ -871,11 +883,12 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
         foregroundColor: isArrivalOn ? Colors.white : AppColors.slate700,
         side: BorderSide(
             color: isArrivalOn ? AppColors.amber : AppColors.slate200),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        visualDensity: VisualDensity.compact,
       ),
       icon: Icon(isArrivalOn ? Icons.notifications_active : Icons.notifications_none,
           size: 14),
-       label: Text(isArrivalOn ? 'ရောက်ခါနီး သတိပေးချက်: ဖွင့်' : 'ရောက်ခါနီး သတိပေးချက်',
+       label: Text(isArrivalOn ? 'သတိပေးချက်: ဖွင့်' : 'သတိပေးချက်',
           style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
     );
   }

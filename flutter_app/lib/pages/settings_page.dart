@@ -796,14 +796,18 @@ class _DonationSection extends StatelessWidget {
               ],
             ),
           ),
-          IconButton(
-            onPressed: () {
-              Clipboard.setData(ClipboardData(text: number));
-              ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('ကူးယူပြီးပါပြီ')));
-            },
-            icon: const Icon(Icons.copy, color: AppColors.slate400, size: 18),
-          ),
+           InkWell(
+             onTap: () {
+               Clipboard.setData(ClipboardData(text: number));
+               ScaffoldMessenger.of(context).showSnackBar(
+                   const SnackBar(content: Text('ကူ်းယူပြီးပါပြီ')));
+             },
+             borderRadius: BorderRadius.circular(12),
+             child: const Padding(
+               padding: EdgeInsets.all(4),
+               child: Icon(Icons.copy, color: AppColors.slate400, size: 18),
+             ),
+           ),
         ],
       ),
     );

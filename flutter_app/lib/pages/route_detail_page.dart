@@ -16,7 +16,7 @@ import '../theme.dart';
 import '../util/nav.dart';
 import '../widgets/modals.dart';
 import '../widgets/osm_map.dart';
-import '../widgets/route_badge.dart';
+import '../widgets/ybs_widgets.dart';
 
 class RouteDetailPage extends StatefulWidget {
   final BusRoute route;
@@ -489,6 +489,9 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
                   _predictionsBox(),
                 if (_busEta.isNotEmpty || _busEtaMsg != null) _busEtaBox(),
                 const SizedBox(height: 8),
+                if (_tracking && _livePos != null && _stops.isNotEmpty)
+                  _journeyProgress(active),
+                const SizedBox(height: 8),
                 Text('မှတ်တိုင်များ (${uniqueStops.length})', style: UI.label),
                 const SizedBox(height: 8),
                 ...uniqueStops.asMap().entries.map((e) => _stopTile(e.key, e.value, active, uniqueStops.length)),
@@ -664,6 +667,31 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
     );
   }
 
+  Widget _journeyProgress(int active) {
+    final total = _stops.length;
+    final current = active >= 0 ? active : 0;
+    final progress = total > 1 ? current / (total - 1) : 0.0;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('စတင်ခြင်း → လက်ရှိ တန်းစာ',
+                style: const TextStyle(fontSize: 12, color: AppColors.slate500)),
+            Text('$current / $total မှတ်တိုင်များ',
+                style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.brandHover)),
+          ],
+        ),
+        const SizedBox(height: 8),
+        RouteProgressLine(progress: progress, height: 6),
+      ],
+    );
+  }
+
   Widget _stopTile(int idx, BusStop s, int active, int total) {
     final isFirst = idx == 0;
     final isLast = idx == total - 1;
@@ -690,9 +718,13 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
                   fontSize: 12,
                   fontWeight: FontWeight.w600)),
         ),
-        title: Text(s.nameMm,
+         title: Text(s.nameMm,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-        subtitle: Text('${s.roadMm}လမ်း၊ ${s.townshipMm}မြို့နယ်',
+         subtitle: Text('${s.roadMm}လမ်း၊ ${s.townshipMm}မြို့နယ်',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(fontSize: 12, color: AppColors.slate500)),
         trailing: _stopTrailing(isActive, isFirst, isLast),
       ),

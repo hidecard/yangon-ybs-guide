@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../config.dart';
+import '../design_system.dart';
 import '../data/route_finder.dart';
 import '../models.dart';
 import '../services/local_store.dart';
 import '../services/location_service.dart';
 import '../state/app_state.dart';
 import '../util/nav.dart';
+import '../widgets/ybs_widgets.dart';
 
 class AssistantPage extends StatefulWidget {
   const AssistantPage({super.key});
@@ -206,93 +208,84 @@ class _AssistantPageState extends State<AssistantPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(12),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.borderLight),
-        ),
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView.builder(
-                controller: _scroll,
-                padding: const EdgeInsets.all(16),
-                itemCount: _messages.length + (_loading ? 1 : 0),
-                itemBuilder: (_, i) {
-                  if (i >= _messages.length) {
-                    return const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Padding(
-                        padding: EdgeInsets.all(8),
-                        child: SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2)),
-                      ),
-                    );
-                  }
-                  return _bubble(_messages[i]);
-                },
-              ),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? YBSDesignSystem.darkSurface : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              controller: _scroll,
+              padding: const EdgeInsets.all(16),
+              itemCount: _messages.length + (_loading ? 1 : 0),
+              itemBuilder: (_, i) {
+                if (i >= _messages.length) {
+                  return const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: EdgeInsets.all(8),
+                      child: SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2)),
+                    ),
+                  );
+                }
+                return _bubble(_messages[i], isDark: isDark);
+              },
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              child: SizedBox(
-                height: 40,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: _suggestions.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 8),
-                  itemBuilder: (_, i) => ActionChip(
-                    label: Text(_suggestions[i],
-                        style: const TextStyle(fontSize: 12)),
-                    backgroundColor: AppColors.brandLight,
-                    labelStyle: const TextStyle(color: AppColors.brandHover),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    onPressed: () => _send(_suggestions[i]),
+          ),
+          // Quick Query Floating Chips
+          if (_suggestions.isNotEmpty)
+            QuickQueryChips(
+              chips: _suggestions,
+              isDark: isDark,
+              onChipTap: _send,
+            ),
+          const SizedBox(height: 4),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: isDark ? YBSDesignSystem.darkSurface : AppColors.bg,
+              border: Border(
+                  top: BorderSide(
+                      color: isDark
+                          ? YBSDesignSystem.darkBorder
+                          : AppColors.borderLight)),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _controller,
+                    onSubmitted: (_) => _send(),
+                    decoration: InputDecoration(
+                        hintText: 'မေးမြန်းလိုသည်များကို ရိုက်ထည့်ပါ...'),
                   ),
                 ),
-              ),
+                const SizedBox(width: 8),
+                FilledButton(
+                  style: FilledButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      padding: const EdgeInsets.all(14),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12))),
+                  onPressed: _send,
+                  child: const Icon(Icons.send, size: 18),
+                ),
+              ],
             ),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: const BoxDecoration(
-                color: AppColors.bg,
-                border: Border(top: BorderSide(color: AppColors.borderLight)),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _controller,
-                      onSubmitted: (_) => _send(),
-                      decoration: const InputDecoration(
-                          hintText: 'မေးမြန်းလိုသည်များကို ရိုက်ထည့်ပါ...'),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  FilledButton(
-                    style: FilledButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        padding: const EdgeInsets.all(14),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12))),
-                    onPressed: _send,
-                    child: const Icon(Icons.send, size: 18),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _bubble(ChatMessage m) {
+  Widget _bubble(ChatMessage m, {bool isDark = false}) {
     final isUser = m.role == 'user';
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
@@ -302,13 +295,14 @@ class _AssistantPageState extends State<AssistantPage> {
         constraints: BoxConstraints(
             maxWidth: MediaQuery.of(context).size.width * 0.75),
         decoration: BoxDecoration(
-          color: isUser ? AppColors.brand : AppColors.slate100,
+          color: isUser ? YBSDesignSystem.brand : (isDark ? YBSDesignSystem.darkSurfaceRaised : Colors.white),
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(16),
             topRight: const Radius.circular(16),
             bottomLeft: Radius.circular(isUser ? 16 : 2),
             bottomRight: Radius.circular(isUser ? 2 : 16),
           ),
+          border: isUser ? null : Border.all(color: AppColors.borderLight),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -316,58 +310,98 @@ class _AssistantPageState extends State<AssistantPage> {
             Text(m.content,
                 style: TextStyle(
                     fontSize: 14,
-                    color: isUser ? Colors.white : AppColors.text)),
+                    color: isUser ? Colors.white : (isDark ? YBSDesignSystem.darkText : AppColors.text))),
             if (m.results != null)
-              ...m.results!.map((res) => GestureDetector(
-                    onTap: () => Nav.openRoutePlan(context, res.steps),
-                    child: Container(
-                      margin: const EdgeInsets.only(top: 8),
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.85),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.slate200),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Wrap(
-                            spacing: 4,
-                            crossAxisAlignment: WrapCrossAlignment.center,
-                            children: [
-                              for (int i = 0; i < res.steps.length; i++) ...[
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 6, vertical: 2),
-                                  decoration: BoxDecoration(
-                                      color: AppColors.primary,
-                                      borderRadius:
-                                          BorderRadius.circular(4)),
-                                  child: Text('YBS ${res.steps[i].route.id}',
-                                      style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold)),
-                                ),
-                                if (i < res.steps.length - 1)
-                                  const Icon(Icons.chevron_right,
-                                      size: 12, color: AppColors.slate400),
-                              ],
-                            ],
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            '${res.transferCount == 0 ? 'တိုက်ရိုက်' : '${res.transferCount} ဆင့်ပြောင်း'} • ${res.totalDistance.toStringAsFixed(1)} km',
-                            style: const TextStyle(
-                                fontSize: 10, color: AppColors.slate500),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )),
+              ...m.results!.map((res) => _RouteCard(result: res, isDark: isDark)),
           ],
         ),
       ),
     );
   }
 }
+
+class _RouteCard extends StatelessWidget {
+  final SearchResult result;
+  final bool isDark;
+
+  const _RouteCard({required this.result, required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => Nav.openRoutePlan(context, result.steps),
+      child: Container(
+        margin: const EdgeInsets.only(top: 8),
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: isDark ? YBSDesignSystem.darkBg : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.borderLight),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                for (int i = 0; i < result.steps.length; i++) ...[
+                  RouteBadge(
+                    routeId: result.steps[i].route.id,
+                    color: result.steps[i].route.color,
+                    small: true,
+                  ),
+                  if (i < result.steps.length - 1)
+                    Icon(Icons.chevron_right,
+                        size: 14,
+                        color:
+                            isDark ? YBSDesignSystem.darkTextMuted : AppColors.slate400),
+                ],
+              ],
+            ),
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                Icon(Icons.directions_walk_outlined,
+                    size: 12,
+                    color: isDark
+                        ? YBSDesignSystem.darkTextMuted
+                        : AppColors.slate400),
+                const SizedBox(width: 4),
+                   Text(
+                     result.transferCount == 0
+                         ? 'တိုက်ရိုက်'
+                         : '${result.transferCount} ပြောင်း',
+                     style: TextStyle(
+                      fontSize: 11,
+                      color: isDark
+                          ? YBSDesignSystem.darkTextMuted
+                          : AppColors.slate500),
+                ),
+                if (result.totalDistance > 0) ...[
+                  const SizedBox(width: 12),
+                  Icon(Icons.straighten_outlined,
+                      size: 12,
+                      color: isDark
+                          ? YBSDesignSystem.darkTextMuted
+                          : AppColors.slate400),
+                  const SizedBox(width: 4),
+                  Text(
+                    '${result.totalDistance.toStringAsFixed(1)} km',
+                    style: TextStyle(
+                        fontSize: 11,
+                        color: isDark
+                            ? YBSDesignSystem.darkTextMuted
+                            : AppColors.slate500),
+                  ),
+                ],
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+

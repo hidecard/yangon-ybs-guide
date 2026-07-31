@@ -270,6 +270,7 @@ final err = result.pointsSpent > 0
         ),
         bottom: TabBar(
           controller: _tabController,
+          isScrollable: true,
           tabs: const [
             Tab(text: 'Profile'),
             Tab(text: 'Leaderboard'),
@@ -338,6 +339,8 @@ final err = result.pointsSpent > 0
               const SizedBox(height: 12),
               Text(
                 _userName ?? 'User',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -347,6 +350,8 @@ final err = result.pointsSpent > 0
               const SizedBox(height: 4),
               Text(
                 currentBadge.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -355,6 +360,8 @@ final err = result.pointsSpent > 0
               ),
               Text(
                 currentBadge.subtitle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: 12,
                   color: AppColors.slate500,
@@ -493,21 +500,25 @@ final err = result.pointsSpent > 0
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        badge.title,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: earned ? AppColors.text : AppColors.slate400,
-                        ),
-                      ),
-                      Text(
-                        badge.subtitle,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppColors.slate500,
-                        ),
-                      ),
+                       Text(
+                         badge.title,
+                         maxLines: 1,
+                         overflow: TextOverflow.ellipsis,
+                         style: TextStyle(
+                           fontSize: 14,
+                           fontWeight: FontWeight.w600,
+                           color: earned ? AppColors.text : AppColors.slate400,
+                         ),
+                       ),
+                       Text(
+                         badge.subtitle,
+                         maxLines: 1,
+                         overflow: TextOverflow.ellipsis,
+                         style: TextStyle(
+                           fontSize: 12,
+                           color: AppColors.slate500,
+                         ),
+                       ),
                     ],
                   ),
                 ),
@@ -536,25 +547,32 @@ final err = result.pointsSpent > 0
       items.add(_MyRankCard(entry: _myRank!));
       items.add(const SizedBox(height: 16));
     }
-    items.add(Row(
+     items.add(Row(
       children: [
         const Text('အဆင့်',
             style: TextStyle(
                 fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.slate500)),
         const Spacer(),
-        SegmentedButton<bool>(
-          segments: const [
-            ButtonSegment(value: false, label: Text('All Time')),
-            ButtonSegment(value: true, label: Text('Monthly')),
-          ],
-          selected: {_monthly},
-          onSelectionChanged: (set) {
-            setState(() {
-              _monthly = set.first;
-              _loading = true;
-            });
-            _loadLeaderboard();
-          },
+        Flexible(
+          child: SegmentedButton<bool>(
+            segments: const [
+              ButtonSegment(value: false, label: Text('All Time')),
+              ButtonSegment(value: true, label: Text('Monthly')),
+            ],
+            selected: {_monthly},
+            onSelectionChanged: (set) {
+              setState(() {
+                _monthly = set.first;
+                _loading = true;
+              });
+              _loadLeaderboard();
+            },
+            style: SegmentedButton.styleFrom(
+              visualDensity: VisualDensity.compact,
+              textStyle: const TextStyle(fontSize: 11),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            ),
+          ),
         ),
       ],
     ));
@@ -692,12 +710,15 @@ class _MyRankCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(entry.userName,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 15,
-                    )),
+              Text(
+                 entry.userName,
+                 maxLines: 1,
+                 overflow: TextOverflow.ellipsis,
+                 style: const TextStyle(
+                   color: Colors.white,
+                   fontWeight: FontWeight.w600,
+                   fontSize: 15,
+                 )),
                 const Text('သင့်အဆင့်',
                     style: TextStyle(color: Colors.white70, fontSize: 11)),
               ],
@@ -841,14 +862,16 @@ class _RewardCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  reward.title,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: isDisabled ? AppColors.slate400 : AppColors.text,
-                  ),
-                ),
+                 Text(
+                   reward.title,
+                   maxLines: 1,
+                   overflow: TextOverflow.ellipsis,
+                   style: TextStyle(
+                     fontSize: 14,
+                     fontWeight: FontWeight.w600,
+                     color: isDisabled ? AppColors.slate400 : AppColors.text,
+                   ),
+                 ),
                 if (reward.description.isNotEmpty)
                   Text(
                     reward.description,
@@ -901,8 +924,11 @@ class _RewardCard extends StatelessWidget {
             style: FilledButton.styleFrom(
               backgroundColor: isDisabled ? AppColors.slate300 : AppColors.brand,
               foregroundColor: Colors.white,
+              visualDensity: VisualDensity.compact,
+              minimumSize: Size.zero,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             ),
-            child: const Text('ဆုလဲမည်', style: TextStyle(fontSize: 12)),
+            child: const Text('ဆုလဲမည်', style: TextStyle(fontSize: 11)),
           ),
         ],
       ),

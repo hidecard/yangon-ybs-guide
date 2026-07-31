@@ -8,6 +8,7 @@ import '../services/location_service.dart';
 import '../state/app_state.dart';
 import '../theme.dart';
 import '../util/nav.dart';
+import '../util/soundex.dart';
 import '../widgets/route_badge.dart';
 import 'map_picker_page.dart';
 
@@ -458,67 +459,78 @@ class _FindRoutePageState extends State<FindRoutePage> {
               ],
             ),
             const SizedBox(height: 12),
-            ...res.steps.map((step) {
-              final isFirstStep = step == first;
-              final isLastStep = step == last;
-              final from = isFirstStep && fromStop != null
-                  ? fromStop
-                  : stopByName[step.fromStop];
-              final to = isLastStep && toStop != null
-                  ? toStop
-                  : stopByName[step.toStop];
-              final fromLabel = _stopLabel(from, step.fromStop);
-              final toLabel = _stopLabel(to, step.toStop);
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                        margin: const EdgeInsets.only(top: 6),
-                        width: 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                            color: step.route.color,
-                            shape: BoxShape.circle)),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              const Pill('စီးရန်'),
-                              const SizedBox(width: 6),
-                              Text('YBS ${step.route.id}',
-                                  style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500)),
-                              if (step.route.qrPayment == '✅ Supported') ...[
-                                const SizedBox(width: 6),
-                                const Pill('QR',
-                                    bg: AppColors.amberLight,
-                                    fg: AppColors.brandHover,
-                                    icon: Icons.credit_card),
-                              ],
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          Text('$fromLabel မှ $toLabel အထိ',
-                              style: const TextStyle(
-                                  fontSize: 12, color: AppColors.slate500)),
-                          if (from != null && to != null)
-                            Text(
-                                '${getDistance(from.lat, from.lng, to.lat, to.lng).toStringAsFixed(2)} km',
+             ...res.steps.map((step) {
+               final isFirstStep = step == first;
+               final isLastStep = step == last;
+               final from = isFirstStep && fromStop != null
+                   ? fromStop
+                   : stopByName[step.fromStop];
+               final to = isLastStep && toStop != null
+                   ? toStop
+                   : stopByName[step.toStop];
+               final fromLabel = _stopLabel(from, step.fromStop);
+               final toLabel = _stopLabel(to, step.toStop);
+               return Padding(
+                 padding: const EdgeInsets.only(bottom: 8),
+                 child: Row(
+                   crossAxisAlignment: CrossAxisAlignment.start,
+                   children: [
+                     Container(
+                         margin: const EdgeInsets.only(top: 6),
+                         width: 8,
+                         height: 8,
+                         decoration: BoxDecoration(
+                             color: step.route.color,
+                             shape: BoxShape.circle)),
+                     const SizedBox(width: 12),
+                     Expanded(
+                       child: Column(
+                         crossAxisAlignment: CrossAxisAlignment.start,
+                         children: [
+                           Row(
+                             children: [
+                               if (isFirstStep)
+                                 const Pill('စတင်မည့်',
+                                     bg: AppColors.emeraldLight,
+                                     fg: AppColors.emeraldDark),
+                               if (isFirstStep) const SizedBox(width: 6),
+                               RouteBadge(
+                                   routeId: step.route.id,
+                                   color: step.route.color,
+                                   small: true),
+                               if (isLastStep) ...[
+                                 const SizedBox(width: 6),
+                                 const Pill('ရောက်ရန်',
+                                     bg: AppColors.roseLight,
+                                     fg: AppColors.rose),
+                               ],
+                               if (step.route.qrPayment == '✅ Supported') ...[
+                                 const SizedBox(width: 6),
+                                 const Pill('QR',
+                                     bg: AppColors.amberLight,
+                                     fg: AppColors.brandHover,
+                                     icon: Icons.credit_card),
+                               ],
+                             ],
+                           ),
+                           const SizedBox(height: 4),
+                            Text('$fromLabel မှ $toLabel အထိ',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
-                                    fontSize: 10, color: AppColors.slate400)),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }),
+                                    fontSize: 12, color: AppColors.slate500)),
+                           if (from != null && to != null)
+                             Text(
+                                 '${getDistance(from.lat, from.lng, to.lat, to.lng).toStringAsFixed(2)} km',
+                                 style: const TextStyle(
+                                     fontSize: 10, color: AppColors.slate400)),
+                         ],
+                       ),
+                     ),
+                   ],
+                 ),
+               );
+             }),
           ],
         ),
       ),
@@ -599,13 +611,23 @@ class _StopFieldState extends State<_StopField> {
             );
           },
           optionsBuilder: (t) {
-            final term = t.text.toLowerCase();
+            final term = t.text.trim();
             if (term.isEmpty) return const Iterable<StopOption>.empty();
-            return widget.options
-                .where((o) =>
-                    o.display.toLowerCase().contains(term) ||
-                    o.raw.toLowerCase().contains(term))
-                .take(50);
+            final termLower = term.toLowerCase();
+            final matches = widget.options
+                .where((o) {
+                  final sim = MyanmarSoundex.similarity(termLower, o.display.toLowerCase());
+                  return sim >= 60.0 ||
+                      o.display.toLowerCase().contains(termLower) ||
+                      o.raw.toLowerCase().contains(termLower);
+                })
+                .toList();
+            matches.sort((a, b) {
+              final sa = MyanmarSoundex.similarity(termLower, a.display.toLowerCase());
+              final sb = MyanmarSoundex.similarity(termLower, b.display.toLowerCase());
+              return sb.compareTo(sa);
+            });
+            return matches.take(8);
           },
           onSelected: (o) => widget.onChanged(o),
           optionsViewBuilder: (context, onSelected, opts) {
@@ -615,8 +637,9 @@ class _StopFieldState extends State<_StopField> {
                 elevation: 4,
                 borderRadius: BorderRadius.circular(12),
                 child: ConstrainedBox(
-                  constraints:
-                      const BoxConstraints(maxHeight: 240, maxWidth: 400),
+                  constraints: BoxConstraints(
+                      maxHeight: 240,
+                      maxWidth: MediaQuery.of(context).size.width - 72),
                   child: ListView(
                     padding: EdgeInsets.zero,
                     shrinkWrap: true,

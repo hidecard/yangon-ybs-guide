@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../config.dart';
 import '../data/route_finder.dart';
+import '../design_system.dart';
 import '../models.dart';
 import '../services/api_service.dart';
 import '../services/local_store.dart';
@@ -43,6 +45,8 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final state = context.watch<AppState>();
 
+    final isCompact = MediaQuery.of(context).size.height < 650;
+
     final quickActions = [
       (Icons.search, 'လမ်းကြောင်း ရှာရန်', AppColors.primary, 4),
       (Icons.directions_bus, 'ကားလိုင်းများ', AppColors.brand, 3),
@@ -51,7 +55,7 @@ class _HomePageState extends State<HomePage> {
     ];
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
+      padding: EdgeInsets.fromLTRB(16, 20, 16, 24),
       children: [
         const Center(
           child: Column(
@@ -65,25 +69,34 @@ class _HomePageState extends State<HomePage> {
               SizedBox(height: 8),
               Text(
                 'ကားလိုင်းရှာဖွေခြင်း၊ လမ်းကြောင်းရှာခြင်းနှင့် မြေပုံကြည့်ရှုခြင်း — အားလုံးတစ်နေရာတည်း',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: AppColors.slate500, fontSize: 14),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: AppColors.slate500, fontSize: 14),
               ),
             ],
           ),
         ),
         const SizedBox(height: 24),
+
+        // Quick actions — one-handed zone
         GridView.count(
           crossAxisCount: 2,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           crossAxisSpacing: 12,
           mainAxisSpacing: 12,
-          childAspectRatio: 1.5,
+          childAspectRatio: isCompact ? 1.4 : 1.5,
           children: quickActions
               .map((a) => _quickAction(a.$1, a.$2, a.$3, a.$4))
               .toList(),
         ),
         const SizedBox(height: 24),
+
+        // AI Prediction Cards — morning/evening commute suggestions
+        if (_shouldShowPredictionCards())
+          ..._buildPredictionCards(context),
+
+        const SizedBox(height: 24),
+
         _NearestStopsCard(state: state),
         const SizedBox(height: 24),
         const Text('ခရီးသွားရန် အကြံပြုချက်များ', style: UI.sectionTitle),
@@ -95,10 +108,126 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  bool _shouldShowPredictionCards() {
+    final hour = DateTime.now().hour;
+    return hour >= 6 && hour <= 10 || hour >= 16 && hour <= 20;
+  }
+
+  List<Widget> _buildPredictionCards(BuildContext context) {
+    final hour = DateTime.now().hour;
+    final isMorning = hour >= 6 && hour <= 10;
+    final state = context.read<AppState>();
+
+    final cards = <Widget>[];
+
+    if (isMorning) {
+      cards.add(_predictionCard(
+        icon: Icons.work_outline_rounded,
+        title: 'ရုံး/ကျောင်းသွားမည့် လမ်းကြောင်း',
+        subtitle: state.stops.isNotEmpty
+            ? '${state.stops.length} မှတ်တိုင်များအသုံးပြုပါ'
+            : 'AI က အလိုအလျောက်တွက်ချက်ပေးမည်',
+        onTap: () => _switchTab(context, 4),
+      ));
+    } else {
+      cards.add(_predictionCard(
+        icon: Icons.home_outlined,
+        title: 'အိမ်ပြန်မည့် လမ်းကြောင်း',
+        subtitle: state.stops.isNotEmpty
+            ? 'စုစုစည်းစည်း ${state.stops.length} မှတ်တိုင်များ'
+            : 'လက်ရှိနေရာမှ အမြဲတမ်း ကာလနှင့် လမ်းကြောင်းကို တွက်ချက်ပါ',
+        onTap: () => _switchTab(context, 4),
+      ));
+    }
+
+    return cards;
+  }
+
+  Widget _predictionCard({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    VoidCallback? onTap,
+  }) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            YBSDesignSystem.brand.withValues(alpha: 0.12),
+            Colors.white,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: YBSDesignSystem.brand.withValues(alpha: 0.35)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0A000000),
+            blurRadius: 12,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: YBSDesignSystem.brandLight,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(icon, size: 22, color: YBSDesignSystem.brand),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.text,
+                        letterSpacing: -0.2,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: AppColors.slate500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.arrow_forward_ios_rounded,
+                  size: 14, color: AppColors.slate400),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ---------- Quick action grid (moved below prediction cards) ----------
   Widget _quickAction(IconData icon, String label, Color color, int tabIndex) {
     return InkWell(
       borderRadius: BorderRadius.circular(16),
-      onTap: () => _switchTab(context, tabIndex),
+      onTap: () {
+        HapticFeedback.lightImpact();
+        _switchTab(context, tabIndex);
+      },
       child: Container(
         decoration: UI.card(),
         child: Column(
@@ -112,6 +241,8 @@ class _HomePageState extends State<HomePage> {
             ),
             const SizedBox(height: 10),
             Text(label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                     fontWeight: FontWeight.w600, fontSize: 13)),
           ],
@@ -145,10 +276,14 @@ class _HomePageState extends State<HomePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(tip.$2,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                         fontWeight: FontWeight.w600, fontSize: 14)),
                 const SizedBox(height: 4),
                 Text(tip.$3,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                         fontSize: 12, color: AppColors.slate500)),
               ],
@@ -281,7 +416,8 @@ class _NearestStopsCardState extends State<_NearestStopsCard> {
                         _pos == null ? Colors.white : AppColors.slate600,
                     padding: const EdgeInsets.symmetric(
                         horizontal: 12, vertical: 6),
-                    visualDensity: VisualDensity.compact),
+                    visualDensity: VisualDensity.compact,
+                    minimumSize: Size.zero),
                 icon: _locating
                     ? const SizedBox(
                         width: 13,
@@ -365,7 +501,6 @@ class _NearestStopsCardState extends State<_NearestStopsCard> {
     );
   }
 }
-
 // ---------- Recent searches ----------
 class _RecentSearches extends StatefulWidget {
   final AppState state;
@@ -432,30 +567,39 @@ class _RecentSearchesState extends State<_RecentSearches> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(item.label,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                                fontWeight: FontWeight.w600, fontSize: 13)),
-                        if (item.subtitle != null)
-                          Text(item.subtitle!,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                  fontSize: 12, color: AppColors.slate400)),
-                      ],
-                    ),
-                  ),
-                  Text(timeAgo(item.timestamp),
-                      style: const TextStyle(
-                          fontSize: 10, color: AppColors.slate400)),
-                  IconButton(
-                    onPressed: () async {
-                      await LocalStore.instance.removeTripHistory(item.id);
-                      _load();
-                    },
-                    icon: const Icon(Icons.close, size: 14),
-                  ),
+                   Text(item.label,
+                       maxLines: 1,
+                       overflow: TextOverflow.ellipsis,
+                       style: const TextStyle(
+                           fontWeight: FontWeight.w600, fontSize: 13)),
+                   if (item.subtitle != null)
+                     Text(item.subtitle!,
+                         maxLines: 1,
+                         overflow: TextOverflow.ellipsis,
+                         style: const TextStyle(
+                             fontSize: 12, color: AppColors.slate400)),
+                     ],
+                   ),
+                 ),
+                 Flexible(
+                   child: Text(timeAgo(item.timestamp),
+                       maxLines: 1,
+                       overflow: TextOverflow.ellipsis,
+                       style: const TextStyle(
+                           fontSize: 10, color: AppColors.slate400)),
+                 ),
+                 const SizedBox(width: 4),
+                 InkWell(
+                   onTap: () async {
+                     await LocalStore.instance.removeTripHistory(item.id);
+                     _load();
+                   },
+                   borderRadius: BorderRadius.circular(12),
+                   child: const Padding(
+                     padding: EdgeInsets.all(4),
+                     child: Icon(Icons.close, size: 14, color: AppColors.slate400),
+                   ),
+                 ),
                 ],
               ),
             ),

@@ -64,7 +64,7 @@ class YbsApp extends StatelessWidget {
       title: 'YBS AI',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
-      darkTheme: AppTheme.light(),
+      darkTheme: AppTheme.dark(),
       themeMode: ThemeMode.light,
       home: const RootShell(),
     );
@@ -192,6 +192,9 @@ class _YbsBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isCompact = MediaQuery.of(context).size.height < 650;
+    final hPad = isCompact ? 4.0 : 8.0;
+    final vPad = isCompact ? 6.0 : 10.0;
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -207,7 +210,7 @@ class _YbsBottomNav extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+          padding: EdgeInsets.symmetric(horizontal: hPad, vertical: vPad),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: List.generate(items.length, (i) {
@@ -218,6 +221,7 @@ class _YbsBottomNav extends StatelessWidget {
                   active: active,
                   icon: active ? item.$2 : item.$1,
                   label: item.$3,
+                  isCompact: isCompact,
                   onTap: () => onTap(i),
                 ),
               );
@@ -233,32 +237,37 @@ class _NavItem extends StatelessWidget {
   final bool active;
   final IconData icon;
   final String label;
+  final bool isCompact;
   final VoidCallback onTap;
   const _NavItem({
     required this.active,
     required this.icon,
     required this.label,
+    this.isCompact = false,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final iconSize = isCompact ? 18.0 : 22.0;
+    final fontSize = isCompact ? 9.0 : 11.0;
+    final vPadding = isCompact ? 4.0 : 6.0;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 6),
+        padding: EdgeInsets.symmetric(vertical: vPadding),
         child: AnimatedDefaultTextStyle(
           duration: const Duration(milliseconds: 220),
           style: TextStyle(
-            fontSize: 11,
+            fontSize: fontSize,
             fontWeight: active ? FontWeight.w700 : FontWeight.w500,
             color: active ? AppColors.brand : AppColors.slate400,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, size: 22, color: active ? AppColors.brand : AppColors.slate400),
+              Icon(icon, size: iconSize, color: active ? AppColors.brand : AppColors.slate400),
               const SizedBox(height: 4),
               Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
             ],
