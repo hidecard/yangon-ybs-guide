@@ -198,6 +198,7 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
       etaMinutes: 0,
     );
 
+    _activityTimer?.cancel();
     _activityTimer = Timer.periodic(const Duration(seconds: 10), (_) {
       _refreshLiveActivity();
     });
@@ -219,11 +220,14 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
       }
     }
     if (active >= 0 && active != _prevArriveIdx) {
-      _prevArriveIdx = active;
       final stop = _stops[active];
-      final msg = '${stop.nameMm} မှတ်တိုင် ရောက်ပါပီ';
-      setState(() => _arrivalMessage = msg);
-      NotifyService.instance.triggerArrival(msg);
+      final d = getDistance(_livePos!.lat, _livePos!.lng, stop.lat, stop.lng);
+      if (d < _arrivalThresholdKm) {
+        _prevArriveIdx = active;
+        final msg = '${stop.nameMm} မှတ်တိုင် ရောက်ပါပီ';
+        setState(() => _arrivalMessage = msg);
+        NotifyService.instance.triggerArrival(msg);
+      }
     }
   }
 

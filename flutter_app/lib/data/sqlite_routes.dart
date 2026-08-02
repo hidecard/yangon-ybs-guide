@@ -183,19 +183,24 @@ class SqliteRoutes {
             final s = r.stopsDetailed[i];
             final township = s.townshipMm.isNotEmpty ? s.townshipMm : '';
             final gKey = '${s.nameMm}|$township';
-            final gId = groupIds.putIfAbsent(gKey, () {
-              txn.insert('stop_groups', {
-                'group_id': groupSeq,
+            int gId = groupIds[gKey] ?? -1;
+            if (gId == -1) {
+              gId = groupSeq++;
+              groupIds[gKey] = gId;
+              await txn.insert('stop_groups', {
+                'group_id': gId,
                 'group_name_mm': s.nameMm,
                 'township': township,
               });
-              return groupSeq++;
-            });
+            }
 
             final sKey = '${s.nameMm}|${s.lat}|${s.lng}';
-            final sId = stopIds.putIfAbsent(sKey, () {
-              txn.insert('bus_stops', {
-                'stop_id': stopSeq,
+            int sId = stopIds[sKey] ?? -1;
+            if (sId == -1) {
+              sId = stopSeq++;
+              stopIds[sKey] = sId;
+              await txn.insert('bus_stops', {
+                'stop_id': sId,
                 'group_id': gId,
                 'stop_name_en': s.nameEn,
                 'stop_name_mm': s.nameMm,
@@ -204,8 +209,7 @@ class SqliteRoutes {
                 'latitude': s.lat,
                 'longitude': s.lng,
               });
-              return stopSeq++;
-            });
+            }
 
             await txn.insert('route_stops', {
               'route_id': r.id,
@@ -271,21 +275,24 @@ class SqliteRoutes {
           final s = r.stopsDetailed[i];
           final township = s.townshipMm.isNotEmpty ? s.townshipMm : '';
           final gKey = '${s.nameMm}|$township';
-          final gId = groupIdMap.putIfAbsent(gKey, () {
-            nextGroupId++;
-            txn.insert('stop_groups', {
-              'group_id': nextGroupId,
+          int gId = groupIdMap[gKey] ?? -1;
+          if (gId == -1) {
+            gId = ++nextGroupId;
+            groupIdMap[gKey] = gId;
+            await txn.insert('stop_groups', {
+              'group_id': gId,
               'group_name_mm': s.nameMm,
               'township': township,
             });
-            return nextGroupId;
-          });
+          }
 
           final sKey = '${s.nameMm}|${s.lat}|${s.lng}';
-          final sId = stopIdMap.putIfAbsent(sKey, () {
-            nextStopId++;
-            txn.insert('bus_stops', {
-              'stop_id': nextStopId,
+          int sId = stopIdMap[sKey] ?? -1;
+          if (sId == -1) {
+            sId = ++nextStopId;
+            stopIdMap[sKey] = sId;
+            await txn.insert('bus_stops', {
+              'stop_id': sId,
               'group_id': gId,
               'stop_name_en': s.nameEn,
               'stop_name_mm': s.nameMm,
@@ -294,8 +301,7 @@ class SqliteRoutes {
               'latitude': s.lat,
               'longitude': s.lng,
             });
-            return nextStopId;
-          });
+          }
 
           await txn.insert('route_stops', {
             'route_id': r.id,

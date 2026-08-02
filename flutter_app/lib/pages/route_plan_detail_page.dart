@@ -210,10 +210,13 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
     final stop = sub[cur];
     final key = 'arrive-$_activeStep-${stop.nameMm}';
     if (key != _prevStopKey) {
-      _prevStopKey = key;
-      final msg = '${stop.nameMm} မှတ်တိုင် ရောက်ပါပီ';
-      setState(() => _arrivalMessage = msg);
-      NotifyService.instance.triggerArrival(msg);
+      final d = getDistance(_livePos!.lat, _livePos!.lng, stop.lat, stop.lng);
+      if (d < 0.2) {
+        _prevStopKey = key;
+        final msg = '${stop.nameMm} မှတ်တိုင် ရောက်ပါပီ';
+        setState(() => _arrivalMessage = msg);
+        NotifyService.instance.triggerArrival(msg);
+      }
     }
   }
 
@@ -223,7 +226,6 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
     final targetStop = active.fromStop;
 
     if (_lastPlanStep != _activeStep) {
-      _lastPlanStep = _activeStep;
       final detailed = active.route.stopsDetailed;
       final target = detailed.firstWhere(
         (s) => s.nameMm == targetStop,
@@ -249,6 +251,7 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
         distanceKm: distanceKm,
         etaMinutes: 0,
       );
+      _lastPlanStep = _activeStep;
       return;
     }
 
