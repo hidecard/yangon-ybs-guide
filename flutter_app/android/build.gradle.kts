@@ -10,10 +10,8 @@ allprojects {
 // Keep Android plugins that still declare android-33 compatible with the
 // AndroidX dependencies used by the app and the current compile SDK.
 subprojects {
-    plugins.withId("com.android.library") {
-        extensions.configure<LibraryExtension> {
-            compileSdk = 36
-        }
+    afterEvaluate {
+        extensions.findByType<LibraryExtension>()?.compileSdk = 36
     }
 }
 
