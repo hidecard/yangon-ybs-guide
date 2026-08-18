@@ -43,6 +43,15 @@ class OsmMap extends StatelessWidget {
         TileLayer(
           urlTemplate: AppConfig.osmTileUrl,
           userAgentPackageName: AppConfig.osmUserAgent,
+          // Keep recently viewed tiles on disk so previously visited areas can
+          // still render when the device temporarily loses connectivity.
+          // This is a cache, not a guaranteed full offline map download.
+          tileProvider: NetworkTileProvider(
+            cachingProvider: BuiltInMapCachingProvider.getOrCreateInstance(
+              maxCacheSize: 300 * 1024 * 1024,
+              overrideFreshAge: const Duration(days: 30),
+            ),
+          ),
         ),
         if (polylines.isNotEmpty) PolylineLayer(polylines: polylines),
         if (markers.isNotEmpty) MarkerLayer(markers: markers),

@@ -23,7 +23,8 @@ dependencies:
   path: ^1.9.0
 
   # Maps (OSM tiles, matches web Leaflet)
-  flutter_map: ^7.0.2
+  # Maps with built-in persistent tile caching (offline-friendly)
+  flutter_map: ^8.3.1
   latlong2: ^0.9.1
 
   # Location
