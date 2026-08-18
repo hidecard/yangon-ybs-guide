@@ -339,8 +339,9 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
               ),
             ],
           ),
-          body: ListView(
+          body: Column(
             children: [
+              // Keep the map fixed. Only the stop information below scrolls.
               SizedBox(
                 height: 220,
                 child: Stack(
@@ -402,75 +403,75 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
                   ],
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              Expanded(
+                child: ListView(
+                  padding: EdgeInsets.zero,
                   children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('စုစုပေါင်းမှတ်တိုင်', style: UI.label),
-                            Text(
-                              '${uniqueStops.length}',
-                              style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const Spacer(),
-                        Flexible(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (_tracking && _livePos != null) _guidanceCard(uniqueStops, active),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                _stops.isNotEmpty ? _stops.first.nameMm : '—',
-                                textAlign: TextAlign.end,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('စုစုပေါင်းမှတ်တိုင်', style: UI.label),
+                                  Text(
+                                    '${uniqueStops.length}',
+                                    style: const TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              Container(
-                                width: 1,
-                                height: 12,
-                                color: AppColors.slate200,
-                                margin: const EdgeInsets.symmetric(vertical: 4),
-                              ),
-                              Text(
-                                _stops.isNotEmpty ? _stops.last.nameMm : '—',
-                                textAlign: TextAlign.end,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w500,
+                              const Spacer(),
+                              Flexible(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      _stops.isNotEmpty ? _stops.first.nameMm : '—',
+                                      textAlign: TextAlign.end,
+                                      style: const TextStyle(fontWeight: FontWeight.w500),
+                                    ),
+                                    Container(
+                                      width: 1,
+                                      height: 12,
+                                      color: AppColors.slate200,
+                                      margin: const EdgeInsets.symmetric(vertical: 4),
+                                    ),
+                                    Text(
+                                      _stops.isNotEmpty ? _stops.last.nameMm : '—',
+                                      textAlign: TextAlign.end,
+                                      style: const TextStyle(fontWeight: FontWeight.w500),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                      ],
+                          const Divider(height: 24),
+                          if (_arrivalMessage != null) _arrivalBanner(),
+                          if (_loadingPred ||
+                              _predictions.isNotEmpty ||
+                              _predictionMsg != null)
+                            _predictionsBox(),
+                          if (_busEta.isNotEmpty || _busEtaMsg != null) _busEtaBox(),
+                          const SizedBox(height: 8),
+                          Text('မှတ်တိုင်များ (${uniqueStops.length})', style: UI.label),
+                          const SizedBox(height: 8),
+                          ...uniqueStops.asMap().entries.map(
+                            (e) => _stopTile(e.key, e.value, active, uniqueStops.length),
+                          ),
+                          const SizedBox(height: 8),
+                        ],
+                      ),
                     ),
-                    const Divider(height: 24),
-                    if (_arrivalMessage != null) _arrivalBanner(),
-                    if (_loadingPred ||
-                        _predictions.isNotEmpty ||
-                        _predictionMsg != null)
-                      _predictionsBox(),
-                    if (_busEta.isNotEmpty || _busEtaMsg != null) _busEtaBox(),
-                    const SizedBox(height: 8),
-                    Text(
-                      'မှတ်တိုင်များ (${uniqueStops.length})',
-                      style: UI.label,
-                    ),
-                    const SizedBox(height: 8),
-                    ...uniqueStops.asMap().entries.map(
-                      (e) =>
-                          _stopTile(e.key, e.value, active, uniqueStops.length),
-                    ),
-                    const SizedBox(height: 8),
                   ],
                 ),
               ),
@@ -478,6 +479,66 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
           ),
         );
       },
+    );
+  }
+
+  Widget _guidanceCard(List<BusStop> stops, int active) {
+    if (stops.isEmpty) return const SizedBox.shrink();
+    final safeActive = active.clamp(0, stops.length - 1);
+    final current = stops[safeActive];
+    final next = safeActive + 1 < stops.length ? stops[safeActive + 1] : null;
+    final isNearDestination = next != null && safeActive + 1 == stops.length - 1;
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: isNearDestination ? AppColors.amberLight : const Color(0xFFE8F8EE),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: isNearDestination ? const Color(0xFFFCD34D) : const Color(0xFF86EFAC),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'လက်ရှိတည်နေရာ',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: isNearDestination ? const Color(0xFF92400E) : AppColors.emeraldDark,
+            ),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            '${current.nameMm} မှတ်တိုင် ရောက်ပါပြီ',
+            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                isNearDestination ? Icons.notifications_active : Icons.arrow_forward,
+                size: 18,
+                color: isNearDestination ? AppColors.amber : AppColors.emeraldDark,
+              ),
+              const SizedBox(width: 7),
+              Expanded(
+                child: Text(
+                  next == null
+                      ? 'ဒီလမ်းကြောင်း၏ နောက်ဆုံးမှတ်တိုင် ဖြစ်ပါသည်'
+                      : isNearDestination
+                          ? 'သင်ဆင်းရမည့်မှတ်တိုင်: ${next.nameMm} (ရောက်ခါနီးပါပြီ)'
+                          : 'နောက်ရောက်မည့်မှတ်တိုင်: ${next.nameMm}',
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -677,14 +738,25 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
     final isLast = idx == total - 1;
     final isActive = idx == active;
 
-    return ListTile(
-      onTap: () => Nav.openStop(context, s),
-      leading: CircleAvatar(
-        backgroundColor: isFirst
-            ? Colors.green
-            : isLast
-            ? Colors.red
-            : Colors.blueGrey,
+    return Container(
+      margin: const EdgeInsets.only(bottom: 4),
+      decoration: BoxDecoration(
+        color: isActive ? const Color(0xFFE8F8EE) : Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+        border: isActive
+            ? Border.all(color: const Color(0xFF86EFAC))
+            : Border.all(color: Colors.transparent),
+      ),
+      child: ListTile(
+        onTap: () => Nav.openStop(context, s),
+        leading: CircleAvatar(
+          backgroundColor: isActive
+              ? AppColors.emerald
+              : isFirst
+              ? Colors.green
+              : isLast
+              ? Colors.red
+              : Colors.blueGrey,
         child: Text(
           '${idx + 1}',
           style: const TextStyle(color: Colors.white, fontSize: 12),
@@ -709,7 +781,10 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
                 color: Colors.green.shade100,
                 borderRadius: BorderRadius.circular(4),
               ),
-              child: Text(''),
+              child: const Text(
+                'အစမှတ်တိုင်',
+                style: TextStyle(fontSize: 10, color: AppColors.emeraldDark),
+              ),
             ),
           if (isLast)
             Container(
@@ -719,17 +794,21 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
                 color: Colors.red.shade100,
                 borderRadius: BorderRadius.circular(4),
               ),
-              child: Text(''),
+              child: const Text(
+                'ဆင်းရမည့်မှတ်တိုင်',
+                style: TextStyle(fontSize: 10, color: AppColors.rose),
+              ),
             ),
         ],
       ),
-      trailing: isActive
-          ? const Pill(
-              'လက်ရှိ',
-              bg: Color(0xFFD1FAE5),
-              fg: AppColors.emeraldDark,
-            )
-          : const SizedBox.shrink(),
+        trailing: isActive
+            ? const Pill(
+                'လက်ရှိရောက်နေပါပြီ',
+                bg: Color(0xFFD1FAE5),
+                fg: AppColors.emeraldDark,
+              )
+            : const SizedBox.shrink(),
+      ),
     );
   }
 }
