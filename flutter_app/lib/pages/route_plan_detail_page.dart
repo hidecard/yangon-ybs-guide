@@ -734,6 +734,11 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
         : (distanceMeters / 80).ceil() < 1
         ? 1
         : (distanceMeters / 80).ceil();
+    final walkingDistanceLabel = distanceMeters == null
+        ? null
+        : distanceMeters < 1000
+        ? '$distanceMeters မီတာ'
+        : '${(distanceMeters / 1000).toStringAsFixed(1)} ကီလိုမီတာ';
     final title = idx == 0
         ? 'သင့်နေရာမှ စီးရမည့်မှတ်တိုင်သို့'
         : 'ကားပြောင်းစီးရန် လမ်းလျှောက်ရမည့်အကွာအဝေး';
@@ -774,7 +779,7 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
             )
           else
             Text(
-              'ခန့်မှန်း ${distanceMeters < 1000 ? '$distanceMeters မီတာ' : '${(distanceMeters / 1000).toStringAsFixed(1)} ကီလိုမီတာ'} • လမ်းလျှောက်ချိန် ${walkingMinutes} မိနစ်',
+              'ခန့်မှန်း $walkingDistanceLabel • လမ်းလျှောက်ချိန် $walkingMinutes မိနစ်',
               style: const TextStyle(fontSize: 12, color: AppColors.slate600),
             ),
           const SizedBox(height: 8),
