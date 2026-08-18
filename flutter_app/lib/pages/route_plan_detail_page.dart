@@ -148,7 +148,7 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
 
   Future<void> _syncBackgroundAlert(BusStop? next) async {
     if (!_arrivalEnabled || next == null) return;
-    final key = '${_activeStep}:${next.nameMm}:${next.lat}:${next.lng}';
+    final key = '$_activeStep:${next.nameMm}:${next.lat}:${next.lng}';
     if (key == _backgroundAlertKey) return;
     final active = steps[_activeStep];
     final detailed = active.route.stopsDetailed;
