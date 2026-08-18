@@ -20,13 +20,16 @@ class NotifyService {
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     const ios = DarwinInitializationSettings();
     await _plugin.initialize(
-        const InitializationSettings(android: android, iOS: ios));
+      const InitializationSettings(android: android, iOS: ios),
+    );
     // On Android 8+ a notification only shows if its channel exists. Create
     // the channels up-front (with the logo icon) so arrival + admin alerts
     // are never silently dropped.
     try {
-      final androidPlugin = _plugin.resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>();
+      final androidPlugin = _plugin
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >();
       const arrival = AndroidNotificationChannel(
         'ybs_arrival',
         'Arrival Alerts',
@@ -53,11 +56,13 @@ class NotifyService {
     try {
       await _plugin
           .resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>()
+            AndroidFlutterLocalNotificationsPlugin
+          >()
           ?.requestNotificationsPermission();
       await _plugin
           .resolvePlatformSpecificImplementation<
-              IOSFlutterLocalNotificationsPlugin>()
+            IOSFlutterLocalNotificationsPlugin
+          >()
           ?.requestPermissions(alert: true, badge: true, sound: true);
     } catch (_) {}
   }

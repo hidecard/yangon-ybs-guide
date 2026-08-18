@@ -60,9 +60,14 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
     _loadPredictions();
     _loadBusEta();
     _loadBusPositions();
-    _etaTimer = Timer.periodic(const Duration(seconds: 15), (_) => _loadBusEta());
-    _busPosTimer =
-        Timer.periodic(const Duration(seconds: 30), (_) => _loadBusPositions());
+    _etaTimer = Timer.periodic(
+      const Duration(seconds: 15),
+      (_) => _loadBusEta(),
+    );
+    _busPosTimer = Timer.periodic(
+      const Duration(seconds: 30),
+      (_) => _loadBusPositions(),
+    );
   }
 
   @override
@@ -75,8 +80,9 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
 
   Future<void> _loadPredictions() async {
     setState(() => _loadingPred = true);
-    final (preds, msg) =
-        await ApiService.instance.fetchPredictions(widget.route.id);
+    final (preds, msg) = await ApiService.instance.fetchPredictions(
+      widget.route.id,
+    );
     if (!mounted) return;
     setState(() {
       _predictions = preds;
@@ -96,12 +102,15 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
 
   Future<void> _loadBusPositions() async {
     setState(() => _loadingBusPos = true);
-    final updates = await ApiService.instance
-        .fetchBusUpdates(routeId: widget.route.id, limit: 50);
+    final updates = await ApiService.instance.fetchBusUpdates(
+      routeId: widget.route.id,
+      limit: 50,
+    );
     if (!mounted) return;
     setState(() {
-      _busPositions =
-          updates.where((u) => u.lat != null && u.lng != null).toList();
+      _busPositions = updates
+          .where((u) => u.lat != null && u.lng != null)
+          .toList();
       _loadingBusPos = false;
     });
   }
@@ -109,11 +118,19 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
   int get _activeIndex {
     if (_livePos == null || _stops.isEmpty) return -1;
     int minIdx = 0;
-    double minDist =
-        getDistance(_livePos!.lat, _livePos!.lng, _stops[0].lat, _stops[0].lng);
+    double minDist = getDistance(
+      _livePos!.lat,
+      _livePos!.lng,
+      _stops[0].lat,
+      _stops[0].lng,
+    );
     for (int i = 0; i < _stops.length; i++) {
       final d = getDistance(
-          _livePos!.lat, _livePos!.lng, _stops[i].lat, _stops[i].lng);
+        _livePos!.lat,
+        _livePos!.lng,
+        _stops[i].lat,
+        _stops[i].lng,
+      );
       if (d < minDist) {
         minDist = d;
         minIdx = i;
@@ -139,8 +156,7 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
     final active = _activeIndex;
     if (active >= 0 && active + 1 < _stops.length) {
       final next = _stops[active + 1];
-      final d =
-          getDistance(_livePos!.lat, _livePos!.lng, next.lat, next.lng);
+      final d = getDistance(_livePos!.lat, _livePos!.lng, next.lat, next.lng);
       final key = 'next-${next.nameMm}';
       if (d < _arrivalThresholdKm && !_alerted.contains(key)) {
         _alerted.add(key);
@@ -183,243 +199,294 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
           final stop = uniqueStops[i];
           final isFirst = i == 0;
           final isLast = i == uniqueStops.length - 1;
-          markers.add(dotMarker(LatLng(stop.lat, stop.lng),
+          markers.add(
+            dotMarker(
+              LatLng(stop.lat, stop.lng),
               color: isFirst
                   ? AppColors.emerald
                   : isLast
-                      ? AppColors.rose
-                      : Colors.white,
+                  ? AppColors.rose
+                  : Colors.white,
               border: isFirst || isLast ? Colors.white : route.color,
               size: isFirst || isLast ? 16 : 10,
-              label: stop.nameMm));
+              label: stop.nameMm,
+            ),
+          );
         }
 
-        for (final b in _busPositions)
-          markers.add(dotMarker(LatLng(b.lat!, b.lng!), color: AppColors.blue, size: 16));
-        if (_livePos != null)
-          markers.add(Marker(
-            point: LatLng(_livePos!.lat, _livePos!.lng),
-            width: 120,
-            height: 64,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: AppColors.blue,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 3),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color(0x33000000),
-                        blurRadius: 8,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(Icons.directions_car, size: 26, color: Colors.white),
-                ),
-                Positioned(
-                  bottom: 0,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        for (final b in _busPositions) {
+          markers.add(
+            dotMarker(LatLng(b.lat!, b.lng!), color: AppColors.blue, size: 16),
+          );
+        }
+        if (_livePos != null) {
+          markers.add(
+            Marker(
+              point: LatLng(_livePos!.lat, _livePos!.lng),
+              width: 120,
+              height: 64,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
                     decoration: BoxDecoration(
                       color: AppColors.blue,
-                      borderRadius: BorderRadius.circular(8),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 3),
                       boxShadow: const [
                         BoxShadow(
                           color: Color(0x33000000),
-                          blurRadius: 4,
-                          offset: Offset(0, 1),
+                          blurRadius: 8,
+                          offset: Offset(0, 2),
                         ),
                       ],
                     ),
-                    child: const Text(
-                      'မိမိ နေရာ',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
+                    child: const Icon(
+                      Icons.directions_car,
+                      size: 26,
+                      color: Colors.white,
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.blue,
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0x33000000),
+                            blurRadius: 4,
+                            offset: Offset(0, 1),
+                          ),
+                        ],
+                      ),
+                      child: const Text(
+                        'မိမိ နေရာ',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ));
-
-    final polylines = <Polyline>[
-      if (uniqueStops.isNotEmpty)
-        Polyline(
-          points: uniqueStops.map((s) => LatLng(s.lat, s.lng)).toList(),
-          color: route.color,
-          strokeWidth: 4,
-        ),
-    ];
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            RouteBadge(routeId: route.id, color: route.color, small: true),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(route.displayName,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          fontSize: 14, fontWeight: FontWeight.w600)),
-                  if ((route.operator ?? '').isNotEmpty)
-                    Text(route.operator!,
-                        style: const TextStyle(
-                            fontSize: 10, color: AppColors.slate400)),
                 ],
               ),
             ),
-          ],
-        ),
-        actions: [
-          IconButton(
-            onPressed: () async {
-              final ok = await ReportUpdateDialog.show(context,
-                  routeId: route.id, routeLabel: route.displayName);
-              if (ok == true) _loadBusPositions();
-            },
-            icon: const Icon(Icons.campaign, color: AppColors.amber),
-          ),
-        ],
-      ),
-      body: ListView(
-        children: [
-          SizedBox(
-            height: 220,
-            child: Stack(
+          );
+        }
+
+        final polylines = <Polyline>[
+          if (uniqueStops.isNotEmpty)
+            Polyline(
+              points: uniqueStops.map((s) => LatLng(s.lat, s.lng)).toList(),
+              color: route.color,
+              strokeWidth: 4,
+            ),
+        ];
+
+        return Scaffold(
+          appBar: AppBar(
+            title: Row(
               children: [
-                OsmMap(
-                  controller: _mapController,
-                  center: _stops.isNotEmpty
-                      ? LatLng(_stops.first.lat, _stops.first.lng)
-                      : const LatLng(16.8, 96.15),
-                  zoom: 12,
-                  markers: markers,
-                  polylines: polylines,
-                ),
-                Positioned(
-                  right: 12,
-                  bottom: 12,
+                RouteBadge(routeId: route.id, color: route.color, small: true),
+                const SizedBox(width: 10),
+                Expanded(
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      _fab(
-                        icon: _tracking ? Icons.navigation : Icons.my_location,
-                        color: _tracking ? AppColors.brand : AppColors.slate600,
-                        onTap: _startTracking,
-                      ),
-                      if (_tracking) ...[
-                        const SizedBox(height: 8),
-                        _fab(
-                          icon: _arrivalEnabled
-                              ? Icons.notifications_active
-                              : Icons.notifications_none,
-                          color: _arrivalEnabled
-                              ? AppColors.amber
-                              : AppColors.slate400,
-                          onTap: () {
-                            setState(
-                                () => _arrivalEnabled = !_arrivalEnabled);
-                            if (_arrivalEnabled) {
-                              NotifyService.instance.requestPermission();
-                            }
-                          },
+                      Text(
+                        route.displayName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
                         ),
-                      ],
-                      const SizedBox(height: 8),
-                      _fab(
-                        icon: _loadingBusPos
-                            ? Icons.hourglass_empty
-                            : Icons.directions_bus,
-                        color: AppColors.brand,
-                        badge: _busPositions.length,
-                        onTap: _loadBusPositions,
                       ),
+                      if ((route.operator ?? '').isNotEmpty)
+                        Text(
+                          route.operator!,
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: AppColors.slate400,
+                          ),
+                        ),
                     ],
                   ),
                 ),
               ],
             ),
+            actions: [
+              IconButton(
+                onPressed: () async {
+                  final ok = await ReportUpdateDialog.show(
+                    context,
+                    routeId: route.id,
+                    routeLabel: route.displayName,
+                  );
+                  if (ok == true) _loadBusPositions();
+                },
+                icon: const Icon(Icons.campaign, color: AppColors.amber),
+              ),
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          body: ListView(
+            children: [
+              SizedBox(
+                height: 220,
+                child: Stack(
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('စုစုပေါင်းမှတ်တိုင်', style: UI.label),
-                        Text('${uniqueStops.length}',
-                             style: const TextStyle(
-                                 fontSize: 24, fontWeight: FontWeight.bold)),
-                      ],
+                    OsmMap(
+                      controller: _mapController,
+                      center: _stops.isNotEmpty
+                          ? LatLng(_stops.first.lat, _stops.first.lng)
+                          : const LatLng(16.8, 96.15),
+                      zoom: 12,
+                      markers: markers,
+                      polylines: polylines,
                     ),
-                    const Spacer(),
-                    Flexible(
+                    Positioned(
+                      right: 12,
+                      bottom: 12,
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text(
-                              _stops.isNotEmpty ? _stops.first.nameMm : '—',
-                              textAlign: TextAlign.end,
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.w500)),
-                          Container(
-                              width: 1,
-                              height: 12,
-                              color: AppColors.slate200,
-                              margin:
-                                  const EdgeInsets.symmetric(vertical: 4)),
-                          Text(_stops.isNotEmpty ? _stops.last.nameMm : '—',
-                              textAlign: TextAlign.end,
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.w500)),
+                          _fab(
+                            icon: _tracking
+                                ? Icons.navigation
+                                : Icons.my_location,
+                            color: _tracking
+                                ? AppColors.brand
+                                : AppColors.slate600,
+                            onTap: _startTracking,
+                          ),
+                          if (_tracking) ...[
+                            const SizedBox(height: 8),
+                            _fab(
+                              icon: _arrivalEnabled
+                                  ? Icons.notifications_active
+                                  : Icons.notifications_none,
+                              color: _arrivalEnabled
+                                  ? AppColors.amber
+                                  : AppColors.slate400,
+                              onTap: () {
+                                setState(
+                                  () => _arrivalEnabled = !_arrivalEnabled,
+                                );
+                                if (_arrivalEnabled) {
+                                  NotifyService.instance.requestPermission();
+                                }
+                              },
+                            ),
+                          ],
+                          const SizedBox(height: 8),
+                          _fab(
+                            icon: _loadingBusPos
+                                ? Icons.hourglass_empty
+                                : Icons.directions_bus,
+                            color: AppColors.brand,
+                            badge: _busPositions.length,
+                            onTap: _loadBusPositions,
+                          ),
                         ],
                       ),
                     ),
                   ],
                 ),
-                const Divider(height: 24),
-                if (_arrivalMessage != null) _arrivalBanner(),
-                if (_loadingPred || _predictions.isNotEmpty || _predictionMsg != null)
-                  _predictionsBox(),
-                if (_busEta.isNotEmpty || _busEtaMsg != null) _busEtaBox(),
-                const SizedBox(height: 8),
-                Text('မှတ်တိုင်များ (${uniqueStops.length})', style: UI.label),
-                const SizedBox(height: 8),
-                ...uniqueStops.asMap().entries.map((e) => _stopTile(e.key, e.value, active, uniqueStops.length)),
-                const SizedBox(height: 8),
-              ],
-            ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('စုစုပေါင်းမှတ်တိုင်', style: UI.label),
+                            Text(
+                              '${uniqueStops.length}',
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Spacer(),
+                        Flexible(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                _stops.isNotEmpty ? _stops.first.nameMm : '—',
+                                textAlign: TextAlign.end,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              Container(
+                                width: 1,
+                                height: 12,
+                                color: AppColors.slate200,
+                                margin: const EdgeInsets.symmetric(vertical: 4),
+                              ),
+                              Text(
+                                _stops.isNotEmpty ? _stops.last.nameMm : '—',
+                                textAlign: TextAlign.end,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Divider(height: 24),
+                    if (_arrivalMessage != null) _arrivalBanner(),
+                    if (_loadingPred ||
+                        _predictions.isNotEmpty ||
+                        _predictionMsg != null)
+                      _predictionsBox(),
+                    if (_busEta.isNotEmpty || _busEtaMsg != null) _busEtaBox(),
+                    const SizedBox(height: 8),
+                    Text(
+                      'မှတ်တိုင်များ (${uniqueStops.length})',
+                      style: UI.label,
+                    ),
+                    const SizedBox(height: 8),
+                    ...uniqueStops.asMap().entries.map(
+                      (e) =>
+                          _stopTile(e.key, e.value, active, uniqueStops.length),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
+        );
       },
     );
   }
 
-  Widget _fab(
-      {required IconData icon,
-      required Color color,
-      required VoidCallback onTap,
-      int badge = 0}) {
+  Widget _fab({
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+    int badge = 0,
+  }) {
     return Stack(
       clipBehavior: Clip.none,
       children: [
@@ -445,12 +512,17 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
               height: 16,
               alignment: Alignment.center,
               decoration: const BoxDecoration(
-                  color: AppColors.brand, shape: BoxShape.circle),
-              child: Text('$badge',
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 9,
-                      fontWeight: FontWeight.bold)),
+                color: AppColors.brand,
+                shape: BoxShape.circle,
+              ),
+              child: Text(
+                '$badge',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 9,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ),
       ],
@@ -468,19 +540,26 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
       ),
       child: Row(
         children: [
-          const Icon(Icons.notifications_active,
-              size: 18, color: AppColors.amber),
+          const Icon(
+            Icons.notifications_active,
+            size: 18,
+            color: AppColors.amber,
+          ),
           const SizedBox(width: 10),
           Expanded(
-            child: Text(_arrivalMessage!,
-                style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF92400E))),
+            child: Text(
+              _arrivalMessage!,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF92400E),
+              ),
+            ),
           ),
           IconButton(
-              onPressed: () => setState(() => _arrivalMessage = null),
-              icon: const Icon(Icons.close, size: 16)),
+            onPressed: () => setState(() => _arrivalMessage = null),
+            icon: const Icon(Icons.close, size: 16),
+          ),
         ],
       ),
     );
@@ -498,20 +577,27 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(children: const [
-            Icon(Icons.schedule, size: 14, color: AppColors.slate500),
-            SizedBox(width: 6),
-            Text('အချိန်နှင့်အလိုက် ရောက်မည့် မှတ်တိုင်များ',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
-          ]),
+          Row(
+            children: const [
+              Icon(Icons.schedule, size: 14, color: AppColors.slate500),
+              SizedBox(width: 6),
+              Text(
+                'အချိန်နှင့်အလိုက် ရောက်မည့် မှတ်တိုင်များ',
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
           const SizedBox(height: 8),
           if (_loadingPred)
-            const Text('တွက်ချက်နေပါသည်...',
-                style: TextStyle(fontSize: 12, color: AppColors.slate400))
+            const Text(
+              'တွက်ချက်နေပါသည်...',
+              style: TextStyle(fontSize: 12, color: AppColors.slate400),
+            )
           else if (_predictionMsg != null && _predictions.isEmpty)
-            Text(_predictionMsg!,
-                style:
-                    const TextStyle(fontSize: 12, color: AppColors.slate500))
+            Text(
+              _predictionMsg!,
+              style: const TextStyle(fontSize: 12, color: AppColors.slate500),
+            )
           else
             ..._predictions.map((p) => _etaRow(p.stop, p.etaMinutes)),
         ],
@@ -531,20 +617,26 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(children: const [
-            Icon(Icons.schedule, size: 14, color: AppColors.emeraldDark),
-            SizedBox(width: 6),
-            Text('ကားလာမည့် အချိန် ခန့်မှန်းချက်',
+          Row(
+            children: const [
+              Icon(Icons.schedule, size: 14, color: AppColors.emeraldDark),
+              SizedBox(width: 6),
+              Text(
+                'ကားလာမည့် အချိန် ခန့်မှန်းချက်',
                 style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.emeraldDark)),
-          ]),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.emeraldDark,
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 8),
           if (_busEtaMsg != null && _busEta.isEmpty)
-            Text(_busEtaMsg!,
-                style:
-                    const TextStyle(fontSize: 12, color: AppColors.slate500))
+            Text(
+              _busEtaMsg!,
+              style: const TextStyle(fontSize: 12, color: AppColors.slate500),
+            )
           else
             ..._busEta
                 .take(6)
@@ -560,17 +652,21 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
       child: Row(
         children: [
           Expanded(
-            child: Text(stop,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                    fontSize: 12, fontWeight: FontWeight.w500)),
+            child: Text(
+              stop,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+            ),
           ),
-          Text('~$eta မိနစ်',
-              style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: green ? FontWeight.w600 : FontWeight.w400,
-                  color: green ? AppColors.emeraldDark : AppColors.slate500)),
+          Text(
+            '~$eta မိနစ်',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: green ? FontWeight.w600 : FontWeight.w400,
+              color: green ? AppColors.emeraldDark : AppColors.slate500,
+            ),
+          ),
         ],
       ),
     );
@@ -587,25 +683,32 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
         backgroundColor: isFirst
             ? Colors.green
             : isLast
-                ? Colors.red
-                : Colors.blueGrey,
-        child: Text('${idx + 1}',
-            style: const TextStyle(color: Colors.white, fontSize: 12)),
+            ? Colors.red
+            : Colors.blueGrey,
+        child: Text(
+          '${idx + 1}',
+          style: const TextStyle(color: Colors.white, fontSize: 12),
+        ),
       ),
-      title: Text(s.nameMm,
-          style: const TextStyle(fontWeight: FontWeight.w600)),
+      title: Text(
+        s.nameMm,
+        style: const TextStyle(fontWeight: FontWeight.w600),
+      ),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('${s.roadMm}လမ်း၊ ${s.townshipMm}မြို့နယ်',
-              style: const TextStyle(fontSize: 12)),
+          Text(
+            '${s.roadMm}လမ်း၊ ${s.townshipMm}မြို့နယ်',
+            style: const TextStyle(fontSize: 12),
+          ),
           if (isFirst)
             Container(
               margin: const EdgeInsets.only(top: 4),
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                  color: Colors.green.shade100,
-                  borderRadius: BorderRadius.circular(4)),
+                color: Colors.green.shade100,
+                borderRadius: BorderRadius.circular(4),
+              ),
               child: Text(''),
             ),
           if (isLast)
@@ -613,15 +716,19 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
               margin: const EdgeInsets.only(top: 4),
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                  color: Colors.red.shade100,
-                  borderRadius: BorderRadius.circular(4)),
+                color: Colors.red.shade100,
+                borderRadius: BorderRadius.circular(4),
+              ),
               child: Text(''),
             ),
         ],
       ),
       trailing: isActive
-          ? const Pill('လက်ရှိ',
-              bg: Color(0xFFD1FAE5), fg: AppColors.emeraldDark)
+          ? const Pill(
+              'လက်ရှိ',
+              bg: Color(0xFFD1FAE5),
+              fg: AppColors.emeraldDark,
+            )
           : const SizedBox.shrink(),
     );
   }

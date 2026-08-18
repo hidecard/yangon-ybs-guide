@@ -18,7 +18,6 @@ class LocalStore {
   static const _tripHistoryKey = 'ybs_trip_history';
   static const _savedTripsKey = 'ybs_saved_trips';
   static const _lastSeenNotifKey = 'ybs_notifications_last_seen';
-  static const _lbUserNameKey = 'ybs_lb_user_name';
 
   // ---- Favorite routes ----
   Future<Set<String>> favRoutes() async {
@@ -79,7 +78,9 @@ class LocalStore {
     list.insert(0, item);
     final trimmed = list.take(20).toList();
     await p.setString(
-        _tripHistoryKey, json.encode(trimmed.map((e) => e.toJson()).toList()));
+      _tripHistoryKey,
+      json.encode(trimmed.map((e) => e.toJson()).toList()),
+    );
     return trimmed;
   }
 
@@ -87,7 +88,9 @@ class LocalStore {
     final p = await _p;
     final list = (await tripHistory()).where((e) => e.id != id).toList();
     await p.setString(
-        _tripHistoryKey, json.encode(list.map((e) => e.toJson()).toList()));
+      _tripHistoryKey,
+      json.encode(list.map((e) => e.toJson()).toList()),
+    );
     return list;
   }
 
@@ -117,14 +120,18 @@ class LocalStore {
     final list = (await savedTrips())..removeWhere((t) => t.id == trip.id);
     list.insert(0, trip);
     await p.setString(
-        _savedTripsKey, json.encode(list.map((e) => e.toJson()).toList()));
+      _savedTripsKey,
+      json.encode(list.map((e) => e.toJson()).toList()),
+    );
   }
 
   Future<void> deleteTrip(String id) async {
     final p = await _p;
     final list = (await savedTrips()).where((t) => t.id != id).toList();
     await p.setString(
-        _savedTripsKey, json.encode(list.map((e) => e.toJson()).toList()));
+      _savedTripsKey,
+      json.encode(list.map((e) => e.toJson()).toList()),
+    );
   }
 
   // ---- Notifications last-seen ----
@@ -151,14 +158,15 @@ class LocalStore {
   }) async {
     final p = await _p;
     await p.setString(
-        _alertKey,
-        json.encode({
-          'stopName': stopName,
-          'lat': lat,
-          'lng': lng,
-          'detail': detail,
-          'alerted': false,
-        }));
+      _alertKey,
+      json.encode({
+        'stopName': stopName,
+        'lat': lat,
+        'lng': lng,
+        'detail': detail,
+        'alerted': false,
+      }),
+    );
   }
 
   Future<Map<String, dynamic>?> getBackgroundAlert() async {
@@ -186,17 +194,6 @@ class LocalStore {
     final p = await _p;
     await p.remove(_alertKey);
   }
-
-  // ---- Leaderboard user name ----
-  Future<String?> leaderboardUserName() async {
-    final p = await _p;
-    return p.getString(_lbUserNameKey);
-  }
-
-  Future<void> setLeaderboardUserName(String name) async {
-    final p = await _p;
-    await p.setString(_lbUserNameKey, name);
-  }
 }
 
 class TripHistoryItem {
@@ -217,20 +214,20 @@ class TripHistoryItem {
   });
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'type': type,
-        'label': label,
-        'subtitle': subtitle,
-        'routeId': routeId,
-        'timestamp': timestamp,
-      };
+    'id': id,
+    'type': type,
+    'label': label,
+    'subtitle': subtitle,
+    'routeId': routeId,
+    'timestamp': timestamp,
+  };
 
   factory TripHistoryItem.fromJson(Map<String, dynamic> j) => TripHistoryItem(
-        id: j['id'] as String,
-        type: j['type'] as String,
-        label: j['label'] as String,
-        subtitle: j['subtitle'],
-        routeId: j['routeId'],
-        timestamp: (j['timestamp'] as num).toInt(),
-      );
+    id: j['id'] as String,
+    type: j['type'] as String,
+    label: j['label'] as String,
+    subtitle: j['subtitle'],
+    routeId: j['routeId'],
+    timestamp: (j['timestamp'] as num).toInt(),
+  );
 }

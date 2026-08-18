@@ -1,12 +1,5 @@
-/// Shared obfuscation used to keep the bundled route data out of plain sight
-/// inside the APK.
-///
-/// NOTE: anything shipped in an app can ultimately be reversed. This is
-/// *obfuscation*, not real security — it stops someone from simply unzipping
-/// the APK and reading the JSON. The key lives in the app binary, so a
-/// determined attacker could recover it, but casual extraction is prevented.
-library routes_crypto;
-
+// Shared obfuscation keeps the bundled route data out of plain sight inside
+// the APK. This is obfuscation, not real security.
 import 'dart:convert';
 import 'dart:typed_data';
 

@@ -141,7 +141,8 @@ class _BusUpdatesFeedState extends State<BusUpdatesFeed> {
                   ? const SizedBox(
                       width: 16,
                       height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2))
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
                   : const Icon(Icons.refresh, size: 18),
             ),
           ],
@@ -150,8 +151,10 @@ class _BusUpdatesFeedState extends State<BusUpdatesFeed> {
         if (_loading && _updates.isEmpty)
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 12),
-            child: Text('ရယူနေပါသည်...',
-                style: TextStyle(color: AppColors.textMuted)),
+            child: Text(
+              'ရယူနေပါသည်...',
+              style: TextStyle(color: AppColors.textMuted),
+            ),
           )
         else if (_error)
           Padding(
@@ -159,8 +162,10 @@ class _BusUpdatesFeedState extends State<BusUpdatesFeed> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('အချက်အလက် ရယူ၍ မရပါ။',
-                    style: TextStyle(color: AppColors.rose)),
+                const Text(
+                  'အချက်အလက် ရယူ၍ မရပါ။',
+                  style: TextStyle(color: AppColors.rose),
+                ),
                 TextButton.icon(
                   onPressed: _load,
                   icon: const Icon(Icons.refresh, size: 14),
@@ -172,8 +177,10 @@ class _BusUpdatesFeedState extends State<BusUpdatesFeed> {
         else if (_updates.isEmpty)
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 12),
-            child: Text('လောလောဆယ် အချက်အလက် မရှိသေးပါ။',
-                style: TextStyle(color: AppColors.textMuted)),
+            child: Text(
+              'လောလောဆယ် အချက်အလက် မရှိသေးပါ။',
+              style: TextStyle(color: AppColors.textMuted),
+            ),
           )
         else
           ..._updates.map(_updateCard),
@@ -195,10 +202,14 @@ class _BusUpdatesFeedState extends State<BusUpdatesFeed> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-                color: AppColors.slate100,
-                borderRadius: BorderRadius.circular(8)),
-            child: const Icon(Icons.campaign,
-                size: 14, color: AppColors.slate500),
+              color: AppColors.slate100,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(
+              Icons.campaign,
+              size: 14,
+              color: AppColors.slate500,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -216,35 +227,53 @@ class _BusUpdatesFeedState extends State<BusUpdatesFeed> {
                     const SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 2),
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
-                          color: meta.bg,
-                          borderRadius: BorderRadius.circular(999)),
-                      child: Text(meta.label,
-                          style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                              color: meta.color)),
+                        color: meta.bg,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        meta.label,
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: meta.color,
+                        ),
+                      ),
                     ),
                     const Spacer(),
-                    Text(timeAgo(u.createdAt),
-                        style: const TextStyle(
-                            fontSize: 10, color: AppColors.textMuted)),
+                    Text(
+                      timeAgo(u.createdAt),
+                      style: const TextStyle(
+                        fontSize: 10,
+                        color: AppColors.textMuted,
+                      ),
+                    ),
                   ],
                 ),
                 if (u.stop != null && u.stop!.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: 6),
-                    child: Text('📍 ${u.stop}',
-                        style: const TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.w600)),
+                    child: Text(
+                      '📍 ${u.stop}',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 if (u.note != null && u.note!.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: 2),
-                    child: Text(u.note!,
-                        style: const TextStyle(
-                            fontSize: 12, color: AppColors.textSecondary)),
+                    child: Text(
+                      u.note!,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
                   ),
                 const SizedBox(height: 8),
                 Row(
@@ -269,8 +298,8 @@ class _BusUpdatesFeedState extends State<BusUpdatesFeed> {
                         color: u.upvotes > 0
                             ? AppColors.emerald
                             : u.upvotes < 0
-                                ? AppColors.rose
-                                : AppColors.slate500,
+                            ? AppColors.rose
+                            : AppColors.slate500,
                       ),
                     ),
                   ],
@@ -288,11 +317,7 @@ class _VoteButton extends StatelessWidget {
   final IconData icon;
   final bool active;
   final VoidCallback? onTap;
-  const _VoteButton({
-    required this.icon,
-    required this.active,
-    this.onTap,
-  });
+  const _VoteButton({required this.icon, required this.active, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -303,7 +328,9 @@ class _VoteButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
           color: active
-              ? (icon == Icons.thumb_up ? AppColors.emeraldLight : AppColors.roseLight)
+              ? (icon == Icons.thumb_up
+                    ? AppColors.emeraldLight
+                    : AppColors.roseLight)
               : AppColors.slate100,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
@@ -318,7 +345,9 @@ class _VoteButton extends StatelessWidget {
               icon,
               size: 14,
               color: active
-                  ? (icon == Icons.thumb_up ? AppColors.emerald : AppColors.rose)
+                  ? (icon == Icons.thumb_up
+                        ? AppColors.emerald
+                        : AppColors.rose)
                   : AppColors.slate500,
             ),
           ],

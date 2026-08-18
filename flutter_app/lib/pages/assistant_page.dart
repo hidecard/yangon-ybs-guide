@@ -20,9 +20,10 @@ class _AssistantPageState extends State<AssistantPage> {
   bool _loading = false;
   final List<ChatMessage> _messages = [
     const ChatMessage(
-        role: 'assistant',
-        content:
-            'မင်္ဂလာပါ! YBS Assistant ပါ။ ဘယ်ကနေ ဘယ်ကို သွားချင်လဲ? ဥပမာ - "မြေနီကုန်းကနေ ဆူးလေကို ဘယ်လိုသွားရမလဲ" လို့ မေးလို့ရပါတယ်။'),
+      role: 'assistant',
+      content:
+          'မင်္ဂလာပါ! YBS Assistant ပါ။ ဘယ်ကနေ ဘယ်ကို သွားချင်လဲ? ဥပမာ - "မြေနီကုန်းကနေ ဆူးလေကို ဘယ်လိုသွားရမလဲ" လို့ မေးလို့ရပါတယ်။',
+    ),
   ];
 
   List<String> _suggestions = const [];
@@ -37,10 +38,10 @@ class _AssistantPageState extends State<AssistantPage> {
     final state = context.read<AppState>();
     final stops = state.stops;
     if (stops.isEmpty) return;
-    
+
     final seen = <String>{};
     final picks = <String>[];
-    
+
     for (final s in stops) {
       final name = s.nameMm.trim();
       if (name.isEmpty || seen.contains(name)) continue;
@@ -48,7 +49,7 @@ class _AssistantPageState extends State<AssistantPage> {
       picks.add(name);
       if (picks.length >= 20) break;
     }
-    
+
     if (picks.length >= 2 && mounted) {
       final suggestions = <String>[];
       for (int i = 0; i < picks.length && suggestions.length < 4; i++) {
@@ -103,13 +104,15 @@ class _AssistantPageState extends State<AssistantPage> {
     // Handle "from my location" style queries.
     String? nearMeStart;
     var query = text;
-    if (RegExp(r'နောက်|ကျွန်တော်.*နေ|ကိုယ်.*နေ|မိမိနေ|လက်ရှိနေ|အနီးဆုံး')
-        .hasMatch(text)) {
+    if (RegExp(
+      r'နောက်|ကျွန်တော်.*နေ|ကိုယ်.*နေ|မိမိနေ|လက်ရှိနေ|အနီးဆုံး',
+    ).hasMatch(text)) {
       nearMeStart = await _nearestStopName(state);
       if (nearMeStart != null) {
         query = text.replaceAll(
-            RegExp(r'နောက်|ကျွန်တော်.*နေ|ကိုယ်.*နေ|မိမိနေ|လက်ရှိနေ|အနီးဆုံး'),
-            nearMeStart);
+          RegExp(r'နောက်|ကျွန်တော်.*နေ|ကိုယ်.*နေ|မိမိနေ|လက်ရှိနေ|အနီးဆုံး'),
+          nearMeStart,
+        );
       }
     }
 
@@ -125,35 +128,38 @@ class _AssistantPageState extends State<AssistantPage> {
 
     if (start == null && end == null) {
       return const ChatMessage(
-          role: 'assistant',
-          content:
-              'တောင်းပန်ပါတယ်၊ သင်ပြောတဲ့ မှတ်တိုင်အမည်ကို ရှာမတွေ့ပါဘူး။ ဥပမာ - "မြေနီကုန်းကနေ ဆူးလေကို ဘယ်လိုသွားရမလဲ" လို့ ပြန်မေးပေးပါဦး။');
+        role: 'assistant',
+        content:
+            'တောင်းပန်ပါတယ်၊ သင်ပြောတဲ့ မှတ်တိုင်အမည်ကို ရှာမတွေ့ပါဘူး။ ဥပမာ - "မြေနီကုန်းကနေ ဆူးလေကို ဘယ်လိုသွားရမလဲ" လို့ ပြန်မေးပေးပါဦး။',
+      );
     }
 
     if (start != null && end == null) {
       return ChatMessage(
-          role: 'assistant',
-          content: '$start ကနေ ဘယ်ကို သွားချင်တာလဲခင်ဗျာ?');
+        role: 'assistant',
+        content: '$start ကနေ ဘယ်ကို သွားချင်တာလဲခင်ဗျာ?',
+      );
     }
 
     if (start == null && end != null) {
       return ChatMessage(
-          role: 'assistant',
-          content: '$end ကို ဘယ်မှတ်တိုင်ကနေ လာမှာလဲခင်ဗျာ?');
+        role: 'assistant',
+        content: '$end ကို ဘယ်မှတ်တိုင်ကနေ လာမှာလဲခင်ဗျာ?',
+      );
     }
 
     // 1) Fast SQLite direct-route lookup (correct forward direction).
     final direct = await state.repo.findDirectRoutes(start!, end!);
     final List<SearchResult> found = direct.isNotEmpty
         ? direct
-            .map((r) => SearchResult(
-                  steps: [
-                    PathStep(route: r, fromStop: start!, toStop: end!)
-                  ],
+              .map(
+                (r) => SearchResult(
+                  steps: [PathStep(route: r, fromStop: start!, toStop: end!)],
                   transferCount: 0,
                   totalDistance: 0,
-                ))
-            .toList()
+                ),
+              )
+              .toList()
         // 2) Fall back to the BFS planner for transfer routes.
         : performBFS(start, end, state.routes, state.stops);
 
@@ -163,19 +169,27 @@ class _AssistantPageState extends State<AssistantPage> {
       final summary = [
         '$start မှ $end သို့ စီးရမည့် လမ်းကြောင်း ${found.length} ခု တွေ့ပါတယ်။',
         if (directCount > 0) '• တိုက်ရိုက် လိုင်း $directCount ခု',
-        if (transferCount > 0) '• ကားပြောင်းစီးရမည့် လမ်းကြောင်း $transferCount ခု',
+        if (transferCount > 0)
+          '• ကားပြောင်းစီးရမည့် လမ်းကြောင်း $transferCount ခု',
         'အောက်က ရလဒ်ကို နှိပ်ပြီး အသေးစိတ် ကြည့်နိုင်ပါတယ်။',
       ].join('\n');
       await LocalStore.instance.addTripHistory(
-          type: 'search', label: start, subtitle: end);
+        type: 'search',
+        label: start,
+        subtitle: end,
+      );
       return ChatMessage(
-          role: 'assistant', content: summary, results: found.take(4).toList());
+        role: 'assistant',
+        content: summary,
+        results: found.take(4).toList(),
+      );
     }
 
     return ChatMessage(
-        role: 'assistant',
-        content:
-            '$start မှ $end သို့ တိုက်ရိုက် သို့မဟုတ် တစ်ဆင့်ပြောင်း လမ်းကြောင်း ရှာမတွေ့ပါဘူး။ မှတ်တိုင်အမည်လေး အနည်းငယ် ပြောင်းကြည့်ပေးပါဦး။');
+      role: 'assistant',
+      content:
+          '$start မှ $end သို့ တိုက်ရိုက် သို့မဟုတ် တစ်ဆင့်ပြောင်း လမ်းကြောင်း ရှာမတွေ့ပါဘူး။ မှတ်တိုင်အမည်လေး အနည်းငယ် ပြောင်းကြည့်ပေးပါဦး။',
+    );
   }
 
   Future<String?> _nearestStopName(AppState state) async {
@@ -184,7 +198,11 @@ class _AssistantPageState extends State<AssistantPage> {
     if (p == null) return null;
     BusStop nearest = state.stops.first;
     double minD = getDistance(
-        p.latitude, p.longitude, nearest.lat, nearest.lng);
+      p.latitude,
+      p.longitude,
+      nearest.lat,
+      nearest.lng,
+    );
     for (final s in state.stops) {
       final d = getDistance(p.latitude, p.longitude, s.lat, s.lng);
       if (d < minD) {
@@ -198,8 +216,11 @@ class _AssistantPageState extends State<AssistantPage> {
   void _scrollDown() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scroll.hasClients) {
-        _scroll.animateTo(_scroll.position.maxScrollExtent,
-            duration: const Duration(milliseconds: 250), curve: Curves.easeOut);
+        _scroll.animateTo(
+          _scroll.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOut,
+        );
       }
     });
   }
@@ -228,9 +249,10 @@ class _AssistantPageState extends State<AssistantPage> {
                       child: Padding(
                         padding: EdgeInsets.all(8),
                         child: SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2)),
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
                       ),
                     );
                   }
@@ -247,11 +269,16 @@ class _AssistantPageState extends State<AssistantPage> {
                   itemCount: _suggestions.length,
                   separatorBuilder: (_, __) => const SizedBox(width: 8),
                   itemBuilder: (_, i) => ActionChip(
-                    label: Text(_suggestions[i],
-                        style: const TextStyle(fontSize: 12)),
+                    label: Text(
+                      _suggestions[i],
+                      style: const TextStyle(fontSize: 12),
+                    ),
                     backgroundColor: AppColors.brandLight,
                     labelStyle: const TextStyle(color: AppColors.brandHover),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                     onPressed: () => _send(_suggestions[i]),
                   ),
                 ),
@@ -270,16 +297,19 @@ class _AssistantPageState extends State<AssistantPage> {
                       controller: _controller,
                       onSubmitted: (_) => _send(),
                       decoration: const InputDecoration(
-                          hintText: 'မေးမြန်းလိုသည်များကို ရိုက်ထည့်ပါ...'),
+                        hintText: 'မေးမြန်းလိုသည်များကို ရိုက်ထည့်ပါ...',
+                      ),
                     ),
                   ),
                   const SizedBox(width: 8),
                   FilledButton(
                     style: FilledButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        padding: const EdgeInsets.all(14),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12))),
+                      backgroundColor: AppColors.primary,
+                      padding: const EdgeInsets.all(14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
                     onPressed: _send,
                     child: const Icon(Icons.send, size: 18),
                   ),
@@ -300,7 +330,8 @@ class _AssistantPageState extends State<AssistantPage> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(12),
         constraints: BoxConstraints(
-            maxWidth: MediaQuery.of(context).size.width * 0.75),
+          maxWidth: MediaQuery.of(context).size.width * 0.75,
+        ),
         decoration: BoxDecoration(
           color: isUser ? AppColors.brand : AppColors.slate100,
           borderRadius: BorderRadius.only(
@@ -313,58 +344,73 @@ class _AssistantPageState extends State<AssistantPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(m.content,
-                style: TextStyle(
-                    fontSize: 14,
-                    color: isUser ? Colors.white : AppColors.text)),
+            Text(
+              m.content,
+              style: TextStyle(
+                fontSize: 14,
+                color: isUser ? Colors.white : AppColors.text,
+              ),
+            ),
             if (m.results != null)
-              ...m.results!.map((res) => GestureDetector(
-                    onTap: () => Nav.openRoutePlan(context, res.steps),
-                    child: Container(
-                      margin: const EdgeInsets.only(top: 8),
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.85),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.slate200),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Wrap(
-                            spacing: 4,
-                            crossAxisAlignment: WrapCrossAlignment.center,
-                            children: [
-                              for (int i = 0; i < res.steps.length; i++) ...[
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 6, vertical: 2),
-                                  decoration: BoxDecoration(
-                                      color: AppColors.primary,
-                                      borderRadius:
-                                          BorderRadius.circular(4)),
-                                  child: Text('YBS ${res.steps[i].route.id}',
-                                      style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold)),
-                                ),
-                                if (i < res.steps.length - 1)
-                                  const Icon(Icons.chevron_right,
-                                      size: 12, color: AppColors.slate400),
-                              ],
-                            ],
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            '${res.transferCount == 0 ? 'တိုက်ရိုက်' : '${res.transferCount} ဆင့်ပြောင်း'} • ${res.totalDistance.toStringAsFixed(1)} km',
-                            style: const TextStyle(
-                                fontSize: 10, color: AppColors.slate500),
-                          ),
-                        ],
-                      ),
+              ...m.results!.map(
+                (res) => GestureDetector(
+                  onTap: () => Nav.openRoutePlan(context, res.steps),
+                  child: Container(
+                    margin: const EdgeInsets.only(top: 8),
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.85),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.slate200),
                     ),
-                  )),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Wrap(
+                          spacing: 4,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            for (int i = 0; i < res.steps.length; i++) ...[
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  'YBS ${res.steps[i].route.id}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              if (i < res.steps.length - 1)
+                                const Icon(
+                                  Icons.chevron_right,
+                                  size: 12,
+                                  color: AppColors.slate400,
+                                ),
+                            ],
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          '${res.transferCount == 0 ? 'တိုက်ရိုက်' : '${res.transferCount} ဆင့်ပြောင်း'} • ${res.totalDistance.toStringAsFixed(1)} km',
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: AppColors.slate500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       ),

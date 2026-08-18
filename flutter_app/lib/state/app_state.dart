@@ -14,7 +14,6 @@ class AppState extends ChangeNotifier {
   List<FavoriteTrip> savedTrips = [];
   String? pendingSearchStart;
   String? pendingSearchEnd;
-  String? leaderboardUserName;
 
   List<BusRoute> get routes => repo.routes;
   List<BusStop> get stops => repo.stops;
@@ -23,7 +22,6 @@ class AppState extends ChangeNotifier {
     favRoutes = await store.favRoutes();
     favStops = await store.favStops();
     savedTrips = await store.savedTrips();
-    leaderboardUserName = await store.leaderboardUserName();
     notifyListeners();
 
     await repo.load();
@@ -62,7 +60,10 @@ class AppState extends ChangeNotifier {
   Future<void> saveTrip(List<PathStep> steps) async {
     final id = '${DateTime.now().millisecondsSinceEpoch}';
     final trip = FavoriteTrip(
-        id: id, steps: steps, createdAt: DateTime.now().millisecondsSinceEpoch);
+      id: id,
+      steps: steps,
+      createdAt: DateTime.now().millisecondsSinceEpoch,
+    );
     await store.saveTrip(trip);
     savedTrips = await store.savedTrips();
     notifyListeners();

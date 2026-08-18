@@ -56,12 +56,15 @@ class _HomePageState extends State<HomePage> {
         const Center(
           child: Column(
             children: [
-              Text('ရန်ကုန် YBS လမ်းညွှန်',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.text)),
+              Text(
+                'ရန်ကုန် YBS လမ်းညွှန်',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.text,
+                ),
+              ),
               SizedBox(height: 8),
               Text(
                 'ကားလိုင်းရှာဖွေခြင်း၊ လမ်းကြောင်းရှာခြင်းနှင့် မြေပုံကြည့်ရှုခြင်း — အားလုံးတစ်နေရာတည်း',
@@ -107,13 +110,16 @@ class _HomePageState extends State<HomePage> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                  color: color, borderRadius: BorderRadius.circular(12)),
+                color: color,
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: Icon(icon, color: Colors.white, size: 22),
             ),
             const SizedBox(height: 10),
-            Text(label,
-                style: const TextStyle(
-                    fontWeight: FontWeight.w600, fontSize: 13)),
+            Text(
+              label,
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+            ),
           ],
         ),
       ),
@@ -135,8 +141,9 @@ class _HomePageState extends State<HomePage> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-                color: AppColors.slate100,
-                borderRadius: BorderRadius.circular(12)),
+              color: AppColors.slate100,
+              borderRadius: BorderRadius.circular(12),
+            ),
             child: Icon(tip.$1, size: 18, color: AppColors.slate600),
           ),
           const SizedBox(width: 14),
@@ -144,13 +151,21 @@ class _HomePageState extends State<HomePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(tip.$2,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w600, fontSize: 14)),
+                Text(
+                  tip.$2,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text(tip.$3,
-                    style: const TextStyle(
-                        fontSize: 12, color: AppColors.slate500)),
+                Text(
+                  tip.$3,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.slate500,
+                  ),
+                ),
               ],
             ),
           ),
@@ -164,33 +179,31 @@ const _travelTips = <(IconData, String, String)>[
   (
     Icons.info_outline,
     'ရာသီဥတု ပြင်ဆင်မှု',
-    'နေပူရင် ဦးထုပ်/နေကာမျက်မှန်၊ မိုးရွာရင် ထီးဆောင်သွားပါ။'
+    'နေပူရင် ဦးထုပ်/နေကာမျက်မှန်၊ မိုးရွာရင် ထီးဆောင်သွားပါ။',
   ),
   (
     Icons.person_outline,
     'လုံခြုံရေး သတိပေးချက်',
-    'လူကျပ်တဲ့အချိန်မှာ ခိတ်နှိုက်နဲ့ သူခိုးတွေကို အထူးသတိထားပါ။'
+    'လူကျပ်တဲ့အချိန်မှာ ခိတ်နှိုက်နဲ့ သူခိုးတွေကို အထူးသတိထားပါ။',
   ),
   (
     Icons.navigation_outlined,
     'မှတ်တိုင်မကျော်စေရန်',
-    'အိပ်ပျော်မသွားအောင် ဖုန်းအချက်ပေးသံ ပေးထားပါ။'
+    'အိပ်ပျော်မသွားအောင် ဖုန်းအချက်ပေးသံ ပေးထားပါ။',
   ),
   (
     Icons.credit_card,
     'YBS ကတ် အကြံပြုချက်',
-    'ကတ်ထဲ ငွေကြိုတင်ဖြည့်ပြီး လက်ကျန်ငွေကို ပုံမှန်စစ်ဆေးပါ။'
+    'ကတ်ထဲ ငွေကြိုတင်ဖြည့်ပြီး လက်ကျန်ငွေကို ပုံမှန်စစ်ဆေးပါ။',
   ),
 ];
 
 /// InheritedWidget to let child pages switch bottom-nav tabs.
 class TabSwitcher extends InheritedWidget {
   final void Function(int) onSwitch;
-  const TabSwitcher(
-      {super.key, required this.onSwitch, required super.child});
-  static void Function(int)? of(BuildContext context) => context
-      .dependOnInheritedWidgetOfExactType<TabSwitcher>()
-      ?.onSwitch;
+  const TabSwitcher({super.key, required this.onSwitch, required super.child});
+  static void Function(int)? of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<TabSwitcher>()?.onSwitch;
   @override
   bool updateShouldNotify(covariant InheritedWidget oldWidget) => false;
 }
@@ -234,11 +247,13 @@ class _NearestStopsCardState extends State<_NearestStopsCard> {
     final nearest = _pos == null
         ? <(BusStop, double)>[]
         : (state.stops
-            .map((s) => (s, getDistance(_pos!.lat, _pos!.lng, s.lat, s.lng)))
-            .toList()
-          ..sort((a, b) => a.$2.compareTo(b.$2)))
-            .take(5)
-            .toList();
+                  .map(
+                    (s) => (s, getDistance(_pos!.lat, _pos!.lng, s.lat, s.lng)),
+                  )
+                  .toList()
+                ..sort((a, b) => a.$2.compareTo(b.$2)))
+              .take(5)
+              .toList();
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -251,34 +266,47 @@ class _NearestStopsCardState extends State<_NearestStopsCard> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                    color: AppColors.brandLight,
-                    borderRadius: BorderRadius.circular(8)),
-                child: const Icon(Icons.my_location,
-                    size: 16, color: AppColors.brand),
+                  color: AppColors.brandLight,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.my_location,
+                  size: 16,
+                  color: AppColors.brand,
+                ),
               ),
               const SizedBox(width: 8),
-              const Text('အနီးဆုံးမှတ်တိုင်များ',
-                  style:
-                      TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+              const Text(
+                'အနီးဆုံးမှတ်တိုင်များ',
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+              ),
               const Spacer(),
               FilledButton.icon(
                 onPressed: _locating ? null : _locate,
                 style: FilledButton.styleFrom(
-                    backgroundColor:
-                        _pos == null ? AppColors.brand : AppColors.slate100,
-                    foregroundColor:
-                        _pos == null ? Colors.white : AppColors.slate600,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 6),
-                    visualDensity: VisualDensity.compact),
+                  backgroundColor: _pos == null
+                      ? AppColors.brand
+                      : AppColors.slate100,
+                  foregroundColor: _pos == null
+                      ? Colors.white
+                      : AppColors.slate600,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  visualDensity: VisualDensity.compact,
+                ),
                 icon: _locating
                     ? const SizedBox(
                         width: 13,
                         height: 13,
-                        child: CircularProgressIndicator(strokeWidth: 2))
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
                     : const Icon(Icons.gps_fixed, size: 13),
-                label: Text(_pos == null ? 'ယခု နေရာ' : 'ပြန်ရယူ',
-                    style: const TextStyle(fontSize: 12)),
+                label: Text(
+                  _pos == null ? 'ယခု နေရာ' : 'ပြန်ရယူ',
+                  style: const TextStyle(fontSize: 12),
+                ),
               ),
             ],
           ),
@@ -289,8 +317,10 @@ class _NearestStopsCardState extends State<_NearestStopsCard> {
               style: TextStyle(fontSize: 12, color: AppColors.slate400),
             ),
           if (_error != null)
-            Text(_error!,
-                style: const TextStyle(fontSize: 12, color: AppColors.rose)),
+            Text(
+              _error!,
+              style: const TextStyle(fontSize: 12, color: AppColors.rose),
+            ),
           ...nearest.map((e) => _stopRow(context, state, e.$1, e.$2)),
         ],
       ),
@@ -298,7 +328,11 @@ class _NearestStopsCardState extends State<_NearestStopsCard> {
   }
 
   Widget _stopRow(
-      BuildContext context, AppState state, BusStop stop, double distance) {
+    BuildContext context,
+    AppState state,
+    BusStop stop,
+    double distance,
+  ) {
     final passing = state.routesForStop(stop.nameMm, limit: 3);
     return Padding(
       padding: const EdgeInsets.only(top: 8),
@@ -314,39 +348,57 @@ class _NearestStopsCardState extends State<_NearestStopsCard> {
           ),
           child: Row(
             children: [
-              const Icon(Icons.location_on_outlined,
-                  size: 18, color: AppColors.brand),
+              const Icon(
+                Icons.location_on_outlined,
+                size: 18,
+                color: AppColors.brand,
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(stop.nameMm,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w600, fontSize: 13)),
+                    Text(
+                      stop.nameMm,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                    ),
                     const SizedBox(height: 4),
                     Wrap(
                       spacing: 4,
                       runSpacing: 4,
                       children: passing.isEmpty
                           ? [
-                              const Text('ကားလိုင်း မတွေ့ပါ',
-                                  style: TextStyle(
-                                      fontSize: 10,
-                                      color: AppColors.slate400))
+                              const Text(
+                                'ကားလိုင်း မတွေ့ပါ',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: AppColors.slate400,
+                                ),
+                              ),
                             ]
                           : passing
-                              .map((r) => RouteBadge(
-                                  routeId: r.id, color: r.color, small: true))
-                              .toList(),
+                                .map(
+                                  (r) => RouteBadge(
+                                    routeId: r.id,
+                                    color: r.color,
+                                    small: true,
+                                  ),
+                                )
+                                .toList(),
                     ),
                   ],
                 ),
               ),
-              Pill('${(distance * 1000).toStringAsFixed(0)}m',
-                  bg: AppColors.brandLight, fg: AppColors.brandHover),
+              Pill(
+                '${(distance * 1000).toStringAsFixed(0)}m',
+                bg: AppColors.brandLight,
+                fg: AppColors.brandHover,
+              ),
             ],
           ),
         ),
@@ -399,45 +451,59 @@ class _RecentSearchesState extends State<_RecentSearches> {
           ],
         ),
         const SizedBox(height: 8),
-        ..._history.map((item) => InkWell(
-              onTap: () => _onTapItem(context, item),
-              borderRadius: BorderRadius.circular(12),
-              child: Container(
-                margin: const EdgeInsets.only(bottom: 8),
-                padding: const EdgeInsets.all(12),
-                decoration: UI.card(),
-                child: Row(
-                  children: [
+        ..._history.map(
+          (item) => InkWell(
+            onTap: () => _onTapItem(context, item),
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.all(12),
+              decoration: UI.card(),
+              child: Row(
+                children: [
                   Icon(
-                      item.type == 'search'
-                          ? Icons.search
-                          : item.type == 'route'
-                              ? Icons.directions_bus
-                              : Icons.location_on_outlined,
-                      size: 18,
-                      color: AppColors.brand),
+                    item.type == 'search'
+                        ? Icons.search
+                        : item.type == 'route'
+                        ? Icons.directions_bus
+                        : Icons.location_on_outlined,
+                    size: 18,
+                    color: AppColors.brand,
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(item.label,
+                        Text(
+                          item.label,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                          ),
+                        ),
+                        if (item.subtitle != null)
+                          Text(
+                            item.subtitle!,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
-                                fontWeight: FontWeight.w600, fontSize: 13)),
-                        if (item.subtitle != null)
-                          Text(item.subtitle!,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                  fontSize: 12, color: AppColors.slate400)),
+                              fontSize: 12,
+                              color: AppColors.slate400,
+                            ),
+                          ),
                       ],
                     ),
                   ),
-                  Text(timeAgo(item.timestamp),
-                      style: const TextStyle(
-                          fontSize: 10, color: AppColors.slate400)),
+                  Text(
+                    timeAgo(item.timestamp),
+                    style: const TextStyle(
+                      fontSize: 10,
+                      color: AppColors.slate400,
+                    ),
+                  ),
                   IconButton(
                     onPressed: () async {
                       await LocalStore.instance.removeTripHistory(item.id);
@@ -448,7 +514,8 @@ class _RecentSearchesState extends State<_RecentSearches> {
                 ],
               ),
             ),
-          )),
+          ),
+        ),
       ],
     );
   }
@@ -470,13 +537,15 @@ class _RecentSearchesState extends State<_RecentSearches> {
         // Push a fresh Find Route page pre-filled with the search. (The page
         // lives in a persistent IndexedStack, so simply switching tabs would
         // not re-read the pending search — a fresh route ensures it loads.)
-        Navigator.of(context).push(MaterialPageRoute(
-          builder: (_) => FindRoutePage(
-            initialStart: item.label,
-            initialEnd: item.subtitle ?? '',
-            withScaffold: true,
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => FindRoutePage(
+              initialStart: item.label,
+              initialEnd: item.subtitle ?? '',
+              withScaffold: true,
+            ),
           ),
-        ));
+        );
         break;
     }
   }

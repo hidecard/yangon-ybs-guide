@@ -11,28 +11,62 @@ class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
   static final _sections = <_Section>[
-    _Section(Icons.sync, AppColors.primary, 'Application Data',
-        'လမ်းကြောင်းနှင့် မှတ်တိုင် အချက်အလက် အပ်ဒိတ်လုပ်ရန်', _DataSection()),
-    _Section(Icons.emoji_events, AppColors.amber, 'Community & Leaderboard',
-        'Profile, ဂုဏ်ပုဒ် နှင့် ဆုလက်ဆောင် လမ်းညွှန်', const _LeaderboardGuideSection()),
     _Section(
-        Icons.notifications_active,
-        AppColors.amber,
-        'အကြောင်းကြားချက် ဆက်တင်',
-        'App ပိတ်ထားသည့်တိုင် သတိပေးချက် ရောက်စေရန်',
-        const _NotifSetupSection()),
-    _Section(Icons.groups, AppColors.violet, 'အဖွဲ့အစည်း နှင့် စည်းကမ်းချက်များ',
-        'ဖန်တီးသူများနှင့် အသုံးပြုမှု စည်းကမ်းများ', const _TeamConditionsSection()),
-    _Section(Icons.info_outline, AppColors.primary, 'ဆော့ဝဲအကြောင်း',
-        'App အသုံးပြုပုံနှင့် ဗားရှင်း', const _AboutSection()),
-    _Section(Icons.privacy_tip, AppColors.emerald, 'ကိုယ်ရေးအချက်အလက် မူဝါဒ',
-        'ဒေတာသိုလှောင်မှုနှင့် လုံခြုံရေး', const _PrivacySection()),
-    _Section(Icons.auto_awesome, const Color(0xFFF59E0B), "What's New in V3.1",
-        'ဗားရှင်းသစ် အချက်အလက်များ', const _WhatsNewSection()),
-    _Section(Icons.chat_bubble_outline, AppColors.brand, 'အကြံပြုချက် / အမှားတွက်',
-        'ကားလိုင်း သို့မဟုတ် App နှင့်ပတ်သက်သော အကြံပြုချက်', const _FeedbackSection()),
-    _Section(Icons.favorite, AppColors.rose, 'Support This Project',
-        'YBS AI ကို ဆက်လက်ဖွံ့ဖြိုးရန် ကူညီပါ', const _DonationSection()),
+      Icons.sync,
+      AppColors.primary,
+      'Application Data',
+      'လမ်းကြောင်းနှင့် မှတ်တိုင် အချက်အလက် အပ်ဒိတ်လုပ်ရန်',
+      _DataSection(),
+    ),
+    _Section(
+      Icons.notifications_active,
+      AppColors.amber,
+      'အကြောင်းကြားချက် ဆက်တင်',
+      'App ပိတ်ထားသည့်တိုင် သတိပေးချက် ရောက်စေရန်',
+      const _NotifSetupSection(),
+    ),
+    _Section(
+      Icons.groups,
+      AppColors.violet,
+      'အဖွဲ့အစည်း နှင့် စည်းကမ်းချက်များ',
+      'ဖန်တီးသူများနှင့် အသုံးပြုမှု စည်းကမ်းများ',
+      const _TeamConditionsSection(),
+    ),
+    _Section(
+      Icons.info_outline,
+      AppColors.primary,
+      'ဆော့ဝဲအကြောင်း',
+      'App အသုံးပြုပုံနှင့် ဗားရှင်း',
+      const _AboutSection(),
+    ),
+    _Section(
+      Icons.privacy_tip,
+      AppColors.emerald,
+      'ကိုယ်ရေးအချက်အလက် မူဝါဒ',
+      'ဒေတာသိုလှောင်မှုနှင့် လုံခြုံရေး',
+      const _PrivacySection(),
+    ),
+    _Section(
+      Icons.auto_awesome,
+      const Color(0xFFF59E0B),
+      "What's New in V3.1",
+      'ဗားရှင်းသစ် အချက်အလက်များ',
+      const _WhatsNewSection(),
+    ),
+    _Section(
+      Icons.chat_bubble_outline,
+      AppColors.brand,
+      'အကြံပြုချက် / အမှားတွက်',
+      'ကားလိုင်း သို့မဟုတ် App နှင့်ပတ်သက်သော အကြံပြုချက်',
+      const _FeedbackSection(),
+    ),
+    _Section(
+      Icons.favorite,
+      AppColors.rose,
+      'Support This Project',
+      'YBS AI ကို ဆက်လက်ဖွံ့ဖြိုးရန် ကူညီပါ',
+      const _DonationSection(),
+    ),
   ];
 
   @override
@@ -102,8 +136,10 @@ class _MenuRow extends StatelessWidget {
             children: [
               Container(
                 padding: const EdgeInsets.all(12),
-                decoration:
-                    BoxDecoration(color: color, borderRadius: BorderRadius.circular(12)),
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 child: Icon(icon, color: Colors.white, size: 20),
               ),
               const SizedBox(width: 14),
@@ -111,13 +147,21 @@ class _MenuRow extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w600, fontSize: 15)),
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                      ),
+                    ),
                     const SizedBox(height: 2),
-                    Text(subtitle,
-                        style: const TextStyle(
-                            fontSize: 12, color: AppColors.slate500)),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.slate500,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -134,34 +178,42 @@ class _MenuRow extends StatelessWidget {
 class SettingsSectionPage extends StatelessWidget {
   final String title;
   final Widget child;
-  const SettingsSectionPage({super.key, required this.title, required this.child});
+  const SettingsSectionPage({
+    super.key,
+    required this.title,
+    required this.child,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(title)),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [child],
-      ),
+      body: ListView(padding: const EdgeInsets.all(16), children: [child]),
     );
   }
 }
 
 Widget _card({required Widget child, Color? color}) => Container(
-      padding: const EdgeInsets.all(20),
-      decoration: UI.card(color: color),
-      child: child,
-    );
+  padding: const EdgeInsets.all(20),
+  decoration: UI.card(color: color),
+  child: child,
+);
 
-Widget _cardHeader(IconData icon, Color bg, String title, String sub,
-    {Color iconColor = Colors.white}) {
+Widget _cardHeader(
+  IconData icon,
+  Color bg,
+  String title,
+  String sub, {
+  Color iconColor = Colors.white,
+}) {
   return Row(
     children: [
       Container(
         padding: const EdgeInsets.all(12),
-        decoration:
-            BoxDecoration(color: bg, borderRadius: BorderRadius.circular(12)),
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(12),
+        ),
         child: Icon(icon, color: iconColor, size: 20),
       ),
       const SizedBox(width: 14),
@@ -169,11 +221,14 @@ Widget _cardHeader(IconData icon, Color bg, String title, String sub,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title,
-                style:
-                    const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-            Text(sub,
-                style: const TextStyle(fontSize: 13, color: AppColors.slate500)),
+            Text(
+              title,
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+            ),
+            Text(
+              sub,
+              style: const TextStyle(fontSize: 13, color: AppColors.slate500),
+            ),
           ],
         ),
       ),
@@ -182,111 +237,130 @@ Widget _cardHeader(IconData icon, Color bg, String title, String sub,
 }
 
 Widget _step(int n, String title, String desc) => Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 24,
-            height: 24,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: AppColors.amber,
-              shape: BoxShape.circle,
-            ),
-            child: Text('$n',
-                style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold)),
+  padding: const EdgeInsets.only(bottom: 12),
+  child: Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Container(
+        width: 24,
+        height: 24,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: AppColors.amber,
+          shape: BoxShape.circle,
+        ),
+        child: Text(
+          '$n',
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title,
-                    style: const TextStyle(
-                        fontSize: 13.5, fontWeight: FontWeight.w600)),
-                const SizedBox(height: 2),
-                Text(desc,
-                    style: const TextStyle(
-                        fontSize: 12, color: AppColors.slate500)),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
-    );
+      const SizedBox(width: 12),
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 13.5,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              desc,
+              style: const TextStyle(fontSize: 12, color: AppColors.slate500),
+            ),
+          ],
+        ),
+      ),
+    ],
+  ),
+);
 
 Widget _kv(String k, String v) => Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-              width: 100,
-              child: Text(k,
-                  style: const TextStyle(
-                      fontSize: 12, color: AppColors.slate400))),
-          Expanded(
-              child: Text(v,
-                  style: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.w500))),
-        ],
+  padding: const EdgeInsets.only(bottom: 8),
+  child: Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      SizedBox(
+        width: 100,
+        child: Text(
+          k,
+          style: const TextStyle(fontSize: 12, color: AppColors.slate400),
+        ),
       ),
-    );
+      Expanded(
+        child: Text(
+          v,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+        ),
+      ),
+    ],
+  ),
+);
 
 Widget _link(String k, String url) => Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-              width: 100,
-              child: Text(k,
-                  style: const TextStyle(
-                      fontSize: 12, color: AppColors.slate400))),
-          Expanded(
-            child: InkWell(
-              onTap: () => launchUrl(Uri.parse(url),
-                  mode: LaunchMode.externalApplication),
-              child: Text(url,
-                  style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.brand),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis),
-            ),
-          ),
-        ],
+  padding: const EdgeInsets.only(bottom: 8),
+  child: Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      SizedBox(
+        width: 100,
+        child: Text(
+          k,
+          style: const TextStyle(fontSize: 12, color: AppColors.slate400),
+        ),
       ),
-    );
+      Expanded(
+        child: InkWell(
+          onTap: () =>
+              launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication),
+          child: Text(
+            url,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: AppColors.brand,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ),
+    ],
+  ),
+);
 
 Widget _feature(String title, String desc) => Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Icon(Icons.check_circle, size: 16, color: AppColors.emerald),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title,
-                    style: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.w600)),
-                Text(desc,
-                    style: const TextStyle(
-                        fontSize: 12, color: AppColors.slate500)),
-              ],
+  padding: const EdgeInsets.only(bottom: 12),
+  child: Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const Icon(Icons.check_circle, size: 16, color: AppColors.emerald),
+      const SizedBox(width: 10),
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
             ),
-          ),
-        ],
+            Text(
+              desc,
+              style: const TextStyle(fontSize: 12, color: AppColors.slate500),
+            ),
+          ],
+        ),
       ),
-    );
+    ],
+  ),
+);
 
 // ---------------- Application Data ----------------
 class _DataSection extends StatefulWidget {
@@ -330,40 +404,54 @@ class _DataSectionState extends State<_DataSection> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _cardHeader(Icons.sync, AppColors.primary, 'Application Data',
-                'လမ်းကြောင်းနှင့် မှတ်တိုင်အချက်အလက်များ အပ်ဒိတ်လုပ်ရန်'),
+            _cardHeader(
+              Icons.sync,
+              AppColors.primary,
+              'Application Data',
+              'လမ်းကြောင်းနှင့် မှတ်တိုင်အချက်အလက်များ အပ်ဒိတ်လုပ်ရန်',
+            ),
             const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                  color: AppColors.bg, borderRadius: BorderRadius.circular(12)),
+                color: AppColors.bg,
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Offline Database',
-                      style:
-                          TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+                  const Text(
+                    'Offline Database',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                  ),
                   if (_cacheSize != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 4),
-                      child: Text('Local cache: $_cacheSize',
-                          style: const TextStyle(
-                              fontSize: 11, color: AppColors.slate400)),
+                      child: Text(
+                        'Local cache: $_cacheSize',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: AppColors.slate400,
+                        ),
+                      ),
                     ),
                   const SizedBox(height: 12),
                   SizedBox(
                     width: double.infinity,
                     child: FilledButton(
                       style: FilledButton.styleFrom(
-                          backgroundColor: _syncStatus == 'done'
-                              ? AppColors.emerald
-                              : AppColors.primary),
+                        backgroundColor: _syncStatus == 'done'
+                            ? AppColors.emerald
+                            : AppColors.primary,
+                      ),
                       onPressed: _syncStatus == 'updating' ? null : _sync,
-                      child: Text(_syncStatus == 'updating'
-                          ? 'ခဏစောင့်ပါ...'
-                          : _syncStatus == 'done'
-                              ? '✓ Sync အောင်မြင်ပါသည်'
-                              : 'လမ်းကြောင်းများ Update လုပ်မည်'),
+                      child: Text(
+                        _syncStatus == 'updating'
+                            ? 'ခဏစောင့်ပါ...'
+                            : _syncStatus == 'done'
+                            ? '✓ Sync အောင်မြင်ပါသည်'
+                            : 'လမ်းကြောင်းများ Update လုပ်မည်',
+                      ),
                     ),
                   ),
                 ],
@@ -387,9 +475,12 @@ class _NotifSetupSection extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _cardHeader(Icons.notifications_active, AppColors.amber,
-                'အကြောင်းကြားချက် ဆက်တင်',
-                'App ပိတ်ထားသည့်တိုင် သတိပေးချက် ရောက်စေရန်'),
+            _cardHeader(
+              Icons.notifications_active,
+              AppColors.amber,
+              'အကြောင်းကြားချက် ဆက်တင်',
+              'App ပိတ်ထားသည့်တိုင် သတိပေးချက် ရောက်စေရန်',
+            ),
             const SizedBox(height: 14),
             const Text(
               'အချို့ ဖုန်းများတွင် ဘက်ထရီ သက်သာစေရန် App များကို အလိုအလျောက် ပိတ်တတ်ပါသည်။ '
@@ -397,20 +488,33 @@ class _NotifSetupSection extends StatelessWidget {
               style: TextStyle(fontSize: 13, color: AppColors.slate600),
             ),
             const SizedBox(height: 14),
-            _step(1, 'Battery (ဘက်ထရီ) သတိပေးချက်',
-                'Settings → Battery → Battery optimization သို့သွားပါ။ "YBS AI" ကို ရှာပြီး "Don\'t optimize" (သို့မဟုတ် "Unrestricted") ဟု သတ်မှတ်ပါ။'),
-            _step(2, 'Notification (အကြောင်းကြားချက်) ခွင့်ပြု',
-                'Settings → Apps → YBS AI → Notifications သို့သွားပါ။ "Show notifications" ကို ဖွင့်ပါ။ "Admin Notifications" နှင့် "Arrival Alerts" channel များကို "Important" သို့မဟုတ် "Urgent" သတ်မှတ်ပါ။'),
-            _step(3, 'Autostart / Auto-launch',
-                'Settings → Apps → YBS AI (သို့မဟုတ် "Manage apps") → Autostart / Auto-launch ကို ဖွင့်ပါ (Xiaomi, Oppo, Vivo, Huawei စသည့် ဖုန်းများတွင် လိုအပ်ပါသည်)။'),
-            _step(4, 'Background data (ဒေတာ) ခွင့်ပြု',
-                'Settings → Apps → YBS AI → Mobile data သို့သွားပါ။ "Allow background data" ကို ဖွင့်ပါ သို့မဟုတ် "Data usage while Data saver is on" ကို ခွင့်ပြုပါ။'),
+            _step(
+              1,
+              'Battery (ဘက်ထရီ) သတိပေးချက်',
+              'Settings → Battery → Battery optimization သို့သွားပါ။ "YBS AI" ကို ရှာပြီး "Don\'t optimize" (သို့မဟုတ် "Unrestricted") ဟု သတ်မှတ်ပါ။',
+            ),
+            _step(
+              2,
+              'Notification (အကြောင်းကြားချက်) ခွင့်ပြု',
+              'Settings → Apps → YBS AI → Notifications သို့သွားပါ။ "Show notifications" ကို ဖွင့်ပါ။ "Admin Notifications" နှင့် "Arrival Alerts" channel များကို "Important" သို့မဟုတ် "Urgent" သတ်မှတ်ပါ။',
+            ),
+            _step(
+              3,
+              'Autostart / Auto-launch',
+              'Settings → Apps → YBS AI (သို့မဟုတ် "Manage apps") → Autostart / Auto-launch ကို ဖွင့်ပါ (Xiaomi, Oppo, Vivo, Huawei စသည့် ဖုန်းများတွင် လိုအပ်ပါသည်)။',
+            ),
+            _step(
+              4,
+              'Background data (ဒေတာ) ခွင့်ပြု',
+              'Settings → Apps → YBS AI → Mobile data သို့သွားပါ။ "Allow background data" ကို ဖွင့်ပါ သို့မဟုတ် "Data usage while Data saver is on" ကို ခွင့်ပြုပါ။',
+            ),
             const SizedBox(height: 14),
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                  color: AppColors.amberLight,
-                  borderRadius: BorderRadius.circular(12)),
+                color: AppColors.amberLight,
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: const Row(
                 children: [
                   Icon(Icons.info_outline, color: AppColors.amber, size: 16),
@@ -419,9 +523,10 @@ class _NotifSetupSection extends StatelessWidget {
                     child: Text(
                       'အထက်ပါအဆင့်များ ပြီးပါက App ကို ပိတ်ထားသည့်တိုင် Admin သတင်းများ နှင့် မှတ်တိုင်အနီးရောက်သတိပေးချက်များ အလိုအလျောက် ရောက်ရှိပါမည်။',
                       style: TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF92400E),
-                          fontWeight: FontWeight.w500),
+                        fontSize: 12,
+                        color: Color(0xFF92400E),
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                 ],
@@ -432,10 +537,12 @@ class _NotifSetupSection extends StatelessWidget {
               width: double.infinity,
               child: FilledButton.icon(
                 style: FilledButton.styleFrom(
-                    backgroundColor: AppColors.slate700),
+                  backgroundColor: AppColors.slate700,
+                ),
                 onPressed: () => launchUrl(
-                    Uri.parse('app-settings:'),
-                    mode: LaunchMode.externalApplication),
+                  Uri.parse('app-settings:'),
+                  mode: LaunchMode.externalApplication,
+                ),
                 icon: const Icon(Icons.settings, size: 18),
                 label: const Text('Setting ကို ဖွင့်မည်'),
               ),
@@ -460,8 +567,12 @@ class _TeamConditionsSection extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _cardHeader(Icons.groups, AppColors.violet, 'အဖွဲ့အစည်း',
-                    'YBS AI ကို ဖန်တီးသူများ'),
+                _cardHeader(
+                  Icons.groups,
+                  AppColors.violet,
+                  'အဖွဲ့အစည်း',
+                  'YBS AI ကို ဖန်တီးသူများ',
+                ),
                 const SizedBox(height: 16),
                 _kv('Founder & Developer', 'Arkar Yan'),
                 _kv('Design', 'YBS AI Team'),
@@ -484,21 +595,31 @@ class _TeamConditionsSection extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _cardHeader(Icons.description, AppColors.violet, 'စည်းကမ်းချက်များ',
-                    'ဝန်ဆောင်မှုကို အသုံးပြုရာတွင်'),
+                _cardHeader(
+                  Icons.description,
+                  AppColors.violet,
+                  'စည်းကမ်းချက်များ',
+                  'ဝန်ဆောင်မှုကို အသုံးပြုရာတွင်',
+                ),
                 const SizedBox(height: 14),
                 _condition(
-                    '၁။ ဤ app သည် ရန်ကုန်မြို့တော် အများပြည်သူ ကားလိုင်း (YBS) အချက်အလက်များကို လွယ်ကူစွာ ရှာဖွေနိုင်ရန် ရည်ရွယ်ပါသည်။'),
+                  '၁။ ဤ app သည် ရန်ကုန်မြို့တော် အများပြည်သူ ကားလိုင်း (YBS) အချက်အလက်များကို လွယ်ကူစွာ ရှာဖွေနိုင်ရန် ရည်ရွယ်ပါသည်။',
+                ),
                 _condition(
-                    '၂။ လမ်းကြောင်း၊ အချိန်၊ ကားလိုင်းအချက်အလက်များသည် ခန့်မှန်းချက်သာ ဖြစ်ပြီး တကယ့်အခြေအနေနှင့် ကွဲလွဲနိုင်ပါသည်။'),
+                  '၂။ လမ်းကြောင်း၊ အချိန်၊ ကားလိုင်းအချက်အလက်များသည် ခန့်မှန်းချက်သာ ဖြစ်ပြီး တကယ့်အခြေအနေနှင့် ကွဲလွဲနိုင်ပါသည်။',
+                ),
                 _condition(
-                    '၃။ အသုံးပြုသူများသည် မိမိတာဝန်ခံချက်ဖြင့် အသုံးပြုရမည့် ဝန်ဆောင်မှုဖြစ်ပါသည်။'),
+                  '၃။ အသုံးပြုသူများသည် မိမိတာဝန်ခံချက်ဖြင့် အသုံးပြုရမည့် ဝန်ဆောင်မှုဖြစ်ပါသည်။',
+                ),
                 _condition(
-                    '၄။ အချက်အလက်မှားယွင်းပါက အကြံပြုချက်ပေးပို့ရန် တိုက်တွန်းအပ်ပါသည်။'),
+                  '၄။ အချက်အလက်မှားယွင်းပါက အကြံပြုချက်ပေးပို့ရန် တိုက်တွန်းအပ်ပါသည်။',
+                ),
                 _condition(
-                    '၅။ App မှ ရရှိနိုင်သော အချက်အလက်များကို ကိုယ်တိုက်မှတ်ထားပြီး အခြားဝန်ဆောင်မှုများနှင့် မျှဝေပါ။'),
+                  '၅။ App မှ ရရှိနိုင်သော အချက်အလက်များကို ကိုယ်တိုက်မှတ်ထားပြီး အခြားဝန်ဆောင်မှုများနှင့် မျှဝေပါ။',
+                ),
                 _condition(
-                    '၆။ သတိပေးချက် မှတ်တိုင်နှင့် အခြေအနေကို အသုံးပြုသူများအနေနဲ့ မိမိတာဝန်ခံချက် ဖြင့် အသုံးပြုပါ။'),
+                  '၆။ သတိပေးချက် မှတ်တိုင်နှင့် အခြေအနေကို အသုံးပြုသူများအနေနဲ့ မိမိတာဝန်ခံချက် ဖြင့် အသုံးပြုပါ။',
+                ),
               ],
             ),
           ),
@@ -508,23 +629,24 @@ class _TeamConditionsSection extends StatelessWidget {
   }
 
   Widget _condition(String text) => Padding(
-        padding: const EdgeInsets.only(bottom: 10),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Padding(
-              padding: EdgeInsets.only(top: 6),
-              child: Icon(Icons.circle, size: 6, color: AppColors.slate400),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(text,
-                  style: const TextStyle(
-                      fontSize: 13, color: AppColors.slate600)),
-            ),
-          ],
+    padding: const EdgeInsets.only(bottom: 10),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.only(top: 6),
+          child: Icon(Icons.circle, size: 6, color: AppColors.slate400),
         ),
-      );
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(fontSize: 13, color: AppColors.slate600),
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 // ---------------- About Software ----------------
@@ -538,8 +660,12 @@ class _AboutSection extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _cardHeader(Icons.info_outline, AppColors.primary, 'About Software',
-                'YBS AI အကြောင်း'),
+            _cardHeader(
+              Icons.info_outline,
+              AppColors.primary,
+              'About Software',
+              'YBS AI အကြောင်း',
+            ),
             const SizedBox(height: 16),
             _kv('App Name', 'YBS AI'),
             _kv('Version', AppConfig.appVersion),
@@ -583,21 +709,31 @@ class _PrivacySection extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _cardHeader(Icons.privacy_tip, AppColors.emerald,
-                'ကိုယ်ရေးအချက်အလက် မူဝါဒ', 'ဒေတာသိုလှောင်မှုနှင့် လုံခြုံရေး'),
+            _cardHeader(
+              Icons.privacy_tip,
+              AppColors.emerald,
+              'ကိုယ်ရေးအချက်အလက် မူဝါဒ',
+              'ဒေတာသိုလှောင်မှုနှင့် လုံခြုံရေး',
+            ),
             const SizedBox(height: 14),
             _privacy(
-                'ကားလိုင်းနှင့် မှတ်တိုင် အချက်အလက်များကို သင့်ဖုန်းအတွင်း (offline) သိုလှောင်ပါသည်။'),
+              'ကားလိုင်းနှင့် မှတ်တိုင် အချက်အလက်များကို သင့်ဖုန်းအတွင်း (offline) သိုလှောင်ပါသည်။',
+            ),
             _privacy(
-                'သင်၏ တည်နေရာဒေတာကို မှတ်တိုင်အနီးရောက်သတိပေးချက်အတွက်သာ ယာယီအသုံးပြုပြီး ဆာဗာသို့ မပို့ပါ။'),
+              'သင်၏ တည်နေရာဒေတာကို မှတ်တိုင်အနီးရောက်သတိပေးချက်အတွက်သာ ယာယီအသုံးပြုပြီး ဆာဗာသို့ မပို့ပါ။',
+            ),
             _privacy(
-                'ကျွန်ုပ်တို့သည် သင့်ကိုယ်ရေးအချက်အလက်ကို တတိယအဖွဲ့အစည်းသို့ မရောင်းချပါ။'),
+              'ကျွန်ုပ်တို့သည် သင့်ကိုယ်ရေးအချက်အလက်ကို တတိယအဖွဲ့အစည်းသို့ မရောင်းချပါ။',
+            ),
             _privacy(
-                'အချက်အလက်ဖျက်ရန် သို့မဟုတ် မေးမြန်းလိုပါက info@arkaryan.net သို့ ဆက်သွယ်နိုင်ပါသည်။'),
+              'အချက်အလက်ဖျက်ရန် သို့မဟုတ် မေးမြန်းလိုပါက info@arkaryan.net သို့ ဆက်သွယ်နိုင်ပါသည်။',
+            ),
             _privacy(
-                'App သည် အချက်အလက် စုဆည်းခြင်းများ မပြုလုပ်ပါ။ လိုအပ်ပါက အချက်အလက် ရရှိနိုင်ခြေမရှိပါ။'),
+              'App သည် အချက်အလက် စုဆည်းခြင်းများ မပြုလုပ်ပါ။ လိုအပ်ပါက အချက်အလက် ရရှိနိုင်ခြေမရှိပါ။',
+            ),
             _privacy(
-                'အသုံးပြုသူ၏ မှတ်တိုင်နှင့် တည်နေရာအချက်အလက်များကို လုံခြုံစွာ ထိန်းသိမ်းထားပါသည်။'),
+              'အသုံးပြုသူ၏ မှတ်တိုင်နှင့် တည်နေရာအချက်အလက်များကို လုံခြုံစွာ ထိန်းသိမ်းထားပါသည်။',
+            ),
             const SizedBox(height: 14),
             const Divider(),
             const SizedBox(height: 14),
@@ -613,23 +749,24 @@ class _PrivacySection extends StatelessWidget {
   }
 
   Widget _privacy(String text) => Padding(
-        padding: const EdgeInsets.only(bottom: 10),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Padding(
-              padding: EdgeInsets.only(top: 4),
-              child: Icon(Icons.lock, size: 14, color: AppColors.emerald),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(text,
-                  style: const TextStyle(
-                      fontSize: 13, color: AppColors.slate600)),
-            ),
-          ],
+    padding: const EdgeInsets.only(bottom: 10),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.only(top: 4),
+          child: Icon(Icons.lock, size: 14, color: AppColors.emerald),
         ),
-      );
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(fontSize: 13, color: AppColors.slate600),
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 // ---------------- What's New ----------------
@@ -643,27 +780,49 @@ class _WhatsNewSection extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _cardHeader(Icons.auto_awesome, const Color(0xFFF59E0B),
-                "What's New in V3.1", 'ဗားရှင်းသစ် အချက်အလက်များ'),
+            _cardHeader(
+              Icons.auto_awesome,
+              const Color(0xFFF59E0B),
+              "What's New in V3.1",
+              'ဗားရှင်းသစ် အချက်အလက်များ',
+            ),
             const SizedBox(height: 16),
-            _feature('AI-Powered Assistant',
-                'လမ်းကြောင်းများကို မြန်မာလို မေးမြန်းနိုင်ခြင်း။'),
-            _feature('Advanced Route Finding',
-                'အမြန်ဆုံးနှင့် အဆင်ပြေဆုံး လမ်းကြောင်းများကို ရှာဖွေပေးခြင်း။'),
-            _feature('Live Bus Location',
-                'ကားများ၏ အချိန်နှင့်အလိုက် နေရာများကို မြေပုံတွင် ကြည့်ရှုနိုင်ခြင်း။'),
-            _feature('Offline Maps',
-                'Internet မရှိသည့်တိုင် လမ်းကြောင်းများနှင့် မှတ်တိုင်များကို အသုံးပြုနိုင်ခြင်း။'),
-            _feature('Stop-to-Stop Navigation',
-                'မှတ်တိုင်မှ မှတ်တိုင်သို့ အဆင့်ဆင့် လမ်းကြောင်းပြနိုင်ခြင်း။'),
-            _feature('Smart Notifications',
-                'App ပိတ်ထားသည့်တိုင် မှတ်တိုင်အနီးရောက်သတိပေးချက် ရောက်ရှိစေခြင်း။'),
-            _feature('Shared Trip',
-                'မိမိနေရာကို အခြားသူများနှင့် အချိန်နှင့်အလိုက် မျှဝေနိုင်ခြင်း။'),
-            _feature('Bus Updates Feed',
-                'လိုင်းအလိုက် ကားသွားလာချိန်နှင့် အခြေအနေများကို တင်ပြခြင်း။'),
-            _feature('Dark Mode',
-                'မြက်ကိန်းနှင့် ညနေခင်း လိုအပ်သည့်အခါ အမှောင်ရောင်အမြင်နှင့် အသုံးပြုနိုင်ခြင်း။'),
+            _feature(
+              'AI-Powered Assistant',
+              'လမ်းကြောင်းများကို မြန်မာလို မေးမြန်းနိုင်ခြင်း။',
+            ),
+            _feature(
+              'Advanced Route Finding',
+              'အမြန်ဆုံးနှင့် အဆင်ပြေဆုံး လမ်းကြောင်းများကို ရှာဖွေပေးခြင်း။',
+            ),
+            _feature(
+              'Live Bus Location',
+              'ကားများ၏ အချိန်နှင့်အလိုက် နေရာများကို မြေပုံတွင် ကြည့်ရှုနိုင်ခြင်း။',
+            ),
+            _feature(
+              'Offline Maps',
+              'Internet မရှိသည့်တိုင် လမ်းကြောင်းများနှင့် မှတ်တိုင်များကို အသုံးပြုနိုင်ခြင်း။',
+            ),
+            _feature(
+              'Stop-to-Stop Navigation',
+              'မှတ်တိုင်မှ မှတ်တိုင်သို့ အဆင့်ဆင့် လမ်းကြောင်းပြနိုင်ခြင်း။',
+            ),
+            _feature(
+              'Smart Notifications',
+              'App ပိတ်ထားသည့်တိုင် မှတ်တိုင်အနီးရောက်သတိပေးချက် ရောက်ရှိစေခြင်း။',
+            ),
+            _feature(
+              'Shared Trip',
+              'မိမိနေရာကို အခြားသူများနှင့် အချိန်နှင့်အလိုက် မျှဝေနိုင်ခြင်း။',
+            ),
+            _feature(
+              'Bus Updates Feed',
+              'လိုင်းအလိုက် ကားသွားလာချိန်နှင့် အခြေအနေများကို တင်ပြခြင်း။',
+            ),
+            _feature(
+              'Dark Mode',
+              'မြက်ကိန်းနှင့် ညနေခင်း လိုအပ်သည့်အခါ အမှောင်ရောင်အမြင်နှင့် အသုံးပြုနိုင်ခြင်း။',
+            ),
           ],
         ),
       ),
@@ -682,16 +841,18 @@ class _FeedbackSection extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _cardHeader(Icons.chat_bubble_outline, AppColors.brandLight,
-                'အကြံပြုချက် / အမှားတွက်',
-                'ကားလိုင်း သို့မဟုတ် App နှင့်ပတ်သက်သော အကြံပြုချက် ပို့ပါ။',
-                iconColor: AppColors.brand),
+            _cardHeader(
+              Icons.chat_bubble_outline,
+              AppColors.brandLight,
+              'အကြံပြုချက် / အမှားတွက်',
+              'ကားလိုင်း သို့မဟုတ် App နှင့်ပတ်သက်သော အကြံပြုချက် ပို့ပါ။',
+              iconColor: AppColors.brand,
+            ),
             const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
               child: FilledButton(
-                style:
-                    FilledButton.styleFrom(backgroundColor: AppColors.brand),
+                style: FilledButton.styleFrom(backgroundColor: AppColors.brand),
                 onPressed: () => FeedbackDialog.show(context),
                 child: const Text('အကြံပြုချက် ပို့မည်'),
               ),
@@ -715,7 +876,8 @@ class _DonationSection extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-              colors: [AppColors.primary, AppColors.slate800]),
+            colors: [AppColors.primary, AppColors.slate800],
+          ),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
@@ -726,24 +888,35 @@ class _DonationSection extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12)),
-                  child: const Icon(Icons.auto_awesome,
-                      color: Color(0xFFFBBF24), size: 20),
+                    color: Colors.white.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.auto_awesome,
+                    color: Color(0xFFFBBF24),
+                    size: 20,
+                  ),
                 ),
                 const SizedBox(width: 14),
                 const Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Support This Project',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 15)),
-                      Text('YBS AI ကို ဆက်လက်ဖွံ့ဖြိုးရန် ကူညီနိုင်ပါသည်',
-                          style: TextStyle(
-                              color: AppColors.slate300, fontSize: 12)),
+                      Text(
+                        'Support This Project',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                        ),
+                      ),
+                      Text(
+                        'YBS AI ကို ဆက်လက်ဖွံ့ဖြိုးရန် ကူညီနိုင်ပါသည်',
+                        style: TextStyle(
+                          color: AppColors.slate300,
+                          fontSize: 12,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -773,180 +946,35 @@ class _DonationSection extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label,
-                    style: const TextStyle(
-                        color: AppColors.slate400, fontSize: 10)),
-                Text(number,
-                    style: const TextStyle(
-                        color: Colors.white,
-                        fontFamily: 'monospace',
-                        fontWeight: FontWeight.w600)),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    color: AppColors.slate400,
+                    fontSize: 10,
+                  ),
+                ),
+                Text(
+                  number,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontFamily: 'monospace',
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ],
             ),
           ),
           IconButton(
             onPressed: () {
               Clipboard.setData(ClipboardData(text: number));
-              ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('ကူးယူပြီးပါပြီ')));
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('ကူးယူပြီးပါပြီ')));
             },
             icon: const Icon(Icons.copy, color: AppColors.slate400, size: 18),
           ),
         ],
       ),
-    );
-  }
-}
-
-// ---------------- Leaderboard & Profile Guide ----------------
-class _LeaderboardGuideSection extends StatelessWidget {
-  const _LeaderboardGuideSection();
-
-  @override
-  Widget build(BuildContext context) {
-    return SettingsSectionPage(
-      title: 'Community & Leaderboard',
-      child: _card(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _cardHeader(Icons.emoji_events, AppColors.amber, 'Community & Leaderboard',
-                'Profile, ဂုဏ်ပုဒ် နှင့် ဆုလက်ဆောင် လမ်းညွှန်'),
-            const SizedBox(height: 20),
-            _guideItem(
-              icon: Icons.person_outline,
-              color: AppColors.brand,
-              title: 'Profile (ကိုယ်ရေးအချက်အလက်)',
-              items: [
-                'Login မလိုပါ။ Device ID အပေါ် အခြေခံပြီး အလိုအလျောက် ဖန်တီးပါသည်။',
-                'ပထမဆုံးအကြိမ် ဖွင့်တဲ့အခါ အမည်တစ်ခု သာဖြည့်ရပါမည်။',
-                'အမည်ကို ပြောင်းလိုရင် Profile တွင် Edit နှိပ်ပြီး ပြောင်းနိုင်ပါသည်။',
-                'အခြား Device များမှာ အမည်ကို အလုပ်မလုပ်ပါ။',
-              ],
-            ),
-            const SizedBox(height: 20),
-            _guideItem(
-              icon: Icons.leaderboard,
-              color: AppColors.emerald,
-              title: 'Leaderboard (အဆင့်စာရင်း)',
-              items: [
-                'YBS New မှာ သတင်းတင်တိုင်း Point ရရှိပါမည်။',
-                'Point အများဆုံး Top 100 အဆင့်ကို ဤနေရာမှာ ကြည့်နိုင်ပါသည်။',
-                'All Time / Monthly အ themed ပြောင်းလိုက်ပြီး ကြည့်နိုင်ပါသည်။',
-                '၁ နာရီအတွင်း သတင်းတင်နိုင်ချိန် ကနေ အများဆုံး ၂ ကြိမ်သာ ရရှိနိုင်ပါမည်။',
-              ],
-            ),
-            const SizedBox(height: 20),
-            _guideItem(
-              icon: Icons.card_giftcard_outlined,
-              color: AppColors.rose,
-              title: 'Rewards (ဆုလက်ဆောင်)',
-              items: [
-                'Point များကို ဆုများ ဆုလဲရန် အသုံးပြုနိုင်ပါသည်။',
-                'ဆုလဲမည် ကို နှိပ်ပြီး အတည်ပြုပြီး ဖုန်းနံပါတ် / Telegram Username ဖြည့်ပါ။',
-                'Point လုံလောက်မှု ရှိမရှိ အလိုအလျောက် စစ်ဆေးပါသည်။',
-                'ဆုလဲပြီးသည့်အခါ Point ကို အလိုအလျောက် နှုတ်ယူပါသည်။',
-              ],
-            ),
-            const SizedBox(height: 20),
-            _guideItem(
-              icon: Icons.emoji_events_outlined,
-              color: AppColors.amber,
-              title: 'Badges (ဂုဏ်ပုဒ်များ)',
-              items: [
-                'Point အလိုက် ဂုဏ်ပုဒ်များ အလိုအလျောက် ရရှိပါသည်။',
-                '🌱 YBS စတင်လေ့လာသူ - 0 Points',
-                '🗺️ YBS လမ်းညွှန်မှူး - 100 Points',
-                '👑 YBS နတ်ကြီး (Yangon Bus Legend) - 1000 Points',
-                'Profile တွင် ဂုဏ်ပုဒ်များကို ကြည့်နိုင်ပါသည်။',
-              ],
-            ),
-            const SizedBox(height: 20),
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: AppColors.amberLight,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.amber),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.info_outline, color: AppColors.amber, size: 20),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      'လုံခြုံရေး: အမည်၊ Device ID နှင့် အချက်အလက်များ မညီခွန်းမရှိဘဲ လုံခြုံစွာ သိမ်းဆည်းထားပါသည်။ API လှုပ်ရှားမှုများကို HMAC Signature ဖြင့် အတည်ပြုပါသည်။',
-                      style: TextStyle(fontSize: 12, color: AppColors.slate700),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _guideItem({
-    required IconData icon,
-    required Color color,
-    required String title,
-    required List<String> items,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(icon, color: color, size: 18),
-            ),
-            const SizedBox(width: 12),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: color,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
-        ...items.map((item) => Padding(
-              padding: const EdgeInsets.only(left: 40, bottom: 6),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    margin: const EdgeInsets.only(top: 5, right: 10),
-                    width: 4,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: AppColors.slate400,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  Expanded(
-                    child: Text(
-                      item,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: AppColors.textSecondary,
-                        height: 1.5,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            )),
-      ],
     );
   }
 }

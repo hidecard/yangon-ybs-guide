@@ -12,7 +12,6 @@ import 'pages/ybs_new_page.dart';
 import 'pages/assistant_page.dart';
 import 'pages/favorites_page.dart';
 import 'pages/settings_page.dart';
-import 'pages/leaderboard_page.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -58,7 +57,6 @@ class _RootShellState extends State<RootShell> {
     RoutesPage(),
     FindRoutePage(),
     FavoritesPage(),
-    LeaderboardPage(),
   ];
 
   static const _navItems = [
@@ -68,7 +66,6 @@ class _RootShellState extends State<RootShell> {
     (Icons.directions_bus_outlined, Icons.directions_bus, 'လိုင်းများ'),
     (Icons.search, Icons.search, 'လမ်းကြောင်း'),
     (Icons.star_border, Icons.star, 'အကြိုက်'),
-    (Icons.emoji_events_outlined, Icons.emoji_events, 'Leaderboard'),
   ];
 
   @override
@@ -87,36 +84,49 @@ class _RootShellState extends State<RootShell> {
             Container(
               padding: const EdgeInsets.all(7),
               decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(10)),
-              child: const Icon(Icons.directions_bus,
-                  size: 18, color: Colors.white),
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                Icons.directions_bus,
+                size: 18,
+                color: Colors.white,
+              ),
             ),
             const SizedBox(width: 10),
-            const Text('YBS AI',
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: AppColors.text)),
+            const Text(
+              'YBS AI',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: AppColors.text,
+              ),
+            ),
             const SizedBox(width: 6),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
-                  color: AppColors.slate100,
-                  borderRadius: BorderRadius.circular(4)),
-              child: const Text(AppConfig.appVersion,
-                  style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.slate400)),
+                color: AppColors.slate100,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: const Text(
+                AppConfig.appVersion,
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.slate400,
+                ),
+              ),
             ),
           ],
         ),
         actions: [
           IconButton(
             tooltip: 'Settings',
-            onPressed: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const SettingsPage())),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SettingsPage()),
+            ),
             icon: const Icon(Icons.settings_outlined),
           ),
         ],
@@ -212,7 +222,11 @@ class _NavItem extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, size: 22, color: active ? AppColors.brand : AppColors.slate400),
+              Icon(
+                icon,
+                size: 22,
+                color: active ? AppColors.brand : AppColors.slate400,
+              ),
               const SizedBox(height: 4),
               Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
             ],
@@ -236,23 +250,28 @@ class _SplashScreen extends StatelessWidget {
           children: [
             _BouncingBus(),
             SizedBox(height: 18),
-            Text('YBS AI',
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                    color: AppColors.text)),
+            Text(
+              'YBS AI',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+                color: AppColors.text,
+              ),
+            ),
             SizedBox(height: 8),
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 SizedBox(
-                    width: 14,
-                    height: 14,
-                    child: CircularProgressIndicator(strokeWidth: 2)),
+                  width: 14,
+                  height: 14,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
                 SizedBox(width: 8),
-                Text('အချက်အလက်များ ရယူနေပါသည်...',
-                    style:
-                        TextStyle(color: AppColors.textMuted, fontSize: 13)),
+                Text(
+                  'အချက်အလက်များ ရယူနေပါသည်...',
+                  style: TextStyle(color: AppColors.textMuted, fontSize: 13),
+                ),
               ],
             ),
           ],
@@ -271,8 +290,9 @@ class _BouncingBus extends StatefulWidget {
 class _BouncingBusState extends State<_BouncingBus>
     with SingleTickerProviderStateMixin {
   late final AnimationController _c = AnimationController(
-      vsync: this, duration: const Duration(milliseconds: 700))
-    ..repeat(reverse: true);
+    vsync: this,
+    duration: const Duration(milliseconds: 700),
+  )..repeat(reverse: true);
 
   @override
   void dispose() {
@@ -289,8 +309,9 @@ class _BouncingBusState extends State<_BouncingBus>
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-            color: AppColors.primary,
-            borderRadius: BorderRadius.circular(24)),
+          color: AppColors.primary,
+          borderRadius: BorderRadius.circular(24),
+        ),
         child: const Icon(Icons.directions_bus, size: 40, color: Colors.white),
       ),
     );

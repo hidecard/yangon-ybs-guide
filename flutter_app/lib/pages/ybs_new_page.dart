@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../config.dart';
 import '../models.dart';
 import '../services/api_service.dart';
-import '../services/device_service.dart';
 import '../state/app_state.dart';
 import '../util/nav.dart';
 import '../widgets/bus_updates_feed.dart';
@@ -34,14 +33,18 @@ class _YbsNewPageState extends State<YbsNewPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('YBS New',
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold)),
+                    Text(
+                      'YBS New',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     SizedBox(height: 4),
                     Text(
-                        'အသုံးပြုသူများမှ မျှဝေထားသော ကားလိုင်း အချက်အလက်များ',
-                        style: TextStyle(
-                            fontSize: 12, color: AppColors.slate500)),
+                      'အသုံးပြုသူများမှ မျှဝေထားသော ကားလိုင်း အချက်အလက်များ',
+                      style: TextStyle(fontSize: 12, color: AppColors.slate500),
+                    ),
                   ],
                 ),
               ),
@@ -75,10 +78,8 @@ class _YbsNewPageState extends State<YbsNewPage> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => _PostUpdateSheet(
-        routes: state.routes,
-        onPosted: _reloadFeed,
-      ),
+      builder: (_) =>
+          _PostUpdateSheet(routes: state.routes, onPosted: _reloadFeed),
     );
   }
 }
@@ -98,7 +99,6 @@ class _PostUpdateSheetState extends State<_PostUpdateSheet> {
   final _stop = TextEditingController();
   final _note = TextEditingController();
   bool _submitting = false;
-  final DeviceService _deviceService = DeviceService();
 
   @override
   Widget build(BuildContext context) {
@@ -122,8 +122,10 @@ class _PostUpdateSheetState extends State<_PostUpdateSheet> {
               children: const [
                 Icon(Icons.campaign, color: AppColors.amber),
                 SizedBox(width: 8),
-                Text('အချက်အလက် မျှဝေရန်',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                Text(
+                  'အချက်အလက် မျှဝေရန်',
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                ),
               ],
             ),
             const SizedBox(height: 16),
@@ -155,9 +157,10 @@ class _PostUpdateSheetState extends State<_PostUpdateSheet> {
                   selected: active,
                   selectedColor: meta.bg,
                   labelStyle: TextStyle(
-                      color: active ? meta.color : AppColors.textSecondary,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 12),
+                    color: active ? meta.color : AppColors.textSecondary,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12,
+                  ),
                   onSelected: (_) => setState(() => _type = t),
                 );
               }).toList(),
@@ -166,30 +169,37 @@ class _PostUpdateSheetState extends State<_PostUpdateSheet> {
             TextField(
               controller: _stop,
               decoration: const InputDecoration(
-                  labelText: 'မှတ်တိုင် (ရှိလျှင်)',
-                  hintText: 'ဥပမာ - ဆူးလေမှတ်တိုင်'),
+                labelText: 'မှတ်တိုင် (ရှိလျှင်)',
+                hintText: 'ဥပမာ - ဆူးလေမှတ်တိုင်',
+              ),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: _note,
               maxLines: 3,
               decoration: const InputDecoration(
-                  labelText: 'မှတ်ချက်', hintText: 'အသေးစိတ် အချက်အလက်...'),
+                labelText: 'မှတ်ချက်',
+                hintText: 'အသေးစိတ် အချက်အလက်...',
+              ),
             ),
             const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
                 style: FilledButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    padding: const EdgeInsets.symmetric(vertical: 14)),
+                  backgroundColor: AppColors.primary,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
                 onPressed: _submitting || _route == null ? null : _submit,
                 icon: _submitting
                     ? const SizedBox(
                         width: 16,
                         height: 16,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white))
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
                     : const Icon(Icons.send),
                 label: Text(_submitting ? 'ပို့နေပါသည်...' : 'မျှဝေမည်'),
               ),
@@ -202,47 +212,32 @@ class _PostUpdateSheetState extends State<_PostUpdateSheet> {
 
   Future<void> _submit() async {
     setState(() => _submitting = true);
-    final deviceId = await _deviceService.getDeviceId();
-    final updateId = await ApiService.instance.postBusUpdate(BusUpdate(
-      routeId: _route!.id,
-      type: _type,
-      stop: _stop.text.trim().isEmpty ? null : _stop.text.trim(),
-      note: _note.text.trim().isEmpty ? null : _note.text.trim(),
-    ));
-    String? pointsMsg;
-    if (updateId != null) {
-      final lbRes = await ApiService.instance.submitLeaderboardUpdate(
-        deviceId: deviceId,
+    final updateId = await ApiService.instance.postBusUpdate(
+      BusUpdate(
         routeId: _route!.id,
-        type: busUpdateTypeKey(_type),
+        type: _type,
         stop: _stop.text.trim().isEmpty ? null : _stop.text.trim(),
         note: _note.text.trim().isEmpty ? null : _note.text.trim(),
-      );
-      if (lbRes['ok'] == true) {
-        pointsMsg = '+${lbRes['points_earned'] ?? 0} Points';
-        if (lbRes['new_total'] != null && mounted) {
-          context.read<AppState>().store.setLeaderboardUserName(
-                context.read<AppState>().leaderboardUserName ??
-                    'User_${deviceId.substring(0, 6)}',
-              );
-        }
-      }
-    }
+      ),
+    );
     if (!mounted) return;
     setState(() => _submitting = false);
     if (updateId != null) {
       widget.onPosted();
       if (mounted) {
-        final msg = pointsMsg != null
-            ? 'အချက်အလက် မျှဝေပြီးပါပြီ။ $pointsMsg'
-            : 'အချက်အလက် မျှဝေပြီးပါပြီ။';
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+        const msg = 'အချက်အလက် မျှဝေပြီးပါပြီ။';
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(msg)));
         Navigator.pop(context);
       }
     } else {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('အမှားရှိပါသည်။ နောက်မှ ထပ်ကြိုးစားပါ။')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('အမှားရှိပါသည်။ နောက်မှ ထပ်ကြိုးစားပါ။'),
+          ),
+        );
       }
     }
   }

@@ -22,18 +22,20 @@ Future<void> main() async {
     exit(1);
   }
 
-  final files = srcDir
-      .listSync()
-      .whereType<File>()
-      .where((f) => f.path.endsWith('_data.json'))
-      .toList()
-    ..sort((a, b) => a.path.compareTo(b.path));
+  final files =
+      srcDir
+          .listSync()
+          .whereType<File>()
+          .where((f) => f.path.endsWith('_data.json'))
+          .toList()
+        ..sort((a, b) => a.path.compareTo(b.path));
 
   // Preserve the manifest order if present, else alphabetical.
   List<String> order = files.map((f) => f.uri.pathSegments.last).toList();
   if (await manifestFile.exists()) {
-    final manifest = (json.decode(await manifestFile.readAsString())
-        as List).map((e) => e as String).toList();
+    final manifest = (json.decode(await manifestFile.readAsString()) as List)
+        .map((e) => e as String)
+        .toList();
     order = manifest
         .where((name) => files.any((f) => f.path.endsWith(name)))
         .toList();
@@ -42,10 +44,7 @@ Future<void> main() async {
   final entries = <Map<String, String>>[];
   for (final name in order) {
     final file = files.firstWhere((f) => f.path.endsWith(name));
-    entries.add({
-      'name': name,
-      'json': await file.readAsString(),
-    });
+    entries.add({'name': name, 'json': await file.readAsString()});
   }
 
   // Pack -> JSON -> gzip -> XOR -> base64.
@@ -56,6 +55,7 @@ Future<void> main() async {
 
   await outFile.writeAsString(b64);
   stdout.writeln(
-      'Wrote ${outFile.path} (${(await outFile.readAsBytes()).length} bytes, '
-      '${entries.length} route files).');
+    'Wrote ${outFile.path} (${(await outFile.readAsBytes()).length} bytes, '
+    '${entries.length} route files).',
+  );
 }

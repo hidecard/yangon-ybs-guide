@@ -36,10 +36,7 @@ class DeviceService {
   }
 
   bool _isKnownBadId(String id) {
-    const knownBadIds = {
-      '9774d56d682e549c',
-      '0000000000000000',
-    };
+    const knownBadIds = {'9774d56d682e549c', '0000000000000000'};
     return knownBadIds.contains(id);
   }
 

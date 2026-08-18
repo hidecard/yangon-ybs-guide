@@ -17,13 +17,14 @@ import '../widgets/osm_map.dart';
 import '../widgets/route_badge.dart';
 import 'map_picker_page.dart';
 
-
-
 class RoutePlanDetailPage extends StatefulWidget {
   final List<PathStep> steps;
   final bool canSave;
-  const RoutePlanDetailPage(
-      {super.key, required this.steps, this.canSave = true});
+  const RoutePlanDetailPage({
+    super.key,
+    required this.steps,
+    this.canSave = true,
+  });
   @override
   State<RoutePlanDetailPage> createState() => _RoutePlanDetailPageState();
 }
@@ -62,8 +63,6 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
       _start = steps.first.fromStop;
       _end = steps.last.toStop;
     }
-    _init();
-    _startWatch();
   }
 
   @override
@@ -72,16 +71,22 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
     super.dispose();
   }
 
-  Future<void> _init() async {
-  }
-
-  void _startWatch() async {
+  Future<void> _startWatch() async {
+    if (_posSub != null) return;
     if (!await LocationService.instance.ensurePermission()) return;
+    if (!mounted) return;
     _posSub = LocationService.instance.watchPosition().listen((p) {
+      if (!mounted) return;
       setState(() => _livePos = (lat: p.latitude, lng: p.longitude));
       _recomputeActive();
       _checkArrival();
     });
+  }
+
+  Future<void> _stopWatch() async {
+    await _posSub?.cancel();
+    _posSub = null;
+    if (mounted) setState(() => _livePos = null);
   }
 
   void _recomputeActive() {
@@ -92,8 +97,12 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
       final from = _stopsByName[steps[idx].fromStop];
       final to = _stopsByName[steps[idx].toStop];
       if (from == null || to == null) continue;
-      final dFrom =
-          getDistance(_livePos!.lat, _livePos!.lng, from.lat, from.lng);
+      final dFrom = getDistance(
+        _livePos!.lat,
+        _livePos!.lng,
+        from.lat,
+        from.lng,
+      );
       final dTo = getDistance(_livePos!.lat, _livePos!.lng, to.lat, to.lng);
       final m = dFrom < dTo ? dFrom : dTo;
       if (m < bestDist) {
@@ -115,7 +124,12 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
     int cur = 0;
     double min = double.infinity;
     for (int i = 0; i < sub.length; i++) {
-      final d = getDistance(_livePos!.lat, _livePos!.lng, sub[i].lat, sub[i].lng);
+      final d = getDistance(
+        _livePos!.lat,
+        _livePos!.lng,
+        sub[i].lat,
+        sub[i].lng,
+      );
       if (d < min) {
         min = d;
         cur = i;
@@ -141,8 +155,11 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
       final lastDetailed = last.route.stopsDetailed;
       final destIdx = lastDetailed.indexWhere((s) => s.nameMm == last.toStop);
       if (destIdx >= 0) {
-        tryAlert(lastDetailed[destIdx], 'dest-${last.toStop}',
-            (n) => 'ဆင်းမည့်မှတ်တိုင် ကတော့ $n ပါ');
+        tryAlert(
+          lastDetailed[destIdx],
+          'dest-${last.toStop}',
+          (n) => 'ဆင်းမည့်မှတ်တိုင် ကတော့ $n ပါ',
+        );
       }
     }
 
@@ -164,7 +181,12 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
     setState(() => _locating = false);
     if (p == null || state.stops.isEmpty) return;
     BusStop nearest = state.stops.first;
-    double minD = getDistance(p.latitude, p.longitude, nearest.lat, nearest.lng);
+    double minD = getDistance(
+      p.latitude,
+      p.longitude,
+      nearest.lat,
+      nearest.lng,
+    );
     for (final s in state.stops) {
       final d = getDistance(p.latitude, p.longitude, s.lat, s.lng);
       if (d < minD) {
@@ -203,38 +225,48 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
     if (_start.trim().isEmpty || _end.trim().isEmpty) return;
     final state = context.read<AppState>();
     setState(() => _searching = true);
-    final direct = await state.repo.findDirectRoutes(_start.trim(), _end.trim());
+    final direct = await state.repo.findDirectRoutes(
+      _start.trim(),
+      _end.trim(),
+    );
     final List<SearchResult> found = direct.isNotEmpty
         ? direct
-            .map((r) => SearchResult(
+              .map(
+                (r) => SearchResult(
                   steps: [
                     PathStep(
-                        route: r,
-                        fromStop: _start.trim(),
-                        toStop: _end.trim())
+                      route: r,
+                      fromStop: _start.trim(),
+                      toStop: _end.trim(),
+                    ),
                   ],
                   transferCount: 0,
                   totalDistance: 0,
-                ))
-            .toList()
+                ),
+              )
+              .toList()
         : performBFS(_start.trim(), _end.trim(), state.routes, state.stops);
     if (!mounted) return;
     setState(() => _searching = false);
     if (found.isNotEmpty) {
       await LocalStore.instance.addTripHistory(
-          type: 'search', label: _start.trim(), subtitle: _end.trim());
+        type: 'search',
+        label: _start.trim(),
+        subtitle: _end.trim(),
+      );
       // Replace this page with a freshly planned one.
       if (mounted) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-              builder: (_) => RoutePlanDetailPage(steps: found.first.steps)),
+            builder: (_) => RoutePlanDetailPage(steps: found.first.steps),
+          ),
         );
       }
     } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('လမ်းကြောင်း မတွေ့ပါ')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('လမ်းကြောင်း မတွေ့ပါ')));
     }
   }
 
@@ -252,8 +284,9 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
     // from the boarding stop to the alighting stop, so return-leg selections
     // resolve to the correct leg instead of falling back to the whole route.
     final leg = _findLeg(detailed, active.fromStop, active.toStop);
-    final List<BusStop> visible =
-        leg != null ? detailed.sublist(leg.$1, leg.$2 + 1) : detailed;
+    final List<BusStop> visible = leg != null
+        ? detailed.sublist(leg.$1, leg.$2 + 1)
+        : detailed;
 
     // Some routes list the same stop name twice (a forward + backward leg),
     // which would draw the path out-and-back and duplicate markers. Keep each
@@ -287,17 +320,19 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
       if (markerNames.contains(s.nameMm)) continue;
       markerNames.add(s.nameMm);
       final (displayName, _) = getDisambiguatedStopDisplay(s, state.stops);
-      markers.add(dotMarker(
-        LatLng(s.lat, s.lng),
-        color: isFrom
-            ? AppColors.emerald
-            : isTo
-                ? AppColors.rose
-                : Colors.white,
-        border: isFrom || isTo ? Colors.white : Colors.black,
-        size: isFrom || isTo ? 18 : 12,
-        label: displayName,
-      ));
+      markers.add(
+        dotMarker(
+          LatLng(s.lat, s.lng),
+          color: isFrom
+              ? AppColors.emerald
+              : isTo
+              ? AppColors.rose
+              : Colors.white,
+          border: isFrom || isTo ? Colors.white : Colors.black,
+          size: isFrom || isTo ? 18 : 12,
+          label: displayName,
+        ),
+      );
     }
 
     // Also label boarding / transfer / alighting points that belong to other
@@ -310,81 +345,91 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
       final color = entry.value == 'ဆင်းရမည့်မှတ်တိုင်'
           ? AppColors.rose
           : entry.value == 'စီးရမည့်မှတ်တိုင်'
-              ? AppColors.emerald
-              : AppColors.amber;
-      markers.add(dotMarker(
-        LatLng(st.lat, st.lng),
-        color: color,
-        border: Colors.white,
-        size: 18,
-        label: st.nameMm,
-      ));
+          ? AppColors.emerald
+          : AppColors.amber;
+      markers.add(
+        dotMarker(
+          LatLng(st.lat, st.lng),
+          color: color,
+          border: Colors.white,
+          size: 18,
+          label: st.nameMm,
+        ),
+      );
     }
 
-    final deduped =
-        uniqueVisible.map((s) => LatLng(s.lat, s.lng)).toList(growable: false);
+    final deduped = uniqueVisible
+        .map((s) => LatLng(s.lat, s.lng))
+        .toList(growable: false);
 
     if (deduped.length > 1) {
-      polylines.add(Polyline(
-        points: deduped,
-        color: active.route.color,
-        strokeWidth: 5,
-      ));
+      polylines.add(
+        Polyline(points: deduped, color: active.route.color, strokeWidth: 5),
+      );
     }
 
     if (_livePos != null) {
-      markers.add(Marker(
-        point: LatLng(_livePos!.lat, _livePos!.lng),
-        width: 120,
-        height: 64,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: AppColors.blue,
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 3),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color(0x33000000),
-                    blurRadius: 8,
-                    offset: Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: const Icon(Icons.directions_car, size: 26, color: Colors.white),
-            ),
-            Positioned(
-              bottom: 0,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      markers.add(
+        Marker(
+          point: LatLng(_livePos!.lat, _livePos!.lng),
+          width: 120,
+          height: 64,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Container(
+                width: 48,
+                height: 48,
                 decoration: BoxDecoration(
                   color: AppColors.blue,
-                  borderRadius: BorderRadius.circular(8),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 3),
                   boxShadow: const [
                     BoxShadow(
                       color: Color(0x33000000),
-                      blurRadius: 4,
-                      offset: Offset(0, 1),
+                      blurRadius: 8,
+                      offset: Offset(0, 2),
                     ),
                   ],
                 ),
-                child: const Text(
-                  'မိမိ နေရာ',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
+                child: const Icon(
+                  Icons.directions_car,
+                  size: 26,
+                  color: Colors.white,
+                ),
+              ),
+              Positioned(
+                bottom: 0,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.blue,
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x33000000),
+                        blurRadius: 4,
+                        offset: Offset(0, 1),
+                      ),
+                    ],
+                  ),
+                  child: const Text(
+                    'မိမိ နေရာ',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ));
+      );
     }
 
     final center = uniqueVisible.isNotEmpty
@@ -397,11 +442,14 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Route Plan Detail',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
-            Text('${steps.length - 1} Transfers',
-                style:
-                    const TextStyle(fontSize: 10, color: AppColors.slate400)),
+            const Text(
+              'Route Plan Detail',
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+            ),
+            Text(
+              '${steps.length - 1} Transfers',
+              style: const TextStyle(fontSize: 10, color: AppColors.slate400),
+            ),
           ],
         ),
         actions: [
@@ -411,8 +459,10 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
                 await context.read<AppState>().saveTrip(steps);
                 setState(() => _tripSaved = true);
               },
-              icon: Icon(_tripSaved ? Icons.bookmark : Icons.bookmark_border,
-                  color: _tripSaved ? AppColors.amber : null),
+              icon: Icon(
+                _tripSaved ? Icons.bookmark : Icons.bookmark_border,
+                color: _tripSaved ? AppColors.amber : null,
+              ),
             ),
         ],
       ),
@@ -436,21 +486,30 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Pill('Live GPS Active',
-                            bg: Colors.white, fg: AppColors.emerald),
+                        const Pill(
+                          'Live GPS Active',
+                          bg: Colors.white,
+                          fg: AppColors.emerald,
+                        ),
                         const SizedBox(height: 6),
                         GestureDetector(
                           onTap: () {
-                            setState(() => _arrivalEnabled = !_arrivalEnabled);
-                            if (_arrivalEnabled) {
+                            final enabled = !_arrivalEnabled;
+                            setState(() => _arrivalEnabled = enabled);
+                            if (enabled) {
                               NotifyService.instance.requestPermission();
+                              _startWatch();
+                            } else {
+                              _stopWatch();
                             }
                           },
                           child: Pill(
                             _arrivalEnabled
                                 ? 'ရောက်ခါနီး သတိပေးချက်: ဖွင့်'
                                 : 'ရောက်ခါနီး သတိပေးချက်',
-                            icon: _arrivalEnabled ? Icons.notifications_active : Icons.notifications_none,
+                            icon: _arrivalEnabled
+                                ? Icons.notifications_active
+                                : Icons.notifications_none,
                             bg: _arrivalEnabled
                                 ? AppColors.amber
                                 : Colors.white,
@@ -480,22 +539,32 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.notifications_active,
-                            size: 18, color: AppColors.amber),
+                        const Icon(
+                          Icons.notifications_active,
+                          size: 18,
+                          color: AppColors.amber,
+                        ),
                         const SizedBox(width: 10),
                         Expanded(
-                            child: Text(_arrivalMessage!,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFF92400E)))),
+                          child: Text(
+                            _arrivalMessage!,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF92400E),
+                            ),
+                          ),
+                        ),
                         IconButton(
-                            onPressed: () =>
-                                setState(() => _arrivalMessage = null),
-                            icon: const Icon(Icons.close, size: 16)),
+                          onPressed: () =>
+                              setState(() => _arrivalMessage = null),
+                          icon: const Icon(Icons.close, size: 16),
+                        ),
                       ],
                     ),
                   ),
+                _replanCard(),
                 ...steps.asMap().entries.map((e) => _stepCard(e.key, e.value)),
+
                 _intermediateStops(active),
               ],
             ),
@@ -505,8 +574,70 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
     );
   }
 
-  /// Start/End search header with "Near Me" and map-picker, so users can
-  /// re-plan the trip directly from this page.
+  Widget _replanCard() {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'ခရီးစဉ် ပြန်ရွေးရန်',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(child: Text(_start, overflow: TextOverflow.ellipsis)),
+                IconButton(
+                  tooltip: 'စတင်မှတ်တိုင် ရွေးရန်',
+                  onPressed: () => _openPicker(true),
+                  icon: const Icon(Icons.place_outlined),
+                ),
+                IconButton(
+                  tooltip: 'လက်ရှိနေရာ အသုံးပြုရန်',
+                  onPressed: _locating ? null : _useCurrentLocation,
+                  icon: _locating
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.my_location),
+                ),
+              ],
+            ),
+            const Divider(height: 4),
+            Row(
+              children: [
+                Expanded(child: Text(_end, overflow: TextOverflow.ellipsis)),
+                IconButton(
+                  tooltip: 'ဆင်းမှတ်တိုင် ရွေးရန်',
+                  onPressed: () => _openPicker(false),
+                  icon: const Icon(Icons.flag_outlined),
+                ),
+                FilledButton.icon(
+                  onPressed: _searching ? null : _replan,
+                  icon: _searching
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Icon(Icons.alt_route),
+                  label: const Text('ပြန်ရှာမည်'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   Widget _stepCard(int idx, PathStep st) {
     final isActive = idx == _activeStep;
@@ -523,8 +654,9 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
         color: isActive ? Colors.white : Colors.white.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-            color: isActive ? AppColors.brand : AppColors.borderLight,
-            width: isActive ? 1.4 : 1),
+          color: isActive ? AppColors.brand : AppColors.borderLight,
+          width: isActive ? 1.4 : 1,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -532,19 +664,32 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
           Row(
             children: [
               RouteBadge(
-                  routeId: st.route.id, color: st.route.color, small: true),
+                routeId: st.route.id,
+                color: st.route.color,
+                small: true,
+              ),
               const SizedBox(width: 8),
               if (st.route.lineName != null)
-                Text('(${st.route.lineName})',
-                    style: const TextStyle(
-                        fontSize: 12, fontWeight: FontWeight.w500)),
+                Text(
+                  '(${st.route.lineName})',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               const Spacer(),
               if (isTransfer)
-                const Pill('ကားပြောင်းစီးရမည့်မှတ်တိုင်',
-                    bg: AppColors.amberLight, fg: AppColors.brandHover),
+                const Pill(
+                  'ကားပြောင်းစီးရမည့်မှတ်တိုင်',
+                  bg: AppColors.amberLight,
+                  fg: AppColors.brandHover,
+                ),
               if (isActive)
-                const Pill('လက်ရှိစီးရမည့်ကား',
-                    bg: AppColors.brandLight, fg: AppColors.brandHover),
+                const Pill(
+                  'လက်ရှိစီးရမည့်ကား',
+                  bg: AppColors.brandLight,
+                  fg: AppColors.brandHover,
+                ),
             ],
           ),
           const SizedBox(height: 12),
@@ -552,32 +697,44 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                  margin: const EdgeInsets.only(top: 2),
-                  width: 14,
-                  height: 14,
-                  decoration: const BoxDecoration(
-                      color: AppColors.emerald, shape: BoxShape.circle)),
+                margin: const EdgeInsets.only(top: 2),
+                width: 14,
+                height: 14,
+                decoration: const BoxDecoration(
+                  color: AppColors.emerald,
+                  shape: BoxShape.circle,
+                ),
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                        isLastStep
-                            ? 'မိမိစီးရမည့်နေရာ (သင့်တည်နေရာ)'
-                            : 'စီးရမည့်မှတ်တိုင်',
-                        style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.emeraldDark)),
-                    Text(fromLabel,
-                        style: const TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.w600)),
+                      isLastStep
+                          ? 'မိမိစီးရမည့်နေရာ (သင့်တည်နေရာ)'
+                          : 'စီးရမည့်မှတ်တိုင်',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.emeraldDark,
+                      ),
+                    ),
+                    Text(
+                      fromLabel,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                     if (fromStop != null)
                       Text(
-                          _stopSubtitle(fromStop),
-                          style: const TextStyle(
-                              fontSize: 11, color: AppColors.slate400)),
+                        _stopSubtitle(fromStop),
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: AppColors.slate400,
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -588,29 +745,42 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                  margin: const EdgeInsets.only(top: 2),
-                  width: 14,
-                  height: 14,
-                  decoration: const BoxDecoration(
-                      color: AppColors.rose, shape: BoxShape.circle)),
+                margin: const EdgeInsets.only(top: 2),
+                width: 14,
+                height: 14,
+                decoration: const BoxDecoration(
+                  color: AppColors.rose,
+                  shape: BoxShape.circle,
+                ),
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('မိမိဆင်းရမည့်နေရာ',
-                        style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.rose)),
-                    Text(toLabel,
-                        style: const TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.w600)),
+                    const Text(
+                      'မိမိဆင်းရမည့်နေရာ',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.rose,
+                      ),
+                    ),
+                    Text(
+                      toLabel,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                     if (toStop != null)
                       Text(
-                          _stopSubtitle(toStop),
-                          style: const TextStyle(
-                              fontSize: 11, color: AppColors.slate400)),
+                        _stopSubtitle(toStop),
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: AppColors.slate400,
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -636,7 +806,9 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
     if (stop == null) return fallback;
     final parts = <String>[];
     if (stop.roadMm.isNotEmpty) parts.add(stop.roadMm);
-    if (stop.townshipMm.isNotEmpty && stop.townshipMm != stop.roadMm) parts.add(stop.townshipMm);
+    if (stop.townshipMm.isNotEmpty && stop.townshipMm != stop.roadMm) {
+      parts.add(stop.townshipMm);
+    }
     if (parts.isEmpty) return stop.nameMm;
     return '${stop.nameMm} (${parts.join(' · ')})';
   }
@@ -645,8 +817,7 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
   /// [toStop] in [detailed]. Handles out-and-back routes where the same stop
   /// name appears multiple times by picking the smallest forward span, so a
   /// selection on the return leg still resolves to the correct segment.
-  (int, int)? _findLeg(
-      List<BusStop> detailed, String fromStop, String toStop) {
+  (int, int)? _findLeg(List<BusStop> detailed, String fromStop, String toStop) {
     final fromIdxs = <int>[];
     final toIdxs = <int>[];
     for (int i = 0; i < detailed.length; i++) {
@@ -698,8 +869,7 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('ဖြတ်ရမည့်မှတ်တိုင်များ (${between.length})',
-              style: UI.label),
+          Text('ဖြတ်ရမည့်မှတ်တိုင်များ (${between.length})', style: UI.label),
           const SizedBox(height: 10),
           for (int i = 0; i < between.length; i++) ...[
             Row(
@@ -712,19 +882,26 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
                     color: AppColors.slate100,
                     shape: BoxShape.circle,
                   ),
-                  child: Text('${fromIdx + i + 2}',
-                      style: const TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.slate500)),
+                  child: Text(
+                    '${fromIdx + i + 2}',
+                    style: const TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.slate500,
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Text(between[i].nameMm,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          fontSize: 14, fontWeight: FontWeight.w500)),
+                  child: Text(
+                    between[i].nameMm,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -748,13 +925,18 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
         backgroundColor: isArrivalOn ? AppColors.amber : Colors.white,
         foregroundColor: isArrivalOn ? Colors.white : AppColors.slate700,
         side: BorderSide(
-            color: isArrivalOn ? AppColors.amber : AppColors.slate200),
+          color: isArrivalOn ? AppColors.amber : AppColors.slate200,
+        ),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
-      icon: Icon(isArrivalOn ? Icons.notifications_active : Icons.notifications_none,
-          size: 14),
-       label: Text(isArrivalOn ? 'ရောက်ခါနီး သတိပေးချက်: ဖွင့်' : 'ရောက်ခါနီး သတိပေးချက်',
-          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+      icon: Icon(
+        isArrivalOn ? Icons.notifications_active : Icons.notifications_none,
+        size: 14,
+      ),
+      label: Text(
+        isArrivalOn ? 'ရောက်ခါနီး သတိပေးချက်: ဖွင့်' : 'ရောက်ခါနီး သတိပေးချက်',
+        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+      ),
     );
   }
 }

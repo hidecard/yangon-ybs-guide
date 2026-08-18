@@ -51,14 +51,17 @@ class OsmMap extends StatelessWidget {
   }
 }
 
-Marker dotMarker(LatLng point,
-    {required Color color,
-    double size = 16,
-    Color border = Colors.white,
-    Widget? child,
-    String? label,
-    String? subtitle}) {
-  final markerChild = child ??
+Marker dotMarker(
+  LatLng point, {
+  required Color color,
+  double size = 16,
+  Color border = Colors.white,
+  Widget? child,
+  String? label,
+  String? subtitle,
+}) {
+  final markerChild =
+      child ??
       Container(
         decoration: BoxDecoration(
           color: color,
@@ -68,12 +71,7 @@ Marker dotMarker(LatLng point,
       );
 
   if (label == null || label.isEmpty) {
-    return Marker(
-      point: point,
-      width: size,
-      height: size,
-      child: markerChild,
-    );
+    return Marker(point: point, width: size, height: size, child: markerChild);
   }
 
   return Marker(
@@ -96,7 +94,7 @@ Marker dotMarker(LatLng point,
                   borderRadius: BorderRadius.circular(8),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.15),
+                      color: Colors.black.withValues(alpha: 0.15),
                       blurRadius: 6,
                       offset: const Offset(0, 2),
                     ),

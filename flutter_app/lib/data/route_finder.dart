@@ -5,7 +5,8 @@ double getDistance(double lat1, double lon1, double lat2, double lon2) {
   const R = 6371.0;
   final dLat = (lat2 - lat1) * math.pi / 180;
   final dLon = (lon2 - lon1) * math.pi / 180;
-  final a = math.sin(dLat / 2) * math.sin(dLat / 2) +
+  final a =
+      math.sin(dLat / 2) * math.sin(dLat / 2) +
       math.cos(lat1 * math.pi / 180) *
           math.cos(lat2 * math.pi / 180) *
           math.sin(dLon / 2) *
@@ -74,8 +75,9 @@ List<SearchResult> performBFS(
     if (prev != null && prev <= c) continue;
     bestCost[key] = c;
 
-    final availableRoutes =
-        allRoutes.where((r) => r.stops.contains(currentStop));
+    final availableRoutes = allRoutes.where(
+      (r) => r.stops.contains(currentStop),
+    );
     for (final route in availableRoutes) {
       if (item.usedRouteIds.contains(route.id)) continue;
 
@@ -89,11 +91,13 @@ List<SearchResult> performBFS(
             ...item.path,
             PathStep(route: route, fromStop: currentStop, toStop: end),
           ];
-          finalResults.add(SearchResult(
-            steps: stepPath,
-            transferCount: stepPath.length - 1,
-            totalDistance: calcPathDistance(stepPath),
-          ));
+          finalResults.add(
+            SearchResult(
+              steps: stepPath,
+              transferCount: stepPath.length - 1,
+              totalDistance: calcPathDistance(stepPath),
+            ),
+          );
           continue;
         }
 
@@ -106,11 +110,13 @@ List<SearchResult> performBFS(
               ...item.path,
               PathStep(route: route, fromStop: currentStop, toStop: nextStop),
             ];
-            queue.add(_QueueItem(
-              currentStop: nextStop,
-              path: stepPath,
-              usedRouteIds: {...newUsed},
-            ));
+            queue.add(
+              _QueueItem(
+                currentStop: nextStop,
+                path: stepPath,
+                usedRouteIds: {...newUsed},
+              ),
+            );
           }
         }
       }
@@ -184,11 +190,13 @@ List<StopOption> buildDisambiguatedStops(List<BusStop> stops) {
     final key = '${stop.nameMm}|$suffix';
     if (seen.contains(key)) continue;
     seen.add(key);
-    options.add(StopOption(
-      raw: stop.nameMm,
-      display: suffix.isNotEmpty ? '${stop.nameMm} [$suffix]' : stop.nameMm,
-      id: stop.id,
-    ));
+    options.add(
+      StopOption(
+        raw: stop.nameMm,
+        display: suffix.isNotEmpty ? '${stop.nameMm} [$suffix]' : stop.nameMm,
+        id: stop.id,
+      ),
+    );
   }
   options.sort((a, b) => a.display.compareTo(b.display));
   return options;
@@ -196,17 +204,24 @@ List<StopOption> buildDisambiguatedStops(List<BusStop> stops) {
 
 /// Get disambiguated display for a stop (adds road/township if needed).
 /// Returns a tuple of (displayName, subtitle) where subtitle is the road/township.
-(String, String?) getDisambiguatedStopDisplay(BusStop stop, List<BusStop> allStops) {
-  final hasDuplicates = allStops.any((s) => s.nameMm == stop.nameMm && s.id != stop.id);
-  
+(String, String?) getDisambiguatedStopDisplay(
+  BusStop stop,
+  List<BusStop> allStops,
+) {
+  final hasDuplicates = allStops.any(
+    (s) => s.nameMm == stop.nameMm && s.id != stop.id,
+  );
+
   if (!hasDuplicates) {
     return (stop.nameMm, null);
   }
-  
+
   final parts = <String>[];
   if (stop.roadMm.isNotEmpty) parts.add(stop.roadMm);
-  if (stop.townshipMm.isNotEmpty && stop.townshipMm != stop.roadMm) parts.add(stop.townshipMm);
-  
+  if (stop.townshipMm.isNotEmpty && stop.townshipMm != stop.roadMm) {
+    parts.add(stop.townshipMm);
+  }
+
   if (parts.isEmpty) return (stop.nameMm, null);
   if (parts.length == 1) return (stop.nameMm, parts.first);
   return (stop.nameMm, '${parts[0]} · ${parts[1]}');
@@ -215,18 +230,23 @@ List<StopOption> buildDisambiguatedStops(List<BusStop> stops) {
 /// Local NLP: extract start/end stop names from Burmese text.
 /// Mirrors extractStopsFromText in App.tsx.
 Map<String, String?>? extractStopsFromText(
-    String text, List<String> allStopNames) {
+  String text,
+  List<String> allStopNames,
+) {
   final normalized = text.trim();
-  final sorted = [...allStopNames]..sort((a, b) => b.length.compareTo(a.length));
+  final sorted = [...allStopNames]
+    ..sort((a, b) => b.length.compareTo(a.length));
 
   final found = <_FoundStop>[];
   for (final name in sorted) {
     if (normalized.contains(name)) {
       final index = normalized.indexOf(name);
-      final overlapping = found.any((s) =>
-          (index >= s.index && index < s.index + s.name.length) ||
-          (index + name.length > s.index &&
-              index + name.length <= s.index + s.name.length));
+      final overlapping = found.any(
+        (s) =>
+            (index >= s.index && index < s.index + s.name.length) ||
+            (index + name.length > s.index &&
+                index + name.length <= s.index + s.name.length),
+      );
       if (!overlapping) {
         found.add(_FoundStop(name, index));
       }
@@ -315,7 +335,8 @@ String? resolveStopName(String query, List<String> allStopNames) {
   // 3) Prefix / substring match.
   final lower = q.toLowerCase();
   for (final name in allStopNames) {
-    if (name.toLowerCase().startsWith(lower) || name.toLowerCase().contains(lower)) {
+    if (name.toLowerCase().startsWith(lower) ||
+        name.toLowerCase().contains(lower)) {
       return name;
     }
   }

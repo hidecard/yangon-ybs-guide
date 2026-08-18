@@ -39,7 +39,8 @@ double _haversineKm(double lat1, double lon1, double lat2, double lon2) {
   const R = 6371.0;
   final dLat = (lat2 - lat1) * math.pi / 180;
   final dLon = (lon2 - lon1) * math.pi / 180;
-  final a = math.sin(dLat / 2) * math.sin(dLat / 2) +
+  final a =
+      math.sin(dLat / 2) * math.sin(dLat / 2) +
       math.cos(lat1 * math.pi / 180) *
           math.cos(lat2 * math.pi / 180) *
           math.sin(dLon / 2) *
@@ -82,7 +83,8 @@ void onStart(ServiceInstance service) async {
     await service.setAsForegroundService();
     service.setForegroundNotificationInfo(
       title: 'YBS AI သတိပေး အလုပ်လုပ်နေသည်',
-      content: 'မှတ်တိုင်အနီးရောက်လျှင် နှင့် Admin သတင်းများ ရောက်လျှင် အလိုအလျောက် သတိပေးပါမည်',
+      content:
+          'မှတ်တိုင်အနီးရောက်လျှင် နှင့် Admin သတင်းများ ရောက်လျှင် အလိုအလျောက် သတိပေးပါမည်',
     );
   }
 
@@ -90,9 +92,11 @@ void onStart(ServiceInstance service) async {
   final tts = FlutterTts();
   try {
     // Explicitly use the launcher icon (the logo) as the default small icon.
-    await plugin.initialize(const InitializationSettings(
-      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
-    ));
+    await plugin.initialize(
+      const InitializationSettings(
+        android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+      ),
+    );
   } catch (_) {}
   try {
     await tts.setLanguage('my-MM');
@@ -206,7 +210,9 @@ void onStart(ServiceInstance service) async {
 
     // ---- (b) Arrival alert (only if a stop alert is active) ----
     final alert = await LocalStore.instance.getBackgroundAlert();
-    if (alert == null) return; // No active stop alert -> keep polling admin only.
+    if (alert == null) {
+      return; // No active stop alert -> keep polling admin only.
+    }
 
     // Already fired once -> keep monitoring but don't re-alert.
     if (alert['alerted'] == true) return;
@@ -250,21 +256,24 @@ Future<void> initBackgroundAlertService() async {
   const androidChannel = AndroidNotificationChannel(
     'ybs_bg',
     'Background Service',
-    description: 'Keeps arrival alerts and admin notifications running in the background',
+    description:
+        'Keeps arrival alerts and admin notifications running in the background',
     importance: Importance.low,
   );
 
   final flutterLocalNotifications = FlutterLocalNotificationsPlugin();
   await flutterLocalNotifications
       .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>()
+        AndroidFlutterLocalNotificationsPlugin
+      >()
       ?.createNotificationChannel(androidChannel);
 
   // Arrival alert channel: must be MAX importance so fullScreenIntent can wake
   // the device / show over the lock screen when the screen is off.
   await flutterLocalNotifications
       .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>()
+        AndroidFlutterLocalNotificationsPlugin
+      >()
       ?.createNotificationChannel(
         const AndroidNotificationChannel(
           'ybs_arrival',
@@ -278,7 +287,8 @@ Future<void> initBackgroundAlertService() async {
   // is closed / never opened since boot.
   await flutterLocalNotifications
       .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>()
+        AndroidFlutterLocalNotificationsPlugin
+      >()
       ?.createNotificationChannel(
         const AndroidNotificationChannel(
           'ybs_admin',

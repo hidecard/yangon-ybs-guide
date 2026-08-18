@@ -13,8 +13,9 @@ class FavoritesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = context.watch<AppState>();
-    final favRoutes =
-        state.routes.where((r) => state.isFavRoute(r.id)).toList();
+    final favRoutes = state.routes
+        .where((r) => state.isFavRoute(r.id))
+        .toList();
     final favStops = state.stops.where((s) => state.isFavStop(s.id)).toList();
     final trips = state.savedTrips;
     final hasAny =
@@ -23,8 +24,10 @@ class FavoritesPage extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const Text('အကြိုက်များ',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const Text(
+          'အကြိုက်များ',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
         const SizedBox(height: 16),
         if (!hasAny)
           const Padding(
@@ -85,29 +88,39 @@ class FavoritesPage extends StatelessWidget {
                         children: [
                           for (int i = 0; i < trip.steps.length; i++) ...[
                             RouteBadge(
-                                routeId: trip.steps[i].route.id,
-                                color: trip.steps[i].route.color,
-                                small: true),
+                              routeId: trip.steps[i].route.id,
+                              color: trip.steps[i].route.color,
+                              small: true,
+                            ),
                             if (i < trip.steps.length - 1)
-                              const Icon(Icons.chevron_right,
-                                  size: 14, color: AppColors.slate300),
+                              const Icon(
+                                Icons.chevron_right,
+                                size: 14,
+                                color: AppColors.slate300,
+                              ),
                           ],
                         ],
                       ),
                     ),
                     const SizedBox(height: 6),
-                    Text('${first?.fromStop ?? ''} → ${last?.toStop ?? ''}',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.w500)),
+                    Text(
+                      '${first?.fromStop ?? ''} → ${last?.toStop ?? ''}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                   ],
                 ),
               ),
               IconButton(
                 onPressed: () => state.deleteTrip(trip.id),
-                icon: const Icon(Icons.delete_outline,
-                    color: AppColors.slate400),
+                icon: const Icon(
+                  Icons.delete_outline,
+                  color: AppColors.slate400,
+                ),
               ),
             ],
           ),
@@ -140,10 +153,12 @@ class FavoritesPage extends StatelessWidget {
       child: ListTile(
         onTap: () => Nav.openRoute(context, r),
         leading: RouteBadge(routeId: r.id, color: r.color),
-        title: Text(r.operator?.isNotEmpty == true ? r.operator! : r.displayName,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+        title: Text(
+          r.operator?.isNotEmpty == true ? r.operator! : r.displayName,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+        ),
         subtitle: const Text('YBS Route', style: TextStyle(fontSize: 12)),
         trailing: IconButton(
           onPressed: () => state.toggleFavRoute(r.id),

@@ -26,8 +26,10 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.surface,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
         hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -50,17 +52,13 @@ class AppTheme {
 /// Common decorations reused across pages.
 class UI {
   static BoxDecoration card({Color? color, Color? border}) => BoxDecoration(
-        color: color ?? AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: border ?? AppColors.borderLight),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0A0F172A),
-            blurRadius: 3,
-            offset: Offset(0, 1),
-          ),
-        ],
-      );
+    color: color ?? AppColors.surface,
+    borderRadius: BorderRadius.circular(16),
+    border: Border.all(color: border ?? AppColors.borderLight),
+    boxShadow: const [
+      BoxShadow(color: Color(0x0A0F172A), blurRadius: 3, offset: Offset(0, 1)),
+    ],
+  );
 
   static const sectionTitle = TextStyle(
     fontSize: 18,

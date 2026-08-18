@@ -46,19 +46,23 @@ class _StopDetailPageState extends State<StopDetailPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(stop.nameMm,
-                style: const TextStyle(
-                    fontSize: 15, fontWeight: FontWeight.w600)),
-            Text(stop.townshipMm,
-                style:
-                    const TextStyle(fontSize: 11, color: AppColors.slate400)),
+            Text(
+              stop.nameMm,
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+            ),
+            Text(
+              stop.townshipMm,
+              style: const TextStyle(fontSize: 11, color: AppColors.slate400),
+            ),
           ],
         ),
         actions: [
           IconButton(
             onPressed: () => state.toggleFavStop(stop.id),
-            icon: Icon(isFav ? Icons.star : Icons.star_border,
-                color: isFav ? AppColors.amber : null),
+            icon: Icon(
+              isFav ? Icons.star : Icons.star_border,
+              color: isFav ? AppColors.amber : null,
+            ),
           ),
         ],
       ),
@@ -70,8 +74,12 @@ class _StopDetailPageState extends State<StopDetailPage> {
               center: LatLng(stop.lat, stop.lng),
               zoom: 16,
               markers: [
-                dotMarker(LatLng(stop.lat, stop.lng),
-                    color: AppColors.blue, size: 20, label: stop.nameMm)
+                dotMarker(
+                  LatLng(stop.lat, stop.lng),
+                  color: AppColors.blue,
+                  size: 20,
+                  label: stop.nameMm,
+                ),
               ],
             ),
           ),
@@ -85,15 +93,20 @@ class _StopDetailPageState extends State<StopDetailPage> {
                     Expanded(child: _infoBox('မြို့နယ်', stop.townshipMm)),
                     const SizedBox(width: 12),
                     Expanded(
-                        child: _infoBox(
-                            'လမ်း', stop.roadMm.isEmpty ? '—' : stop.roadMm)),
+                      child: _infoBox(
+                        'လမ်း',
+                        stop.roadMm.isEmpty ? '—' : stop.roadMm,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 20),
                 Row(
                   children: [
-                    const Text('ဖြတ်သန်းသွားသော ကားလိုင်းများ',
-                        style: UI.sectionTitle),
+                    const Text(
+                      'ဖြတ်သန်းသွားသော ကားလိုင်းများ',
+                      style: UI.sectionTitle,
+                    ),
                     const Spacer(),
                     Pill('${passing.length} လိုင်း'),
                   ],
@@ -103,32 +116,37 @@ class _StopDetailPageState extends State<StopDetailPage> {
                   spacing: 8,
                   runSpacing: 8,
                   children: passing
-                      .map((r) => InkWell(
-                            onTap: () => Nav.openRoute(context, r),
-                            child: Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(12),
-                                border:
-                                    Border.all(color: AppColors.borderLight),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  RouteBadge(
-                                      routeId: r.id,
-                                      color: r.color,
-                                      small: true),
-                                  const SizedBox(width: 8),
-                                  Text('YBS ${r.id}',
-                                      style: const TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold)),
-                                ],
-                              ),
+                      .map(
+                        (r) => InkWell(
+                          onTap: () => Nav.openRoute(context, r),
+                          child: Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: AppColors.borderLight),
                             ),
-                          ))
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                RouteBadge(
+                                  routeId: r.id,
+                                  color: r.color,
+                                  small: true,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'YBS ${r.id}',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      )
                       .toList(),
                 ),
               ],
@@ -148,9 +166,10 @@ class _StopDetailPageState extends State<StopDetailPage> {
         children: [
           Text(label, style: UI.label),
           const SizedBox(height: 4),
-          Text(value,
-              style:
-                  const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          ),
         ],
       ),
     );

@@ -27,7 +27,11 @@ class RouteBadge extends StatelessWidget {
           color: color,
           borderRadius: BorderRadius.circular(8),
           boxShadow: const [
-            BoxShadow(color: Color(0x14000000), blurRadius: 2, offset: Offset(0, 1))
+            BoxShadow(
+              color: Color(0x14000000),
+              blurRadius: 2,
+              offset: Offset(0, 1),
+            ),
           ],
         ),
         child: Text(

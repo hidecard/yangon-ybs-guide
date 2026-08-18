@@ -92,7 +92,8 @@ class DataRepository {
       final name = entry['name'] as String? ?? '';
       final data = json.decode(entry['json'] as String) as Map<String, dynamic>;
 
-      final routeIdRaw = data['bus_line']?.toString() ??
+      final routeIdRaw =
+          data['bus_line']?.toString() ??
           name.replaceFirst('ybs_', '').replaceFirst('_data.json', '');
       String routeId = routeIdRaw.trim();
       if (usedIds.contains(routeId)) {
@@ -120,13 +121,9 @@ class DataRepository {
             stopNames.add(nameMm);
           }
 
-          if (nameMm != null &&
-              nameEn != null &&
-              lat != null &&
-              lng != null) {
+          if (nameMm != null && nameEn != null && lat != null && lng != null) {
             final roadStr = stop['road']?.toString() ?? '';
-            final roadParts =
-                roadStr.isEmpty ? ['', ''] : roadStr.split(',');
+            final roadParts = roadStr.isEmpty ? ['', ''] : roadStr.split(',');
             final road = roadParts.isNotEmpty ? roadParts[0].trim() : '';
             final township = roadParts.length > 1
                 ? roadParts[1].trim()
@@ -166,17 +163,19 @@ class DataRepository {
       final routeInfo =
           (data['route_info'] as Map<String, dynamic>?) ?? const {};
 
-      loadedRoutes.add(BusRoute(
-        id: routeId,
-        color: _generateColor(routeId),
-        operator: (routeInfo['Agency']?.toString().isNotEmpty ?? false)
-            ? routeInfo['Agency'].toString()
-            : '',
-        lineName: routeInfo['Line Name']?.toString(),
-        qrPayment: routeInfo['QR Payment']?.toString(),
-        stops: stopNames,
-        stopsDetailed: detailedStops,
-      ));
+      loadedRoutes.add(
+        BusRoute(
+          id: routeId,
+          color: _generateColor(routeId),
+          operator: (routeInfo['Agency']?.toString().isNotEmpty ?? false)
+              ? routeInfo['Agency'].toString()
+              : '',
+          lineName: routeInfo['Line Name']?.toString(),
+          qrPayment: routeInfo['QR Payment']?.toString(),
+          stops: stopNames,
+          stopsDetailed: detailedStops,
+        ),
+      );
     }
 
     routes = loadedRoutes;
@@ -274,8 +273,7 @@ class DataRepository {
         endName: endStop.nameMm,
         endTownship: endStop.townshipMm,
       );
-      final found =
-          ids.where(byId.containsKey).map((id) => byId[id]!).toList();
+      final found = ids.where(byId.containsKey).map((id) => byId[id]!).toList();
       if (found.isNotEmpty) return found;
     } else {
       // Name-only path (Re-plan / Assistant): run the directional query by
@@ -286,8 +284,7 @@ class DataRepository {
         startName: start,
         endName: end,
       );
-      final found =
-          ids.where(byId.containsKey).map((id) => byId[id]!).toList();
+      final found = ids.where(byId.containsKey).map((id) => byId[id]!).toList();
       if (found.isNotEmpty) return found;
     }
 
@@ -301,8 +298,22 @@ class DataRepository {
     BusStop? startStop,
     BusStop? endStop,
   ) {
-    final effectiveStart = startStop ?? resolveStopByName(start, stops, hint: endStop == null ? null : (lat: endStop.lat, lng: endStop.lng));
-    final effectiveEnd = endStop ?? resolveStopByName(end, stops, hint: startStop == null ? null : (lat: startStop.lat, lng: startStop.lng));
+    final effectiveStart =
+        startStop ??
+        resolveStopByName(
+          start,
+          stops,
+          hint: endStop == null ? null : (lat: endStop.lat, lng: endStop.lng),
+        );
+    final effectiveEnd =
+        endStop ??
+        resolveStopByName(
+          end,
+          stops,
+          hint: startStop == null
+              ? null
+              : (lat: startStop.lat, lng: startStop.lng),
+        );
     // Collect matches with their shortest forward span so out-and-back (loop)
     // routes resolve to the correct segment and we can rank shortest-first,
     // mirroring the SQLite MIN(gap) query and the detail page's _findLeg.
@@ -335,7 +346,6 @@ class DataRepository {
     if (hint == null) return true;
     // Require the coordinate to match the chosen physical stop so that a
     // duplicate name on the reverse leg / in another area is not matched.
-    return (s.lat - hint.lat).abs() < 1e-6 &&
-        (s.lng - hint.lng).abs() < 1e-6;
+    return (s.lat - hint.lat).abs() < 1e-6 && (s.lng - hint.lng).abs() < 1e-6;
   }
 }

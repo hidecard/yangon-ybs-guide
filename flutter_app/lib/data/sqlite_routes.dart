@@ -40,8 +40,9 @@ class SqliteRoutes {
     );
 
     // Build only if empty (first launch / after a wipe).
-    final count =
-        Sqflite.firstIntValue(await _db!.rawQuery('SELECT COUNT(*) FROM routes'));
+    final count = Sqflite.firstIntValue(
+      await _db!.rawQuery('SELECT COUNT(*) FROM routes'),
+    );
     if (count == 0) {
       await _populate(_db!, routes);
     }
@@ -89,9 +90,11 @@ class SqliteRoutes {
       )
     ''');
     await db.execute(
-        'CREATE INDEX IF NOT EXISTS idx_route_stops_search ON route_stops(stop_id, route_id, stop_order)');
+      'CREATE INDEX IF NOT EXISTS idx_route_stops_search ON route_stops(stop_id, route_id, stop_order)',
+    );
     await db.execute(
-        'CREATE INDEX IF NOT EXISTS idx_bus_stops_coords ON bus_stops(latitude, longitude)');
+      'CREATE INDEX IF NOT EXISTS idx_bus_stops_coords ON bus_stops(latitude, longitude)',
+    );
   }
 
   Future<void> _populate(Database db, List<BusRoute> routes) async {

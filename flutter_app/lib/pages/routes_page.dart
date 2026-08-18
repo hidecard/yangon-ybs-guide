@@ -100,24 +100,28 @@ class _RoutesPageState extends State<RoutesPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('YBS Route',
-                            style: TextStyle(
-                                fontSize: 12,
-                                color: AppColors.slate400,
-                                fontWeight: FontWeight.w500)),
+                        const Text(
+                          'YBS Route',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.slate400,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                         if ((r.operator ?? '').isNotEmpty)
                           Padding(
                             padding: const EdgeInsets.only(top: 4),
-                            child: Pill(r.operator!,
-                                icon: Icons.credit_card),
+                            child: Pill(r.operator!, icon: Icons.credit_card),
                           ),
                       ],
                     ),
                   ),
                   IconButton(
                     onPressed: () => state.toggleFavRoute(r.id),
-                    icon: Icon(isFav ? Icons.star : Icons.star_border,
-                        color: isFav ? AppColors.amber : AppColors.slate300),
+                    icon: Icon(
+                      isFav ? Icons.star : Icons.star_border,
+                      color: isFav ? AppColors.amber : AppColors.slate300,
+                    ),
                   ),
                 ],
               ),
@@ -130,19 +134,28 @@ class _RoutesPageState extends State<RoutesPage> {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  Text('${r.stops.length} Stops',
-                      style: const TextStyle(
-                          fontSize: 10,
-                          color: AppColors.slate400,
-                          fontWeight: FontWeight.w500)),
+                  Text(
+                    '${r.stops.length} Stops',
+                    style: const TextStyle(
+                      fontSize: 10,
+                      color: AppColors.slate400,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                   const Spacer(),
-                  const Text('View Detail',
-                      style: TextStyle(
-                          fontSize: 12,
-                          color: AppColors.brand,
-                          fontWeight: FontWeight.w600)),
-                  const Icon(Icons.chevron_right,
-                      size: 16, color: AppColors.brand),
+                  const Text(
+                    'View Detail',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.brand,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const Icon(
+                    Icons.chevron_right,
+                    size: 16,
+                    color: AppColors.brand,
+                  ),
                 ],
               ),
             ],
@@ -156,16 +169,18 @@ class _RoutesPageState extends State<RoutesPage> {
     return Row(
       children: [
         Container(
-            width: 6,
-            height: 6,
-            decoration: BoxDecoration(color: dot, shape: BoxShape.circle)),
+          width: 6,
+          height: 6,
+          decoration: BoxDecoration(color: dot, shape: BoxShape.circle),
+        ),
         const SizedBox(width: 12),
         Expanded(
-          child: Text(text,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                  fontSize: 14, fontWeight: FontWeight.w500)),
+          child: Text(
+            text,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+          ),
         ),
       ],
     );

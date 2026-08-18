@@ -14,15 +14,17 @@ import 'map_picker_page.dart';
 class FindRoutePage extends StatefulWidget {
   final String? initialStart;
   final String? initialEnd;
+
   /// When pushed as a standalone route (e.g. from recent searches) this page
   /// needs to provide its own Scaffold + AppBar. As a bottom-nav tab it is
   /// already wrapped by RootShell's Scaffold, so set this to false there.
   final bool withScaffold;
-  const FindRoutePage(
-      {super.key,
-      this.initialStart,
-      this.initialEnd,
-      this.withScaffold = false});
+  const FindRoutePage({
+    super.key,
+    this.initialStart,
+    this.initialEnd,
+    this.withScaffold = false,
+  });
   @override
   State<FindRoutePage> createState() => _FindRoutePageState();
 }
@@ -64,13 +66,13 @@ class _FindRoutePageState extends State<FindRoutePage> {
     // which can cause setState/markNeedsBuild during build assertions.
   }
 
-
   void _checkPendingSearch() {
     // IMPORTANT: Avoid calling setState synchronously in reaction to
     // AppState.notifyListeners() (which can happen inside
     // getPendingSearchAndClear()).
-    final (pendingStart, pendingEnd) =
-        context.read<AppState>().getPendingSearchAndClear();
+    final (pendingStart, pendingEnd) = context
+        .read<AppState>()
+        .getPendingSearchAndClear();
 
     if (pendingStart == null || pendingEnd == null) return;
 
@@ -87,7 +89,6 @@ class _FindRoutePageState extends State<FindRoutePage> {
     });
   }
 
-
   void setSearchValues(String start, String end) {
     setState(() {
       _start = start;
@@ -100,7 +101,6 @@ class _FindRoutePageState extends State<FindRoutePage> {
       }
     });
   }
-
 
   Future<void> _search() async {
     if (_start.trim().isEmpty || _end.trim().isEmpty) return;
@@ -115,10 +115,18 @@ class _FindRoutePageState extends State<FindRoutePage> {
     // always resolves to the one the user tapped, never a same-named other).
     // For programmatic prefill (history) where no option was tapped we fall
     // back to coordinate disambiguation against the other end's location.
-    _startStop = _resolveStop(state.stops, _startOpt, _start.trim(),
-        hintStop: _endStop);
-    _endStop = _resolveStop(state.stops, _endOpt, _end.trim(),
-        hintStop: _startStop);
+    _startStop = _resolveStop(
+      state.stops,
+      _startOpt,
+      _start.trim(),
+      hintStop: _endStop,
+    );
+    _endStop = _resolveStop(
+      state.stops,
+      _endOpt,
+      _end.trim(),
+      hintStop: _startStop,
+    );
 
     // Phase 2: prefer the fast direct-route SQL query (correct forward
     // direction, no transfers). Fall back to the BFS planner (which computes
@@ -135,17 +143,20 @@ class _FindRoutePageState extends State<FindRoutePage> {
     // mixed into a single card), so the user can pick one route at a time.
     final found = direct.isNotEmpty
         ? direct
-            .map((r) => SearchResult(
+              .map(
+                (r) => SearchResult(
                   steps: [
                     PathStep(
-                        route: r,
-                        fromStop: _start.trim(),
-                        toStop: _end.trim())
+                      route: r,
+                      fromStop: _start.trim(),
+                      toStop: _end.trim(),
+                    ),
                   ],
                   transferCount: 0,
                   totalDistance: 0,
-                ))
-            .toList()
+                ),
+              )
+              .toList()
         : performBFS(_start.trim(), _end.trim(), state.routes, state.stops);
     if (!mounted) return;
     setState(() {
@@ -154,7 +165,10 @@ class _FindRoutePageState extends State<FindRoutePage> {
     });
     if (found.isNotEmpty) {
       await LocalStore.instance.addTripHistory(
-          type: 'search', label: _start.trim(), subtitle: _end.trim());
+        type: 'search',
+        label: _start.trim(),
+        subtitle: _end.trim(),
+      );
     }
   }
 
@@ -176,9 +190,7 @@ class _FindRoutePageState extends State<FindRoutePage> {
     return resolveStopByName(
       name,
       stops,
-      hint: hintStop != null
-          ? (lat: hintStop.lat, lng: hintStop.lng)
-          : null,
+      hint: hintStop != null ? (lat: hintStop.lat, lng: hintStop.lng) : null,
     );
   }
 
@@ -199,14 +211,18 @@ class _FindRoutePageState extends State<FindRoutePage> {
     if (!mounted) return;
     setState(() => _locating = false);
     if (p == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('တည်နေရာ မရနိုင်ပါ')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('တည်နေရာ မရနိုင်ပါ')));
       return;
     }
     BusStop nearest = state.stops.first;
-    double minD =
-        getDistance(p.latitude, p.longitude, nearest.lat, nearest.lng);
+    double minD = getDistance(
+      p.latitude,
+      p.longitude,
+      nearest.lat,
+      nearest.lng,
+    );
     for (final s in state.stops) {
       final d = getDistance(p.latitude, p.longitude, s.lat, s.lng);
       if (d < minD) {
@@ -217,9 +233,9 @@ class _FindRoutePageState extends State<FindRoutePage> {
     setState(() {
       _start = nearest.nameMm;
       _startStop = nearest;
-      _startOpt = buildDisambiguatedStops(state.stops)
-          .where((o) => o.id == nearest.id)
-          .firstOrNull;
+      _startOpt = buildDisambiguatedStops(
+        state.stops,
+      ).where((o) => o.id == nearest.id).firstOrNull;
     });
     if (_end.trim().isNotEmpty) _search();
   }
@@ -227,7 +243,11 @@ class _FindRoutePageState extends State<FindRoutePage> {
   void _setStop(bool isStart, StopOption? opt) {
     final stop = opt == null
         ? null
-        : context.read<AppState>().stops.where((s) => s.id == opt.id).firstOrNull;
+        : context
+              .read<AppState>()
+              .stops
+              .where((s) => s.id == opt.id)
+              .firstOrNull;
     setState(() {
       if (isStart) {
         _startOpt = opt;
@@ -273,11 +293,13 @@ class _FindRoutePageState extends State<FindRoutePage> {
                           ? const SizedBox(
                               width: 14,
                               height: 14,
-                              child:
-                                  CircularProgressIndicator(strokeWidth: 2))
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
                           : const Icon(Icons.gps_fixed, size: 14),
-                      label: const Text('Near Me',
-                          style: TextStyle(fontSize: 12)),
+                      label: const Text(
+                        'Near Me',
+                        style: TextStyle(fontSize: 12),
+                      ),
                     ),
                     IconButton(
                       onPressed: () => _openPicker(true),
@@ -312,8 +334,9 @@ class _FindRoutePageState extends State<FindRoutePage> {
                 width: double.infinity,
                 child: FilledButton.icon(
                   style: FilledButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      padding: const EdgeInsets.symmetric(vertical: 14)),
+                    backgroundColor: AppColors.primary,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
                   onPressed: (_start.isEmpty || _end.isEmpty || _searching)
                       ? null
                       : _search,
@@ -322,10 +345,14 @@ class _FindRoutePageState extends State<FindRoutePage> {
                           width: 18,
                           height: 18,
                           child: CircularProgressIndicator(
-                              strokeWidth: 2, color: Colors.white))
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
                       : const Icon(Icons.search),
                   label: Text(
-                      _searching ? 'ရှာဖွေနေပါသည်...' : 'လမ်းကြောင်းရှာပါ'),
+                    _searching ? 'ရှာဖွေနေပါသည်...' : 'လမ်းကြောင်းရှာပါ',
+                  ),
                 ),
               ),
             ],
@@ -340,15 +367,19 @@ class _FindRoutePageState extends State<FindRoutePage> {
               children: const [
                 Icon(Icons.search, size: 40, color: AppColors.slate300),
                 SizedBox(height: 12),
-                Text('လမ်းကြောင်း မတွေ့ပါ',
-                    style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.slate500)),
+                Text(
+                  'လမ်းကြောင်း မတွေ့ပါ',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.slate500,
+                  ),
+                ),
                 SizedBox(height: 4),
-                Text('မှတ်တိုင်အမည် မှန်၊ မမှန် ပြန်စစ်ပေးပါ',
-                    style:
-                        TextStyle(fontSize: 13, color: AppColors.slate400)),
+                Text(
+                  'မှတ်တိုင်အမည် မှန်၊ မမှန် ပြန်စစ်ပေးပါ',
+                  style: TextStyle(fontSize: 13, color: AppColors.slate400),
+                ),
               ],
             ),
           ),
@@ -374,23 +405,27 @@ class _FindRoutePageState extends State<FindRoutePage> {
     final selected = await Navigator.push<BusStop>(
       context,
       MaterialPageRoute(
-          builder: (_) => MapPickerPage(
-                stops: state.stops,
-                title: isStart
-                    ? 'စတင်မည့်မှတ်တိုင် ရွေးချယ်ပါ'
-                    : 'ဆင်းမည့်မှတ်တိုင် ရွေးချယ်ပါ',
-              )),
+        builder: (_) => MapPickerPage(
+          stops: state.stops,
+          title: isStart
+              ? 'စတင်မည့်မှတ်တိုင် ရွေးချယ်ပါ'
+              : 'ဆင်းမည့်မှတ်တိုင် ရွေးချယ်ပါ',
+        ),
+      ),
     );
     if (selected != null) {
-      final opt = buildDisambiguatedStops(state.stops)
-          .where((o) => o.id == selected.id)
-          .firstOrNull;
+      final opt = buildDisambiguatedStops(
+        state.stops,
+      ).where((o) => o.id == selected.id).firstOrNull;
       _setStop(isStart, opt);
     }
   }
 
-  Widget _resultCard(BuildContext context, SearchResult res,
-      Map<String, BusStop> stopByName) {
+  Widget _resultCard(
+    BuildContext context,
+    SearchResult res,
+    Map<String, BusStop> stopByName,
+  ) {
     final first = res.steps.first;
     final last = res.steps.last;
     final fromStop = (_startStop != null && first.fromStop == _start)
@@ -417,14 +452,18 @@ class _FindRoutePageState extends State<FindRoutePage> {
                       children: [
                         for (int i = 0; i < res.steps.length; i++) ...[
                           RouteBadge(
-                              routeId: res.steps[i].route.id,
-                              color: res.steps[i].route.color,
-                              small: true),
+                            routeId: res.steps[i].route.id,
+                            color: res.steps[i].route.color,
+                            small: true,
+                          ),
                           if (i < res.steps.length - 1)
                             const Padding(
                               padding: EdgeInsets.symmetric(horizontal: 4),
-                              child: Icon(Icons.chevron_right,
-                                  size: 14, color: AppColors.slate300),
+                              child: Icon(
+                                Icons.chevron_right,
+                                size: 14,
+                                color: AppColors.slate300,
+                              ),
                             ),
                         ],
                       ],
@@ -439,13 +478,13 @@ class _FindRoutePageState extends State<FindRoutePage> {
                   bg: res.transferCount == 0
                       ? AppColors.emeraldLight
                       : res.transferCount == 1
-                          ? AppColors.amberLight
-                          : AppColors.roseLight,
+                      ? AppColors.amberLight
+                      : AppColors.roseLight,
                   fg: res.transferCount == 0
                       ? AppColors.emeraldDark
                       : res.transferCount == 1
-                          ? AppColors.brandHover
-                          : AppColors.rose,
+                      ? AppColors.brandHover
+                      : AppColors.rose,
                 ),
               ],
             ),
@@ -467,12 +506,14 @@ class _FindRoutePageState extends State<FindRoutePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                        margin: const EdgeInsets.only(top: 6),
-                        width: 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                            color: step.route.color,
-                            shape: BoxShape.circle)),
+                      margin: const EdgeInsets.only(top: 6),
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: step.route.color,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
@@ -482,28 +523,40 @@ class _FindRoutePageState extends State<FindRoutePage> {
                             children: [
                               const Pill('စီးရန်'),
                               const SizedBox(width: 6),
-                              Text('YBS ${step.route.id}',
-                                  style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500)),
+                              Text(
+                                'YBS ${step.route.id}',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
                               if (step.route.qrPayment == '✅ Supported') ...[
                                 const SizedBox(width: 6),
-                                const Pill('QR',
-                                    bg: AppColors.amberLight,
-                                    fg: AppColors.brandHover,
-                                    icon: Icons.credit_card),
+                                const Pill(
+                                  'QR',
+                                  bg: AppColors.amberLight,
+                                  fg: AppColors.brandHover,
+                                  icon: Icons.credit_card,
+                                ),
                               ],
                             ],
                           ),
                           const SizedBox(height: 4),
-                          Text('$fromLabel မှ $toLabel အထိ',
-                              style: const TextStyle(
-                                  fontSize: 12, color: AppColors.slate500)),
+                          Text(
+                            '$fromLabel မှ $toLabel အထိ',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppColors.slate500,
+                            ),
+                          ),
                           if (from != null && to != null)
                             Text(
-                                '${getDistance(from.lat, from.lng, to.lat, to.lng).toStringAsFixed(2)} km',
-                                style: const TextStyle(
-                                    fontSize: 10, color: AppColors.slate400)),
+                              '${getDistance(from.lat, from.lng, to.lat, to.lng).toStringAsFixed(2)} km',
+                              style: const TextStyle(
+                                fontSize: 10,
+                                color: AppColors.slate400,
+                              ),
+                            ),
                         ],
                       ),
                     ),
@@ -522,7 +575,9 @@ String _stopLabel(BusStop? stop, String fallback) {
   if (stop == null) return fallback;
   final parts = <String>[];
   if (stop.roadMm.isNotEmpty) parts.add(stop.roadMm);
-  if (stop.townshipMm.isNotEmpty && stop.townshipMm != stop.roadMm) parts.add(stop.townshipMm);
+  if (stop.townshipMm.isNotEmpty && stop.townshipMm != stop.roadMm) {
+    parts.add(stop.townshipMm);
+  }
   if (parts.isEmpty) return stop.nameMm;
   return '${stop.nameMm} (${parts.join(' · ')})';
 }
@@ -555,8 +610,10 @@ class _StopFieldState extends State<_StopField> {
       children: [
         Row(
           children: [
-            Text(widget.label.toUpperCase(),
-                style: UI.label.copyWith(letterSpacing: 0.5)),
+            Text(
+              widget.label.toUpperCase(),
+              style: UI.label.copyWith(letterSpacing: 0.5),
+            ),
             const Spacer(),
             if (widget.trailing != null) widget.trailing!,
           ],
@@ -568,10 +625,8 @@ class _StopFieldState extends State<_StopField> {
         // it during build, which is what previously broke the dropdown.
         Autocomplete<StopOption>(
           key: ValueKey(widget.value?.id),
-          initialValue:
-              TextEditingValue(text: _displayFor(widget.value)),
-          fieldViewBuilder:
-              (context, controller, focusNode, onFieldSubmitted) {
+          initialValue: TextEditingValue(text: _displayFor(widget.value)),
+          fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
             return TextField(
               controller: controller,
               focusNode: focusNode,
@@ -582,8 +637,10 @@ class _StopFieldState extends State<_StopField> {
                   margin: const EdgeInsets.only(right: 8),
                   color: widget.indicator,
                 ),
-                prefixIconConstraints:
-                    const BoxConstraints(minWidth: 12, maxWidth: 12),
+                prefixIconConstraints: const BoxConstraints(
+                  minWidth: 12,
+                  maxWidth: 12,
+                ),
               ),
               onChanged: (v) {
                 if (v.isEmpty) widget.onChanged(null);
@@ -594,9 +651,11 @@ class _StopFieldState extends State<_StopField> {
             final term = t.text.toLowerCase();
             if (term.isEmpty) return const Iterable<StopOption>.empty();
             return widget.options
-                .where((o) =>
-                    o.display.toLowerCase().contains(term) ||
-                    o.raw.toLowerCase().contains(term))
+                .where(
+                  (o) =>
+                      o.display.toLowerCase().contains(term) ||
+                      o.raw.toLowerCase().contains(term),
+                )
                 .take(50);
           },
           onSelected: (o) => widget.onChanged(o),
@@ -607,18 +666,24 @@ class _StopFieldState extends State<_StopField> {
                 elevation: 4,
                 borderRadius: BorderRadius.circular(12),
                 child: ConstrainedBox(
-                  constraints:
-                      const BoxConstraints(maxHeight: 240, maxWidth: 400),
+                  constraints: const BoxConstraints(
+                    maxHeight: 240,
+                    maxWidth: 400,
+                  ),
                   child: ListView(
                     padding: EdgeInsets.zero,
                     shrinkWrap: true,
                     children: opts
-                        .map((o) => ListTile(
-                              dense: true,
-                              title: Text(o.display,
-                                  style: const TextStyle(fontSize: 13)),
-                              onTap: () => onSelected(o),
-                            ))
+                        .map(
+                          (o) => ListTile(
+                            dense: true,
+                            title: Text(
+                              o.display,
+                              style: const TextStyle(fontSize: 13),
+                            ),
+                            onTap: () => onSelected(o),
+                          ),
+                        )
                         .toList(),
                   ),
                 ),
