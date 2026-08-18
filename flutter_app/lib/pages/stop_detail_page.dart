@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../config.dart';
 import '../models.dart';
 import '../state/app_state.dart';
+import '../services/location_service.dart';
 import '../theme.dart';
 import '../util/nav.dart';
 import '../widgets/osm_map.dart';
@@ -100,6 +102,15 @@ class _StopDetailPageState extends State<StopDetailPage> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () => _openWalkingDirections(stop),
+                    icon: const Icon(Icons.directions_walk),
+                    label: const Text('ဒီမှတ်တိုင်သို့ လမ်းလျှောက်လမ်းညွှန်'),
+                  ),
+                ),
                 const SizedBox(height: 20),
                 Row(
                   children: [
@@ -155,6 +166,29 @@ class _StopDetailPageState extends State<StopDetailPage> {
         ],
       ),
     );
+  }
+
+  Future<void> _openWalkingDirections(BusStop stop) async {
+    final position = await LocationService.instance.currentPosition();
+    if (!mounted) return;
+    if (position == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('လမ်းလျှောက်လမ်းညွှန်အတွက် GPS ဖွင့်ပါ')),
+      );
+      return;
+    }
+    final uri = Uri.parse(
+      'https://www.google.com/maps/dir/?api=1'
+      '&origin=${position.latitude},${position.longitude}'
+      '&destination=${stop.lat},${stop.lng}'
+      '&travelmode=walking',
+    );
+    final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (!opened && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('လမ်းညွှန် app ဖွင့်မရပါ')),
+      );
+    }
   }
 
   Widget _infoBox(String label, String value) {

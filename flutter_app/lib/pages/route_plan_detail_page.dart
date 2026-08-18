@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../config.dart';
 import '../data/route_finder.dart';
 import '../models.dart';
@@ -711,6 +712,105 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
     );
   }
 
+  Widget _walkingGuideCard(int idx, BusStop? target) {
+    if (target == null) return const SizedBox.shrink();
+
+    final BusStop? transferOrigin = idx > 0
+        ? _stopsByName[steps[idx - 1].toStop]
+        : null;
+    final origin = idx == 0
+        ? (_livePos == null
+              ? null
+              : LatLng(_livePos!.lat, _livePos!.lng))
+        : transferOrigin == null
+        ? null
+        : LatLng(transferOrigin.lat, transferOrigin.lng);
+    final distanceKm = origin == null
+        ? null
+        : getDistance(origin.latitude, origin.longitude, target.lat, target.lng);
+    final distanceMeters = distanceKm == null ? null : (distanceKm * 1000).round();
+    final walkingMinutes = distanceMeters == null
+        ? null
+        : (distanceMeters / 80).ceil() < 1
+        ? 1
+        : (distanceMeters / 80).ceil();
+    final title = idx == 0
+        ? 'သင့်နေရာမှ စီးရမည့်မှတ်တိုင်သို့'
+        : 'ကားပြောင်းစီးရန် လမ်းလျှောက်ရမည့်အကွာအဝေး';
+
+    return Container(
+      margin: const EdgeInsets.only(top: 12, bottom: 4),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF0F7FF),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFBFDBFE)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.directions_walk, size: 18, color: AppColors.blue),
+              const SizedBox(width: 7),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 5),
+          Text(
+            target.nameMm,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 4),
+          if (distanceMeters == null)
+            const Text(
+              'လမ်းလျှောက်အကွာအဝေးတွက်ရန် GPS ဖွင့်ပါ',
+              style: TextStyle(fontSize: 12, color: AppColors.slate500),
+            )
+          else
+            Text(
+              'ခန့်မှန်း ${distanceMeters < 1000 ? '$distanceMeters မီတာ' : '${(distanceMeters / 1000).toStringAsFixed(1)} ကီလိုမီတာ'} • လမ်းလျှောက်ချိန် ${walkingMinutes} မိနစ်',
+              style: const TextStyle(fontSize: 12, color: AppColors.slate600),
+            ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: origin == null
+                      ? (idx == 0 ? _startWatch : null)
+                      : () => _openWalkingDirections(origin, target),
+                  icon: Icon(origin == null ? Icons.my_location : Icons.navigation, size: 16),
+                  label: Text(origin == null ? 'GPS ဖွင့်ရန်' : 'လမ်းညွှန်စမည်'),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _openWalkingDirections(LatLng origin, BusStop target) async {
+    final uri = Uri.parse(
+      'https://www.google.com/maps/dir/?api=1'
+      '&origin=${origin.latitude},${origin.longitude}'
+      '&destination=${target.lat},${target.lng}'
+      '&travelmode=walking',
+    );
+    final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (!opened && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('လမ်းညွှန် app ဖွင့်မရပါ')),
+      );
+    }
+  }
+
   Widget _stepCard(int idx, PathStep st) {
     final isActive = idx == _activeStep;
     final isTransfer = idx > 0;
@@ -812,6 +912,7 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
               ),
             ],
           ),
+          _walkingGuideCard(idx, fromStop),
           const SizedBox(height: 12),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
