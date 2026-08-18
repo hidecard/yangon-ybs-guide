@@ -11,6 +11,7 @@ import '../models.dart';
 import '../services/local_store.dart';
 import '../services/location_service.dart';
 import '../services/notify_service.dart';
+import '../services/background_alert_service.dart';
 import '../state/app_state.dart';
 import '../theme.dart';
 import '../widgets/osm_map.dart';
@@ -38,6 +39,7 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
   String? _arrivalMessage;
   final Set<String> _alerted = {};
   String _prevStopKey = '';
+  String _backgroundAlertKey = '';
 
   bool _tripSaved = false;
 
@@ -86,90 +88,116 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
   Future<void> _stopWatch() async {
     await _posSub?.cancel();
     _posSub = null;
-    if (mounted) setState(() => _livePos = null);
+    await stopBackgroundAlert();
+    _backgroundAlertKey = '';
+    if (mounted) {
+      setState(() {
+        _livePos = null;
+        _arrivalMessage = null;
+      });
+    }
   }
 
+  /// Selects the route leg whose ordered stop sequence is closest to the user.
+  /// Looking only at from/to endpoints caused the active leg to remain wrong
+  /// while the user was between stops.
   void _recomputeActive() {
     if (_livePos == null || steps.isEmpty) return;
-    int best = 0;
+    int best = _activeStep;
     double bestDist = double.infinity;
     for (int idx = 0; idx < steps.length; idx++) {
-      final from = _stopsByName[steps[idx].fromStop];
-      final to = _stopsByName[steps[idx].toStop];
-      if (from == null || to == null) continue;
-      final dFrom = getDistance(
-        _livePos!.lat,
-        _livePos!.lng,
-        from.lat,
-        from.lng,
-      );
-      final dTo = getDistance(_livePos!.lat, _livePos!.lng, to.lat, to.lng);
-      final m = dFrom < dTo ? dFrom : dTo;
-      if (m < bestDist) {
-        bestDist = m;
-        best = idx;
+      final detailed = steps[idx].route.stopsDetailed;
+      final leg = _findLeg(detailed, steps[idx].fromStop, steps[idx].toStop);
+      if (leg == null) continue;
+      for (final stop in detailed.sublist(leg.$1, leg.$2 + 1)) {
+        final d = getDistance(_livePos!.lat, _livePos!.lng, stop.lat, stop.lng);
+        if (d < bestDist) {
+          bestDist = d;
+          best = idx;
+        }
       }
     }
-    if (best != _activeStep) setState(() => _activeStep = best);
+    if (best != _activeStep && mounted) setState(() => _activeStep = best);
   }
 
-  void _checkArrival() {
-    if (!_arrivalEnabled || _livePos == null) return;
+  ({BusStop current, BusStop? next, double currentDistance})? _progressForActive() {
+    if (_livePos == null || steps.isEmpty) return null;
+    final active = steps[_activeStep];
+    final detailed = active.route.stopsDetailed;
+    final leg = _findLeg(detailed, active.fromStop, active.toStop);
+    if (leg == null) return null;
+    final sub = detailed.sublist(leg.$1, leg.$2 + 1);
+    if (sub.isEmpty) return null;
+    var current = sub.first;
+    var currentDistance = double.infinity;
+    var currentIndex = 0;
+    for (int i = 0; i < sub.length; i++) {
+      final d = getDistance(_livePos!.lat, _livePos!.lng, sub[i].lat, sub[i].lng);
+      if (d < currentDistance) {
+        current = sub[i];
+        currentDistance = d;
+        currentIndex = i;
+      }
+    }
+    return (
+      current: current,
+      next: currentIndex + 1 < sub.length ? sub[currentIndex + 1] : null,
+      currentDistance: currentDistance,
+    );
+  }
+
+  Future<void> _syncBackgroundAlert(BusStop? next) async {
+    if (!_arrivalEnabled || next == null) return;
+    final key = '${_activeStep}:${next.nameMm}:${next.lat}:${next.lng}';
+    if (key == _backgroundAlertKey) return;
     final active = steps[_activeStep];
     final detailed = active.route.stopsDetailed;
     final leg = _findLeg(detailed, active.fromStop, active.toStop);
     if (leg == null) return;
     final sub = detailed.sublist(leg.$1, leg.$2 + 1);
+    var nextIndex = sub.indexWhere((s) => s.nameMm == next.nameMm);
+    if (nextIndex < 0) return;
+    final queue = sub.skip(nextIndex).map((stop) => <String, dynamic>{
+      'stopName': stop.nameMm,
+      'lat': stop.lat,
+      'lng': stop.lng,
+      'detail': stop.nameMm == active.toStop
+          ? 'သင်ဆင်းရမည့်မှတ်တိုင် ရောက်ခါနီးပါပြီ'
+          : 'နောက်မှတ်တိုင် ရောက်ခါနီးပါပြီ',
+    }).toList();
+    _backgroundAlertKey = key;
+    await startBackgroundAlertQueue(queue);
+  }
 
-    int cur = 0;
-    double min = double.infinity;
-    for (int i = 0; i < sub.length; i++) {
-      final d = getDistance(
-        _livePos!.lat,
-        _livePos!.lng,
-        sub[i].lat,
-        sub[i].lng,
-      );
-      if (d < min) {
-        min = d;
-        cur = i;
-      }
-    }
+  void _checkArrival() {
+    if (!_arrivalEnabled || _livePos == null || steps.isEmpty) return;
+    final progress = _progressForActive();
+    if (progress == null) return;
+    _syncBackgroundAlert(progress.next);
 
-    void tryAlert(BusStop? stop, String key, String Function(String) build) {
-      if (stop == null) return;
-      final d = getDistance(_livePos!.lat, _livePos!.lng, stop.lat, stop.lng);
-      if (d < 0.2 && !_alerted.contains(key)) {
+    final next = progress.next;
+    if (next != null) {
+      final d = getDistance(_livePos!.lat, _livePos!.lng, next.lat, next.lng);
+      final key = 'next-$_activeStep-${next.nameMm}';
+      if (d <= 0.2 && !_alerted.contains(key)) {
         _alerted.add(key);
-        final msg = build(stop.nameMm);
-        setState(() => _arrivalMessage = msg);
+        final msg = _activeStep == steps.length - 1 && next.nameMm == steps.last.toStop
+            ? 'သင်ဆင်းရမည့်မှတ်တိုင် ${next.nameMm} ရောက်ခါနီးပါပြီ'
+            : 'နောက်ရောက်မည့်မှတ်တိုင် ${next.nameMm} ပါ';
+        if (mounted) setState(() => _arrivalMessage = msg);
         NotifyService.instance.triggerArrival(msg);
       }
     }
 
-    final next = cur + 1 < sub.length ? sub[cur + 1] : null;
-    tryAlert(next, 'next-${next?.nameMm}', (n) => 'နောက်မှတ်တိုင် ကတော့ $n ပါ');
-
-    if (_activeStep == steps.length - 1) {
-      final last = steps.last;
-      final lastDetailed = last.route.stopsDetailed;
-      final destIdx = lastDetailed.indexWhere((s) => s.nameMm == last.toStop);
-      if (destIdx >= 0) {
-        tryAlert(
-          lastDetailed[destIdx],
-          'dest-${last.toStop}',
-          (n) => 'ဆင်းမည့်မှတ်တိုင် ကတော့ $n ပါ',
-        );
-      }
-    }
-
-    final stop = sub[cur];
-    final key = 'arrive-$_activeStep-${stop.nameMm}';
-    if (key != _prevStopKey) {
-      _prevStopKey = key;
-      final msg = '${stop.nameMm} မှတ်တိုင် ရောက်ပါပီ';
-      setState(() => _arrivalMessage = msg);
+    final arrivedKey = 'arrive-$_activeStep-${progress.current.nameMm}';
+    if (arrivedKey != _prevStopKey && progress.currentDistance <= 0.12) {
+      _prevStopKey = arrivedKey;
+      final msg = '${progress.current.nameMm} မှတ်တိုင် ရောက်ပါပြီ။ နောက်ရောက်မည့်မှတ်တိုင်က ${progress.next?.nameMm ?? 'မရှိတော့ပါ'} ပါ';
+      if (mounted) setState(() => _arrivalMessage = msg);
       NotifyService.instance.triggerArrival(msg);
+      if (progress.next == null) {
+        stopBackgroundAlert();
+      }
     }
   }
 
@@ -479,48 +507,35 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
                   markers: markers,
                   polylines: polylines,
                 ),
-                if (_livePos != null)
-                  Positioned(
-                    top: 12,
-                    left: 12,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                Positioned(
+                  top: 12,
+                  left: 12,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (_livePos != null)
                         const Pill(
                           'Live GPS Active',
                           bg: Colors.white,
                           fg: AppColors.emerald,
                         ),
-                        const SizedBox(height: 6),
-                        GestureDetector(
-                          onTap: () {
-                            final enabled = !_arrivalEnabled;
-                            setState(() => _arrivalEnabled = enabled);
-                            if (enabled) {
-                              NotifyService.instance.requestPermission();
-                              _startWatch();
-                            } else {
-                              _stopWatch();
-                            }
-                          },
-                          child: Pill(
-                            _arrivalEnabled
-                                ? 'ရောက်ခါနီး သတိပေးချက်: ဖွင့်'
-                                : 'ရောက်ခါနီး သတိပေးချက်',
-                            icon: _arrivalEnabled
-                                ? Icons.notifications_active
-                                : Icons.notifications_none,
-                            bg: _arrivalEnabled
-                                ? AppColors.amber
-                                : Colors.white,
-                            fg: _arrivalEnabled
-                                ? Colors.white
-                                : AppColors.slate500,
-                          ),
+                      if (_livePos != null) const SizedBox(height: 6),
+                      GestureDetector(
+                        onTap: _toggleArrival,
+                        child: Pill(
+                          _arrivalEnabled
+                              ? 'ရောက်ခါနီး သတိပေးချက်: ဖွင့်'
+                              : 'GPS + ရောက်ခါနီး သတိပေးချက် ဖွင့်ရန်',
+                          icon: _arrivalEnabled
+                              ? Icons.notifications_active
+                              : Icons.notifications_none,
+                          bg: _arrivalEnabled ? AppColors.amber : Colors.white,
+                          fg: _arrivalEnabled ? Colors.white : AppColors.slate500,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
+                ),
               ],
             ),
           ),
@@ -562,6 +577,7 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
                       ],
                     ),
                   ),
+                if (_arrivalEnabled && _livePos != null) _progressCard(),
                 _replanCard(),
                 ...steps.asMap().entries.map((e) => _stepCard(e.key, e.value)),
 
@@ -570,6 +586,62 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Future<void> _toggleArrival() async {
+    final enabled = !_arrivalEnabled;
+    if (!enabled) {
+      setState(() => _arrivalEnabled = false);
+      await _stopWatch();
+      return;
+    }
+    final permissionGranted = await LocationService.instance.ensurePermission();
+    if (!permissionGranted || !mounted) return;
+    await NotifyService.instance.requestPermission();
+    if (!mounted) return;
+    setState(() => _arrivalEnabled = true);
+    await _startWatch();
+  }
+
+  Widget _progressCard() {
+    final progress = _progressForActive();
+    if (progress == null) return const SizedBox.shrink();
+    final destination = steps[_activeStep].toStop;
+    final nearDestination = progress.next?.nameMm == destination;
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      color: nearDestination ? AppColors.amberLight : AppColors.brandLight,
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'လက်ရှိမှတ်တိုင်',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: nearDestination ? AppColors.brandHover : AppColors.brand,
+              ),
+            ),
+            const SizedBox(height: 3),
+            Text(
+              '${progress.current.nameMm} မှတ်တိုင် ရောက်ပါပြီ',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              progress.next == null
+                  ? 'ဒီလမ်းကြောင်း၏ နောက်ဆုံးမှတ်တိုင် ဖြစ်ပါသည်'
+                  : nearDestination
+                      ? 'သင်ဆင်းရမည့်မှတ်တိုင် ${progress.next!.nameMm} ရောက်ခါနီးပါပြီ'
+                      : 'နောက်ရောက်မည့်မှတ်တိုင်: ${progress.next!.nameMm}',
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
       ),
     );
   }

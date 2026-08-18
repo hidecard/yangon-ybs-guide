@@ -244,7 +244,9 @@ void onStart(ServiceInstance service) async {
         alert['stopName'] as String,
         (alert['detail'] as String?) ?? '',
       );
-      await LocalStore.instance.setBackgroundAlertFired(true);
+      // Move to the next queued stop so every stop can be announced while
+      // the app is backgrounded, instead of stopping after the first alert.
+      await LocalStore.instance.advanceBackgroundAlertQueue();
     }
   });
 }
@@ -333,12 +335,15 @@ Future<void> startBackgroundAlert({
   required double lng,
   String detail = '',
 }) async {
-  await LocalStore.instance.saveBackgroundAlert(
-    stopName: stopName,
-    lat: lat,
-    lng: lng,
-    detail: detail,
-  );
+  await startBackgroundAlertQueue([
+    {'stopName': stopName, 'lat': lat, 'lng': lng, 'detail': detail},
+  ]);
+}
+
+Future<void> startBackgroundAlertQueue(
+  List<Map<String, dynamic>> alerts,
+) async {
+  await LocalStore.instance.saveBackgroundAlertQueue(alerts);
   final service = FlutterBackgroundService();
   if (!await service.isRunning()) {
     await service.startService();

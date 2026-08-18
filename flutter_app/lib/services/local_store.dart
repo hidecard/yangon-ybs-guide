@@ -149,6 +149,7 @@ class LocalStore {
   // Persisted so the background service can keep monitoring even when the
   // app is closed or the screen is off.
   static const _alertKey = 'ybs_bg_alert';
+  static const _alertQueueKey = 'ybs_bg_alert_queue';
 
   Future<void> saveBackgroundAlert({
     required String stopName,
@@ -156,21 +157,42 @@ class LocalStore {
     required double lng,
     String detail = '',
   }) async {
+    await saveBackgroundAlertQueue([
+      {'stopName': stopName, 'lat': lat, 'lng': lng, 'detail': detail},
+    ]);
+  }
+
+  Future<void> saveBackgroundAlertQueue(
+    List<Map<String, dynamic>> alerts,
+  ) async {
     final p = await _p;
-    await p.setString(
-      _alertKey,
-      json.encode({
-        'stopName': stopName,
-        'lat': lat,
-        'lng': lng,
-        'detail': detail,
-        'alerted': false,
-      }),
-    );
+    final normalized = alerts
+        .where((a) => a['stopName'] != null && a['lat'] != null && a['lng'] != null)
+        .map((a) => {
+              'stopName': a['stopName'],
+              'lat': a['lat'],
+              'lng': a['lng'],
+              'detail': a['detail'] ?? '',
+              'alerted': false,
+            })
+        .toList();
+    await p.setString(_alertQueueKey, json.encode(normalized));
+    await p.remove(_alertKey);
   }
 
   Future<Map<String, dynamic>?> getBackgroundAlert() async {
     final p = await _p;
+    final queueRaw = p.getString(_alertQueueKey);
+    if (queueRaw != null) {
+      try {
+        final queue = (json.decode(queueRaw) as List)
+            .whereType<Map>()
+            .map((e) => Map<String, dynamic>.from(e))
+            .toList();
+        if (queue.isNotEmpty) return queue.first;
+      } catch (_) {}
+    }
+    // Backward compatibility with the previous single-alert format.
     final raw = p.getString(_alertKey);
     if (raw == null) return null;
     try {
@@ -179,6 +201,26 @@ class LocalStore {
       return m;
     } catch (_) {
       return null;
+    }
+  }
+
+  Future<void> advanceBackgroundAlertQueue() async {
+    final p = await _p;
+    final raw = p.getString(_alertQueueKey);
+    if (raw == null) {
+      await clearBackgroundAlert();
+      return;
+    }
+    try {
+      final queue = (json.decode(raw) as List).toList();
+      if (queue.isNotEmpty) queue.removeAt(0);
+      if (queue.isEmpty) {
+        await p.remove(_alertQueueKey);
+      } else {
+        await p.setString(_alertQueueKey, json.encode(queue));
+      }
+    } catch (_) {
+      await p.remove(_alertQueueKey);
     }
   }
 
@@ -193,6 +235,7 @@ class LocalStore {
   Future<void> clearBackgroundAlert() async {
     final p = await _p;
     await p.remove(_alertKey);
+    await p.remove(_alertQueueKey);
   }
 }
 
