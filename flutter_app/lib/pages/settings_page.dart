@@ -6,6 +6,7 @@ import '../config.dart';
 import '../state/app_state.dart';
 import '../theme.dart';
 import '../widgets/modals.dart';
+import '../services/notify_service.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -538,6 +539,27 @@ class _NotifSetupSection extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 14),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () async {
+                  await NotifyService.instance.requestPermission();
+                  await NotifyService.instance.speakTest();
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'TTS စမ်းသပ်စာသားကို ဖွင့်ပြီးပါပြီ။ အသံမထွက်ပါက ဖုန်း TTS settings တွင် Myanmar/Burmese voice ကို ထည့်ပါ။',
+                        ),
+                      ),
+                    );
+                  }
+                },
+                icon: const Icon(Icons.record_voice_over, size: 18),
+                label: const Text('မြန်မာအသံ (TTS) စမ်းသပ်မည်'),
+              ),
+            ),
+            const SizedBox(height: 10),
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(

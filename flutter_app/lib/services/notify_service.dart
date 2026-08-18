@@ -71,8 +71,17 @@ class NotifyService {
     await init();
     try {
       await _tts.stop();
+      await _tts.setLanguage('my-MM');
+      await _tts.setSpeechRate(0.9);
+      await _tts.setVolume(1.0);
       await _tts.speak(text);
     } catch (_) {}
+  }
+
+  Future<void> speakTest() async {
+    await speak(
+      'မြန်မာဘာသာ အသံစမ်းသပ်မှု ဖြစ်ပါတယ်။ နောက်မှတ်တိုင် ရောက်ခါနီးပါပြီ။',
+    );
   }
 
   Future<void> triggerArrival(String message) async {
