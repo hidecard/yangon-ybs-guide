@@ -5,6 +5,7 @@ import '../services/api_service.dart';
 import '../services/device_service.dart';
 import '../theme.dart';
 import 'route_badge.dart';
+import 'ui_states.dart';
 
 class BusUpdatesFeed extends StatefulWidget {
   final String? routeId;
@@ -135,51 +136,38 @@ class _BusUpdatesFeedState extends State<BusUpdatesFeed> {
                 style: UI.sectionTitle,
               ),
             ),
-            IconButton(
-              onPressed: _loading ? null : _load,
-              icon: _loading
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.refresh, size: 18),
+            Semantics(
+              button: true,
+              label: 'ယာဉ်လိုင်း update ပြန်ရယူမည်',
+              child: IconButton(
+                tooltip: 'ပြန်ရယူမည်',
+                onPressed: _loading ? null : _load,
+                icon: _loading
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.refresh, size: 18),
+              ),
             ),
           ],
         ),
         const SizedBox(height: 6),
         if (_loading && _updates.isEmpty)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 12),
-            child: Text(
-              'ရယူနေပါသည်...',
-              style: TextStyle(color: AppColors.textMuted),
-            ),
+          const SizedBox(
+            height: 132,
+            child: YbsLoadingView(message: 'ယာဉ်လိုင်းအချက်အလက် ရယူနေပါသည်...'),
           )
         else if (_error)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'အချက်အလက် ရယူ၍ မရပါ။',
-                  style: TextStyle(color: AppColors.rose),
-                ),
-                TextButton.icon(
-                  onPressed: _load,
-                  icon: const Icon(Icons.refresh, size: 14),
-                  label: const Text('ထပ်ကြိုးစားမည်'),
-                ),
-              ],
-            ),
-          )
+          SizedBox(height: 180, child: YbsErrorView(onRetry: _load))
         else if (_updates.isEmpty)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 12),
-            child: Text(
-              'လောလောဆယ် အချက်အလက် မရှိသေးပါ။',
-              style: TextStyle(color: AppColors.textMuted),
+          const SizedBox(
+            height: 150,
+            child: YbsEmptyView(
+              icon: Icons.campaign_outlined,
+              title: 'အချက်အလက် မရှိသေးပါ',
+              message: 'လောလောဆယ် ယာဉ်လိုင်း update မရရှိသေးပါ။',
             ),
           )
         else
