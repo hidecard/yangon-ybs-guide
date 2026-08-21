@@ -75,6 +75,9 @@ class _RootShellState extends State<RootShell> {
     if (state.loading) {
       return const _SplashScreen();
     }
+    if (state.initError != null) {
+      return _StartupErrorScreen(message: state.initError!);
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -237,6 +240,61 @@ class _NavItem extends StatelessWidget {
                 Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _StartupErrorScreen extends StatelessWidget {
+  final String message;
+  const _StartupErrorScreen({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.bg,
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.roseLight,
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: const Icon(
+                  Icons.cloud_off_outlined,
+                  size: 40,
+                  color: AppColors.rose,
+                ),
+              ),
+              const SizedBox(height: 18),
+              const Text(
+                'YBS AI',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  color: AppColors.text,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: AppColors.textSecondary),
+              ),
+              const SizedBox(height: 18),
+              FilledButton.icon(
+                onPressed: () => context.read<AppState>().init(),
+                icon: const Icon(Icons.refresh),
+                label: const Text('ပြန်လည်ကြိုးစားမည်'),
+              ),
+            ],
           ),
         ),
       ),

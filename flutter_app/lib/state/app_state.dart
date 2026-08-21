@@ -9,6 +9,7 @@ class AppState extends ChangeNotifier {
   final store = LocalStore.instance;
 
   bool loading = true;
+  String? initError;
   Set<String> favRoutes = {};
   Set<int> favStops = {};
   List<FavoriteTrip> savedTrips = [];
@@ -19,18 +20,36 @@ class AppState extends ChangeNotifier {
   List<BusStop> get stops => repo.stops;
 
   Future<void> init() async {
-    favRoutes = await store.favRoutes();
-    favStops = await store.favStops();
-    savedTrips = await store.savedTrips();
+    loading = true;
+    initError = null;
     notifyListeners();
 
-    await repo.load();
-    loading = false;
-    notifyListeners();
+    try {
+      favRoutes = await store.favRoutes();
+      favStops = await store.favStops();
+      savedTrips = await store.savedTrips();
+      await repo.load();
+      if (!repo.loaded) {
+        throw StateError('Route data could not be loaded');
+      }
+    } catch (error) {
+      initError = 'Unable to load route data. Please try again.';
+    } finally {
+      loading = false;
+      notifyListeners();
+    }
   }
 
   Future<void> reloadData() async {
-    await repo.load(forceReload: true);
+    try {
+      initError = null;
+      await repo.load(forceReload: true);
+      if (!repo.loaded) {
+        throw StateError('Route data could not be loaded');
+      }
+    } catch (_) {
+      initError = 'Unable to refresh route data. Please try again.';
+    }
     notifyListeners();
   }
 
