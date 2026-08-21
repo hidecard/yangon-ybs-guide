@@ -13,6 +13,8 @@ dependencies:
 
   # Networking
   http: ^1.2.2
+  # Cross-platform gzip decoding for bundled route data (web + native)
+  archive: ^4.0.7
 
   # State + storage
   provider: ^6.1.2

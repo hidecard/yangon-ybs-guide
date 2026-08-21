@@ -1,7 +1,7 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:archive/archive.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -79,7 +79,9 @@ class DataRepository {
     final b64 = await rootBundle.loadString('assets/routes.bin');
     final encrypted = base64.decode(b64);
     final gzipped = xorBytes(Uint8List.fromList(encrypted));
-    final packed = gzip.decode(gzipped) as Uint8List;
+    // `dart:io`'s gzip decoder is unavailable on Flutter web. The archive
+    // package works consistently on web, Android, iOS, and desktop.
+    final packed = GZipDecoder().decodeBytes(gzipped);
     final entries = (json.decode(utf8.decode(packed)) as List)
         .cast<Map<String, dynamic>>();
 
