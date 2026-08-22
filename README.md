@@ -2,6 +2,22 @@
 
 A comprehensive bus route guide application for Yangon, Myanmar, featuring interactive maps, an AI-powered route assistant, real-time user updates, and offline functionality.
 
+> This repository contains both the React web app on `main` and the cross-platform Flutter app on `V3`. The Flutter implementation is documented in [`flutter_app/README.md`](flutter_app/README.md), with release notes in [`flutter_app/CHANGELOG.md`](flutter_app/CHANGELOG.md).
+
+## Flutter app
+
+The Flutter app mirrors the web app’s core experience across Android, iOS, desktop, and web. It provides offline-first route data, Burmese and English stop search, route planning, maps, YBS New community updates, favorites, feedback, and arrival alerts. Flutter web uses a cross-platform route-bundle decoder and can be validated without Chrome using:
+
+```bash
+cd flutter_app
+flutter pub get
+flutter analyze
+flutter test
+flutter build web --release --no-wasm-dry-run
+```
+
+The Flutter source is maintained on the [`V3` branch](https://github.com/hidecard/yangon-ybs-guide/tree/V3/flutter_app). GitHub Actions validates the Flutter project automatically through [`.github/workflows/flutter.yml`](.github/workflows/flutter.yml).
+
 ## 🌟 Features
 
 ### 🗺️ Interactive Maps

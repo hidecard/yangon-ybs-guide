@@ -1,175 +1,159 @@
-# YBS Guide (Yangon Bus Service)
+# Yangon YBS Guide — Flutter App
 
-Offline-first Flutter app for navigating Yangon's bus network with Burmese-language AI assistance, community updates, and live arrival alerts.
+The Flutter application provides the same core Yangon YBS experience as the web app: offline-first route search, Burmese and English stop lookup, trip planning, OpenStreetMap maps, community bus updates, favorites, feedback, and arrival alerts.
 
-## Features
+## Implemented features
 
-### Navigation & Route Planning
-- **Find Route** — Enter start/end stops (Burmese or English) with autocomplete and disambiguation; supports map picker and "Near Me" GPS
-- **AI Assistant** — Burmese NLP chat interface ("A ကနေ B ကို") that extracts stops, fuzzy-resolves names, and runs BFS routing
-- **Route Browsing** — Full list of YBS routes, searchable by route number, operator, or township; stop-by-stop details with OSM map
-- **Offline BFS Routing** — 2-transfer max routing with shortest-forward-span ranking; works fully offline after first launch
-- **Trip Re-planning** — Adjust route plans mid-journey from any step
+The application currently includes the following user-facing capabilities:
 
-### Live Tracking & Alerts
-- **Arrival Alerts** — In-app vibration + Burmese TTS notification when bus nears selected stop
-- **Background Alerts** — Foreground service polls GPS + server while app is closed; fires full-screen intent, wakes screen, speaks arrival in Burmese
-- **ETA & Predictions** — Live ETA and prediction data from backend
+| Area | Features |
+|---|---|
+| Home | Travel tips, notifications, nearby-stop discovery, and shortcuts to route search |
+| Route search | Burmese or English stop search, autocomplete, duplicate-stop disambiguation, map selection, and GPS-based nearby stops |
+| Route planning | Direct routes and transfer planning with forward stop-order validation, route details, saved trips, and Google Maps hand-off |
+| Route directory | Searchable route list with route details, stop lists, maps, favorites, bus updates, ETA, and predictions |
+| Assistant | Local Burmese/English stop extraction and offline route planning without requiring an AI API key |
+| YBS New | Community bus updates, update submission, route filtering, and voting |
+| Favorites | Favorite routes, favorite stops, and saved multi-step trips stored locally |
+| Alerts | In-app arrival alerts with vibration, local notifications, and Burmese text-to-speech; background alert support is configured for native platforms |
+| Settings | Data refresh, cache information, notification setup, feedback, privacy, donation links, and application information |
 
-### Community Features
-- **YBS New Feed** — Real-time community bus updates (started, reached, road closed, delays, etc.)
-- **Voting** — Upvote/downvote community updates
-- **Post Update** — Share live bus status via update sheet
+## App navigation
 
-### Favorites & Personalization
-- **Saved Trips** — Favorite multi-step route plans for quick access
-- **Favorite Stops & Routes** — Star frequently used stops and routes
-- **Travel Tips** — Quick tips for Yangon bus travel on home screen
-- **Recent Searches** — History of recent route lookups
-- **Leaderboard & Rewards** — Community ranking by contribution points, badge milestones, reward redemption (requires device ID)
+The root shell uses six persistent tabs:
 
-### Settings & Utilities
-- **Data Sync** — Refresh route bundle from assets and rebuild SQLite cache
-- **Notification Setup** — Guided setup for background alert service and notification permissions
-- **Privacy & Feedback** — Privacy policy, feedback dialog, donation (KPay/Wave)
-- **About / What's New** — App info and changelog
+```text
+Home · Assistant · YBS New · Routes · Find Route · Favorites
+```
 
----
+Settings and detail screens are opened from the app bar or from their parent feature. The project does not use named routes; it uses an `IndexedStack` for the main tabs and `Navigator.push` for detail pages.
 
-## Tech Stack
+## Offline-first data flow
+
+At startup, the app first attempts to load the locally cached route data. If no usable cache exists, it loads `assets/routes.bin`, decodes the base64 and XOR layers, decompresses the gzip payload with the cross-platform `archive` package, parses the route data, and stores the result locally. SQLite is used where supported for efficient direct-route queries, while the in-memory route finder remains the fallback.
+
+This decoder is intentionally implemented without `dart:io` so the same route bundle works in Flutter web, Android, iOS, and desktop builds.
+
+## Project structure
+
+```text
+flutter_app/
+├── assets/
+│   ├── routes.bin
+│   └── icons/logo.png
+├── lib/
+│   ├── main.dart
+│   ├── config.dart
+│   ├── models.dart
+│   ├── theme.dart
+│   ├── data/
+│   │   ├── data_repository.dart
+│   │   ├── route_finder.dart
+│   │   ├── routes_crypto.dart
+│   │   └── sqlite_routes.dart
+│   ├── pages/
+│   │   ├── assistant_page.dart
+│   │   ├── favorites_page.dart
+│   │   ├── find_route_page.dart
+│   │   ├── home_page.dart
+│   │   ├── map_picker_page.dart
+│   │   ├── route_detail_page.dart
+│   │   ├── route_plan_detail_page.dart
+│   │   ├── routes_page.dart
+│   │   ├── settings_page.dart
+│   │   ├── stop_detail_page.dart
+│   │   └── ybs_new_page.dart
+│   ├── services/
+│   ├── state/
+│   ├── util/
+│   └── widgets/
+├── test/widget_test.dart
+├── tools/build_routes_bundle.dart
+├── pubspec.yaml
+└── README.md
+```
+
+## Technology
 
 | Layer | Technology |
 |---|---|
-| **Framework** | Flutter 3.x, Dart 3.12+, Material 3 |
-| **State Management** | `provider` (`ChangeNotifier`) |
-| **Networking** | `http` (REST client → Vercel backend) |
-| **Offline Data** | Encrypted `assets/routes.bin` → `SharedPreferences` cache → `sqflite` SQLite |
-| **Maps** | `flutter_map` + OpenStreetMap tiles (`latlong2`, `flutter_map_cancellable_location`) |
-| **Location** | `geolocator` (GPS, streaming positions, geocoding) |
-| **Notifications** | `flutter_local_notifications` (arrival + admin channels) |
-| **Background Service** | `flutter_background_service` + `flutter_background_service_android` (foreground service, boot receiver) |
-| **Vibration / TTS** | `vibration`, `flutter_tts` (Burmese `my-MM` locale) |
-| **Device ID** | `device_info_plus` (Android ID / iOS identifierForVendor + fallback) |
-| **Web Support** | Conditional `dart:html` import for same-origin CORS workaround |
+| Framework | Flutter 3.47.1, Dart 3.13+, Material 3 |
+| State | `provider` and `ChangeNotifier` |
+| Networking | `http` and the Vercel REST API |
+| Route data | Encrypted bundled data, `SharedPreferences`, and SQLite where supported |
+| Maps | `flutter_map`, OpenStreetMap tiles, and `latlong2` |
+| Location | `geolocator` |
+| Notifications | `flutter_local_notifications`, `vibration`, and `flutter_tts` |
+| Background alerts | `flutter_background_service` on native platforms |
+| Cross-platform decompression | `archive` |
 
----
+## Backend endpoints
 
-## Architecture
+The app uses the existing backend at `https://ybs-mm-v2.vercel.app` for network-enabled features:
 
-### App Shell & Navigation
-
-```
-main.dart
-  → NotifyService.init()
-  → BackgroundAlertService.initAndroid()
-  → ChangeNotifierProvider<AppState>
-      → YbsApp (MaterialApp, light-only theme, no debug banner)
-          → RootShell (IndexedStack with 7 tabs)
-              ├── HomePage       (tab 0)
-              ├── AssistantPage  (tab 1)
-              ├── YbsNewPage     (tab 2)
-              ├── RoutesPage     (tab 3)
-              ├── FindRoutePage  (tab 4)
-              ├── FavoritesPage  (tab 5)
-              ├── LeaderboardPage (tab 6)
+```text
+/api/bus-updates
+/api/predictions
+/api/bus-eta
+/api/feedback
+/api/notifications
+/api/votes
+/api/alert
 ```
 
-No named routes or routing library; uses manual `Navigator.push` and `IndexedStack` for tab switching.
+Network failures are handled as non-fatal wherever possible so route search and cached data remain available offline. Device identifiers are used for anonymous community actions.
 
-### Data Flow
+## Development setup
 
-```
-App Boot
-  → DataRepository.load()
-      → Try SharedPreferences cache (instant)
-      → Try assets/routes.bin (base64 → XOR obfuscation → gzip → JSON)
-          → Populate BusRoute + BusStop models
-          → Persist to SharedPreferences
-          → Build SQLite database (routes.db) for fast JOIN queries
-  → AppState.init() loads favorites, trips, leaderboard name
-  → SplashScreen (bouncing bus animation) → RootShell
-```
-
-### Route Search (Offline-First, 2-Phase)
-
-1. **SQLite direct-route JOIN** — Correct forward direction by township group + `stop_order`. Handles same-name stops across townships.
-2. **In-memory BFS planner** — Max 2 transfers, sorts by transfer count then distance when no direct route exists.
-3. **Local NLP** — `extractStopsFromText()` extracts start/end from Burmese text; `resolveStopName()` fuzzy-resolves via Levenshtein.
-4. **Disambiguation** — Duplicate stop names get `"road · township"` suffix.
-
-### Encrypted Route Bundle
-
-Tools:
-```
-tools/routes_src/ → build_routes_bundle.dart → base64 + XOR + gzip → assets/routes.bin
-```
-
-Not production-grade encryption (key is in binary), but prevents casual APK extraction.
-
-### Arrival Alert Flow
-
-**In-app:** `NotifyService.triggerArrival()` → vibration + system notification + Burmese TTS
-
-**Background (app closed/screen off):**
-- `flutter_background_service` polls GPS + server every 30s
-- Fires full-screen intent + vibration + TTS + screen wake lock
-- Native `MainActivity.kt` wake-lock channel via `MethodChannel`
-
----
-
-## Key Directories
-
-```
-lib/
-├── main.dart              # Entry + RootShell navigation shell
-├── config.dart            # AppConfig, AppColors, OSM tile URLs
-├── models.dart            # Data models: BusStop, BusRoute, PathStep, SearchResult, etc.
-├── theme.dart             # AppTheme + Material 3 light theme
-├── data/
-│   ├── data_repository.dart   # Bundle loading, caching, SQLite init
-│   ├── route_finder.dart      # BFS planner, NLP, disambiguation, fuzzy matching
-│   ├── routes_crypto.dart     # XOR obfuscation key
-│   └── sqlite_routes.dart     # SQLite JOIN queries for offline search
-├── services/
-│   ├── api_service.dart           # REST client (bus updates, predictions, feedback, leaderboard, rewards)
-│   ├── background_alert_service.dart  # Foreground service for arrival alerts + admin polling
-│   ├── device_service.dart        # Device ID via device_info_plus
-│   ├── local_store.dart           # SharedPreferences (favorites, trips, notifications)
-│   ├── location_service.dart      # Geolocator wrapper
-│   └── notify_service.dart        # Local notifications + Burmese TTS
-├── state/
-│   └── app_state.dart         # Global ChangeNotifier
-├── pages/                     # 12 screens (home, assistant, routes, find-route, favorites, leaderboard, settings, route detail, route plan, stop detail, map picker, ybs new)
-└── widgets/                   # Reusable widgets (bus updates feed, OSM map, modals, route badge)
-```
-
----
-
-## Backend
-
-All API calls target **`https://ybs-mm-v2.vercel.app`**
-
-Endpoints consumed:
-- `/api/bus-updates` — CRUD for community bus updates
-- `/api/predictions` — Route stop predictions
-- `/api/bus-eta` — Live bus ETA
-- `/api/feedback` — User feedback submission
-- `/api/notifications` — Admin push-style notifications (polled)
-- `/api/leaderboard` — Register, submit update, rank
-- `/api/rewards` — List + redemption
-- `/api/votes` — Upvote/downvote on updates
-
-No authentication layer; device ID serves as user identity.
-
----
-
-## Build & Development
+Install Flutter 3.47.1 or a compatible stable release, then run:
 
 ```bash
+cd flutter_app
 flutter pub get
-flutter run
-flutter build apk --release    # Android
-flutter build ios --release    # iOS
+flutter analyze
+flutter test
+flutter build web --release --no-wasm-dry-run
 ```
 
-> Note: Background alert service requires Android foreground service + boot receiver permissions configured in `android/app/src/main/AndroidManifest.xml`.
+For a native development device:
+
+```bash
+flutter run
+flutter build apk --release
+flutter build ios --release
+```
+
+Android builds require the Android SDK and accepted Android licenses. iOS builds require macOS and Xcode. The Flutter web build does not require Chrome when using `flutter build web`; a Chrome installation is only needed for Chrome-device debugging.
+
+## Automated validation
+
+GitHub Actions runs the following checks for changes under `flutter_app/`:
+
+```text
+flutter pub get
+flutter analyze
+flutter test
+flutter build web --release --no-wasm-dry-run
+```
+
+The workflow is defined in `.github/workflows/flutter.yml`.
+
+## Route bundle maintenance
+
+The source data and bundle-generation inputs are maintained outside the runtime package. When route data changes, regenerate `assets/routes.bin` with the project’s bundle tool and then run the full validation commands above. The XOR layer is obfuscation for casual inspection, not cryptographic protection.
+
+## Known platform requirements
+
+OpenStreetMap tiles require network access on first use and are subject to OpenStreetMap tile usage policy. GPS, notifications, text-to-speech, and background alerts require platform permissions. SQLite is unavailable on Flutter web, where the repository falls back to in-memory route searching.
+
+## Release history
+
+| Version | Summary |
+|---|---|
+| `v3.1.3` | Cross-platform route bundle decoding, startup recovery UI, dependency refresh, documentation refresh, and CI validation |
+| `v3.1.2` | Flutter web route loading fix |
+| `v3.1.1` | Flutter dependency refresh for the current stable toolchain |
+
+## License
+
+This project is released under the MIT License.
