@@ -18,6 +18,17 @@ class LocalStore {
   static const _tripHistoryKey = 'ybs_trip_history';
   static const _savedTripsKey = 'ybs_saved_trips';
   static const _lastSeenNotifKey = 'ybs_notifications_last_seen';
+  static const _darkModeKey = 'ybs_dark_mode';
+
+  Future<bool> darkMode() async {
+    final p = await _p;
+    return p.getBool(_darkModeKey) ?? false;
+  }
+
+  Future<void> setDarkMode(bool enabled) async {
+    final p = await _p;
+    await p.setBool(_darkModeKey, enabled);
+  }
 
   // ---- Favorite routes ----
   Future<Set<String>> favRoutes() async {

@@ -30,12 +30,13 @@ class YbsApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appState = context.watch<AppState>();
     return MaterialApp(
       title: 'YBS AI',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
-      darkTheme: AppTheme.light(),
-      themeMode: ThemeMode.light,
+      darkTheme: AppTheme.dark(),
+      themeMode: appState.darkMode ? ThemeMode.dark : ThemeMode.light,
       home: const RootShell(),
     );
   }

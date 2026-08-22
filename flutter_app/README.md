@@ -16,7 +16,7 @@ The application currently includes the following user-facing capabilities:
 | YBS New | Community bus updates, update submission, route filtering, and voting |
 | Favorites | Favorite routes, favorite stops, and saved multi-step trips stored locally |
 | Alerts | In-app arrival alerts with vibration, local notifications, and Burmese text-to-speech; background alert support is configured for native platforms |
-| Settings | Data refresh, cache information, notification setup, feedback, privacy, donation links, and application information |
+| Settings | Data refresh, cache information, notification setup, feedback, privacy, donation links, application information, and persistent light/dark theme selection |
 
 ## App navigation
 
@@ -150,6 +150,7 @@ OpenStreetMap tiles require network access on first use and are subject to OpenS
 
 | Version | Summary |
 |---|---|
+| `v3.2.0` | Persistent dark mode, polished display settings, accurate in-app release notes, and documentation refresh |
 | `v3.1.3` | Cross-platform route bundle decoding, startup recovery UI, dependency refresh, documentation refresh, and CI validation |
 | `v3.1.2` | Flutter web route loading fix |
 | `v3.1.1` | Flutter dependency refresh for the current stable toolchain |

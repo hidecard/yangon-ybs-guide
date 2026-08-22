@@ -2,6 +2,16 @@
 
 All notable changes to the Flutter application are documented here.
 
+## 3.2.0 — 2026-08-22
+
+### Added
+
+The Settings screen now includes a persistent Display & Theme section. Users can switch between light and dark mode, and the choice is restored on the next launch.
+
+### Improved
+
+The dark theme uses a dedicated Material 3 color scheme, dark app bar, dark input surfaces, and accessible contrast while preserving the YBS amber brand accent. The in-app What's New panel now lists only implemented features and includes the cross-platform web route-loading fix.
+
 ## 3.1.3 — 2026-08-22
 
 ### Fixed
