@@ -139,6 +139,12 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
     return minDist < 0.5 ? minIdx : -1;
   }
 
+  void _centerOnLivePosition() {
+    final position = _livePos;
+    if (position == null) return;
+    _mapController.move(LatLng(position.lat, position.lng), 15);
+  }
+
   void _startTracking() async {
     if (!await LocationService.instance.ensurePermission()) return;
     _posSub?.cancel();
@@ -367,7 +373,9 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
                             color: _tracking
                                 ? AppColors.brand
                                 : AppColors.slate600,
-                            onTap: _startTracking,
+                            onTap: _tracking
+                                ? _centerOnLivePosition
+                                : _startTracking,
                           ),
                           if (_tracking) ...[
                             const SizedBox(height: 8),

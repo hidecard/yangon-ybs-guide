@@ -11,7 +11,7 @@ The application currently includes the following user-facing capabilities:
 | Home | Travel tips, notifications, nearby-stop discovery, and shortcuts to route search |
 | Route search | Burmese or English stop search, autocomplete, duplicate-stop disambiguation, map selection, and GPS-based nearby stops |
 | Route planning | Direct routes and transfer planning with forward stop-order validation, route details, saved trips, and Google Maps hand-off |
-| Route directory | Searchable route list with route details, stop lists, maps, favorites, bus updates, ETA, and predictions |
+| Route directory | Searchable route list with route details, stop lists, maps, favorites, bus updates, ETA, predictions, and live map markers |
 | Assistant | Local Burmese/English stop extraction and offline route planning without requiring an AI API key |
 | YBS New | Community bus updates, update submission, route filtering, and voting |
 | Favorites | Favorite routes, favorite stops, and saved multi-step trips stored locally |
@@ -19,6 +19,8 @@ The application currently includes the following user-facing capabilities:
 | Settings | Data refresh, cache information, notification setup, feedback, privacy, donation links, application information, and persistent light/dark theme selection |
 
 ## App navigation
+
+On route-detail maps, blue markers show recent community bus positions, the GPS marker shows your location, the tracking control follows live location, and tapping it again recenters the map on you. A separate bus control refreshes the reported positions.
 
 The root shell uses six persistent tabs:
 
@@ -150,6 +152,7 @@ OpenStreetMap tiles require network access on first use and are subject to OpenS
 
 | Version | Summary |
 |---|---|
+| `v3.3.0` | Improved live tracking map controls, one-tap recentering, tracking guidance, and release documentation |
 | `v3.2.0` | Persistent dark mode, polished display settings, accurate in-app release notes, and documentation refresh |
 | `v3.1.3` | Cross-platform route bundle decoding, startup recovery UI, dependency refresh, documentation refresh, and CI validation |
 | `v3.1.2` | Flutter web route loading fix |

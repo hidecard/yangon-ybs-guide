@@ -2,6 +2,12 @@
 
 All notable changes to the Flutter application are documented here.
 
+## 3.3.0 — 2026-08-22
+
+### Improved
+
+Route-detail maps now provide a clearer live-tracking workflow. Recent community bus reports remain visible as blue markers, the user’s GPS position is shown separately, and the tracking control follows the user while tracking is active. Tapping the active tracking control now recenters the map on the user instead of requesting location permission again. The bus control remains available for manually refreshing reported positions.
+
 ## 3.2.0 — 2026-08-22
 
 ### Added
