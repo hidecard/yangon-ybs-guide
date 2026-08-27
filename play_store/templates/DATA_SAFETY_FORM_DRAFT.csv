@@ -1,0 +1,12 @@
+section,question,draft_answer,developer_confirmation
+Data collection and security,Does your app collect or share any required user data?,Yes — location and user-submitted assistant/feedback text may be processed depending on the flow.,Confirm against the final signed AAB and backend logs.
+Data collection and security,Is all data collected by your app encrypted in transit?,Yes for HTTPS endpoints if the current deployment uses HTTPS.,Confirm every endpoint and third-party SDK.
+Data collection and security,Can users request deletion of data?,Yes for local app data through in-app controls or clearing app storage; contact info@arkaryan.net for questions/deletion requests.,Confirm server-side retention/deletion behavior.
+Location,Precise location,Collected only when Near Me, map location, live tracking, or arrival alert is enabled.,Confirm SDK/OS processing and disclosure.
+Location,Approximate location,Collected only in the same user-triggered location flows.,Confirm SDK/OS processing and disclosure.
+App activity,App interactions,Local favourites, saved trips, recent searches, notification state, and arrival-alert queue may be stored on device.,Confirm no cloud sync exists in the production build.
+Personal info,User-provided text,Assistant questions and feedback text may be sent to the configured service when submitted.,Confirm API retention, processing, and whether the feature is present in the submitted build.
+Device or other identifiers,Device/app technical data,Only declare if a library or service actually collects it.,Review every included SDK; do not select analytics or advertising data without evidence.
+Security practices,Data encrypted in transit,Yes for HTTPS traffic.,Confirm live endpoints use HTTPS.
+Security practices,Data deletion request mechanism,Local data can be removed in settings or by clearing app storage; privacy questions can be sent to info@arkaryan.net.,Confirm the final public policy and support process.
+Ads,Does your app contain ads?,No.,Confirm no ad SDK, banner, interstitial, or sponsored placement is included.

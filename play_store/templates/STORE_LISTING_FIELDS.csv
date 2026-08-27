@@ -1,0 +1,13 @@
+field,locale,value,character_count,notes
+app_title,Myanmar,"YBS AI - Yangon Bus Guide",25,"Google Play title limit is 30 characters"
+short_description,Myanmar,"ရန်ကုန် YBS လမ်းကြောင်းရှာရန် မြန်မာ Assistant နှင့် Offline Guide",66,"Google Play short description limit is 80 characters"
+app_title,English,"YBS AI - Yangon Bus Guide",25,"Optional English translation"
+short_description,English,"Find Yangon YBS routes, transfers, stops and alerts with a Burmese assistant.",77,"Optional English translation; under 80 characters"
+full_description,Myanmar,"See PLAY_STORE_PACKAGE.md section 2 for the complete Burmese description",,"Copy the full Burmese text from the Markdown package"
+full_description,English,"See PLAY_STORE_PACKAGE.md section 3 for the complete English description",,"Copy the full English text from the Markdown package"
+privacy_policy_url,All,"https://YOUR-DOMAIN.example/privacy",,"Replace with a live HTTPS URL before submission"
+support_email,All,"info@arkaryan.net",,"Confirm this inbox is monitored"
+category,All,"Travel & Local",,"Confirm the final Play Console category"
+ads,All,"No",,"Confirm no ads or ad SDK are included"
+app_access,All,"No login required",,"Use reviewer instructions in PLAY_STORE_PACKAGE.md"
+release_name,All,"YBS AI 3.3.4",,"Release version 3.3.4 / versionCode 9"
