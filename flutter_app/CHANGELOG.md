@@ -2,6 +2,20 @@
 
 All notable changes to the Flutter application are documented here.
 
+## 3.3.1 — 2026-08-27
+
+### Fixed
+
+- Temporarily hid YBS New from the Play Store build without deleting its implementation; its page, home shortcut, and tab item can be restored through one feature flag.
+- Fixed quick-action navigation indices when the temporary tab is hidden.
+- Made notification and background-service startup best-effort so platform-specific initialization failures do not block app boot.
+
+### Improved
+
+- Aligned the in-app version with the release version (`3.3.1+6`).
+- Added upload-keystore signing support, Play Store App Bundle output, tester APK output, release metadata hashes, and CI signing-secret validation.
+- Removed the unused battery-optimization bypass permission and added a regression test for the temporary feature flag.
+
 ## 3.3.0 — 2026-08-22
 
 ### Improved

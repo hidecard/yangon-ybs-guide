@@ -44,10 +44,26 @@ class _HomePageState extends State<HomePage> {
     final state = context.watch<AppState>();
 
     final quickActions = [
-      (Icons.search, 'လမ်းကြောင်း ရှာရန်', AppColors.primary, 4),
-      (Icons.directions_bus, 'ကားလိုင်းများ', AppColors.brand, 3),
-      (Icons.campaign, 'YBS New', const Color(0xFFB45309), 2),
-      (Icons.chat_bubble, 'Assistant', AppColors.violet, 1),
+      (
+        Icons.search,
+        'လမ်းကြောင်း ရှာရန်',
+        AppColors.primary,
+        AppConfig.findRouteTab,
+      ),
+      (
+        Icons.directions_bus,
+        'ကားလိုင်းများ',
+        AppColors.brand,
+        AppConfig.routesTab,
+      ),
+      if (AppConfig.showYbsNew)
+        (
+          Icons.campaign,
+          'YBS New',
+          const Color(0xFFB45309),
+          AppConfig.ybsNewTab,
+        ),
+      (Icons.chat_bubble, 'Assistant', AppColors.violet, AppConfig.assistantTab),
     ];
 
     return ListView(

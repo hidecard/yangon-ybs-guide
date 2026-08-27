@@ -13,7 +13,6 @@
     <!-- Lets the arrival alarm notification wake the screen / show over the
          lock screen when the device is asleep (screen off / app closed). -->
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
-    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
     <application
         android:label="YBS AI"
         android:name="${applicationName}"

@@ -13,16 +13,26 @@ import 'pages/assistant_page.dart';
 import 'pages/favorites_page.dart';
 import 'pages/settings_page.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  NotifyService.instance.init();
-  initBackgroundAlertService();
+  await _initializePlatformServices();
   runApp(
     ChangeNotifierProvider(
       create: (_) => AppState()..init(),
       child: const YbsApp(),
     ),
   );
+}
+
+Future<void> _initializePlatformServices() async {
+  // Service initialization is best-effort: notifications/background execution
+  // can be unavailable on web or denied by the user, but must not block startup.
+  try {
+    await NotifyService.instance.init();
+  } catch (_) {}
+  try {
+    await initBackgroundAlertService();
+  } catch (_) {}
 }
 
 class YbsApp extends StatelessWidget {
@@ -54,7 +64,7 @@ class _RootShellState extends State<RootShell> {
   final _pages = const [
     HomePage(),
     AssistantPage(),
-    YbsNewPage(),
+    if (AppConfig.showYbsNew) YbsNewPage(),
     RoutesPage(),
     FindRoutePage(),
     FavoritesPage(),
@@ -63,7 +73,8 @@ class _RootShellState extends State<RootShell> {
   static const _navItems = [
     (Icons.home_outlined, Icons.home, 'ပင်မ'),
     (Icons.chat_bubble_outline, Icons.chat_bubble, 'Assistant'),
-    (Icons.campaign_outlined, Icons.campaign, 'YBS New'),
+    if (AppConfig.showYbsNew)
+      (Icons.campaign_outlined, Icons.campaign, 'YBS New'),
     (Icons.directions_bus_outlined, Icons.directions_bus, 'လိုင်းများ'),
     (Icons.search, Icons.search, 'လမ်းကြောင်း'),
     (Icons.star_border, Icons.star, 'အကြိုက်'),

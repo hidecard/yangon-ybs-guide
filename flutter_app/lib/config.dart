@@ -25,7 +25,20 @@ class AppConfig {
     return 'https://ybs-mm-v2.vercel.app';
   }
 
-  static const String appVersion = '3.1';
+  /// Keep the YBS New implementation in the tree so it can be restored later,
+  /// but hide its entry points for the Play Store release for now.
+  static const bool showYbsNew = false;
+
+  /// Keep the user-facing version aligned with pubspec.yaml.
+  static const String appVersion = '3.3.1';
+
+  // Stable bottom-navigation indices for quick actions and deep links.
+  static const int homeTab = 0;
+  static const int assistantTab = 1;
+  static const int ybsNewTab = 2;
+  static const int routesTab = showYbsNew ? 3 : 2;
+  static const int findRouteTab = showYbsNew ? 4 : 3;
+  static const int favoritesTab = showYbsNew ? 5 : 4;
 
   static const double avgBusSpeedKmh = 15;
 

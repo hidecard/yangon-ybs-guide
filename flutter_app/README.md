@@ -1,32 +1,34 @@
-# Yangon YBS Guide — Flutter App
+# YBS AI — Flutter V3
 
-The Flutter application provides the same core Yangon YBS experience as the web app: offline-first route search, Burmese and English stop lookup, trip planning, OpenStreetMap maps, community bus updates, favorites, feedback, and arrival alerts.
+The Flutter application provides the same core Yangon YBS experience as the web app: offline-first route search, Burmese and English stop lookup, trip planning, OpenStreetMap maps, favorites, feedback, and arrival alerts.
 
 ## Implemented features
 
 The application currently includes the following user-facing capabilities:
 
-| Area | Features |
-|---|---|
-| Home | Travel tips, notifications, nearby-stop discovery, and shortcuts to route search |
-| Route search | Burmese or English stop search, autocomplete, duplicate-stop disambiguation, map selection, and GPS-based nearby stops |
-| Route planning | Direct routes and transfer planning with forward stop-order validation, route details, saved trips, and Google Maps hand-off |
-| Route directory | Searchable route list with route details, stop lists, maps, favorites, bus updates, ETA, predictions, and live map markers |
-| Assistant | Local Burmese/English stop extraction and offline route planning without requiring an AI API key |
-| YBS New | Community bus updates, update submission, route filtering, and voting |
-| Favorites | Favorite routes, favorite stops, and saved multi-step trips stored locally |
-| Alerts | In-app arrival alerts with vibration, local notifications, and Burmese text-to-speech; background alert support is configured for native platforms |
-| Settings | Data refresh, cache information, notification setup, feedback, privacy, donation links, application information, and persistent light/dark theme selection |
+| Area            | Features                                                                                                                                                   |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Home            | Travel tips, notifications, nearby-stop discovery, and shortcuts to route search                                                                           |
+| Route search    | Burmese or English stop search, autocomplete, duplicate-stop disambiguation, map selection, and GPS-based nearby stops                                     |
+| Route planning  | Direct routes and transfer planning with forward stop-order validation, route details, saved trips, and Google Maps hand-off                               |
+| Route directory | Searchable route list with route details, stop lists, maps, favorites, ETA, predictions, and live map markers                                              |
+| Assistant       | Local Burmese/English stop extraction and offline route planning without requiring an AI API key                                                           |
+| YBS New         | Implemented in the codebase but temporarily hidden from the Play Store build; re-enable with `AppConfig.showYbsNew` when the feature is ready              |
+| Favorites       | Favorite routes, favorite stops, and saved multi-step trips stored locally                                                                                 |
+| Alerts          | In-app arrival alerts with vibration, local notifications, and Burmese text-to-speech; background alert support is configured for native platforms         |
+| Settings        | Data refresh, cache information, notification setup, feedback, privacy, donation links, application information, and persistent light/dark theme selection |
 
 ## App navigation
 
 On route-detail maps, blue markers show recent community bus positions, the GPS marker shows your location, the tracking control follows live location, and tapping it again recenters the map on you. A separate bus control refreshes the reported positions.
 
-The root shell uses six persistent tabs:
+The Play Store build currently uses five persistent tabs because YBS New is temporarily hidden:
 
 ```text
-Home · Assistant · YBS New · Routes · Find Route · Favorites
+Home · Assistant · Routes · Find Route · Favorites
 ```
+
+The YBS New implementation remains in `lib/pages/ybs_new_page.dart`. To restore it, change `showYbsNew` to `true` in `lib/config.dart`; the page, home shortcut, and bottom-navigation item are all wired through that flag and the tab indices automatically realign.
 
 Settings and detail screens are opened from the app bar or from their parent feature. The project does not use named routes; it uses an `IndexedStack` for the main tabs and `Navigator.push` for detail pages.
 
@@ -49,26 +51,15 @@ flutter_app/
 │   ├── models.dart
 │   ├── theme.dart
 │   ├── data/
-│   │   ├── data_repository.dart
-│   │   ├── route_finder.dart
-│   │   ├── routes_crypto.dart
-│   │   └── sqlite_routes.dart
 │   ├── pages/
-│   │   ├── assistant_page.dart
-│   │   ├── favorites_page.dart
-│   │   ├── find_route_page.dart
-│   │   ├── home_page.dart
-│   │   ├── map_picker_page.dart
-│   │   ├── route_detail_page.dart
-│   │   ├── route_plan_detail_page.dart
-│   │   ├── routes_page.dart
-│   │   ├── settings_page.dart
-│   │   ├── stop_detail_page.dart
-│   │   └── ybs_new_page.dart
 │   ├── services/
 │   ├── state/
 │   ├── util/
 │   └── widgets/
+├── android/
+│   ├── app/build.gradle.kts
+│   ├── key.properties.example
+│   └── app/src/main/AndroidManifest.xml
 ├── test/widget_test.dart
 ├── tools/build_routes_bundle.dart
 ├── pubspec.yaml
@@ -77,17 +68,17 @@ flutter_app/
 
 ## Technology
 
-| Layer | Technology |
-|---|---|
-| Framework | Flutter 3.47.1, Dart 3.13+, Material 3 |
-| State | `provider` and `ChangeNotifier` |
-| Networking | `http` and the Vercel REST API |
-| Route data | Encrypted bundled data, `SharedPreferences`, and SQLite where supported |
-| Maps | `flutter_map`, OpenStreetMap tiles, and `latlong2` |
-| Location | `geolocator` |
-| Notifications | `flutter_local_notifications`, `vibration`, and `flutter_tts` |
-| Background alerts | `flutter_background_service` on native platforms |
-| Cross-platform decompression | `archive` |
+| Layer                        | Technology                                                              |
+| ---------------------------- | ----------------------------------------------------------------------- |
+| Framework                    | Flutter 3.47.1, Dart 3.13+, Material 3                                  |
+| State                        | `provider` and `ChangeNotifier`                                         |
+| Networking                   | `http` and the Vercel REST API                                          |
+| Route data                   | Encrypted bundled data, `SharedPreferences`, and SQLite where supported |
+| Maps                         | `flutter_map`, OpenStreetMap tiles, and `latlong2`                      |
+| Location                     | `geolocator`                                                            |
+| Notifications                | `flutter_local_notifications`, `vibration`, and `flutter_tts`           |
+| Background alerts            | `flutter_background_service` on native platforms                        |
+| Cross-platform decompression | `archive`                                                               |
 
 ## Backend endpoints
 
@@ -122,12 +113,19 @@ For a native development device:
 ```bash
 flutter run
 flutter build apk --release
+flutter build appbundle --release
 flutter build ios --release
 ```
 
 Android builds require the Android SDK and accepted Android licenses. iOS builds require macOS and Xcode. The Flutter web build does not require Chrome when using `flutter build web`; a Chrome installation is only needed for Chrome-device debugging.
 
-## Automated validation
+## Android release signing
+
+The Android module keeps local development convenient while preventing a Play Store build from silently using a debug key. If `flutter_app/android/key.properties` exists, release APK/AAB builds use the upload keystore configured there. If it does not exist, local release builds fall back to the debug key for testing only.
+
+Copy `android/key.properties.example` to `android/key.properties`, create or obtain the upload keystore, and replace the placeholders. Do not commit either `key.properties` or the `.jks` file. For Play Console distribution, prefer an Android App Bundle (`.aab`) and configure Play App Signing in Google Play Console.
+
+## Automated validation and Android artifacts
 
 GitHub Actions runs the following checks for changes under `flutter_app/`:
 
@@ -138,7 +136,25 @@ flutter test
 flutter build web --release --no-wasm-dry-run
 ```
 
-The workflow is defined in `.github/workflows/flutter.yml`.
+The Android release workflow additionally builds both artifacts:
+
+```text
+flutter build apk --release       # tester/sideload APK
+flutter build appbundle --release # Play Store upload bundle
+```
+
+The workflow is defined in `.github/workflows/flutter-apk.yml`. It uploads the APK, AAB, and a `release-metadata.txt` file containing the version, signing mode, and SHA-256 hashes as the `yangon-ybs-guide-v3-android-release` artifact. Manual runs can require upload-key signing by setting the `play_store_release` input to `true`.
+
+To enable signed CI builds, add these GitHub Actions secrets:
+
+```text
+ANDROID_KEYSTORE_BASE64
+ANDROID_KEY_ALIAS
+ANDROID_KEY_PASSWORD
+ANDROID_STORE_PASSWORD
+```
+
+The workflow intentionally fails a manually requested Play Store release when these secrets are missing. Ordinary pushes can still produce an unsigned-for-Play debug-signed artifact for functional testing, and the metadata file makes that status explicit.
 
 ## Route bundle maintenance
 
@@ -150,13 +166,14 @@ OpenStreetMap tiles require network access on first use and are subject to OpenS
 
 ## Release history
 
-| Version | Summary |
-|---|---|
-| `v3.3.0` | Improved live tracking map controls, one-tap recentering, tracking guidance, and release documentation |
-| `v3.2.0` | Persistent dark mode, polished display settings, accurate in-app release notes, and documentation refresh |
-| `v3.1.3` | Cross-platform route bundle decoding, startup recovery UI, dependency refresh, documentation refresh, and CI validation |
-| `v3.1.2` | Flutter web route loading fix |
-| `v3.1.1` | Flutter dependency refresh for the current stable toolchain |
+| Version  | Summary                                                                                                                                                  |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `v3.3.1` | Temporarily hides YBS New for the Play Store build, aligns navigation indices, hardens startup initialization, and adds signed Android release artifacts |
+| `v3.3.0` | Improved live tracking map controls, one-tap recentering, tracking guidance, and release documentation                                                   |
+| `v3.2.0` | Persistent dark mode, polished display settings, accurate in-app release notes, and documentation refresh                                                |
+| `v3.1.3` | Cross-platform route bundle decoding, startup recovery UI, dependency refresh, documentation refresh, and CI validation                                  |
+| `v3.1.2` | Flutter web route loading fix                                                                                                                            |
+| `v3.1.1` | Flutter dependency refresh for the current stable toolchain                                                                                              |
 
 ## License
 
