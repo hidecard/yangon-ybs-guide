@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import 'package:ybs_guide/config.dart';
 import 'package:ybs_guide/main.dart';
+import 'package:ybs_guide/pages/assistant_page.dart';
 import 'package:ybs_guide/models.dart';
 import 'package:ybs_guide/state/app_state.dart';
 import 'package:ybs_guide/data/route_finder.dart';
@@ -31,6 +32,20 @@ void main() {
       stopsDetailed: [],
     );
     expect(route.displayName, 'YBS 42');
+  });
+
+  testWidgets('Assistant composer remains visible', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ChangeNotifierProvider(
+        create: (_) => AppState(),
+        child: const MaterialApp(home: Scaffold(body: AssistantPage())),
+      ),
+    );
+    expect(find.byKey(const ValueKey('assistant-composer')), findsOneWidget);
+    expect(find.byKey(const ValueKey('assistant-send')), findsOneWidget);
+    expect(find.text('မေးမြန်းလိုသည်များကို ရိုက်ထည့်ပါ...'), findsOneWidget);
   });
 
   testWidgets('App uses the original light theme only', (

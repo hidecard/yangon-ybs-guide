@@ -50,7 +50,7 @@ class SettingsPage extends StatelessWidget {
     _Section(
       Icons.auto_awesome,
       const Color(0xFFF59E0B),
-      "What's New in V3.3.3",
+      "What's New in V3.3.4",
       'ဗားရှင်းသစ် အချက်အလက်များ',
       const _WhatsNewSection(),
     ),
@@ -828,7 +828,7 @@ class _WhatsNewSection extends StatelessWidget {
             _cardHeader(
               Icons.auto_awesome,
               const Color(0xFFF59E0B),
-              "What's New in V3.3.3",
+              "What's New in V3.3.4",
               'ဗားရှင်းသစ် အချက်အလက်များ',
             ),
             const SizedBox(height: 16),

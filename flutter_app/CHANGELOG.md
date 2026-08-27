@@ -2,6 +2,18 @@
 
 All notable changes to the Flutter application are documented here.
 
+## 3.3.4 — 2026-08-27
+
+### Fixed
+
+- Restored a visible, keyboard-safe Assistant chat composer with a multiline Burmese input, send button, loading state, and stable widget keys.
+- Removed the redundant re-plan card, map-picker controls, and duplicate per-step arrival-alert toggles from Route Plan Detail; route planning remains available from the Find Route tab.
+- Added regression coverage for the Assistant composer and kept the light-only theme behavior covered.
+
+### Improved
+
+- Bumped the Android release to `3.3.4+9`.
+
 ## 3.3.3 — 2026-08-27
 
 ### Fixed

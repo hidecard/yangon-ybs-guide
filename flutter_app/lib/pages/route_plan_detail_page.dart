@@ -9,7 +9,6 @@ import 'package:url_launcher/url_launcher.dart';
 import '../config.dart';
 import '../data/route_finder.dart';
 import '../models.dart';
-import '../services/local_store.dart';
 import '../services/location_service.dart';
 import '../services/notify_service.dart';
 import '../services/background_alert_service.dart';
@@ -17,7 +16,6 @@ import '../state/app_state.dart';
 import '../theme.dart';
 import '../widgets/osm_map.dart';
 import '../widgets/route_badge.dart';
-import 'map_picker_page.dart';
 
 class RoutePlanDetailPage extends StatefulWidget {
   final List<PathStep> steps;
@@ -44,12 +42,6 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
 
   bool _tripSaved = false;
 
-  // Editable start/end so the user can re-plan from "Near Me" or a map pick.
-  String _start = '';
-  String _end = '';
-  bool _searching = false;
-  bool _locating = false;
-
   List<PathStep> get steps => widget.steps;
 
   final Map<String, BusStop> _stopsByName = {};
@@ -61,10 +53,6 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
       for (final s in st.route.stopsDetailed) {
         _stopsByName.putIfAbsent(s.nameMm, () => s);
       }
-    }
-    if (steps.isNotEmpty) {
-      _start = steps.first.fromStop;
-      _end = steps.last.toStop;
     }
   }
 
@@ -219,103 +207,6 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
       if (progress.next == null) {
         stopBackgroundAlert();
       }
-    }
-  }
-
-  Future<void> _useCurrentLocation() async {
-    final state = context.read<AppState>();
-    setState(() => _locating = true);
-    final p = await LocationService.instance.currentPosition();
-    if (!mounted) return;
-    setState(() => _locating = false);
-    if (p == null || state.stops.isEmpty) return;
-    BusStop nearest = state.stops.first;
-    double minD = getDistance(
-      p.latitude,
-      p.longitude,
-      nearest.lat,
-      nearest.lng,
-    );
-    for (final s in state.stops) {
-      final d = getDistance(p.latitude, p.longitude, s.lat, s.lng);
-      if (d < minD) {
-        minD = d;
-        nearest = s;
-      }
-    }
-    setState(() => _start = nearest.nameMm);
-  }
-
-  Future<void> _openPicker(bool isStart) async {
-    final state = context.read<AppState>();
-    final selected = await Navigator.push<BusStop>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => MapPickerPage(
-          stops: state.stops,
-          title: isStart
-              ? 'စတင်မည့်မှတ်တိုင် ရွေးချယ်ပါ'
-              : 'ဆင်းမည့်မှတ်တိုင် ရွေးချယ်ပါ',
-        ),
-      ),
-    );
-    if (selected != null) {
-      setState(() {
-        if (isStart) {
-          _start = selected.nameMm;
-        } else {
-          _end = selected.nameMm;
-        }
-      });
-    }
-  }
-
-  Future<void> _replan() async {
-    if (_start.trim().isEmpty || _end.trim().isEmpty) return;
-    final state = context.read<AppState>();
-    setState(() => _searching = true);
-    final direct = await state.repo.findDirectRoutes(
-      _start.trim(),
-      _end.trim(),
-    );
-    final List<SearchResult> found = direct.isNotEmpty
-        ? direct
-              .map(
-                (r) => SearchResult(
-                  steps: [
-                    PathStep(
-                      route: r,
-                      fromStop: _start.trim(),
-                      toStop: _end.trim(),
-                    ),
-                  ],
-                  transferCount: 0,
-                  totalDistance: 0,
-                ),
-              )
-              .toList()
-        : performBFS(_start.trim(), _end.trim(), state.routes, state.stops);
-    if (!mounted) return;
-    setState(() => _searching = false);
-    if (found.isNotEmpty) {
-      await LocalStore.instance.addTripHistory(
-        type: 'search',
-        label: _start.trim(),
-        subtitle: _end.trim(),
-      );
-      // Replace this page with a freshly planned one.
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) => RoutePlanDetailPage(steps: found.first.steps),
-          ),
-        );
-      }
-    } else if (mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('လမ်းကြောင်း မတွေ့ပါ')));
     }
   }
 
@@ -601,7 +492,6 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
                     ),
                   ),
                 if (_arrivalEnabled && _livePos != null) _progressCard(),
-                _replanCard(),
                 ...steps.asMap().entries.map((e) => _stepCard(e.key, e.value)),
 
                 _intermediateStops(active),
@@ -673,71 +563,6 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
                   ? 'သင်ဆင်းရမည့်မှတ်တိုင် ${progress.next!.nameMm} ရောက်ခါနီးပါပြီ'
                   : 'နောက်ရောက်မည့်မှတ်တိုင်: ${progress.next!.nameMm}',
               style: const TextStyle(fontWeight: FontWeight.w600),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _replanCard() {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'ခရီးစဉ် ပြန်ရွေးရန်',
-              style: TextStyle(fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(child: Text(_start, overflow: TextOverflow.ellipsis)),
-                IconButton(
-                  tooltip: 'စတင်မှတ်တိုင် ရွေးရန်',
-                  onPressed: () => _openPicker(true),
-                  icon: const Icon(Icons.place_outlined),
-                ),
-                IconButton(
-                  tooltip: 'လက်ရှိနေရာ အသုံးပြုရန်',
-                  onPressed: _locating ? null : _useCurrentLocation,
-                  icon: _locating
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.my_location),
-                ),
-              ],
-            ),
-            const Divider(height: 4),
-            Row(
-              children: [
-                Expanded(child: Text(_end, overflow: TextOverflow.ellipsis)),
-                IconButton(
-                  tooltip: 'ဆင်းမှတ်တိုင် ရွေးရန်',
-                  onPressed: () => _openPicker(false),
-                  icon: const Icon(Icons.flag_outlined),
-                ),
-                FilledButton.icon(
-                  onPressed: _searching ? null : _replan,
-                  icon: _searching
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Icon(Icons.alt_route),
-                  label: const Text('ပြန်ရှာမည်'),
-                ),
-              ],
             ),
           ],
         ),

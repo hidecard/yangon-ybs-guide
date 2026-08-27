@@ -169,6 +169,7 @@ OpenStreetMap tiles require network access on first use and are subject to OpenS
 
 | Version  | Summary                                                                                                                                                                                                     |
 | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `v3.3.4` | Restores the visible Assistant chat composer, adds a send action and multiline input, and simplifies Route Plan Detail by removing the redundant re-plan card and duplicate controls                        |
 | `v3.3.3` | Improves contrast and empty states, hardens route-bundle parsing, adds spacing-tolerant stop search, makes arrival alerts battery-safe, removes full-screen/boot auto-start behavior, and documents privacy |
 | `v3.3.2` | Removes the broken theme switch, restores the original light-only UI, removes theme preference persistence, and fixes low-contrast rendering                                                                |
 | `v3.3.1` | Temporarily hides YBS New for the Play Store build, aligns navigation indices, hardens startup initialization, and adds signed Android release artifacts                                                    |
