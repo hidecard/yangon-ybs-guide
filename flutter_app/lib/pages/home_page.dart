@@ -10,7 +10,9 @@ import '../services/notify_service.dart';
 import '../state/app_state.dart';
 import '../theme.dart';
 import '../util/nav.dart';
+import '../pages/assistant_page.dart';
 import '../pages/find_route_page.dart';
+import '../pages/routes_page.dart';
 import '../widgets/route_badge.dart';
 
 class HomePage extends StatefulWidget {
@@ -122,7 +124,7 @@ class _HomePageState extends State<HomePage> {
   Widget _quickAction(IconData icon, String label, Color color, int tabIndex) {
     return InkWell(
       borderRadius: BorderRadius.circular(16),
-      onTap: () => _switchTab(context, tabIndex),
+      onTap: () => _openQuickAction(context, tabIndex),
       child: Container(
         decoration: UI.card(),
         child: Column(
@@ -147,8 +149,46 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void _openQuickAction(BuildContext context, int tabIndex) {
+    // Open the three primary actions as independent routes. This keeps the
+    // tap target reliable even when the optional YBS New tab is hidden and
+    // avoids relying on a stale IndexedStack position from a saved build.
+    if (tabIndex == AppConfig.findRouteTab) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => const FindRoutePage(withScaffold: true),
+        ),
+      );
+      return;
+    }
+    if (tabIndex == AppConfig.routesTab) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => const _QuickActionPage(
+            title: 'ကားလိုင်းများ',
+            child: RoutesPage(),
+          ),
+        ),
+      );
+      return;
+    }
+    if (tabIndex == AppConfig.assistantTab) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => const _QuickActionPage(
+            title: 'Assistant',
+            child: AssistantPage(),
+          ),
+        ),
+      );
+      return;
+    }
+    _switchTab(context, tabIndex);
+  }
+
   void _switchTab(BuildContext context, int index) {
-    TabSwitcher.of(context)?.call(index);
+    final switchTab = TabSwitcher.of(context);
+    if (switchTab != null && index >= 0) switchTab(index);
   }
 
   Widget _tipCard((IconData, String, String) tip) {
@@ -220,6 +260,20 @@ const _travelTips = <(IconData, String, String)>[
 ];
 
 /// InheritedWidget to let child pages switch bottom-nav tabs.
+class _QuickActionPage extends StatelessWidget {
+  final String title;
+  final Widget child;
+  const _QuickActionPage({required this.title, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(title)),
+      body: child,
+    );
+  }
+}
+
 class TabSwitcher extends InheritedWidget {
   final void Function(int) onSwitch;
   const TabSwitcher({super.key, required this.onSwitch, required super.child});

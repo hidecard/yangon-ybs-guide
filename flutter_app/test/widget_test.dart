@@ -8,6 +8,9 @@ import 'package:ybs_guide/pages/assistant_page.dart';
 import 'package:ybs_guide/models.dart';
 import 'package:ybs_guide/state/app_state.dart';
 import 'package:ybs_guide/data/route_finder.dart';
+import 'package:ybs_guide/pages/home_page.dart';
+import 'package:ybs_guide/pages/routes_page.dart';
+import 'package:ybs_guide/pages/find_route_page.dart';
 
 void main() {
   test('YBS New is hidden without breaking tab indices', () {
@@ -57,6 +60,34 @@ void main() {
     final app = tester.widget<MaterialApp>(find.byType(MaterialApp));
     expect(app.themeMode, ThemeMode.light);
     expect(app.darkTheme, isNull);
+  });
+
+  testWidgets('Home quick actions open pages without leaving the app', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ChangeNotifierProvider(
+        create: (_) => AppState(),
+        child: const MaterialApp(home: Scaffold(body: HomePage())),
+      ),
+    );
+    await tester.pump();
+
+    await tester.tap(find.text('Assistant'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('assistant-composer')), findsOneWidget);
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('ကားလိုင်းများ'));
+    await tester.pumpAndSettle();
+    expect(find.byType(RoutesPage), findsOneWidget);
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('လမ်းကြောင်း ရှာရန်'));
+    await tester.pumpAndSettle();
+    expect(find.byType(FindRoutePage), findsOneWidget);
   });
 
   testWidgets('App boots to splash', (WidgetTester tester) async {

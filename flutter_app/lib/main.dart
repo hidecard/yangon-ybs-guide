@@ -146,15 +146,21 @@ class _RootShellState extends State<RootShell> {
         ],
       ),
       body: TabSwitcher(
-        onSwitch: (i) => setState(() => _index = i),
+        onSwitch: _selectTab,
         child: IndexedStack(index: _index, children: _pages),
       ),
       bottomNavigationBar: _YbsBottomNav(
         index: _index,
         items: _navItems,
-        onTap: (i) => setState(() => _index = i),
+        onTap: _selectTab,
       ),
     );
+  }
+
+  void _selectTab(int index) {
+    if (!mounted || index < 0 || index >= _pages.length) return;
+    if (_index == index) return;
+    setState(() => _index = index);
   }
 }
 

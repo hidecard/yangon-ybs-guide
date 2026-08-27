@@ -2,6 +2,19 @@
 
 All notable changes to the Flutter application are documented here.
 
+## 3.3.5 — 2026-08-27
+
+### Fixed
+
+- Reworked Home quick actions to open Route Search, Routes, and Assistant as independent pages instead of relying on IndexedStack tab switching.
+- Removed the embedded OpenStreetMap view from Stop Detail so nearest-stop navigation no longer enters the shared map/plugin path that could force-close the app; map opening remains available through an external Google Maps action.
+- Added range-safe root tab selection and Material-safe standalone page wrappers for more predictable navigation.
+- Added widget regression coverage for all three Home quick actions.
+
+### Improved
+
+- Bumped the Android release to `3.3.5+10`.
+
 ## 3.3.4 — 2026-08-27
 
 ### Fixed

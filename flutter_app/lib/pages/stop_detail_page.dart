@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../config.dart';
@@ -8,7 +7,6 @@ import '../state/app_state.dart';
 import '../services/location_service.dart';
 import '../theme.dart';
 import '../util/nav.dart';
-import '../widgets/osm_map.dart';
 import '../widgets/route_badge.dart';
 
 class StopDetailPage extends StatefulWidget {
@@ -70,17 +68,55 @@ class _StopDetailPageState extends State<StopDetailPage> {
       ),
       body: ListView(
         children: [
-          SizedBox(
-            height: 200,
-            child: OsmMap(
-              center: LatLng(stop.lat, stop.lng),
-              zoom: 16,
-              markers: [
-                dotMarker(
-                  LatLng(stop.lat, stop.lng),
-                  color: AppColors.blue,
-                  size: 20,
-                  label: stop.nameMm,
+          Container(
+            margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.blueLight,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.blue,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.location_on,
+                    color: Colors.white,
+                    size: 22,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'မှတ်တိုင်တည်နေရာ',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.text,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${stop.lat.toStringAsFixed(5)}, ${stop.lng.toStringAsFixed(5)}',
+                        style: const TextStyle(
+                          color: AppColors.slate600,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  tooltip: 'မြေပုံဖွင့်မည်',
+                  onPressed: () => _openMap(stop),
+                  icon: const Icon(Icons.open_in_new, color: AppColors.blue),
                 ),
               ],
             ),
@@ -166,6 +202,19 @@ class _StopDetailPageState extends State<StopDetailPage> {
         ],
       ),
     );
+  }
+
+  Future<void> _openMap(BusStop stop) async {
+    final uri = Uri.parse(
+      'https://www.google.com/maps/search/?api=1'
+      '&query=${stop.lat},${stop.lng}',
+    );
+    final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (!opened && mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('မြေပုံ app ဖွင့်မရပါ')));
+    }
   }
 
   Future<void> _openWalkingDirections(BusStop stop) async {

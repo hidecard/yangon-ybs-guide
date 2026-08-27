@@ -227,119 +227,128 @@ class _AssistantPageState extends State<AssistantPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.borderLight),
-        ),
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView.builder(
-                controller: _scroll,
-                padding: const EdgeInsets.all(16),
-                itemCount: _messages.length + (_loading ? 1 : 0),
-                itemBuilder: (_, i) {
-                  if (i >= _messages.length) {
-                    return const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Padding(
-                        padding: EdgeInsets.all(8),
-                        child: SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
+    return Material(
+      color: Colors.transparent,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.borderLight),
+          ),
+          child: Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  controller: _scroll,
+                  padding: const EdgeInsets.all(16),
+                  itemCount: _messages.length + (_loading ? 1 : 0),
+                  itemBuilder: (_, i) {
+                    if (i >= _messages.length) {
+                      return const Align(
+                        alignment: Alignment.centerLeft,
+                        child: Padding(
+                          padding: EdgeInsets.all(8),
+                          child: SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
                         ),
-                      ),
-                    );
-                  }
-                  return _bubble(_messages[i]);
-                },
+                      );
+                    }
+                    return _bubble(_messages[i]);
+                  },
+                ),
               ),
-            ),
-            if (_suggestions.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(12, 8, 12, 6),
-                child: SizedBox(
-                  height: 40,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: _suggestions.length,
-                    separatorBuilder: (_, __) => const SizedBox(width: 8),
-                    itemBuilder: (_, i) => ActionChip(
-                      label: Text(
-                        _suggestions[i],
-                        style: const TextStyle(fontSize: 12),
+              if (_suggestions.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 6),
+                  child: SizedBox(
+                    height: 40,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: _suggestions.length,
+                      separatorBuilder: (_, __) => const SizedBox(width: 8),
+                      itemBuilder: (_, i) => ActionChip(
+                        label: Text(
+                          _suggestions[i],
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                        backgroundColor: AppColors.brandLight,
+                        labelStyle: const TextStyle(
+                          color: AppColors.brandHover,
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        onPressed: _loading
+                            ? null
+                            : () => _send(_suggestions[i]),
                       ),
-                      backgroundColor: AppColors.brandLight,
-                      labelStyle: const TextStyle(color: AppColors.brandHover),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      onPressed: _loading ? null : () => _send(_suggestions[i]),
                     ),
                   ),
                 ),
-              ),
-            SafeArea(
-              top: false,
-              child: Container(
-                padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-                decoration: const BoxDecoration(
-                  color: AppColors.bg,
-                  border: Border(top: BorderSide(color: AppColors.borderLight)),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        key: const ValueKey('assistant-composer'),
-                        controller: _controller,
-                        minLines: 1,
-                        maxLines: 3,
-                        textInputAction: TextInputAction.send,
-                        onSubmitted: (_) => _send(),
-                        decoration: const InputDecoration(
-                          isDense: true,
-                          hintText: 'မေးမြန်းလိုသည်များကို ရိုက်ထည့်ပါ...',
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 13,
+              SafeArea(
+                top: false,
+                child: Container(
+                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+                  decoration: const BoxDecoration(
+                    color: AppColors.bg,
+                    border: Border(
+                      top: BorderSide(color: AppColors.borderLight),
+                    ),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          key: const ValueKey('assistant-composer'),
+                          controller: _controller,
+                          minLines: 1,
+                          maxLines: 3,
+                          textInputAction: TextInputAction.send,
+                          onSubmitted: (_) => _send(),
+                          decoration: const InputDecoration(
+                            isDense: true,
+                            hintText: 'မေးမြန်းလိုသည်များကို ရိုက်ထည့်ပါ...',
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 13,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    SizedBox(
-                      width: 48,
-                      height: 48,
-                      child: Material(
-                        key: const ValueKey('assistant-send'),
-                        color: _loading
-                            ? AppColors.slate300
-                            : AppColors.primary,
-                        borderRadius: BorderRadius.circular(12),
-                        child: InkWell(
+                      const SizedBox(width: 8),
+                      SizedBox(
+                        width: 48,
+                        height: 48,
+                        child: Material(
+                          key: const ValueKey('assistant-send'),
+                          color: _loading
+                              ? AppColors.slate300
+                              : AppColors.primary,
                           borderRadius: BorderRadius.circular(12),
-                          onTap: _loading ? null : _send,
-                          child: const Icon(
-                            Icons.send_rounded,
-                            size: 20,
-                            color: Colors.white,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(12),
+                            onTap: _loading ? null : _send,
+                            child: const Icon(
+                              Icons.send_rounded,
+                              size: 20,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
