@@ -60,3 +60,4 @@ flutter:
     # tools/build_routes_bundle.dart). Regenerate after editing routes.
     - assets/routes.bin
     - assets/icons/logo.png
+    - assets/adi-registration.properties
