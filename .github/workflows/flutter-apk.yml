@@ -94,13 +94,26 @@ jobs:
             sha256sum build/app/outputs/bundle/release/app-release.aab
           } > build/release-metadata.txt
 
-      - name: Upload Android release artifacts
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: yangon-ybs-guide-v3-android-release
-          path: |
-            flutter_app/build/app/outputs/flutter-apk/app-release.apk
-            flutter_app/build/app/outputs/bundle/release/app-release.aab
-            flutter_app/build/release-metadata.txt
+          name: yangon-ybs-guide-v3-apk
+          path: flutter_app/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload App Bundle artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: yangon-ybs-guide-v3-aab
+          path: flutter_app/build/app/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload release metadata artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: yangon-ybs-guide-v3-release-metadata
+          path: flutter_app/build/release-metadata.txt
           if-no-files-found: error
           retention-days: 14
