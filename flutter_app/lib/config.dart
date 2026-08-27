@@ -30,7 +30,7 @@ class AppConfig {
   static const bool showYbsNew = false;
 
   /// Keep the user-facing version aligned with pubspec.yaml.
-  static const String appVersion = '3.3.1';
+  static const String appVersion = '3.3.2';
 
   // Stable bottom-navigation indices for quick actions and deep links.
   static const int homeTab = 0;

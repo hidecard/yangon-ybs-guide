@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
@@ -11,6 +12,20 @@ void main() {
     expect(AppConfig.routesTab, 2);
     expect(AppConfig.findRouteTab, 3);
     expect(AppConfig.favoritesTab, 4);
+  });
+
+  testWidgets('App uses the original light theme only', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ChangeNotifierProvider(
+        create: (_) => AppState(),
+        child: const YbsApp(),
+      ),
+    );
+    final app = tester.widget<MaterialApp>(find.byType(MaterialApp));
+    expect(app.themeMode, ThemeMode.light);
+    expect(app.darkTheme, isNull);
   });
 
   testWidgets('App boots to splash', (WidgetTester tester) async {

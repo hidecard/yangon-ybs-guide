@@ -20,13 +20,6 @@ class SettingsPage extends StatelessWidget {
       _DataSection(),
     ),
     _Section(
-      Icons.palette_outlined,
-      AppColors.violet,
-      'Display & Theme',
-      'အလင်းရောင်နှင့် အမှောင်ရောင် အမြင်ရွေးချယ်ရန်',
-      const _DisplaySection(),
-    ),
-    _Section(
       Icons.notifications_active,
       AppColors.amber,
       'အကြောင်းကြားချက် ဆက်တင်',
@@ -57,7 +50,7 @@ class SettingsPage extends StatelessWidget {
     _Section(
       Icons.auto_awesome,
       const Color(0xFFF59E0B),
-      "What's New in V3.3.1",
+      "What's New in V3.3.2",
       'ဗားရှင်းသစ် အချက်အလက်များ',
       const _WhatsNewSection(),
     ),
@@ -374,49 +367,6 @@ Widget _feature(String title, String desc) => Padding(
     ],
   ),
 );
-
-// ---------------- Display & Theme ----------------
-class _DisplaySection extends StatelessWidget {
-  const _DisplaySection();
-
-  @override
-  Widget build(BuildContext context) {
-    final darkMode = context.watch<AppState>().darkMode;
-    return SettingsSectionPage(
-      title: 'Display & Theme',
-      child: _card(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _cardHeader(
-              Icons.palette_outlined,
-              AppColors.violet,
-              'Display & Theme',
-              'ကိုယ်နှစ်သက်သည့် အမြင်ကို ရွေးချယ်ပါ',
-            ),
-            const SizedBox(height: 12),
-            SwitchListTile.adaptive(
-              contentPadding: EdgeInsets.zero,
-              value: darkMode,
-              onChanged: (value) =>
-                  context.read<AppState>().toggleDarkMode(value),
-              secondary: Icon(
-                darkMode ? Icons.dark_mode : Icons.light_mode,
-                color: AppColors.brand,
-              ),
-              title: const Text('Dark Mode'),
-              subtitle: Text(
-                darkMode
-                    ? 'ညအချိန်အသုံးပြုရန် အမှောင်ရောင် ဖွင့်ထားသည်'
-                    : 'နေ့ဘက်အသုံးပြုရန် အလင်းရောင် ဖွင့်ထားသည်',
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 // ---------------- Application Data ----------------
 class _DataSection extends StatefulWidget {
@@ -860,7 +810,7 @@ class _WhatsNewSection extends StatelessWidget {
             _cardHeader(
               Icons.auto_awesome,
               const Color(0xFFF59E0B),
-              "What's New in V3.3.1",
+              "What's New in V3.3.2",
               'ဗားရှင်းသစ် အချက်အလက်များ',
             ),
             const SizedBox(height: 16),
@@ -895,10 +845,6 @@ class _WhatsNewSection extends StatelessWidget {
             _feature(
               'Cross-platform Web Fix',
               'Flutter web တွင် route data ကို ပုံမှန်ဖတ်ရှုနိုင်ပြီး blank screen မဖြစ်တော့ပါ။',
-            ),
-            _feature(
-              'Dark Mode',
-              'ညအချိန်အသုံးပြုရန် အမှောင်ရောင်ကို Display & Theme မှ ဖွင့်နိုင်ခြင်း။',
             ),
           ],
         ),

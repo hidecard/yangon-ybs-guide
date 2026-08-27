@@ -6,17 +6,17 @@ The Flutter application provides the same core Yangon YBS experience as the web 
 
 The application currently includes the following user-facing capabilities:
 
-| Area            | Features                                                                                                                                                   |
-| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Home            | Travel tips, notifications, nearby-stop discovery, and shortcuts to route search                                                                           |
-| Route search    | Burmese or English stop search, autocomplete, duplicate-stop disambiguation, map selection, and GPS-based nearby stops                                     |
-| Route planning  | Direct routes and transfer planning with forward stop-order validation, route details, saved trips, and Google Maps hand-off                               |
-| Route directory | Searchable route list with route details, stop lists, maps, favorites, ETA, predictions, and live map markers                                              |
-| Assistant       | Local Burmese/English stop extraction and offline route planning without requiring an AI API key                                                           |
-| YBS New         | Implemented in the codebase but temporarily hidden from the Play Store build; re-enable with `AppConfig.showYbsNew` when the feature is ready              |
-| Favorites       | Favorite routes, favorite stops, and saved multi-step trips stored locally                                                                                 |
-| Alerts          | In-app arrival alerts with vibration, local notifications, and Burmese text-to-speech; background alert support is configured for native platforms         |
-| Settings        | Data refresh, cache information, notification setup, feedback, privacy, donation links, application information, and persistent light/dark theme selection |
+| Area            | Features                                                                                                                                                        |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Home            | Travel tips, notifications, nearby-stop discovery, and shortcuts to route search                                                                                |
+| Route search    | Burmese or English stop search, autocomplete, duplicate-stop disambiguation, map selection, and GPS-based nearby stops                                          |
+| Route planning  | Direct routes and transfer planning with forward stop-order validation, route details, saved trips, and Google Maps hand-off                                    |
+| Route directory | Searchable route list with route details, stop lists, maps, favorites, ETA, predictions, and live map markers                                                   |
+| Assistant       | Local Burmese/English stop extraction and offline route planning without requiring an AI API key                                                                |
+| YBS New         | Implemented in the codebase but temporarily hidden from the Play Store build; re-enable with `AppConfig.showYbsNew` when the feature is ready                   |
+| Favorites       | Favorite routes, favorite stops, and saved multi-step trips stored locally                                                                                      |
+| Alerts          | In-app arrival alerts with vibration, local notifications, and Burmese text-to-speech; background alert support is configured for native platforms              |
+| Settings        | Data refresh, cache information, notification setup, feedback, privacy, donation links, and application information; the app uses the original light theme only |
 
 ## App navigation
 
@@ -30,7 +30,7 @@ Home · Assistant · Routes · Find Route · Favorites
 
 The YBS New implementation remains in `lib/pages/ybs_new_page.dart`. To restore it, change `showYbsNew` to `true` in `lib/config.dart`; the page, home shortcut, and bottom-navigation item are all wired through that flag and the tab indices automatically realign.
 
-Settings and detail screens are opened from the app bar or from their parent feature. The project does not use named routes; it uses an `IndexedStack` for the main tabs and `Navigator.push` for detail pages.
+The app uses the original light-mode design only; the Display & Theme toggle has been removed because the previous theme switching caused low-contrast text rendering. Settings and detail screens are opened from the app bar or from their parent feature. The project does not use named routes; it uses an `IndexedStack` for the main tabs and `Navigator.push` for detail pages.
 
 ## Offline-first data flow
 
@@ -168,6 +168,7 @@ OpenStreetMap tiles require network access on first use and are subject to OpenS
 
 | Version  | Summary                                                                                                                                                  |
 | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `v3.3.2` | Removes the broken theme switch, restores the original light-only UI, removes theme preference persistence, and fixes low-contrast rendering             |
 | `v3.3.1` | Temporarily hides YBS New for the Play Store build, aligns navigation indices, hardens startup initialization, and adds signed Android release artifacts |
 | `v3.3.0` | Improved live tracking map controls, one-tap recentering, tracking guidance, and release documentation                                                   |
 | `v3.2.0` | Persistent dark mode, polished display settings, accurate in-app release notes, and documentation refresh                                                |

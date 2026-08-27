@@ -2,43 +2,6 @@ import 'package:flutter/material.dart';
 import 'config.dart';
 
 class AppTheme {
-  static ThemeData dark() {
-    final base = ThemeData.dark(useMaterial3: true);
-    final scheme = ColorScheme.fromSeed(
-      seedColor: AppColors.brand,
-      brightness: Brightness.dark,
-    );
-    return base.copyWith(
-      colorScheme: scheme,
-      scaffoldBackgroundColor: const Color(0xFF0B1220),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: Color(0xFF111827),
-        foregroundColor: Colors.white,
-        elevation: 0,
-        scrolledUnderElevation: 0.5,
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: const Color(0xFF1E293B),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF334155)),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF334155)),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.brand, width: 1.6),
-        ),
-      ),
-      dividerColor: const Color(0xFF334155),
-    );
-  }
-
   static ThemeData light() {
     final base = ThemeData(
       useMaterial3: true,

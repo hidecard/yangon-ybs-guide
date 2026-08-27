@@ -2,6 +2,18 @@
 
 All notable changes to the Flutter application are documented here.
 
+## 3.3.2 — 2026-08-27
+
+### Fixed
+
+- Removed the broken Light/Dark mode switch and the Display & Theme settings page.
+- Restored the original light-mode palette as the single app theme so text and cards keep consistent contrast across screens.
+- Removed dark-mode preference persistence from local storage and app state.
+
+### Improved
+
+- Bumped the Android release to `3.3.2+7` for the Play Store update.
+
 ## 3.3.1 — 2026-08-27
 
 ### Fixed

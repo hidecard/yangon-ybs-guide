@@ -10,7 +10,6 @@ class AppState extends ChangeNotifier {
 
   bool loading = true;
   String? initError;
-  bool darkMode = false;
   Set<String> favRoutes = {};
   Set<int> favStops = {};
   List<FavoriteTrip> savedTrips = [];
@@ -26,7 +25,6 @@ class AppState extends ChangeNotifier {
     notifyListeners();
 
     try {
-      darkMode = await store.darkMode();
       favRoutes = await store.favRoutes();
       favStops = await store.favStops();
       savedTrips = await store.savedTrips();
@@ -53,16 +51,6 @@ class AppState extends ChangeNotifier {
       initError = 'Unable to refresh route data. Please try again.';
     }
     notifyListeners();
-  }
-
-  Future<void> toggleDarkMode(bool enabled) async {
-    darkMode = enabled;
-    notifyListeners();
-    try {
-      await store.setDarkMode(enabled);
-    } catch (_) {
-      // Keep the in-memory setting usable even if persistence is unavailable.
-    }
   }
 
   bool isFavRoute(String id) => favRoutes.contains(id);
