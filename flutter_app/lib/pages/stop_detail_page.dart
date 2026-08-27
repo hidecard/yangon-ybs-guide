@@ -185,9 +185,9 @@ class _StopDetailPageState extends State<StopDetailPage> {
     );
     final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!opened && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('လမ်းညွှန် app ဖွင့်မရပါ')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('လမ်းညွှန် app ဖွင့်မရပါ')));
     }
   }
 

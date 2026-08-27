@@ -82,17 +82,26 @@ class DataRepository {
     // `dart:io`'s gzip decoder is unavailable on Flutter web. The archive
     // package works consistently on web, Android, iOS, and desktop.
     final packed = GZipDecoder().decodeBytes(gzipped);
-    final entries = (json.decode(utf8.decode(packed)) as List)
-        .cast<Map<String, dynamic>>();
+    final rawEntries = json.decode(utf8.decode(packed));
+    if (rawEntries is! List) {
+      throw const FormatException('Route bundle must contain a list');
+    }
 
     final Set<String> usedIds = {};
     final List<BusRoute> loadedRoutes = [];
     final Map<String, BusStop> stopsMap = {};
     int stopIdCounter = 1;
 
-    for (final entry in entries) {
-      final name = entry['name'] as String? ?? '';
-      final data = json.decode(entry['json'] as String) as Map<String, dynamic>;
+    for (final rawEntry in rawEntries) {
+      if (rawEntry is! Map) continue;
+      final entry = Map<String, dynamic>.from(rawEntry);
+      final name = entry['name']?.toString() ?? '';
+      final rawJson = entry['json'];
+      if (rawJson is! String || rawJson.trim().isEmpty) continue;
+
+      final decoded = json.decode(rawJson);
+      if (decoded is! Map) continue;
+      final data = Map<String, dynamic>.from(decoded);
 
       final routeIdRaw =
           data['bus_line']?.toString() ??
@@ -105,6 +114,8 @@ class DataRepository {
             .replaceFirst(RegExp(r'^\d+_'), '');
         routeId = '${routeId}_$suffix';
       }
+      routeId = routeId.trim();
+      if (routeId.isEmpty) continue;
       usedIds.add(routeId);
 
       final List<String> stopNames = [];
@@ -119,11 +130,22 @@ class DataRepository {
           final lat = stop['latitude'];
           final lng = stop['longitude'];
 
-          if (nameMm != null && nameMm.isNotEmpty) {
-            stopNames.add(nameMm);
+          if (nameMm != null && nameMm.trim().isNotEmpty) {
+            stopNames.add(nameMm.trim());
           }
 
-          if (nameMm != null && nameEn != null && lat != null && lng != null) {
+          if (nameMm != null &&
+              nameMm.trim().isNotEmpty &&
+              nameEn != null &&
+              nameEn.trim().isNotEmpty &&
+              lat is num &&
+              lng is num &&
+              lat.isFinite &&
+              lng.isFinite &&
+              lat >= -90 &&
+              lat <= 90 &&
+              lng >= -180 &&
+              lng <= 180) {
             final roadStr = stop['road']?.toString() ?? '';
             final roadParts = roadStr.isEmpty ? ['', ''] : roadStr.split(',');
             final road = roadParts.isNotEmpty ? roadParts[0].trim() : '';
@@ -133,10 +155,10 @@ class DataRepository {
 
             final ds = BusStop(
               id: idx + 1,
-              lat: (lat as num).toDouble(),
-              lng: (lng as num).toDouble(),
-              nameEn: nameEn,
-              nameMm: nameMm,
+              lat: lat.toDouble(),
+              lng: lng.toDouble(),
+              nameEn: nameEn.trim(),
+              nameMm: nameMm.trim(),
               roadEn: road,
               roadMm: road,
               townshipEn: township,
@@ -162,8 +184,11 @@ class DataRepository {
         }
       }
 
-      final routeInfo =
-          (data['route_info'] as Map<String, dynamic>?) ?? const {};
+      final routeInfo = data['route_info'] is Map
+          ? Map<String, dynamic>.from(data['route_info'] as Map)
+          : const <String, dynamic>{};
+
+      if (stopNames.isEmpty) continue;
 
       loadedRoutes.add(
         BusRoute(
@@ -180,6 +205,9 @@ class DataRepository {
       );
     }
 
+    if (loadedRoutes.isEmpty) {
+      throw const FormatException('Route bundle contains no valid routes');
+    }
     routes = loadedRoutes;
     stops = stopsMap.values.toList();
   }

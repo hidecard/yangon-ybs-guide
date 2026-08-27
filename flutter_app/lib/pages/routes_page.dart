@@ -6,6 +6,7 @@ import '../state/app_state.dart';
 import '../theme.dart';
 import '../util/nav.dart';
 import '../widgets/route_badge.dart';
+import '../widgets/ui_states.dart';
 
 class RoutesPage extends StatefulWidget {
   const RoutesPage({super.key});
@@ -59,18 +60,42 @@ class _RoutesPageState extends State<RoutesPage> {
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
           child: TextField(
             onChanged: (v) => setState(() => _search = v),
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               hintText: 'ကားလိုင်းနံပါတ် သို့မဟုတ် မြို့နယ်ဖြင့်ရှာရန်...',
-              prefixIcon: Icon(Icons.search),
+              prefixIcon: const Icon(Icons.search),
+              suffixIcon: _search.isEmpty
+                  ? null
+                  : IconButton(
+                      tooltip: 'ဖျက်မည်',
+                      onPressed: () => setState(() => _search = ''),
+                      icon: const Icon(Icons.clear),
+                    ),
             ),
           ),
         ),
         Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-            itemCount: filtered.length,
-            itemBuilder: (_, i) => _routeCard(context, state, filtered[i]),
-          ),
+          child: filtered.isEmpty
+              ? YbsEmptyView(
+                  icon: Icons.route_outlined,
+                  title: _search.trim().isEmpty
+                      ? 'လမ်းကြောင်း မရှိသေးပါ'
+                      : 'ရှာဖွေမှု ရလဒ်မတွေ့ပါ',
+                  message: _search.trim().isEmpty
+                      ? 'လမ်းကြောင်းအချက်အလက်များကို ပြန်လည် Update လုပ်ပါ။'
+                      : 'ကားလိုင်းနံပါတ်၊ မှတ်တိုင် သို့မဟုတ် မြို့နယ်အမည်ဖြင့် ထပ်စမ်းပါ။',
+                  actionLabel: _search.trim().isEmpty
+                      ? null
+                      : 'ရှာဖွေမှု ဖျက်မည်',
+                  onAction: _search.trim().isEmpty
+                      ? null
+                      : () => setState(() => _search = ''),
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                  itemCount: filtered.length,
+                  itemBuilder: (_, i) =>
+                      _routeCard(context, state, filtered[i]),
+                ),
         ),
       ],
     );
@@ -100,12 +125,14 @@ class _RoutesPageState extends State<RoutesPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'YBS Route',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppColors.slate400,
-                            fontWeight: FontWeight.w500,
+                        Text(
+                          r.displayName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: AppColors.textSecondary,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                         if ((r.operator ?? '').isNotEmpty)
@@ -135,7 +162,7 @@ class _RoutesPageState extends State<RoutesPage> {
               Row(
                 children: [
                   Text(
-                    '${r.stops.length} Stops',
+                    '${r.stops.length} မှတ်တိုင်',
                     style: const TextStyle(
                       fontSize: 10,
                       color: AppColors.slate400,
@@ -144,7 +171,7 @@ class _RoutesPageState extends State<RoutesPage> {
                   ),
                   const Spacer(),
                   const Text(
-                    'View Detail',
+                    'အသေးစိတ်ကြည့်မည်',
                     style: TextStyle(
                       fontSize: 12,
                       color: AppColors.brand,

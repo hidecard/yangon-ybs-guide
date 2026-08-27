@@ -4,7 +4,9 @@ import 'package:provider/provider.dart';
 
 import 'package:ybs_guide/config.dart';
 import 'package:ybs_guide/main.dart';
+import 'package:ybs_guide/models.dart';
 import 'package:ybs_guide/state/app_state.dart';
+import 'package:ybs_guide/data/route_finder.dart';
 
 void main() {
   test('YBS New is hidden without breaking tab indices', () {
@@ -14,14 +16,28 @@ void main() {
     expect(AppConfig.favoritesTab, 4);
   });
 
+  test('Stop search ignores spacing and supports fuzzy matching', () {
+    expect(resolveStopName('  မြေနီ ကုန်း ', ['မြေနီကုန်း']), 'မြေနီကုန်း');
+    expect(resolveStopName('မြေနီကုံး', ['မြေနီကုန်း']), 'မြေနီကုန်း');
+    expect(resolveStopName('မသိသောနေရာ', ['မြေနီကုန်း']), isNull);
+  });
+
+  test('Empty route line names receive a stable fallback label', () {
+    const route = BusRoute(
+      id: '42',
+      color: Colors.blue,
+      lineName: ' ',
+      stops: ['A', 'B'],
+      stopsDetailed: [],
+    );
+    expect(route.displayName, 'YBS 42');
+  });
+
   testWidgets('App uses the original light theme only', (
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(
-      ChangeNotifierProvider(
-        create: (_) => AppState(),
-        child: const YbsApp(),
-      ),
+      ChangeNotifierProvider(create: (_) => AppState(), child: const YbsApp()),
     );
     final app = tester.widget<MaterialApp>(find.byType(MaterialApp));
     expect(app.themeMode, ThemeMode.light);

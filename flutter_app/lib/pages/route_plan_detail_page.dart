@@ -76,7 +76,14 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
 
   Future<void> _startWatch() async {
     if (_posSub != null) return;
-    if (!await LocationService.instance.ensurePermission()) return;
+    if (!await LocationService.instance.ensurePermission()) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('တည်နေရာ permission မရရှိသေးပါ။')),
+        );
+      }
+      return;
+    }
     if (!mounted) return;
     _posSub = LocationService.instance.watchPosition().listen((p) {
       if (!mounted) return;
@@ -121,7 +128,8 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
     if (best != _activeStep && mounted) setState(() => _activeStep = best);
   }
 
-  ({BusStop current, BusStop? next, double currentDistance})? _progressForActive() {
+  ({BusStop current, BusStop? next, double currentDistance})?
+  _progressForActive() {
     if (_livePos == null || steps.isEmpty) return null;
     final active = steps[_activeStep];
     final detailed = active.route.stopsDetailed;
@@ -133,7 +141,12 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
     var currentDistance = double.infinity;
     var currentIndex = 0;
     for (int i = 0; i < sub.length; i++) {
-      final d = getDistance(_livePos!.lat, _livePos!.lng, sub[i].lat, sub[i].lng);
+      final d = getDistance(
+        _livePos!.lat,
+        _livePos!.lng,
+        sub[i].lat,
+        sub[i].lng,
+      );
       if (d < currentDistance) {
         current = sub[i];
         currentDistance = d;
@@ -158,14 +171,19 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
     final sub = detailed.sublist(leg.$1, leg.$2 + 1);
     var nextIndex = sub.indexWhere((s) => s.nameMm == next.nameMm);
     if (nextIndex < 0) return;
-    final queue = sub.skip(nextIndex).map((stop) => <String, dynamic>{
-      'stopName': stop.nameMm,
-      'lat': stop.lat,
-      'lng': stop.lng,
-      'detail': stop.nameMm == active.toStop
-          ? 'သင်ဆင်းရမည့်မှတ်တိုင် ရောက်ခါနီးပါပြီ'
-          : 'နောက်မှတ်တိုင် ရောက်ခါနီးပါပြီ',
-    }).toList();
+    final queue = sub
+        .skip(nextIndex)
+        .map(
+          (stop) => <String, dynamic>{
+            'stopName': stop.nameMm,
+            'lat': stop.lat,
+            'lng': stop.lng,
+            'detail': stop.nameMm == active.toStop
+                ? 'သင်ဆင်းရမည့်မှတ်တိုင် ရောက်ခါနီးပါပြီ'
+                : 'နောက်မှတ်တိုင် ရောက်ခါနီးပါပြီ',
+          },
+        )
+        .toList();
     _backgroundAlertKey = key;
     await startBackgroundAlertQueue(queue);
   }
@@ -182,7 +200,8 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
       final key = 'next-$_activeStep-${next.nameMm}';
       if (d <= 0.2 && !_alerted.contains(key)) {
         _alerted.add(key);
-        final msg = _activeStep == steps.length - 1 && next.nameMm == steps.last.toStop
+        final msg =
+            _activeStep == steps.length - 1 && next.nameMm == steps.last.toStop
             ? 'သင်ဆင်းရမည့်မှတ်တိုင် ${next.nameMm} ရောက်ခါနီးပါပြီ'
             : 'နောက်ရောက်မည့်မှတ်တိုင် ${next.nameMm} ပါ';
         if (mounted) setState(() => _arrivalMessage = msg);
@@ -193,7 +212,8 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
     final arrivedKey = 'arrive-$_activeStep-${progress.current.nameMm}';
     if (arrivedKey != _prevStopKey && progress.currentDistance <= 0.12) {
       _prevStopKey = arrivedKey;
-      final msg = '${progress.current.nameMm} မှတ်တိုင် ရောက်ပါပြီ။ နောက်ရောက်မည့်မှတ်တိုင်က ${progress.next?.nameMm ?? 'မရှိတော့ပါ'} ပါ';
+      final msg =
+          '${progress.current.nameMm} မှတ်တိုင် ရောက်ပါပြီ။ နောက်ရောက်မည့်မှတ်တိုင်က ${progress.next?.nameMm ?? 'မရှိတော့ပါ'} ပါ';
       if (mounted) setState(() => _arrivalMessage = msg);
       NotifyService.instance.triggerArrival(msg);
       if (progress.next == null) {
@@ -531,7 +551,9 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
                               ? Icons.notifications_active
                               : Icons.notifications_none,
                           bg: _arrivalEnabled ? AppColors.amber : Colors.white,
-                          fg: _arrivalEnabled ? Colors.white : AppColors.slate500,
+                          fg: _arrivalEnabled
+                              ? Colors.white
+                              : AppColors.slate500,
                         ),
                       ),
                     ],
@@ -599,7 +621,18 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
       return;
     }
     final permissionGranted = await LocationService.instance.ensurePermission();
-    if (!permissionGranted || !mounted) return;
+    if (!permissionGranted) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'တည်နေရာဝန်ဆောင်မှုနှင့် permission ကို ဖွင့်ပြီး ထပ်ကြိုးစားပါ။',
+            ),
+          ),
+        );
+      }
+      return;
+    }
     await NotifyService.instance.requestPermission();
     if (!mounted) return;
     setState(() => _arrivalEnabled = true);
@@ -637,8 +670,8 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
               progress.next == null
                   ? 'ဒီလမ်းကြောင်း၏ နောက်ဆုံးမှတ်တိုင် ဖြစ်ပါသည်'
                   : nearDestination
-                      ? 'သင်ဆင်းရမည့်မှတ်တိုင် ${progress.next!.nameMm} ရောက်ခါနီးပါပြီ'
-                      : 'နောက်ရောက်မည့်မှတ်တိုင်: ${progress.next!.nameMm}',
+                  ? 'သင်ဆင်းရမည့်မှတ်တိုင် ${progress.next!.nameMm} ရောက်ခါနီးပါပြီ'
+                  : 'နောက်ရောက်မည့်မှတ်တိုင်: ${progress.next!.nameMm}',
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
           ],
@@ -719,16 +752,21 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
         ? _stopsByName[steps[idx - 1].toStop]
         : null;
     final origin = idx == 0
-        ? (_livePos == null
-              ? null
-              : LatLng(_livePos!.lat, _livePos!.lng))
+        ? (_livePos == null ? null : LatLng(_livePos!.lat, _livePos!.lng))
         : transferOrigin == null
         ? null
         : LatLng(transferOrigin.lat, transferOrigin.lng);
     final distanceKm = origin == null
         ? null
-        : getDistance(origin.latitude, origin.longitude, target.lat, target.lng);
-    final distanceMeters = distanceKm == null ? null : (distanceKm * 1000).round();
+        : getDistance(
+            origin.latitude,
+            origin.longitude,
+            target.lat,
+            target.lng,
+          );
+    final distanceMeters = distanceKm == null
+        ? null
+        : (distanceKm * 1000).round();
     final walkingMinutes = distanceMeters == null
         ? null
         : (distanceMeters / 80).ceil() < 1
@@ -756,12 +794,19 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
         children: [
           Row(
             children: [
-              const Icon(Icons.directions_walk, size: 18, color: AppColors.blue),
+              const Icon(
+                Icons.directions_walk,
+                size: 18,
+                color: AppColors.blue,
+              ),
               const SizedBox(width: 7),
               Expanded(
                 child: Text(
                   title,
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ],
@@ -790,8 +835,13 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
                   onPressed: origin == null
                       ? (idx == 0 ? _startWatch : null)
                       : () => _openWalkingDirections(origin, target),
-                  icon: Icon(origin == null ? Icons.my_location : Icons.navigation, size: 16),
-                  label: Text(origin == null ? 'GPS ဖွင့်ရန်' : 'လမ်းညွှန်စမည်'),
+                  icon: Icon(
+                    origin == null ? Icons.my_location : Icons.navigation,
+                    size: 16,
+                  ),
+                  label: Text(
+                    origin == null ? 'GPS ဖွင့်ရန်' : 'လမ်းညွှန်စမည်',
+                  ),
                 ),
               ),
             ],
@@ -810,9 +860,9 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
     );
     final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!opened && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('လမ်းညွှန် app ဖွင့်မရပါ')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('လမ်းညွှန် app ဖွင့်မရပါ')));
     }
   }
 
@@ -962,7 +1012,6 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
                   ],
                 ),
               ),
-              _alertButton(st.toStop, idx),
             ],
           ),
         ],
@@ -1086,34 +1135,6 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
             if (i < between.length - 1) const SizedBox(height: 8),
           ],
         ],
-      ),
-    );
-  }
-
-  Widget _alertButton(String stop, int idx) {
-    final isArrivalOn = _arrivalEnabled;
-    return TextButton.icon(
-      onPressed: () {
-        setState(() => _arrivalEnabled = !_arrivalEnabled);
-        if (_arrivalEnabled) {
-          NotifyService.instance.requestPermission();
-        }
-      },
-      style: TextButton.styleFrom(
-        backgroundColor: isArrivalOn ? AppColors.amber : Colors.white,
-        foregroundColor: isArrivalOn ? Colors.white : AppColors.slate700,
-        side: BorderSide(
-          color: isArrivalOn ? AppColors.amber : AppColors.slate200,
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      ),
-      icon: Icon(
-        isArrivalOn ? Icons.notifications_active : Icons.notifications_none,
-        size: 14,
-      ),
-      label: Text(
-        isArrivalOn ? 'ရောက်ခါနီး သတိပေးချက်: ဖွင့်' : 'ရောက်ခါနီး သတိပေးချက်',
-        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
       ),
     );
   }

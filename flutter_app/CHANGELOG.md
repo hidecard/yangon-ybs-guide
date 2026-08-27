@@ -2,6 +2,22 @@
 
 All notable changes to the Flutter application are documented here.
 
+## 3.3.3 — 2026-08-27
+
+### Fixed
+
+- Added an explicit route-directory empty state and a search clear action.
+- Replaced generic route-directory copy with the route's actual display name and Burmese labels.
+- Hardened route-bundle parsing so malformed entries, coordinates, and empty routes do not crash startup.
+- Added spacing-tolerant and fuzzy stop-name matching, plus safe search failure handling.
+- Made background GPS alerts opt-in, disabled boot auto-start, stopped the foreground service when the alert queue ends, and removed full-screen notification behavior.
+
+### Improved
+
+- Added disabled-button contrast and consistent Material button sizing for the light theme.
+- Added a privacy policy document and aligned the in-app privacy explanation with the current data flow.
+- Bumped the Android release to `3.3.3+8`.
+
 ## 3.3.2 — 2026-08-27
 
 ### Fixed

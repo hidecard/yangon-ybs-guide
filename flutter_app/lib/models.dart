@@ -70,7 +70,10 @@ class BusRoute {
     required this.stopsDetailed,
   });
 
-  String get displayName => lineName ?? 'YBS $id';
+  String get displayName {
+    final name = lineName?.trim();
+    return name == null || name.isEmpty ? 'YBS $id' : name;
+  }
 
   Map<String, dynamic> toJson() => {
     'id': id,

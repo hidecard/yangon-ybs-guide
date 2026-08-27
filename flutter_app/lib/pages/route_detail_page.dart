@@ -420,14 +420,18 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if (_tracking && _livePos != null) _guidanceCard(uniqueStops, active),
+                          if (_tracking && _livePos != null)
+                            _guidanceCard(uniqueStops, active),
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text('စုစုပေါင်းမှတ်တိုင်', style: UI.label),
+                                  const Text(
+                                    'စုစုပေါင်းမှတ်တိုင်',
+                                    style: UI.label,
+                                  ),
                                   Text(
                                     '${uniqueStops.length}',
                                     style: const TextStyle(
@@ -443,20 +447,30 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
                                     Text(
-                                      _stops.isNotEmpty ? _stops.first.nameMm : '—',
+                                      _stops.isNotEmpty
+                                          ? _stops.first.nameMm
+                                          : '—',
                                       textAlign: TextAlign.end,
-                                      style: const TextStyle(fontWeight: FontWeight.w500),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                                     Container(
                                       width: 1,
                                       height: 12,
                                       color: AppColors.slate200,
-                                      margin: const EdgeInsets.symmetric(vertical: 4),
+                                      margin: const EdgeInsets.symmetric(
+                                        vertical: 4,
+                                      ),
                                     ),
                                     Text(
-                                      _stops.isNotEmpty ? _stops.last.nameMm : '—',
+                                      _stops.isNotEmpty
+                                          ? _stops.last.nameMm
+                                          : '—',
                                       textAlign: TextAlign.end,
-                                      style: const TextStyle(fontWeight: FontWeight.w500),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -469,12 +483,21 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
                               _predictions.isNotEmpty ||
                               _predictionMsg != null)
                             _predictionsBox(),
-                          if (_busEta.isNotEmpty || _busEtaMsg != null) _busEtaBox(),
+                          if (_busEta.isNotEmpty || _busEtaMsg != null)
+                            _busEtaBox(),
                           const SizedBox(height: 8),
-                          Text('မှတ်တိုင်များ (${uniqueStops.length})', style: UI.label),
+                          Text(
+                            'မှတ်တိုင်များ (${uniqueStops.length})',
+                            style: UI.label,
+                          ),
                           const SizedBox(height: 8),
                           ...uniqueStops.asMap().entries.map(
-                            (e) => _stopTile(e.key, e.value, active, uniqueStops.length),
+                            (e) => _stopTile(
+                              e.key,
+                              e.value,
+                              active,
+                              uniqueStops.length,
+                            ),
                           ),
                           const SizedBox(height: 8),
                         ],
@@ -495,16 +518,21 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
     final safeActive = active.clamp(0, stops.length - 1);
     final current = stops[safeActive];
     final next = safeActive + 1 < stops.length ? stops[safeActive + 1] : null;
-    final isNearDestination = next != null && safeActive + 1 == stops.length - 1;
+    final isNearDestination =
+        next != null && safeActive + 1 == stops.length - 1;
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: isNearDestination ? AppColors.amberLight : const Color(0xFFE8F8EE),
+        color: isNearDestination
+            ? AppColors.amberLight
+            : const Color(0xFFE8F8EE),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: isNearDestination ? const Color(0xFFFCD34D) : const Color(0xFF86EFAC),
+          color: isNearDestination
+              ? const Color(0xFFFCD34D)
+              : const Color(0xFF86EFAC),
         ),
       ),
       child: Column(
@@ -515,7 +543,9 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w700,
-              color: isNearDestination ? const Color(0xFF92400E) : AppColors.emeraldDark,
+              color: isNearDestination
+                  ? const Color(0xFF92400E)
+                  : AppColors.emeraldDark,
             ),
           ),
           const SizedBox(height: 3),
@@ -528,9 +558,13 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Icon(
-                isNearDestination ? Icons.notifications_active : Icons.arrow_forward,
+                isNearDestination
+                    ? Icons.notifications_active
+                    : Icons.arrow_forward,
                 size: 18,
-                color: isNearDestination ? AppColors.amber : AppColors.emeraldDark,
+                color: isNearDestination
+                    ? AppColors.amber
+                    : AppColors.emeraldDark,
               ),
               const SizedBox(width: 7),
               Expanded(
@@ -538,9 +572,12 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
                   next == null
                       ? 'ဒီလမ်းကြောင်း၏ နောက်ဆုံးမှတ်တိုင် ဖြစ်ပါသည်'
                       : isNearDestination
-                          ? 'သင်ဆင်းရမည့်မှတ်တိုင်: ${next.nameMm} (ရောက်ခါနီးပါပြီ)'
-                          : 'နောက်ရောက်မည့်မှတ်တိုင်: ${next.nameMm}',
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                      ? 'သင်ဆင်းရမည့်မှတ်တိုင်: ${next.nameMm} (ရောက်ခါနီးပါပြီ)'
+                      : 'နောက်ရောက်မည့်မှတ်တိုင်: ${next.nameMm}',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ],
@@ -663,10 +700,9 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
               style: TextStyle(fontSize: 12, color: AppColors.slate400),
             )
           else if (_predictionMsg != null && _predictions.isEmpty)
-            Text(
-              _predictionMsg!,
-              style: const TextStyle(fontSize: 12, color: AppColors.slate500),
-            )
+            _liveDataFallback(_predictionMsg!, _loadPredictions)
+          else if (_predictions.isEmpty)
+            _liveDataFallback('Live ခန့်မှန်းချက် မရရှိသေးပါ', _loadPredictions)
           else
             ..._predictions.map((p) => _etaRow(p.stop, p.etaMinutes)),
         ],
@@ -702,16 +738,30 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
           ),
           const SizedBox(height: 8),
           if (_busEtaMsg != null && _busEta.isEmpty)
-            Text(
-              _busEtaMsg!,
-              style: const TextStyle(fontSize: 12, color: AppColors.slate500),
-            )
+            _liveDataFallback(_busEtaMsg!, _loadBusEta)
+          else if (_busEta.isEmpty)
+            _liveDataFallback('ကားလာမည့်အချိန် မရရှိသေးပါ', _loadBusEta)
           else
             ..._busEta
                 .take(6)
                 .map((e) => _etaRow(e.stop, e.etaMinutes, green: true)),
         ],
       ),
+    );
+  }
+
+  Widget _liveDataFallback(String message, VoidCallback retry) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(
+          child: Text(
+            '$message\nOffline route data ကို ဆက်သုံးနိုင်ပါသည်။',
+            style: const TextStyle(fontSize: 12, color: AppColors.slate500),
+          ),
+        ),
+        TextButton(onPressed: retry, child: const Text('ထပ်ကြိုးစားမည်')),
+      ],
     );
   }
 
@@ -765,50 +815,50 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
               : isLast
               ? Colors.red
               : Colors.blueGrey,
-        child: Text(
-          '${idx + 1}',
-          style: const TextStyle(color: Colors.white, fontSize: 12),
-        ),
-      ),
-      title: Text(
-        s.nameMm,
-        style: const TextStyle(fontWeight: FontWeight.w600),
-      ),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '${s.roadMm}လမ်း၊ ${s.townshipMm}မြို့နယ်',
-            style: const TextStyle(fontSize: 12),
+          child: Text(
+            '${idx + 1}',
+            style: const TextStyle(color: Colors.white, fontSize: 12),
           ),
-          if (isFirst)
-            Container(
-              margin: const EdgeInsets.only(top: 4),
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.green.shade100,
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: const Text(
-                'အစမှတ်တိုင်',
-                style: TextStyle(fontSize: 10, color: AppColors.emeraldDark),
-              ),
+        ),
+        title: Text(
+          s.nameMm,
+          style: const TextStyle(fontWeight: FontWeight.w600),
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '${s.roadMm}လမ်း၊ ${s.townshipMm}မြို့နယ်',
+              style: const TextStyle(fontSize: 12),
             ),
-          if (isLast)
-            Container(
-              margin: const EdgeInsets.only(top: 4),
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.red.shade100,
-                borderRadius: BorderRadius.circular(4),
+            if (isFirst)
+              Container(
+                margin: const EdgeInsets.only(top: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade100,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: const Text(
+                  'အစမှတ်တိုင်',
+                  style: TextStyle(fontSize: 10, color: AppColors.emeraldDark),
+                ),
               ),
-              child: const Text(
-                'ဆင်းရမည့်မှတ်တိုင်',
-                style: TextStyle(fontSize: 10, color: AppColors.rose),
+            if (isLast)
+              Container(
+                margin: const EdgeInsets.only(top: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade100,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: const Text(
+                  'ဆင်းရမည့်မှတ်တိုင်',
+                  style: TextStyle(fontSize: 10, color: AppColors.rose),
+                ),
               ),
-            ),
-        ],
-      ),
+          ],
+        ),
         trailing: isActive
             ? const Pill(
                 'လက်ရှိရောက်နေပါပြီ',

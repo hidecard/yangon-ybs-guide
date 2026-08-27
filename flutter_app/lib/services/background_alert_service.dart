@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:flutter/services.dart';
@@ -7,10 +6,8 @@ import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:http/http.dart' as http;
 import 'package:vibration/vibration.dart';
 
-import '../config.dart';
 import 'local_store.dart';
 
 /// Vibration pattern used for the arrival alert (ms): vibrate, pause, repeat.
@@ -47,21 +44,6 @@ double _haversineKm(double lat1, double lon1, double lat2, double lon2) {
           math.sin(dLon / 2);
   final c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
   return R * c;
-}
-
-Future<Map<String, dynamic>?> _fetchLatestNotification() async {
-  try {
-    final res = await http
-        .get(Uri.parse('${AppConfig.apiBase}/api/notifications?limit=1'))
-        .timeout(const Duration(seconds: 10));
-    if (res.statusCode >= 400) return null;
-    final data = json.decode(res.body);
-    final list = data is Map ? (data['notifications'] as List?) : null;
-    if (list == null || list.isEmpty) return null;
-    return list.first as Map<String, dynamic>;
-  } catch (_) {
-    return null;
-  }
 }
 
 @pragma('vm:entry-point')
@@ -129,8 +111,8 @@ void onStart(ServiceInstance service) async {
   }
 
   Future<void> fireAlert(String stopName, String detail) async {
-    // Wake the screen + turn it on (works even with screen off / app closed,
-    // in addition to the fullScreenIntent notification below).
+    // Wake the screen through the native wake-lock channel when supported;
+    // the notification itself remains a regular heads-up notification.
     try {
       await _wakeLockChannel.invokeMethod('wakeScreen');
     } catch (_) {}
@@ -148,9 +130,9 @@ void onStart(ServiceInstance service) async {
             channelDescription: 'Notifies when approaching a bus stop',
             importance: Importance.max,
             priority: Priority.max,
-            // Wake the device + show over lock screen when screen is off.
-            fullScreenIntent: true,
-            category: AndroidNotificationCategory.alarm,
+            // Use a high-priority heads-up notification without hijacking the
+            // user's screen with a full-screen intent.
+            category: AndroidNotificationCategory.navigation,
             visibility: NotificationVisibility.public,
           ),
           iOS: const DarwinNotificationDetails(
@@ -165,53 +147,18 @@ void onStart(ServiceInstance service) async {
     } catch (_) {}
   }
 
-  Future<void> fireAdminNotification(Map<String, dynamic> notif) async {
-    final id = (notif['id'] as num?)?.toInt() ?? 0;
-    final message = notif['message']?.toString() ?? '';
-    try {
-      await plugin.show(
-        id > 0 ? id : DateTime.now().millisecondsSinceEpoch ~/ 1000,
-        'YBS AI',
-        message,
-        const NotificationDetails(
-          android: AndroidNotificationDetails(
-            'ybs_admin',
-            'Admin Notifications',
-            channelDescription: 'Important announcements from YBS AI',
-            importance: Importance.high,
-            priority: Priority.high,
-            visibility: NotificationVisibility.public,
-          ),
-          iOS: DarwinNotificationDetails(
-            presentAlert: true,
-            presentSound: true,
-          ),
-        ),
-      );
-    } catch (_) {}
-  }
-
-  // Poll loop runs for the whole lifetime of the service (both app-open and
-  // app-closed). It checks (a) new admin notifications and (b) the active
-  // arrival alert's GPS distance.
+  // Poll loop runs only while an arrival alert is active. This is deliberately
+  // opt-in so the app does not keep GPS/wake-lock work running indefinitely.
   Timer.periodic(_pollInterval, (timer) async {
-    // ---- (a) Admin notifications ----
-    try {
-      final latest = await _fetchLatestNotification();
-      if (latest != null) {
-        final id = (latest['id'] as num?)?.toInt() ?? 0;
-        final lastSeen = await LocalStore.instance.lastSeenNotification();
-        if (id != lastSeen) {
-          await LocalStore.instance.setLastSeenNotification(id);
-          await fireAdminNotification(latest);
-        }
-      }
-    } catch (_) {}
-
-    // ---- (b) Arrival alert (only if a stop alert is active) ----
+    // ---- Active arrival alert ----
     final alert = await LocalStore.instance.getBackgroundAlert();
     if (alert == null) {
-      return; // No active stop alert -> keep polling admin only.
+      timer.cancel();
+      await _releaseWakeLock();
+      if (service is AndroidServiceInstance) {
+        await service.stopSelf();
+      }
+      return;
     }
 
     // Already fired once -> keep monitoring but don't re-alert.
@@ -259,7 +206,7 @@ Future<void> initBackgroundAlertService() async {
     'ybs_bg',
     'Background Service',
     description:
-        'Keeps arrival alerts and admin notifications running in the background',
+        'Keeps an explicitly enabled arrival alert running in the background',
     importance: Importance.low,
   );
 
@@ -270,8 +217,7 @@ Future<void> initBackgroundAlertService() async {
       >()
       ?.createNotificationChannel(androidChannel);
 
-  // Arrival alert channel: must be MAX importance so fullScreenIntent can wake
-  // the device / show over the lock screen when the screen is off.
+  // Arrival alert channel: use MAX importance for a prominent heads-up alert.
   await flutterLocalNotifications
       .resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin
@@ -285,8 +231,7 @@ Future<void> initBackgroundAlertService() async {
         ),
       );
 
-  // Admin notification channel: HIGH importance so it shows even when the app
-  // is closed / never opened since boot.
+  // Keep an admin channel available for foreground/in-app notification flows.
   await flutterLocalNotifications
       .resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin
@@ -303,8 +248,8 @@ Future<void> initBackgroundAlertService() async {
   await service.configure(
     androidConfiguration: AndroidConfiguration(
       onStart: onStart,
-      autoStart: true,
-      autoStartOnBoot: true,
+      autoStart: false,
+      autoStartOnBoot: false,
       isForegroundMode: true,
       notificationChannelId: 'ybs_bg',
       initialNotificationTitle: 'YBS AI',
@@ -312,7 +257,7 @@ Future<void> initBackgroundAlertService() async {
       foregroundServiceNotificationId: 888,
     ),
     iosConfiguration: IosConfiguration(
-      autoStart: true,
+      autoStart: false,
       onForeground: onStart,
       onBackground: onIosBackground,
     ),
@@ -353,8 +298,11 @@ Future<void> startBackgroundAlertQueue(
 /// Stops the background service and clears the persisted alert.
 Future<void> stopBackgroundAlert() async {
   await LocalStore.instance.clearBackgroundAlert();
-  // NOTE: We intentionally do NOT stop the whole service here, because it also
-  // delivers admin notifications. The arrival-alert loop simply no-ops once
-  // there is no active alert. To fully stop the service, use
-  // `FlutterBackgroundService().invoke('stopService')`.
+  // Stop the foreground service when there is no active arrival alert. This
+  // keeps GPS, wake-lock, and foreground-notification work opt-in and avoids
+  // draining the battery while the user is not tracking a trip.
+  final service = FlutterBackgroundService();
+  if (await service.isRunning()) {
+    service.invoke('stopService');
+  }
 }

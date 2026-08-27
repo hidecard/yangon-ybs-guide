@@ -167,14 +167,18 @@ class LocalStore {
   ) async {
     final p = await _p;
     final normalized = alerts
-        .where((a) => a['stopName'] != null && a['lat'] != null && a['lng'] != null)
-        .map((a) => {
-              'stopName': a['stopName'],
-              'lat': a['lat'],
-              'lng': a['lng'],
-              'detail': a['detail'] ?? '',
-              'alerted': false,
-            })
+        .where(
+          (a) => a['stopName'] != null && a['lat'] != null && a['lng'] != null,
+        )
+        .map(
+          (a) => {
+            'stopName': a['stopName'],
+            'lat': a['lat'],
+            'lng': a['lng'],
+            'detail': a['detail'] ?? '',
+            'alerted': false,
+          },
+        )
         .toList();
     await p.setString(_alertQueueKey, json.encode(normalized));
     await p.remove(_alertKey);

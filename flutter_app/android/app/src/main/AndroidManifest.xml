@@ -5,14 +5,10 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>
-    <!-- Lets the arrival alarm notification wake the screen / show over the
-         lock screen when the device is asleep (screen off / app closed). -->
-    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
     <application
         android:label="YBS AI"
         android:name="${applicationName}"
@@ -39,28 +35,14 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <!-- Foreground service for background arrival alerts. The location
-             type is REQUIRED on Android 14+ so the service keeps accessing GPS
-             (and can fire notifications + vibration) when the app is closed
-             or the screen is off. -->
+        <!-- Foreground service for an explicitly enabled background arrival
+             alert. The location type is required on Android 14+ while GPS is
+             being accessed for that active alert. -->
         <service
             android:name="id.flutter.flutter_background_service.BackgroundService"
             android:exported="false"
             android:foregroundServiceType="location"
             tools:replace="android:exported" />
-        <!-- Restarts the background alert + notification service after the
-             device reboots, so admin notifications keep arriving even if the
-             app was never opened since boot. -->
-        <receiver
-            android:name="id.flutter.flutter_background_service.BootReceiver"
-            android:exported="false"
-            tools:replace="android:exported">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
-                <action android:name="android.intent.action.QUICKBOOT_POWERON"/>
-                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
-            </intent-filter>
-        </receiver>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

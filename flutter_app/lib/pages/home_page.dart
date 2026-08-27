@@ -63,7 +63,12 @@ class _HomePageState extends State<HomePage> {
           const Color(0xFFB45309),
           AppConfig.ybsNewTab,
         ),
-      (Icons.chat_bubble, 'Assistant', AppColors.violet, AppConfig.assistantTab),
+      (
+        Icons.chat_bubble,
+        'Assistant',
+        AppColors.violet,
+        AppConfig.assistantTab,
+      ),
     ];
 
     return ListView(

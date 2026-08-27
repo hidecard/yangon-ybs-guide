@@ -15,7 +15,7 @@ The application currently includes the following user-facing capabilities:
 | Assistant       | Local Burmese/English stop extraction and offline route planning without requiring an AI API key                                                                |
 | YBS New         | Implemented in the codebase but temporarily hidden from the Play Store build; re-enable with `AppConfig.showYbsNew` when the feature is ready                   |
 | Favorites       | Favorite routes, favorite stops, and saved multi-step trips stored locally                                                                                      |
-| Alerts          | In-app arrival alerts with vibration, local notifications, and Burmese text-to-speech; background alert support is configured for native platforms              |
+| Alerts          | In-app arrival alerts with vibration, local notifications, and Burmese text-to-speech; background GPS runs only while an arrival alert is explicitly enabled    |
 | Settings        | Data refresh, cache information, notification setup, feedback, privacy, donation links, and application information; the app uses the original light theme only |
 
 ## App navigation
@@ -61,6 +61,7 @@ flutter_app/
 │   ├── key.properties.example
 │   └── app/src/main/AndroidManifest.xml
 ├── test/widget_test.dart
+├── PRIVACY_POLICY.md
 ├── tools/build_routes_bundle.dart
 ├── pubspec.yaml
 └── README.md
@@ -82,7 +83,7 @@ flutter_app/
 
 ## Backend endpoints
 
-The app uses the existing backend at `https://ybs-mm-v2.vercel.app` for network-enabled features:
+The app uses the existing backend at `https://ybs-mm-v2.vercel.app` for network-enabled features. Route search remains local/offline; live estimates and bus updates are optional network features, and the current implementation does not send GPS coordinates to the backend.
 
 ```text
 /api/bus-updates
@@ -166,15 +167,16 @@ OpenStreetMap tiles require network access on first use and are subject to OpenS
 
 ## Release history
 
-| Version  | Summary                                                                                                                                                  |
-| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `v3.3.2` | Removes the broken theme switch, restores the original light-only UI, removes theme preference persistence, and fixes low-contrast rendering             |
-| `v3.3.1` | Temporarily hides YBS New for the Play Store build, aligns navigation indices, hardens startup initialization, and adds signed Android release artifacts |
-| `v3.3.0` | Improved live tracking map controls, one-tap recentering, tracking guidance, and release documentation                                                   |
-| `v3.2.0` | Persistent dark mode, polished display settings, accurate in-app release notes, and documentation refresh                                                |
-| `v3.1.3` | Cross-platform route bundle decoding, startup recovery UI, dependency refresh, documentation refresh, and CI validation                                  |
-| `v3.1.2` | Flutter web route loading fix                                                                                                                            |
-| `v3.1.1` | Flutter dependency refresh for the current stable toolchain                                                                                              |
+| Version  | Summary                                                                                                                                                                                                     |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `v3.3.3` | Improves contrast and empty states, hardens route-bundle parsing, adds spacing-tolerant stop search, makes arrival alerts battery-safe, removes full-screen/boot auto-start behavior, and documents privacy |
+| `v3.3.2` | Removes the broken theme switch, restores the original light-only UI, removes theme preference persistence, and fixes low-contrast rendering                                                                |
+| `v3.3.1` | Temporarily hides YBS New for the Play Store build, aligns navigation indices, hardens startup initialization, and adds signed Android release artifacts                                                    |
+| `v3.3.0` | Improved live tracking map controls, one-tap recentering, tracking guidance, and release documentation                                                                                                      |
+| `v3.2.0` | Persistent dark mode, polished display settings, accurate in-app release notes, and documentation refresh                                                                                                   |
+| `v3.1.3` | Cross-platform route bundle decoding, startup recovery UI, dependency refresh, documentation refresh, and CI validation                                                                                     |
+| `v3.1.2` | Flutter web route loading fix                                                                                                                                                                               |
+| `v3.1.1` | Flutter dependency refresh for the current stable toolchain                                                                                                                                                 |
 
 ## License
 

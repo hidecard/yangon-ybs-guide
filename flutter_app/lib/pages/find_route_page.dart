@@ -128,46 +128,62 @@ class _FindRoutePageState extends State<FindRoutePage> {
       hintStop: _startStop,
     );
 
-    // Phase 2: prefer the fast direct-route SQL query (correct forward
-    // direction, no transfers). Fall back to the BFS planner (which computes
-    // connecting/transfer routes from the same normalized data) when no
-    // single-leg route exists.
-    final direct = await state.repo.findDirectRoutes(
-      _start.trim(),
-      _end.trim(),
-      startStop: _startStop,
-      endStop: _endStop,
-    );
+    try {
+      // Prefer the fast direct-route SQL query (correct forward direction, no
+      // transfers). Fall back to the BFS planner when no single-leg route
+      // exists.
+      final direct = await state.repo.findDirectRoutes(
+        _start.trim(),
+        _end.trim(),
+        startStop: _startStop,
+        endStop: _endStop,
+      );
 
-    // Show each directly-serving bus line as its own result card (not all
-    // mixed into a single card), so the user can pick one route at a time.
-    final found = direct.isNotEmpty
-        ? direct
-              .map(
-                (r) => SearchResult(
-                  steps: [
-                    PathStep(
-                      route: r,
-                      fromStop: _start.trim(),
-                      toStop: _end.trim(),
-                    ),
-                  ],
-                  transferCount: 0,
-                  totalDistance: 0,
-                ),
-              )
-              .toList()
-        : performBFS(_start.trim(), _end.trim(), state.routes, state.stops);
-    if (!mounted) return;
-    setState(() {
-      _results = found;
-      _searching = false;
-    });
-    if (found.isNotEmpty) {
-      await LocalStore.instance.addTripHistory(
-        type: 'search',
-        label: _start.trim(),
-        subtitle: _end.trim(),
+      // Show each directly-serving bus line as its own result card so the user
+      // can pick one route at a time.
+      final found = direct.isNotEmpty
+          ? direct
+                .map(
+                  (r) => SearchResult(
+                    steps: [
+                      PathStep(
+                        route: r,
+                        fromStop: _start.trim(),
+                        toStop: _end.trim(),
+                      ),
+                    ],
+                    transferCount: 0,
+                    totalDistance: 0,
+                  ),
+                )
+                .toList()
+          : performBFS(_start.trim(), _end.trim(), state.routes, state.stops);
+      if (!mounted) return;
+      setState(() {
+        _results = found;
+        _searching = false;
+      });
+      if (found.isNotEmpty) {
+        try {
+          await LocalStore.instance.addTripHistory(
+            type: 'search',
+            label: _start.trim(),
+            subtitle: _end.trim(),
+          );
+        } catch (_) {
+          // Search results remain useful even if local history cannot be saved.
+        }
+      }
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _results = [];
+        _searching = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('လမ်းကြောင်းရှာရာတွင် အခက်အခဲရှိပါသည်။ ထပ်ကြိုးစားပါ။'),
+        ),
       );
     }
   }
@@ -284,6 +300,13 @@ class _FindRoutePageState extends State<FindRoutePage> {
                 options: options,
                 indicator: AppColors.emerald,
                 onChanged: (o) => _setStop(true, o),
+                onTextChanged: (text) {
+                  setState(() {
+                    _start = text;
+                    _startOpt = null;
+                    _startStop = null;
+                  });
+                },
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -328,6 +351,13 @@ class _FindRoutePageState extends State<FindRoutePage> {
                 options: options,
                 indicator: AppColors.rose,
                 onChanged: (o) => _setStop(false, o),
+                onTextChanged: (text) {
+                  setState(() {
+                    _end = text;
+                    _endOpt = null;
+                    _endStop = null;
+                  });
+                },
               ),
               const SizedBox(height: 16),
               SizedBox(
@@ -588,6 +618,7 @@ class _StopField extends StatefulWidget {
   final List<StopOption> options;
   final Color indicator;
   final ValueChanged<StopOption?> onChanged;
+  final ValueChanged<String>? onTextChanged;
   final Widget? trailing;
   const _StopField({
     required this.label,
@@ -595,6 +626,7 @@ class _StopField extends StatefulWidget {
     required this.options,
     required this.indicator,
     required this.onChanged,
+    this.onTextChanged,
     this.trailing,
   });
 
@@ -642,21 +674,27 @@ class _StopFieldState extends State<_StopField> {
                   maxWidth: 12,
                 ),
               ),
-              onChanged: (v) {
-                if (v.isEmpty) widget.onChanged(null);
-              },
+              onChanged: (v) => widget.onTextChanged?.call(v),
             );
           },
           optionsBuilder: (t) {
-            final term = t.text.toLowerCase();
+            final term = t.text.trim().toLowerCase();
             if (term.isEmpty) return const Iterable<StopOption>.empty();
-            return widget.options
-                .where(
-                  (o) =>
-                      o.display.toLowerCase().contains(term) ||
-                      o.raw.toLowerCase().contains(term),
-                )
-                .take(50);
+            final matches = widget.options.where(
+              (o) =>
+                  o.display.toLowerCase().contains(term) ||
+                  o.raw.toLowerCase().contains(term),
+            );
+            if (matches.isNotEmpty) return matches.take(50);
+
+            // Keep typo-tolerant search useful even when the query is not a
+            // prefix/substring of a stop name.
+            final fuzzy = resolveStopName(
+              t.text,
+              widget.options.map((o) => o.raw).toSet().toList(),
+            );
+            if (fuzzy == null) return const Iterable<StopOption>.empty();
+            return widget.options.where((o) => o.raw == fuzzy).take(10);
           },
           onSelected: (o) => widget.onChanged(o),
           optionsViewBuilder: (context, onSelected, opts) {

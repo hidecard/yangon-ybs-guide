@@ -39,6 +39,9 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Validate route data
+        run: dart run tools/validate_routes.dart
+
       - name: Check code
         run: flutter analyze
 

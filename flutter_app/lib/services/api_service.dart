@@ -249,14 +249,21 @@ class ApiService {
     String? routeId,
     int limit = 50,
   }) async {
-    final params = <String, String>{'limit': '$limit'};
-    if (routeId != null && routeId.isNotEmpty) params['routeId'] = routeId;
-    final q = Uri(queryParameters: params).query;
-    final data = await _get('/api/bus-updates?$q');
-    final list = (data['updates'] as List?) ?? [];
-    return list
-        .map((e) => BusUpdate.fromJson(e as Map<String, dynamic>))
-        .toList();
+    try {
+      final params = <String, String>{'limit': '$limit'};
+      if (routeId != null && routeId.isNotEmpty) params['routeId'] = routeId;
+      final q = Uri(queryParameters: params).query;
+      final data = await _get('/api/bus-updates?$q');
+      final raw = data['updates'];
+      if (raw is! List) return const [];
+      return raw
+          .whereType<Map>()
+          .map((e) => BusUpdate.fromJson(Map<String, dynamic>.from(e)))
+          .where((u) => u.routeId.isNotEmpty)
+          .toList();
+    } catch (_) {
+      return const [];
+    }
   }
 
   Future<int?> postBusUpdate(BusUpdate u) async {
@@ -285,13 +292,15 @@ class ApiService {
       final data = await _get(
         '/api/predictions?routeId=${Uri.encodeComponent(routeId)}',
       );
-      final list = (data['predictions'] as List?) ?? [];
-      return (
-        list
-            .map((e) => Prediction.fromJson(e as Map<String, dynamic>))
-            .toList(),
-        data['message']?.toString(),
-      );
+      final raw = data['predictions'];
+      final list = raw is List
+          ? raw
+                .whereType<Map>()
+                .map((e) => Prediction.fromJson(Map<String, dynamic>.from(e)))
+                .where((p) => p.stop.isNotEmpty)
+                .toList()
+          : const <Prediction>[];
+      return (list, data['message']?.toString());
     } catch (_) {
       return (<Prediction>[], null);
     }
@@ -302,13 +311,15 @@ class ApiService {
       final data = await _get(
         '/api/bus-eta?routeId=${Uri.encodeComponent(routeId)}',
       );
-      final list = (data['estimates'] as List?) ?? [];
-      return BusEtaResponse(
-        list
-            .map((e) => BusEstimate.fromJson(e as Map<String, dynamic>))
-            .toList(),
-        data['message']?.toString(),
-      );
+      final raw = data['estimates'];
+      final list = raw is List
+          ? raw
+                .whereType<Map>()
+                .map((e) => BusEstimate.fromJson(Map<String, dynamic>.from(e)))
+                .where((e) => e.stop.isNotEmpty)
+                .toList()
+          : const <BusEstimate>[];
+      return BusEtaResponse(list, data['message']?.toString());
     } catch (_) {
       return const BusEtaResponse([], null);
     }

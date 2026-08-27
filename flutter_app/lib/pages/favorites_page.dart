@@ -159,7 +159,10 @@ class FavoritesPage extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
         ),
-        subtitle: const Text('YBS Route', style: TextStyle(fontSize: 12)),
+        subtitle: Text(
+          r.displayName,
+          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+        ),
         trailing: IconButton(
           onPressed: () => state.toggleFavRoute(r.id),
           icon: const Icon(Icons.star, color: AppColors.amber),

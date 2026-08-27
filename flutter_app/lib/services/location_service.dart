@@ -6,18 +6,25 @@ class LocationService {
   static final LocationService instance = LocationService._();
 
   Future<bool> ensurePermission() async {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) return false;
+    try {
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) return false;
 
-    var permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-    }
-    if (permission == LocationPermission.denied ||
-        permission == LocationPermission.deniedForever) {
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        return false;
+      }
+      return true;
+    } catch (_) {
+      // Permission APIs can fail on emulators and restricted devices. Location
+      // is optional, so callers should receive a safe denial instead of a
+      // platform exception that can take down the screen.
       return false;
     }
-    return true;
   }
 
   Future<Position?> currentPosition() async {

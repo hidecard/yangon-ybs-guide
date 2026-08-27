@@ -307,17 +307,20 @@ int _levenshtein(String a, String b) {
   return prev[n];
 }
 
+String _normalizeStopText(String value) =>
+    value.trim().toLowerCase().replaceAll(RegExp(r'\s+'), '');
+
 /// Resolve a (possibly partial / misspelled) user query fragment to the
 /// closest known stop name. Tries exact containment first, then prefix /
 /// substring, then a fuzzy Levenshtein match within a small threshold scaled
 /// to the name length. Returns null if nothing is close enough.
 String? resolveStopName(String query, List<String> allStopNames) {
-  final q = query.trim();
+  final q = _normalizeStopText(query);
   if (q.isEmpty) return null;
 
   // 1) Exact match (case/space insensitive).
   for (final name in allStopNames) {
-    if (name == q) return name;
+    if (_normalizeStopText(name) == q) return name;
   }
 
   // 2) The query contains a full known stop name (handles fragments like
@@ -325,28 +328,28 @@ String? resolveStopName(String query, List<String> allStopNames) {
   String? bestContained;
   int bestLen = 0;
   for (final name in allStopNames) {
-    if (q.contains(name) && name.length > bestLen) {
+    final normalizedName = _normalizeStopText(name);
+    if (q.contains(normalizedName) && normalizedName.length > bestLen) {
       bestContained = name;
-      bestLen = name.length;
+      bestLen = normalizedName.length;
     }
   }
   if (bestContained != null) return bestContained;
 
   // 3) Prefix / substring match.
-  final lower = q.toLowerCase();
   for (final name in allStopNames) {
-    if (name.toLowerCase().startsWith(lower) ||
-        name.toLowerCase().contains(lower)) {
+    final normalizedName = _normalizeStopText(name);
+    if (normalizedName.startsWith(q) || normalizedName.contains(q)) {
       return name;
     }
   }
 
   // 4) Fuzzy match with a length-scaled threshold.
-  int threshold = q.length <= 4 ? 1 : (q.length <= 8 ? 2 : 3);
+  final threshold = q.length <= 4 ? 1 : (q.length <= 8 ? 2 : 3);
   String? fuzzy;
   int fuzzyDist = threshold + 1;
   for (final name in allStopNames) {
-    final d = _levenshtein(lower, name.toLowerCase());
+    final d = _levenshtein(q, _normalizeStopText(name));
     if (d < fuzzyDist) {
       fuzzyDist = d;
       fuzzy = name;

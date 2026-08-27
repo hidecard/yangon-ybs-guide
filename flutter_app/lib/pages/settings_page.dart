@@ -50,7 +50,7 @@ class SettingsPage extends StatelessWidget {
     _Section(
       Icons.auto_awesome,
       const Color(0xFFF59E0B),
-      "What's New in V3.3.2",
+      "What's New in V3.3.3",
       'ဗားရှင်းသစ် အချက်အလက်များ',
       const _WhatsNewSection(),
     ),
@@ -378,6 +378,7 @@ class _DataSection extends StatefulWidget {
 class _DataSectionState extends State<_DataSection> {
   String _syncStatus = 'idle';
   String? _cacheSize;
+  String? _syncError;
 
   @override
   void initState() {
@@ -391,15 +392,25 @@ class _DataSectionState extends State<_DataSection> {
   }
 
   Future<void> _sync() async {
-    setState(() => _syncStatus = 'updating');
-    await context.read<AppState>().reloadData();
-    if (!mounted) return;
-    _cacheSize = await context.read<AppState>().repo.cacheInfo();
-    if (!mounted) return;
-    setState(() => _syncStatus = 'done');
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) setState(() => _syncStatus = 'idle');
+    setState(() {
+      _syncStatus = 'updating';
+      _syncError = null;
     });
+    final state = context.read<AppState>();
+    await state.reloadData();
+    if (!mounted) return;
+    _cacheSize = await state.repo.cacheInfo();
+    if (!mounted) return;
+    final error = state.initError;
+    setState(() {
+      _syncError = error;
+      _syncStatus = error == null ? 'done' : 'error';
+    });
+    if (error == null) {
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted) setState(() => _syncStatus = 'idle');
+      });
+    }
   }
 
   @override
@@ -441,6 +452,17 @@ class _DataSectionState extends State<_DataSection> {
                         ),
                       ),
                     ),
+                  if (_syncError != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        _syncError!,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.rose,
+                        ),
+                      ),
+                    ),
                   const SizedBox(height: 12),
                   SizedBox(
                     width: double.infinity,
@@ -456,6 +478,8 @@ class _DataSectionState extends State<_DataSection> {
                             ? 'ခဏစောင့်ပါ...'
                             : _syncStatus == 'done'
                             ? '✓ Sync အောင်မြင်ပါသည်'
+                            : _syncStatus == 'error'
+                            ? 'ထပ်မံ Update လုပ်မည်'
                             : 'လမ်းကြောင်းများ Update လုပ်မည်',
                       ),
                     ),
@@ -485,12 +509,12 @@ class _NotifSetupSection extends StatelessWidget {
               Icons.notifications_active,
               AppColors.amber,
               'အကြောင်းကြားချက် ဆက်တင်',
-              'App ပိတ်ထားသည့်တိုင် သတိပေးချက် ရောက်စေရန်',
+              'Arrival Alert ဖွင့်ထားချိန်တွင် မှတ်တိုင်အနီးရောက်လျှင် သတိပေးရန်',
             ),
             const SizedBox(height: 14),
             const Text(
-              'အချို့ ဖုန်းများတွင် ဘက်ထရီ သက်သာစေရန် App များကို အလိုအလျောက် ပိတ်တတ်ပါသည်။ '
-              'သတိပေးချက် အပြည့်အဝရရှိစေရန် အောက်ပါအဆင့်များအတိုင်း ဆက်တင် လုပ်ပေးပါ -',
+              'Arrival Alert ကို အမှန်တကယ်အသုံးပြုနေချိန်တွင်သာ GPS နှင့် background service ကို ဖွင့်ပါသည်။ '
+              'သတိပေးချက် မလွတ်စေရန် အောက်ပါအဆင့်များကို စစ်ဆေးပေးပါ -',
               style: TextStyle(fontSize: 13, color: AppColors.slate600),
             ),
             const SizedBox(height: 14),
@@ -506,11 +530,6 @@ class _NotifSetupSection extends StatelessWidget {
             ),
             _step(
               3,
-              'Autostart / Auto-launch',
-              'Settings → Apps → YBS AI (သို့မဟုတ် "Manage apps") → Autostart / Auto-launch ကို ဖွင့်ပါ (Xiaomi, Oppo, Vivo, Huawei စသည့် ဖုန်းများတွင် လိုအပ်ပါသည်)။',
-            ),
-            _step(
-              4,
               'Background data (ဒေတာ) ခွင့်ပြု',
               'Settings → Apps → YBS AI → Mobile data သို့သွားပါ။ "Allow background data" ကို ဖွင့်ပါ သို့မဟုတ် "Data usage while Data saver is on" ကို ခွင့်ပြုပါ။',
             ),
@@ -527,7 +546,7 @@ class _NotifSetupSection extends StatelessWidget {
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'အထက်ပါအဆင့်များ ပြီးပါက App ကို ပိတ်ထားသည့်တိုင် Admin သတင်းများ နှင့် မှတ်တိုင်အနီးရောက်သတိပေးချက်များ အလိုအလျောက် ရောက်ရှိပါမည်။',
+                      'Arrival Alert ကို ဖွင့်ထားသော ခရီးစဉ်အတွက်သာ App ပိတ်ထားချိန်တွင် မှတ်တိုင်အနီးရောက်သတိပေးချက် ရရှိပါမည်။ ခရီးပြီးလျှင် service ကို အလိုအလျောက် ရပ်ပေးပါသည်။',
                       style: TextStyle(
                         fontSize: 12,
                         color: Color(0xFF92400E),
@@ -744,29 +763,28 @@ class _PrivacySection extends StatelessWidget {
             ),
             const SizedBox(height: 14),
             _privacy(
-              'ကားလိုင်းနှင့် မှတ်တိုင် အချက်အလက်များကို သင့်ဖုန်းအတွင်း (offline) သိုလှောင်ပါသည်။',
+              'ကားလိုင်းနှင့် မှတ်တိုင်အချက်အလက်များကို offline အသုံးပြုနိုင်ရန် ဖုန်းထဲတွင် သိမ်းထားပါသည်။',
             ),
             _privacy(
-              'သင်၏ တည်နေရာဒေတာကို မှတ်တိုင်အနီးရောက်သတိပေးချက်အတွက်သာ ယာယီအသုံးပြုပြီး ဆာဗာသို့ မပို့ပါ။',
+              'Favorite၊ saved trip နှင့် recent search များကို ဖုန်းထဲတွင်သာ သိမ်းထားပြီး Settings မှ ဖျက်နိုင်ပါသည်။',
             ),
             _privacy(
-              'ကျွန်ုပ်တို့သည် သင့်ကိုယ်ရေးအချက်အလက်ကို တတိယအဖွဲ့အစည်းသို့ မရောင်းချပါ။',
+              'Near Me၊ map နှင့် Arrival Alert အတွက် location ကို အသုံးပြုပါသည်။ လက်ရှိ app implementation တွင် GPS ကို server သို့ မပို့ပါ။',
             ),
             _privacy(
-              'အချက်အလက်ဖျက်ရန် သို့မဟုတ် မေးမြန်းလိုပါက info@arkaryan.net သို့ ဆက်သွယ်နိုင်ပါသည်။',
+              'Arrival Alert ကို ဖွင့်ထားချိန်တွင်သာ background location service အလုပ်လုပ်ပြီး ခရီးပြီးလျှင် ရပ်ပေးပါသည်။',
             ),
             _privacy(
-              'App သည် အချက်အလက် စုဆည်းခြင်းများ မပြုလုပ်ပါ။ လိုအပ်ပါက အချက်အလက် ရရှိနိုင်ခြေမရှိပါ။',
+              'Live estimate နှင့် bus update အတွက် route ID/request data ကို API သို့ ပို့နိုင်ပါသည်။',
             ),
             _privacy(
-              'အသုံးပြုသူ၏ မှတ်တိုင်နှင့် တည်နေရာအချက်အလက်များကို လုံခြုံစွာ ထိန်းသိမ်းထားပါသည်။',
+              'ကိုယ်ရေးအချက်အလက်များကို မရောင်းချပါ။ မေးမြန်းရန် info@arkaryan.net သို့ ဆက်သွယ်နိုင်ပါသည်။',
             ),
             const SizedBox(height: 14),
             const Divider(),
             const SizedBox(height: 14),
             const Text(
-              'ဤကိုယ်ရေးအချက်အလက် မူဝါဒသည် YBS AI app အတွက် အသုံးပြုသူများ၏ '
-              'ကိုယ်ရေးအချက်အလက်များကို လုံခြုံစွာ ထိန်းသိမ်းရန် ရည်ရွယ်ထားပါသည်။',
+              'အပြည့်အစုံကို flutter_app/PRIVACY_POLICY.md တွင် ဖတ်ရှုနိုင်ပါသည်။ Data practice ပြောင်းလဲပါက ဤစာမျက်နှာကို update လုပ်ပါမည်။',
               style: TextStyle(fontSize: 12, color: AppColors.slate500),
             ),
           ],
@@ -810,7 +828,7 @@ class _WhatsNewSection extends StatelessWidget {
             _cardHeader(
               Icons.auto_awesome,
               const Color(0xFFF59E0B),
-              "What's New in V3.3.2",
+              "What's New in V3.3.3",
               'ဗားရှင်းသစ် အချက်အလက်များ',
             ),
             const SizedBox(height: 16),
@@ -836,7 +854,19 @@ class _WhatsNewSection extends StatelessWidget {
             ),
             _feature(
               'Smart Notifications',
-              'App ပိတ်ထားသည့်တိုင် မှတ်တိုင်အနီးရောက်သတိပေးချက် ရောက်ရှိစေခြင်း။',
+              'Arrival Alert ဖွင့်ထားချိန်တွင်သာ မှတ်တိုင်အနီးရောက်သတိပေးချက် ရောက်ရှိစေခြင်း။',
+            ),
+            _feature(
+              'Better Search & Empty States',
+              'Space ထည့်ရေးထားသော stop name၊ စာလုံးမှားရေးထားသော query နှင့် ရှာမတွေ့သည့်အခြေအနေများကို ပိုမိုကောင်းမွန်စွာ ကိုင်တွယ်ပေးခြင်း။',
+            ),
+            _feature(
+              'Light Theme Contrast',
+              'အရင် Light mode ပုံစံအတိုင်း စာသားနှင့် button contrast ကို ပိုမိုရှင်းလင်းအောင် ပြင်ဆင်ခြင်း။',
+            ),
+            _feature(
+              'Privacy Clarity',
+              'ဖုန်းထဲသိမ်းထားသော data၊ location အသုံးပြုပုံနှင့် API data flow ကို ရှင်းလင်းဖော်ပြခြင်း။',
             ),
             _feature(
               'Bus Updates Feed',
