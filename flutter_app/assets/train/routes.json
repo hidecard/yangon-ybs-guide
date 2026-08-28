@@ -1,0 +1,2592 @@
+[
+  {
+    "slug": "141-up",
+    "title": "၁၄၁ (အဆန်)",
+    "route_type_title": "သာစည်-တောင်ကြီး",
+    "type": {
+      "value": "mail",
+      "text": "စာပို့",
+      "color": "10B981"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "up",
+      "text": "အဆန်",
+      "color": "FF6347"
+    },
+    "train_model": {
+      "value": "aar",
+      "text": "AAR",
+      "color": "6b7280"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Aar20260723212114JOEA.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "သာစည်ဘူတာ",
+    "origin_station_time": "05:00 AM",
+    "destination_station_title": "တောင်ကြီးဘူတာ",
+    "destination_station_time": "06:30 PM"
+  },
+  {
+    "slug": "83-up",
+    "title": "၈၃ (အဆန်)",
+    "route_type_title": "ရန်ကုန်-မော်လမြိုင် (DEMU)",
+    "type": {
+      "value": "express",
+      "text": "အမြန်ရထား",
+      "color": "EF4444"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "up",
+      "text": "အဆန်",
+      "color": "FF6347"
+    },
+    "train_model": {
+      "value": "demu",
+      "text": "DEMU",
+      "color": "3b82f6"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/SpainDemu20260723212343hVzG.jpg",
+    "online_ticketing_system": {
+      "value": "active",
+      "text": "Active",
+      "color": "3CB371"
+    },
+    "origin_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "origin_station_time": "05:00 AM",
+    "destination_station_title": "မော်လမြိုင်ဘူတာ",
+    "destination_station_time": "11:00 AM"
+  },
+  {
+    "slug": "304-down",
+    "title": "၃၀၄ (အစုန်)",
+    "route_type_title": "မန္တလေး-တံတားဦး",
+    "type": {
+      "value": "local",
+      "text": "လူစီးကုန်တင်",
+      "color": "3B82F6"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "down",
+      "text": "အစုန်",
+      "color": "3CB371"
+    },
+    "train_model": {
+      "value": "rbe",
+      "text": "RBE",
+      "color": "10b981"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Rbe20260809172736sJCM.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "မန္တလေးဘူတာကြီး",
+    "origin_station_time": "05:00 AM",
+    "destination_station_title": "တံတားဦးဘူတာ",
+    "destination_station_time": "06:30 AM"
+  },
+  {
+    "slug": "104-down",
+    "title": "၁၀၄ (အစုန်)",
+    "route_type_title": "တောင်တွင်းကြီး-ပျဥ်းမနား",
+    "type": {
+      "value": "local",
+      "text": "လူစီးကုန်တင်",
+      "color": "3B82F6"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "down",
+      "text": "အစုန်",
+      "color": "3CB371"
+    },
+    "train_model": {
+      "value": "aar",
+      "text": "AAR",
+      "color": "6b7280"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Aar202607232121262zxD.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "တောင်တွင်းကြီးဘူတာ",
+    "origin_station_time": "05:00 AM",
+    "destination_station_title": "ပျဉ်းမနားဘူတာ",
+    "destination_station_time": "10:30 AM"
+  },
+  {
+    "slug": "73-up",
+    "title": "၇၃ (အဆန်)",
+    "route_type_title": "ရန်ကုန်-ပြည် (DEMU)",
+    "type": {
+      "value": "express",
+      "text": "အမြန်ရထား",
+      "color": "EF4444"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "up",
+      "text": "အဆန်",
+      "color": "FF6347"
+    },
+    "train_model": {
+      "value": "demu",
+      "text": "DEMU",
+      "color": "3b82f6"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/SpainDemu20260725103924t7kL.jpg",
+    "online_ticketing_system": {
+      "value": "active",
+      "text": "Active",
+      "color": "3CB371"
+    },
+    "origin_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "origin_station_time": "05:30 AM",
+    "destination_station_title": "ပြည်ဘူတာ",
+    "destination_station_time": "11:45 AM"
+  },
+  {
+    "slug": "301-up",
+    "title": "၃၀၁ (အဆန်)",
+    "route_type_title": "သာစည်-မန္တလေး",
+    "type": {
+      "value": "local",
+      "text": "လူစီးကုန်တင်",
+      "color": "3B82F6"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "up",
+      "text": "အဆန်",
+      "color": "FF6347"
+    },
+    "train_model": {
+      "value": "aar",
+      "text": "AAR",
+      "color": "6b7280"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Aar20260723211958Gpkc.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "သာစည်ဘူတာ",
+    "origin_station_time": "05:30 AM",
+    "destination_station_title": "မန္တလေးဘူတာကြီး",
+    "destination_station_time": "09:00 AM"
+  },
+  {
+    "slug": "11-up",
+    "title": "၁၁ (အဆန်)",
+    "route_type_title": "ရန်ကုန်-မန္တလေး",
+    "type": {
+      "value": "express",
+      "text": "အမြန်ရထား",
+      "color": "EF4444"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "up",
+      "text": "အဆန်",
+      "color": "FF6347"
+    },
+    "train_model": {
+      "value": "air_bag",
+      "text": "လေအိတ်ရထား",
+      "color": "8b5cf6"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/AirBag202608091730142Lbe.jpg",
+    "online_ticketing_system": {
+      "value": "active",
+      "text": "Active",
+      "color": "3CB371"
+    },
+    "origin_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "origin_station_time": "05:30 AM",
+    "destination_station_title": "မန္တလေးဘူတာကြီး",
+    "destination_station_time": "08:00 PM"
+  },
+  {
+    "slug": "12-down",
+    "title": "၁၂ (အစုန်)",
+    "route_type_title": "မန္တလေး-ရန်ကုန်",
+    "type": {
+      "value": "express",
+      "text": "အမြန်ရထား",
+      "color": "EF4444"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "down",
+      "text": "အစုန်",
+      "color": "3CB371"
+    },
+    "train_model": {
+      "value": "air_bag",
+      "text": "လေအိတ်ရထား",
+      "color": "8b5cf6"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/AirBag20260809173022Ipaz.jpg",
+    "online_ticketing_system": {
+      "value": "active",
+      "text": "Active",
+      "color": "3CB371"
+    },
+    "origin_station_title": "မန္တလေးဘူတာကြီး",
+    "origin_station_time": "05:30 AM",
+    "destination_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "destination_station_time": "08:40 PM"
+  },
+  {
+    "slug": "za-1",
+    "title": "ဇ-၁",
+    "route_type_title": "အင်းစိန်-မဂ်လာဒုံ-ရန်ကုန်",
+    "type": {
+      "value": "urban",
+      "text": "မြို့တွင်း",
+      "color": "8B5CF6"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "clockwise",
+      "text": "လက်ယာရစ်",
+      "color": "3CB371"
+    },
+    "train_model": {
+      "value": "rbe",
+      "text": "RBE",
+      "color": "10b981"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Rbe20260809172616Dc4z.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "အင်းစိန်ဘူတာ",
+    "origin_station_time": "05:30 AM",
+    "destination_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "destination_station_time": "06:55 AM"
+  },
+  {
+    "slug": "64-down",
+    "title": "၆၄ (အစုန်)",
+    "route_type_title": "ပြည်-ကြည့်မြင်တိုင်",
+    "type": {
+      "value": "mail",
+      "text": "စာပို့",
+      "color": "10B981"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "down",
+      "text": "အစုန်",
+      "color": "3CB371"
+    },
+    "train_model": {
+      "value": "aar",
+      "text": "AAR",
+      "color": "6b7280"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Aar20260723212045rnLE.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "ပြည်ဘူတာ",
+    "origin_station_time": "05:45 AM",
+    "destination_station_title": "ကြည့်မြင်တိုင်ဘူတာ",
+    "destination_station_time": "06:15 PM"
+  },
+  {
+    "slug": "16-down",
+    "title": "၁၆ (အစုန်)",
+    "route_type_title": "ပဲခူး-ရန်ကုန်",
+    "type": {
+      "value": "express",
+      "text": "အမြန်ရထား",
+      "color": "EF4444"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "down",
+      "text": "အစုန်",
+      "color": "3CB371"
+    },
+    "train_model": {
+      "value": "demu",
+      "text": "DEMU",
+      "color": "3b82f6"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/SpainDemu20260723212420WU3P.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "ပဲခူးဘူတာ",
+    "origin_station_time": "06:00 AM",
+    "destination_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "destination_station_time": "08:20 AM"
+  },
+  {
+    "slug": "4-down",
+    "title": "၄ (အစုန်)",
+    "route_type_title": "မန္တလေး-ရန်ကုန် (DEMU)",
+    "type": {
+      "value": "express",
+      "text": "အမြန်ရထား",
+      "color": "EF4444"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "down",
+      "text": "အစုန်",
+      "color": "3CB371"
+    },
+    "train_model": {
+      "value": "demu",
+      "text": "DEMU",
+      "color": "3b82f6"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/JapanDemu20260723212408toDI.jpg",
+    "online_ticketing_system": {
+      "value": "active",
+      "text": "Active",
+      "color": "3CB371"
+    },
+    "origin_station_title": "မန္တလေးဘူတာကြီး",
+    "origin_station_time": "06:00 AM",
+    "destination_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "destination_station_time": "04:10 PM"
+  },
+  {
+    "slug": "402-down",
+    "title": "၄၀၂ (အစုန်)",
+    "route_type_title": "သာစည်-နေပြည်တော်",
+    "type": {
+      "value": "local",
+      "text": "လူစီးကုန်တင်",
+      "color": "3B82F6"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "down",
+      "text": "အစုန်",
+      "color": "3CB371"
+    },
+    "train_model": {
+      "value": "rbe",
+      "text": "RBE",
+      "color": "10b981"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Rbe202608091729438EBc.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "သာစည်ဘူတာ",
+    "origin_station_time": "06:00 AM",
+    "destination_station_title": "နေပြည်တော်ဘူတာ",
+    "destination_station_time": "08:50 AM"
+  },
+  {
+    "slug": "63-up",
+    "title": "၆၃ (အဆန်)",
+    "route_type_title": "ကြည့်မြင်တိုင်-ပြည်",
+    "type": {
+      "value": "mail",
+      "text": "စာပို့",
+      "color": "10B981"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "up",
+      "text": "အဆန်",
+      "color": "FF6347"
+    },
+    "train_model": {
+      "value": "aar",
+      "text": "AAR",
+      "color": "6b7280"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Aar20260723212051uWM5.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "ကြည့်မြင်တိုင်ဘူတာ",
+    "origin_station_time": "06:00 AM",
+    "destination_station_title": "ပြည်ဘူတာ",
+    "destination_station_time": "05:15 PM"
+  },
+  {
+    "slug": "131-up",
+    "title": "၁၃၁ (အဆန်)",
+    "route_type_title": "ဇီးပင်ကြီး - ပြင်ဦးလွင်",
+    "type": {
+      "value": "mail",
+      "text": "စာပို့",
+      "color": "10B981"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "up",
+      "text": "အဆန်",
+      "color": "FF6347"
+    },
+    "train_model": {
+      "value": "aar",
+      "text": "AAR",
+      "color": "6b7280"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Aar20260723211744oSEJ.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "ဇီးပင်ကြီးဘူတာ",
+    "origin_station_time": "06:00 AM",
+    "destination_station_title": "ပြင်ဦးလွင်ဘူတာ",
+    "destination_station_time": "07:30 AM"
+  },
+  {
+    "slug": "63-up",
+    "title": "၆၃ (အဆန်)",
+    "route_type_title": "ကြည့်မြင်တိုင်-ပြည်",
+    "type": {
+      "value": "mail",
+      "text": "စာပို့",
+      "color": "10B981"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "up",
+      "text": "အဆန်",
+      "color": "FF6347"
+    },
+    "train_model": {
+      "value": "aar",
+      "text": "AAR",
+      "color": "6b7280"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Aar20260723212051uWM5.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "ကြည့်မြင်တိုင်ဘူတာ",
+    "origin_station_time": "06:00 AM",
+    "destination_station_title": "ပြည်ဘူတာ",
+    "destination_station_time": "05:15 PM"
+  },
+  {
+    "slug": "50-down",
+    "title": "၅၀ (အစုန်)",
+    "route_type_title": "မြစ်ကြီးနား-မိုးညှင်း",
+    "type": {
+      "value": "express",
+      "text": "အမြန်ရထား",
+      "color": "EF4444"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "up",
+      "text": "အဆန်",
+      "color": "FF6347"
+    },
+    "train_model": {
+      "value": "air_bag",
+      "text": "လေအိတ်ရထား",
+      "color": "8b5cf6"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/AirBag20260809173043bt53.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "မြစ်ကြီးနားဘူတာ",
+    "origin_station_time": "06:00 AM",
+    "destination_station_title": "မိုးညှင်းဘူတာ",
+    "destination_station_time": "01:00 PM"
+  },
+  {
+    "slug": "402-down",
+    "title": "၄၀၂ (အစုန်)",
+    "route_type_title": "သာစည်-နေပြည်တော်",
+    "type": {
+      "value": "local",
+      "text": "လူစီးကုန်တင်",
+      "color": "3B82F6"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "down",
+      "text": "အစုန်",
+      "color": "3CB371"
+    },
+    "train_model": {
+      "value": "rbe",
+      "text": "RBE",
+      "color": "10b981"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Rbe202608091729438EBc.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "သာစည်ဘူတာ",
+    "origin_station_time": "06:00 AM",
+    "destination_station_title": "နေပြည်တော်ဘူတာ",
+    "destination_station_time": "08:50 AM"
+  },
+  {
+    "slug": "3-up",
+    "title": "၃ (အဆန်)",
+    "route_type_title": "ရန်ကုန်-မန္တလေး (DEMU)",
+    "type": {
+      "value": "express",
+      "text": "အမြန်ရထား",
+      "color": "EF4444"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "up",
+      "text": "အဆန်",
+      "color": "FF6347"
+    },
+    "train_model": {
+      "value": "demu",
+      "text": "DEMU",
+      "color": "3b82f6"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/JapanDemu20260723212402vTTi.jpg",
+    "online_ticketing_system": {
+      "value": "active",
+      "text": "Active",
+      "color": "3CB371"
+    },
+    "origin_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "origin_station_time": "06:00 AM",
+    "destination_station_title": "မန္တလေးဘူတာကြီး",
+    "destination_station_time": "04:00 PM"
+  },
+  {
+    "slug": "49-up",
+    "title": "၄၉ (အဆန်)",
+    "route_type_title": "မိုးညှင်း-မြစ်ကြီးနား",
+    "type": {
+      "value": "express",
+      "text": "အမြန်ရထား",
+      "color": "EF4444"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "down",
+      "text": "အစုန်",
+      "color": "3CB371"
+    },
+    "train_model": {
+      "value": "air_bag",
+      "text": "လေအိတ်ရထား",
+      "color": "8b5cf6"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/AirBag20260809173036UC0G.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "မိုးညှင်းဘူတာ",
+    "origin_station_time": "06:00 AM",
+    "destination_station_title": "မြစ်ကြီးနားဘူတာ",
+    "destination_station_time": "01:15 PM"
+  },
+  {
+    "slug": "ka-1",
+    "title": "က-၁",
+    "route_type_title": "အင်းစိန်-လှော်ကား",
+    "type": {
+      "value": "urban",
+      "text": "မြို့တွင်း",
+      "color": "8B5CF6"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "clockwise",
+      "text": "လက်ယာရစ်",
+      "color": "3CB371"
+    },
+    "train_model": {
+      "value": "rbe",
+      "text": "RBE",
+      "color": "10b981"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Rbe20260809172414aH7E.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "အင်းစိန်ဘူတာ",
+    "origin_station_time": "06:05 AM",
+    "destination_station_title": "လှော်ကားဘူတာ",
+    "destination_station_time": "06:39 AM"
+  },
+  {
+    "slug": "kha-1",
+    "title": "ခ-၁",
+    "route_type_title": "ရန်ကုန်-ကြည်မြင်တိုင်-အင်းစိန်",
+    "type": {
+      "value": "urban",
+      "text": "မြို့တွင်း",
+      "color": "8B5CF6"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "clockwise",
+      "text": "လက်ယာရစ်",
+      "color": "3CB371"
+    },
+    "train_model": {
+      "value": "rbe",
+      "text": "RBE",
+      "color": "10b981"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Rbe202608091726345eTR.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "origin_station_time": "06:20 AM",
+    "destination_station_title": "အင်းစိန်ဘူတာ",
+    "destination_station_time": "07:09 AM"
+  },
+  {
+    "slug": "5-up",
+    "title": "၅ (အဆန်)",
+    "route_type_title": "ရန်ကုန်-မန္တလေး (DEMU) (မနက် ၇:၀၀)",
+    "type": {
+      "value": "express",
+      "text": "အမြန်ရထား",
+      "color": "EF4444"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "up",
+      "text": "အဆန်",
+      "color": "FF6347"
+    },
+    "train_model": {
+      "value": "demu",
+      "text": "DEMU",
+      "color": "3b82f6"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/JapanDemu20260723212355gvDw.jpg",
+    "online_ticketing_system": {
+      "value": "active",
+      "text": "Active",
+      "color": "3CB371"
+    },
+    "origin_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "origin_station_time": "07:00 AM",
+    "destination_station_title": "မန္တလေးဘူတာကြီး",
+    "destination_station_time": "05:00 PM"
+  },
+  {
+    "slug": "6-down",
+    "title": "၆ (အစုန်)",
+    "route_type_title": "မန္တလေး-ရန်ကုန် (DEMU) (မနက် ၇:၀၀)",
+    "type": {
+      "value": "express",
+      "text": "အမြန်ရထား",
+      "color": "EF4444"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "down",
+      "text": "အစုန်",
+      "color": "3CB371"
+    },
+    "train_model": {
+      "value": "demu",
+      "text": "DEMU",
+      "color": "3b82f6"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/JapanDemu20260723212349zfT2.jpg",
+    "online_ticketing_system": {
+      "value": "active",
+      "text": "Active",
+      "color": "3CB371"
+    },
+    "origin_station_title": "မန္တလေးဘူတာကြီး",
+    "origin_station_time": "07:00 AM",
+    "destination_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "destination_station_time": "05:10 PM"
+  },
+  {
+    "slug": "mogaung-1-up",
+    "title": "မိုးကောင်း (၁) (အဆန်)",
+    "route_type_title": "မိုးကောင်း-မြစ်ကြီးနား",
+    "type": {
+      "value": "local",
+      "text": "လူစီးကုန်တင်",
+      "color": "3B82F6"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "down",
+      "text": "အစုန်",
+      "color": "3CB371"
+    },
+    "train_model": {
+      "value": "aar",
+      "text": "AAR",
+      "color": "6b7280"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Aar20260723211627dzZ2.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "မိုးကောင်းဘူတာ",
+    "origin_station_time": "07:00 AM",
+    "destination_station_title": "မြစ်ကြီးနားဘူတာ",
+    "destination_station_time": "09:30 AM"
+  },
+  {
+    "slug": "za-2",
+    "title": "ဇ-၂",
+    "route_type_title": "ရန်ကုန်-မဂ်လာဒုံ-အင်းစိန်-ကြည်မြင်တိုင်-ရန်ကုန်",
+    "type": {
+      "value": "urban",
+      "text": "မြို့တွင်း",
+      "color": "8B5CF6"
+    },
+    "way": {
+      "value": "circular",
+      "text": "မြို့ပတ်",
+      "color": "CCAA00"
+    },
+    "direction": {
+      "value": "anticlockwise",
+      "text": "လက်ဝဲရစ်",
+      "color": "FF6347"
+    },
+    "train_model": {
+      "value": "rbe",
+      "text": "RBE",
+      "color": "10b981"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Rbe20260809172439COCM.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "origin_station_time": "07:05 AM",
+    "destination_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "destination_station_time": "09:23 AM"
+  },
+  {
+    "slug": "sha-1",
+    "title": "ဆ-၁",
+    "route_type_title": "အင်းစိန်-မဂ်လာဒုံ-ရန်ကုန်",
+    "type": {
+      "value": "urban",
+      "text": "မြို့တွင်း",
+      "color": "8B5CF6"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "clockwise",
+      "text": "လက်ယာရစ်",
+      "color": "3CB371"
+    },
+    "train_model": {
+      "value": "demu",
+      "text": "DEMU",
+      "color": "3b82f6"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Demu20260723212651oAXM.png",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "အင်းစိန်ဘူတာ",
+    "origin_station_time": "07:15 AM",
+    "destination_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "destination_station_time": "08:29 AM"
+  },
+  {
+    "slug": "303-up",
+    "title": "၃၀၃ (အဆန်)",
+    "route_type_title": "တံတားဦး-မန္တလေး",
+    "type": {
+      "value": "urban",
+      "text": "မြို့တွင်း",
+      "color": "8B5CF6"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "up",
+      "text": "အဆန်",
+      "color": "FF6347"
+    },
+    "train_model": {
+      "value": "rbe",
+      "text": "RBE",
+      "color": "10b981"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Rbe20260809172727l48m.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "တံတားဦးဘူတာ",
+    "origin_station_time": "07:15 AM",
+    "destination_station_title": "မန္တလေးဘူတာကြီး",
+    "destination_station_time": "08:45 AM"
+  },
+  {
+    "slug": "ga-1",
+    "title": "ဂ-၁",
+    "route_type_title": "ရန်ကုန်-တိုးကြောင်ကလေး",
+    "type": {
+      "value": "urban",
+      "text": "မြို့တွင်း",
+      "color": "8B5CF6"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "anticlockwise",
+      "text": "လက်ဝဲရစ်",
+      "color": "FF6347"
+    },
+    "train_model": {
+      "value": "bel",
+      "text": "ဘက်ထရီစက်ခေါင်း",
+      "color": "f59e0b"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Bel20260809173120RtBI.png",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "origin_station_time": "07:25 AM",
+    "destination_station_title": "တိုးကြောင်ကလေးဘူတာ",
+    "destination_station_time": "08:05 AM"
+  },
+  {
+    "slug": "82-down",
+    "title": "၈၂ (အစုန်)",
+    "route_type_title": "မော်လမြိုင်-ရန်ကုန်",
+    "type": {
+      "value": "express",
+      "text": "အမြန်ရထား",
+      "color": "EF4444"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "up",
+      "text": "အဆန်",
+      "color": "FF6347"
+    },
+    "train_model": {
+      "value": "aar",
+      "text": "AAR",
+      "color": "6b7280"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Aar20260723211657yK8a.jpg",
+    "online_ticketing_system": {
+      "value": "active",
+      "text": "Active",
+      "color": "3CB371"
+    },
+    "origin_station_title": "မော်လမြိုင်ဘူတာ",
+    "origin_station_time": "07:30 AM",
+    "destination_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "destination_station_time": "04:00 PM"
+  },
+  {
+    "slug": "82-down",
+    "title": "၈၂ (အစုန်)",
+    "route_type_title": "မော်လမြိုင်-ရန်ကုန်",
+    "type": {
+      "value": "express",
+      "text": "အမြန်ရထား",
+      "color": "EF4444"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "up",
+      "text": "အဆန်",
+      "color": "FF6347"
+    },
+    "train_model": {
+      "value": "aar",
+      "text": "AAR",
+      "color": "6b7280"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Aar20260723211657yK8a.jpg",
+    "online_ticketing_system": {
+      "value": "active",
+      "text": "Active",
+      "color": "3CB371"
+    },
+    "origin_station_title": "မော်လမြိုင်ဘူတာ",
+    "origin_station_time": "07:30 AM",
+    "destination_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "destination_station_time": "04:00 PM"
+  },
+  {
+    "slug": "81-up",
+    "title": "၈၁ (အဆန်)",
+    "route_type_title": "ရန်ကုန်-မော်လမြိုင်",
+    "type": {
+      "value": "express",
+      "text": "အမြန်ရထား",
+      "color": "EF4444"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "up",
+      "text": "အဆန်",
+      "color": "FF6347"
+    },
+    "train_model": {
+      "value": "aar",
+      "text": "AAR",
+      "color": "6b7280"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Aar20260723211650h8WE.jpg",
+    "online_ticketing_system": {
+      "value": "active",
+      "text": "Active",
+      "color": "3CB371"
+    },
+    "origin_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "origin_station_time": "07:30 AM",
+    "destination_station_title": "မော်လမြိုင်ဘူတာ",
+    "destination_station_time": "03:50 PM"
+  },
+  {
+    "slug": "gokteik-1",
+    "title": "ဂုတ်ထိပ် (၁)",
+    "route_type_title": "ပြင်ဦးလွင်-ဂုတ်ထိပ်",
+    "type": {
+      "value": "mail",
+      "text": "စာပို့",
+      "color": "10B981"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "up",
+      "text": "အဆန်",
+      "color": "FF6347"
+    },
+    "train_model": {
+      "value": "aar",
+      "text": "AAR",
+      "color": "6b7280"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Aar20260723212022bYJc.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "ပြင်ဦးလွင်ဘူတာ",
+    "origin_station_time": "08:00 AM",
+    "destination_station_title": "ဂုတ်ထိပ်ဘူတာ",
+    "destination_station_time": "11:30 AM"
+  },
+  {
+    "slug": "nga-1",
+    "title": "င-၁",
+    "route_type_title": "အင်းစိန်-မဂ်လာဒုံ-ရန်ကုန်",
+    "type": {
+      "value": "urban",
+      "text": "မြို့တွင်း",
+      "color": "8B5CF6"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "clockwise",
+      "text": "လက်ယာရစ်",
+      "color": "3CB371"
+    },
+    "train_model": {
+      "value": "demu",
+      "text": "DEMU",
+      "color": "3b82f6"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Demu20260723212705LNsw.png",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "အင်းစိန်ဘူတာ",
+    "origin_station_time": "08:00 AM",
+    "destination_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "destination_station_time": "09:14 AM"
+  },
+  {
+    "slug": "ka-2",
+    "title": "က-၂",
+    "route_type_title": "အင်းစိန်-ကြည်မြင်တိုင်-ရန်ကုန်",
+    "type": {
+      "value": "urban",
+      "text": "မြို့တွင်း",
+      "color": "8B5CF6"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "anticlockwise",
+      "text": "လက်ဝဲရစ်",
+      "color": "FF6347"
+    },
+    "train_model": {
+      "value": "rbe",
+      "text": "RBE",
+      "color": "10b981"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Rbe202608091725212ij7.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "အင်းစိန်ဘူတာ",
+    "origin_station_time": "08:00 AM",
+    "destination_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "destination_station_time": "08:49 AM"
+  },
+  {
+    "slug": "ga-2",
+    "title": "ဂ-၂",
+    "route_type_title": "တိုးကြောင်ကလေး-ရန်ကုန်",
+    "type": {
+      "value": "urban",
+      "text": "မြို့တွင်း",
+      "color": "8B5CF6"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "clockwise",
+      "text": "လက်ယာရစ်",
+      "color": "3CB371"
+    },
+    "train_model": {
+      "value": "bel",
+      "text": "ဘက်ထရီစက်ခေါင်း",
+      "color": "f59e0b"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Bel202608091732003xHK.png",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "တိုးကြောင်ကလေးဘူတာ",
+    "origin_station_time": "08:25 AM",
+    "destination_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "destination_station_time": "09:05 AM"
+  },
+  {
+    "slug": "9-up",
+    "title": "၉ (အဆန်)",
+    "route_type_title": "ရန်ကုန်-မန္တလေး (DEMU) (မနက် ၈:၃၀)",
+    "type": {
+      "value": "express",
+      "text": "အမြန်ရထား",
+      "color": "EF4444"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "up",
+      "text": "အဆန်",
+      "color": "FF6347"
+    },
+    "train_model": {
+      "value": "demu",
+      "text": "DEMU",
+      "color": "3b82f6"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/SpainDemu20260723212330qLYP.jpg",
+    "online_ticketing_system": {
+      "value": "active",
+      "text": "Active",
+      "color": "3CB371"
+    },
+    "origin_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "origin_station_time": "08:30 AM",
+    "destination_station_title": "မန္တလေးဘူတာကြီး",
+    "destination_station_time": "06:30 PM"
+  },
+  {
+    "slug": "10-down",
+    "title": "၁၀ (အစုန်)",
+    "route_type_title": "မန္တလေး-ရန်ကုန် (DEMU) (မနက် ၈:၃၀)",
+    "type": {
+      "value": "express",
+      "text": "အမြန်ရထား",
+      "color": "EF4444"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "down",
+      "text": "အစုန်",
+      "color": "3CB371"
+    },
+    "train_model": {
+      "value": "demu",
+      "text": "DEMU",
+      "color": "3b82f6"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/SpainDemu20260723212323d7p0.jpg",
+    "online_ticketing_system": {
+      "value": "active",
+      "text": "Active",
+      "color": "3CB371"
+    },
+    "origin_station_title": "မန္တလေးဘူတာကြီး",
+    "origin_station_time": "08:30 AM",
+    "destination_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "destination_station_time": "06:40 PM"
+  },
+  {
+    "slug": "kha-3",
+    "title": "ခ-၃",
+    "route_type_title": "ရန်ကုန်-ကြည်မြင်တိုင်-အင်းစိန်-မဂ်လာဒုံ-ရန်ကုန်",
+    "type": {
+      "value": "urban",
+      "text": "မြို့တွင်း",
+      "color": "8B5CF6"
+    },
+    "way": {
+      "value": "circular",
+      "text": "မြို့ပတ်",
+      "color": "CCAA00"
+    },
+    "direction": {
+      "value": "clockwise",
+      "text": "လက်ယာရစ်",
+      "color": "3CB371"
+    },
+    "train_model": {
+      "value": "rbe",
+      "text": "RBE",
+      "color": "10b981"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Rbe20260809172454gx6f.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "origin_station_time": "08:40 AM",
+    "destination_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "destination_station_time": "11:00 AM"
+  },
+  {
+    "slug": "ka-3",
+    "title": "က-၃",
+    "route_type_title": "ရန်ကုန်-မဂ်လာဒုံ-အင်းစိန်-ကြည်မြင်တိုင်-ရန်ကုန်",
+    "type": {
+      "value": "urban",
+      "text": "မြို့တွင်း",
+      "color": "8B5CF6"
+    },
+    "way": {
+      "value": "circular",
+      "text": "မြို့ပတ်",
+      "color": "CCAA00"
+    },
+    "direction": {
+      "value": "anticlockwise",
+      "text": "လက်ဝဲရစ်",
+      "color": "FF6347"
+    },
+    "train_model": {
+      "value": "rbe",
+      "text": "RBE",
+      "color": "10b981"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Rbe20260809172422hWTU.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "origin_station_time": "08:55 AM",
+    "destination_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "destination_station_time": "11:13 AM"
+  },
+  {
+    "slug": "ga-3",
+    "title": "ဂ-၃",
+    "route_type_title": "ရန်ကုန်-ကြည်မြင်တိုင်-အင်းစိန်-မဂ်လာဒုံ-ရန်ကုန်",
+    "type": {
+      "value": "urban",
+      "text": "မြို့တွင်း",
+      "color": "8B5CF6"
+    },
+    "way": {
+      "value": "circular",
+      "text": "မြို့ပတ်",
+      "color": "CCAA00"
+    },
+    "direction": {
+      "value": "clockwise",
+      "text": "လက်ယာရစ်",
+      "color": "3CB371"
+    },
+    "train_model": {
+      "value": "bel",
+      "text": "ဘက်ထရီစက်ခေါင်း",
+      "color": "f59e0b"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Bel20260809173132sUAJ.png",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "origin_station_time": "09:30 AM",
+    "destination_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "destination_station_time": "11:50 AM"
+  },
+  {
+    "slug": "31-up",
+    "title": "၃၁ (အဆန်)",
+    "route_type_title": "ရန်ကုန်-နေပြည်တော်",
+    "type": {
+      "value": "express",
+      "text": "အမြန်ရထား",
+      "color": "EF4444"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "up",
+      "text": "အဆန်",
+      "color": "FF6347"
+    },
+    "train_model": {
+      "value": "demu",
+      "text": "DEMU",
+      "color": "3b82f6"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/JapanDemu20260723212414K1c5.jpg",
+    "online_ticketing_system": {
+      "value": "active",
+      "text": "Active",
+      "color": "3CB371"
+    },
+    "origin_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "origin_station_time": "10:00 AM",
+    "destination_station_title": "နေပြည်တော်ဘူတာ",
+    "destination_station_time": "03:00 PM"
+  },
+  {
+    "slug": "32-down",
+    "title": "၃၂ (အစုန်)",
+    "route_type_title": "နေပြည်တော်-ရန်ကုန်",
+    "type": {
+      "value": "express",
+      "text": "အမြန်ရထား",
+      "color": "EF4444"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "down",
+      "text": "အစုန်",
+      "color": "3CB371"
+    },
+    "train_model": {
+      "value": "demu",
+      "text": "DEMU",
+      "color": "3b82f6"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/SpainDemu20260723212442uyet.jpg",
+    "online_ticketing_system": {
+      "value": "active",
+      "text": "Active",
+      "color": "3CB371"
+    },
+    "origin_station_title": "နေပြည်တော်ဘူတာ",
+    "origin_station_time": "10:00 AM",
+    "destination_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "destination_station_time": "03:00 PM"
+  },
+  {
+    "slug": "71-up",
+    "title": "၇၁ (အဆန်)",
+    "route_type_title": "ရန်ကုန်-ပြည်",
+    "type": {
+      "value": "express",
+      "text": "အမြန်ရထား",
+      "color": "EF4444"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "up",
+      "text": "အဆန်",
+      "color": "FF6347"
+    },
+    "train_model": {
+      "value": "air_bag",
+      "text": "လေအိတ်ရထား",
+      "color": "8b5cf6"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/AirBag20260816124237KqlU.jpg",
+    "online_ticketing_system": {
+      "value": "active",
+      "text": "Active",
+      "color": "3CB371"
+    },
+    "origin_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "origin_station_time": "11:00 AM",
+    "destination_station_title": "ပြည်ဘူတာ",
+    "destination_station_time": "07:30 PM"
+  },
+  {
+    "slug": "kha-4",
+    "title": "ခ-၄",
+    "route_type_title": "ရန်ကုန်-မဂ်လာဒုံ-အင်းစိန်-ကြည်မြင်တိုင်-ရန်ကုန်",
+    "type": {
+      "value": "urban",
+      "text": "မြို့တွင်း",
+      "color": "8B5CF6"
+    },
+    "way": {
+      "value": "circular",
+      "text": "မြို့ပတ်",
+      "color": "CCAA00"
+    },
+    "direction": {
+      "value": "anticlockwise",
+      "text": "လက်ဝဲရစ်",
+      "color": "FF6347"
+    },
+    "train_model": {
+      "value": "rbe",
+      "text": "RBE",
+      "color": "10b981"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Rbe202608091727077QVp.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "origin_station_time": "11:10 AM",
+    "destination_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "destination_station_time": "01:37 PM"
+  },
+  {
+    "slug": "ka-4",
+    "title": "က-၄",
+    "route_type_title": "ရန်ကုန်-ကြည်မြင်တိုင်-အင်းစိန်",
+    "type": {
+      "value": "urban",
+      "text": "မြို့တွင်း",
+      "color": "8B5CF6"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "clockwise",
+      "text": "လက်ယာရစ်",
+      "color": "3CB371"
+    },
+    "train_model": {
+      "value": "rbe",
+      "text": "RBE",
+      "color": "10b981"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Rbe20260809172432mnZ1.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "origin_station_time": "11:30 AM",
+    "destination_station_title": "အင်းစိန်ဘူတာ",
+    "destination_station_time": "12:20 PM"
+  },
+  {
+    "slug": "84-down",
+    "title": "၈၄ (အစုန်)",
+    "route_type_title": "မော်လမြိုင်-ရန်ကုန် (DEMU)",
+    "type": {
+      "value": "express",
+      "text": "အမြန်ရထား",
+      "color": "EF4444"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "down",
+      "text": "အစုန်",
+      "color": "3CB371"
+    },
+    "train_model": {
+      "value": "demu",
+      "text": "DEMU",
+      "color": "3b82f6"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/SpainDemu20260723212336yA0w.jpg",
+    "online_ticketing_system": {
+      "value": "active",
+      "text": "Active",
+      "color": "3CB371"
+    },
+    "origin_station_title": "မော်လမြိုင်ဘူတာ",
+    "origin_station_time": "12:00 PM",
+    "destination_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "destination_station_time": "06:00 PM"
+  },
+  {
+    "slug": "61-up-temp",
+    "title": "၆၁ (အဆန်) (ယာယီ)",
+    "route_type_title": "ရန်ကုန်-ပုဂံ (ယာယီ)",
+    "type": {
+      "value": "express",
+      "text": "အမြန်ရထား",
+      "color": "EF4444"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "up",
+      "text": "အဆန်",
+      "color": "FF6347"
+    },
+    "train_model": {
+      "value": "aar",
+      "text": "AAR",
+      "color": "6b7280"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Aar2026072321194463X7.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "origin_station_time": "12:15 PM",
+    "destination_station_title": "ပုဂံဘူတာ",
+    "destination_station_time": "06:45 AM"
+  },
+  {
+    "slug": "gokteik-2",
+    "title": "ဂုတ်ထိပ် (၂)",
+    "route_type_title": "ဂုတ်ထိပ်-ပြင်ဦးလွင်",
+    "type": {
+      "value": "mail",
+      "text": "စာပို့",
+      "color": "10B981"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "down",
+      "text": "အစုန်",
+      "color": "3CB371"
+    },
+    "train_model": {
+      "value": "aar",
+      "text": "AAR",
+      "color": "6b7280"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Aar20260723212016iYpj.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "ဂုတ်ထိပ်ဘူတာ",
+    "origin_station_time": "12:30 PM",
+    "destination_station_title": "ပြင်ဦးလွင်ဘူတာ",
+    "destination_station_time": "04:00 PM"
+  },
+  {
+    "slug": "7-up",
+    "title": "၇ (အဆန်)",
+    "route_type_title": "ရန်ကုန်-နေပြည်တော်",
+    "type": {
+      "value": "express",
+      "text": "အမြန်ရထား",
+      "color": "EF4444"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "up",
+      "text": "အဆန်",
+      "color": "FF6347"
+    },
+    "train_model": {
+      "value": "demu",
+      "text": "DEMU",
+      "color": "3b82f6"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/SpainDemu20260723212454XUsl.jpg",
+    "online_ticketing_system": {
+      "value": "active",
+      "text": "Active",
+      "color": "3CB371"
+    },
+    "origin_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "origin_station_time": "12:30 PM",
+    "destination_station_title": "နေပြည်တော်ဘူတာ",
+    "destination_station_time": "05:30 PM"
+  },
+  {
+    "slug": "ga-4",
+    "title": "ဂ-၄",
+    "route_type_title": "ရန်ကုန်-မဂ်လာဒုံ-အင်းစိန်",
+    "type": {
+      "value": "urban",
+      "text": "မြို့တွင်း",
+      "color": "8B5CF6"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "anticlockwise",
+      "text": "လက်ဝဲရစ်",
+      "color": "FF6347"
+    },
+    "train_model": {
+      "value": "bel",
+      "text": "ဘက်ထရီစက်ခေါင်း",
+      "color": "f59e0b"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Bel20260809173140uH57.png",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "origin_station_time": "12:30 PM",
+    "destination_station_title": "အင်းစိန်ဘူတာ",
+    "destination_station_time": "01:58 PM"
+  },
+  {
+    "slug": "8-down",
+    "title": "၈ (အစုန်)",
+    "route_type_title": "နေပြည်တော်-ရန်ကုန်",
+    "type": {
+      "value": "express",
+      "text": "အမြန်ရထား",
+      "color": "EF4444"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "down",
+      "text": "အစုန်",
+      "color": "3CB371"
+    },
+    "train_model": {
+      "value": "demu",
+      "text": "DEMU",
+      "color": "3b82f6"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/JapanDemu20260723212448KYxk.jpg",
+    "online_ticketing_system": {
+      "value": "active",
+      "text": "Active",
+      "color": "3CB371"
+    },
+    "origin_station_title": "နေပြည်တော်ဘူတာ",
+    "origin_station_time": "12:30 PM",
+    "destination_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "destination_station_time": "05:30 PM"
+  },
+  {
+    "slug": "ka-5",
+    "title": "က-၅",
+    "route_type_title": "အင်းစိန်-မဂ်လာဒုံ-ရန်ကုန်",
+    "type": {
+      "value": "urban",
+      "text": "မြို့တွင်း",
+      "color": "8B5CF6"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "clockwise",
+      "text": "လက်ယာရစ်",
+      "color": "3CB371"
+    },
+    "train_model": {
+      "value": "rbe",
+      "text": "RBE",
+      "color": "10b981"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Rbe20260809172503rw2q.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "အင်းစိန်ဘူတာ",
+    "origin_station_time": "01:00 PM",
+    "destination_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "destination_station_time": "02:25 PM"
+  },
+  {
+    "slug": "74-down",
+    "title": "၇၄ (အစုန်)",
+    "route_type_title": "ပြည်-ရန်ကုန် (DEMU)",
+    "type": {
+      "value": "express",
+      "text": "အမြန်ရထား",
+      "color": "EF4444"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "down",
+      "text": "အစုန်",
+      "color": "3CB371"
+    },
+    "train_model": {
+      "value": "demu",
+      "text": "DEMU",
+      "color": "3b82f6"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/SpainDemu20260725104556eJmj.jpg",
+    "online_ticketing_system": {
+      "value": "active",
+      "text": "Active",
+      "color": "3CB371"
+    },
+    "origin_station_title": "ပြည်ဘူတာ",
+    "origin_station_time": "01:15 PM",
+    "destination_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "destination_station_time": "07:30 PM"
+  },
+  {
+    "slug": "kha-5",
+    "title": "ခ-၅",
+    "route_type_title": "ရန်ကုန်-ကြည်မြင်တိုင်-အင်းစိန်-မဂ်လာဒုံ-ရန်ကုန်",
+    "type": {
+      "value": "urban",
+      "text": "မြို့တွင်း",
+      "color": "8B5CF6"
+    },
+    "way": {
+      "value": "circular",
+      "text": "မြို့ပတ်",
+      "color": "CCAA00"
+    },
+    "direction": {
+      "value": "clockwise",
+      "text": "လက်ယာရစ်",
+      "color": "3CB371"
+    },
+    "train_model": {
+      "value": "rbe",
+      "text": "RBE",
+      "color": "10b981"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Rbe20260809172642WgRy.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "origin_station_time": "02:00 PM",
+    "destination_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "destination_station_time": "04:18 PM"
+  },
+  {
+    "slug": "401-up",
+    "title": "၄၀၁ (အဆန်)",
+    "route_type_title": "နေပြည်တော်-သာစည်",
+    "type": {
+      "value": "local",
+      "text": "လူစီးကုန်တင်",
+      "color": "3B82F6"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "up",
+      "text": "အဆန်",
+      "color": "FF6347"
+    },
+    "train_model": {
+      "value": "rbe",
+      "text": "RBE",
+      "color": "10b981"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Rbe20260809172935XYxa.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "နေပြည်တော်ဘူတာ",
+    "origin_station_time": "02:00 PM",
+    "destination_station_title": "သာစည်ဘူတာ",
+    "destination_station_time": "04:50 PM"
+  },
+  {
+    "slug": "mogaung-2-down",
+    "title": "မိုးကောင်း (၂) (အစုန်)",
+    "route_type_title": "မြစ်ကြီးနား-မိုးကောင်း",
+    "type": {
+      "value": "local",
+      "text": "လူစီးကုန်တင်",
+      "color": "3B82F6"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "up",
+      "text": "အဆန်",
+      "color": "FF6347"
+    },
+    "train_model": {
+      "value": "aar",
+      "text": "AAR",
+      "color": "6b7280"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Aar20260723211635S2qa.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "မြစ်ကြီးနားဘူတာ",
+    "origin_station_time": "02:00 PM",
+    "destination_station_title": "မိုးကောင်းဘူတာ",
+    "destination_station_time": "04:30 PM"
+  },
+  {
+    "slug": "103-up",
+    "title": "၁၀၃ (အဆန်)",
+    "route_type_title": "ပျဥ်းမနား-တောင်တွင်းကြီး",
+    "type": {
+      "value": "local",
+      "text": "လူစီးကုန်တင်",
+      "color": "3B82F6"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "up",
+      "text": "အဆန်",
+      "color": "FF6347"
+    },
+    "train_model": {
+      "value": "aar",
+      "text": "AAR",
+      "color": "6b7280"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Aar20260723212120S4RS.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "ပျဉ်းမနားဘူတာ",
+    "origin_station_time": "02:00 PM",
+    "destination_station_title": "တောင်တွင်းကြီးဘူတာ",
+    "destination_station_time": "08:15 PM"
+  },
+  {
+    "slug": "ga-5",
+    "title": "ဂ-၅",
+    "route_type_title": "အင်းစိန်-မဂ်လာဒုံ-ရန်ကုန်",
+    "type": {
+      "value": "urban",
+      "text": "မြို့တွင်း",
+      "color": "8B5CF6"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "clockwise",
+      "text": "လက်ယာရစ်",
+      "color": "3CB371"
+    },
+    "train_model": {
+      "value": "bel",
+      "text": "ဘက်ထရီစက်ခေါင်း",
+      "color": "f59e0b"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Bel20260809173150wQ6v.png",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "အင်းစိန်ဘူတာ",
+    "origin_station_time": "02:20 PM",
+    "destination_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "destination_station_time": "03:45 PM"
+  },
+  {
+    "slug": "195-up",
+    "title": "၁၉၅ (အဆန်)",
+    "route_type_title": "လက်ပံတန်း-သာရဝေါ",
+    "type": {
+      "value": "local",
+      "text": "လူစီးကုန်တင်",
+      "color": "3B82F6"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "up",
+      "text": "အဆန်",
+      "color": "FF6347"
+    },
+    "train_model": {
+      "value": "aar",
+      "text": "AAR",
+      "color": "6b7280"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Aar2026072321201148Wp.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "လက်ပံတန်းဘူတာ",
+    "origin_station_time": "02:30 PM",
+    "destination_station_title": "သာရဝေါဘူတာ",
+    "destination_station_time": "05:00 PM"
+  },
+  {
+    "slug": "302-down",
+    "title": "၃၀၂ (အစုန်)",
+    "route_type_title": "မန္တလေး - သာစည်",
+    "type": {
+      "value": "local",
+      "text": "လူစီးကုန်တင်",
+      "color": "3B82F6"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "down",
+      "text": "အစုန်",
+      "color": "3CB371"
+    },
+    "train_model": {
+      "value": "aar",
+      "text": "AAR",
+      "color": "6b7280"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Aar20260723211951pOcR.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "မန္တလေးဘူတာကြီး",
+    "origin_station_time": "02:30 PM",
+    "destination_station_title": "သာစည်ဘူတာ",
+    "destination_station_time": "06:00 PM"
+  },
+  {
+    "slug": "ka-6",
+    "title": "က-၆",
+    "route_type_title": "ရန်ကုန်-မဂ်လာဒုံ-အင်းစိန်-ကြည်မြင်တိုင်-ရန်ကုန်",
+    "type": {
+      "value": "urban",
+      "text": "မြို့တွင်း",
+      "color": "8B5CF6"
+    },
+    "way": {
+      "value": "circular",
+      "text": "မြို့ပတ်",
+      "color": "CCAA00"
+    },
+    "direction": {
+      "value": "anticlockwise",
+      "text": "လက်ဝဲရစ်",
+      "color": "FF6347"
+    },
+    "train_model": {
+      "value": "rbe",
+      "text": "RBE",
+      "color": "10b981"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Rbe20260809172718VJEh.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "origin_station_time": "02:40 PM",
+    "destination_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "destination_station_time": "04:58 PM"
+  },
+  {
+    "slug": "za-3",
+    "title": "ဇ-၃",
+    "route_type_title": "ရန်ကုန်-ကြည်မြင်တိုင်-အင်းစိန်",
+    "type": {
+      "value": "urban",
+      "text": "မြို့တွင်း",
+      "color": "8B5CF6"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "clockwise",
+      "text": "လက်ယာရစ်",
+      "color": "3CB371"
+    },
+    "train_model": {
+      "value": "rbe",
+      "text": "RBE",
+      "color": "10b981"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Rbe20260809172447b9gN.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "origin_station_time": "03:25 PM",
+    "destination_station_title": "အင်းစိန်ဘူတာ",
+    "destination_station_time": "04:20 PM"
+  },
+  {
+    "slug": "ga-6",
+    "title": "ဂ-၆",
+    "route_type_title": "ရန်ကုန်-မဂ်လာဒုံ-အင်းစိန်-ကြည်မြင်တိုင်-ရန်ကုန်",
+    "type": {
+      "value": "urban",
+      "text": "မြို့တွင်း",
+      "color": "8B5CF6"
+    },
+    "way": {
+      "value": "circular",
+      "text": "မြို့ပတ်",
+      "color": "CCAA00"
+    },
+    "direction": {
+      "value": "anticlockwise",
+      "text": "လက်ဝဲရစ်",
+      "color": "FF6347"
+    },
+    "train_model": {
+      "value": "bel",
+      "text": "ဘက်ထရီစက်ခေါင်း",
+      "color": "f59e0b"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Bel20260809173112nuow.png",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "origin_station_time": "04:05 PM",
+    "destination_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "destination_station_time": "06:23 PM"
+  },
+  {
+    "slug": "132-down",
+    "title": "၁၃၂ (အစုန်)",
+    "route_type_title": "ပြင်ဦးလွင် - ဇီးပင်ကြီး",
+    "type": {
+      "value": "mail",
+      "text": "စာပို့",
+      "color": "10B981"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "down",
+      "text": "အစုန်",
+      "color": "3CB371"
+    },
+    "train_model": {
+      "value": "aar",
+      "text": "AAR",
+      "color": "6b7280"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Aar20260723211738FGUw.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "ပြင်ဦးလွင်ဘူတာ",
+    "origin_station_time": "04:15 PM",
+    "destination_station_title": "ဇီးပင်ကြီးဘူတာ",
+    "destination_station_time": "06:00 PM"
+  },
+  {
+    "slug": "nga-2",
+    "title": "င-၂",
+    "route_type_title": "ရန်ကုန်-မဂ်လာဒုံ-အင်းစိန်",
+    "type": {
+      "value": "urban",
+      "text": "မြို့တွင်း",
+      "color": "8B5CF6"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "anticlockwise",
+      "text": "လက်ဝဲရစ်",
+      "color": "FF6347"
+    },
+    "train_model": {
+      "value": "demu",
+      "text": "DEMU",
+      "color": "3b82f6"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Demu20260723212659h3Td.png",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "origin_station_time": "04:35 PM",
+    "destination_station_title": "အင်းစိန်ဘူတာ",
+    "destination_station_time": "05:57 PM"
+  },
+  {
+    "slug": "15-up",
+    "title": "၁၅ (အဆန်)",
+    "route_type_title": "ရန်ကုန်-ပဲခူး",
+    "type": {
+      "value": "express",
+      "text": "အမြန်ရထား",
+      "color": "EF4444"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "up",
+      "text": "အဆန်",
+      "color": "FF6347"
+    },
+    "train_model": {
+      "value": "demu",
+      "text": "DEMU",
+      "color": "3b82f6"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/SpainDemu20260723212426Uk1r.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "origin_station_time": "04:45 PM",
+    "destination_station_title": "ပဲခူးဘူတာ",
+    "destination_station_time": "07:05 PM"
+  },
+  {
+    "slug": "kha-6",
+    "title": "ခ-၆",
+    "route_type_title": "ရန်ကုန်-ကြည်မြင်တိုင်-အင်းစိန်-မဂ်လာဒုံ-ရန်ကုန်",
+    "type": {
+      "value": "urban",
+      "text": "မြို့တွင်း",
+      "color": "8B5CF6"
+    },
+    "way": {
+      "value": "circular",
+      "text": "မြို့ပတ်",
+      "color": "CCAA00"
+    },
+    "direction": {
+      "value": "clockwise",
+      "text": "လက်ယာရစ်",
+      "color": "3CB371"
+    },
+    "train_model": {
+      "value": "rbe",
+      "text": "RBE",
+      "color": "10b981"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Rbe20260809172650YGDI.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "origin_station_time": "04:45 PM",
+    "destination_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "destination_station_time": "07:03 PM"
+  },
+  {
+    "slug": "ka-7",
+    "title": "က-၇",
+    "route_type_title": "ရန်ကုန်-ကြည်မြင်တိုင်-အင်းစိန်-လှော်ကား",
+    "type": {
+      "value": "urban",
+      "text": "မြို့တွင်း",
+      "color": "8B5CF6"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "clockwise",
+      "text": "လက်ယာရစ်",
+      "color": "3CB371"
+    },
+    "train_model": {
+      "value": "rbe",
+      "text": "RBE",
+      "color": "10b981"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Rbe20260809172512QRwb.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "origin_station_time": "05:10 PM",
+    "destination_station_title": "လှော်ကားဘူတာ",
+    "destination_station_time": "06:39 PM"
+  },
+  {
+    "slug": "sha-2",
+    "title": "ဆ-၂",
+    "route_type_title": "ရန်ကုန်-မဂ်လာဒုံ-အင်းစိန်",
+    "type": {
+      "value": "urban",
+      "text": "မြို့တွင်း",
+      "color": "8B5CF6"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "anticlockwise",
+      "text": "လက်ဝဲရစ်",
+      "color": "FF6347"
+    },
+    "train_model": {
+      "value": "demu",
+      "text": "DEMU",
+      "color": "3b82f6"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Demu20260723212646pVF7.png",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "origin_station_time": "05:30 PM",
+    "destination_station_title": "အင်းစိန်ဘူတာ",
+    "destination_station_time": "06:57 PM"
+  },
+  {
+    "slug": "306-down",
+    "title": "၃၀၆ (အစုန်)",
+    "route_type_title": "မန္တလေး-တံတားဦး",
+    "type": {
+      "value": "local",
+      "text": "လူစီးကုန်တင်",
+      "color": "3B82F6"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "down",
+      "text": "အစုန်",
+      "color": "3CB371"
+    },
+    "train_model": {
+      "value": "rbe",
+      "text": "RBE",
+      "color": "10b981"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Rbe20260809172927PnCd.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "မန္တလေးဘူတာကြီး",
+    "origin_station_time": "05:30 PM",
+    "destination_station_title": "တံတားဦးဘူတာ",
+    "destination_station_time": "07:00 PM"
+  },
+  {
+    "slug": "62-down-temp",
+    "title": "၆၂ (အစုန်) (ယာယီ)",
+    "route_type_title": "ပုဂံ-ရန်ကုန် (ယာယီ)",
+    "type": {
+      "value": "express",
+      "text": "အမြန်ရထား",
+      "color": "EF4444"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "down",
+      "text": "အစုန်",
+      "color": "3CB371"
+    },
+    "train_model": {
+      "value": "aar",
+      "text": "AAR",
+      "color": "6b7280"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Aar20260723211935Jt9U.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "ပုဂံဘူတာ",
+    "origin_station_time": "06:00 PM",
+    "destination_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "destination_station_time": "12:35 PM"
+  },
+  {
+    "slug": "305-up",
+    "title": "၃၀၅ (အဆန်)",
+    "route_type_title": "တံတားဦး-မန္တလေး",
+    "type": {
+      "value": "urban",
+      "text": "မြို့တွင်း",
+      "color": "8B5CF6"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "up",
+      "text": "အဆန်",
+      "color": "FF6347"
+    },
+    "train_model": {
+      "value": "rbe",
+      "text": "RBE",
+      "color": "10b981"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Rbe20260809172919QSnn.jpg",
+    "online_ticketing_system": {
+      "value": "inactive",
+      "text": "Inactive",
+      "color": "EF4444"
+    },
+    "origin_station_title": "တံတားဦးဘူတာ",
+    "origin_station_time": "07:15 PM",
+    "destination_station_title": "မန္တလေးဘူတာကြီး",
+    "destination_station_time": "08:45 PM"
+  },
+  {
+    "slug": "72-down",
+    "title": "၇၂ (အစုန်)",
+    "route_type_title": "ပြည်-ရန်ကုန်",
+    "type": {
+      "value": "express",
+      "text": "အမြန်ရထား",
+      "color": "EF4444"
+    },
+    "way": {
+      "value": "one-way",
+      "text": "တစ်ကြောင်း",
+      "color": "1E90FF"
+    },
+    "direction": {
+      "value": "down",
+      "text": "အစုန်",
+      "color": "3CB371"
+    },
+    "train_model": {
+      "value": "aar",
+      "text": "AAR",
+      "color": "6b7280"
+    },
+    "cover_image": "https://yrsmm.com/storage/image/Aar20260723211711AsGV.jpg",
+    "online_ticketing_system": {
+      "value": "active",
+      "text": "Active",
+      "color": "3CB371"
+    },
+    "origin_station_title": "ပြည်ဘူတာ",
+    "origin_station_time": "09:00 PM",
+    "destination_station_title": "ရန်ကုန်ဘူတာကြီး",
+    "destination_station_time": "05:10 AM"
+  }
+]

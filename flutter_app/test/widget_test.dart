@@ -11,6 +11,8 @@ import 'package:ybs_guide/data/route_finder.dart';
 import 'package:ybs_guide/pages/home_page.dart';
 import 'package:ybs_guide/pages/routes_page.dart';
 import 'package:ybs_guide/pages/find_route_page.dart';
+import 'package:ybs_guide/data/train_repository.dart';
+import 'package:ybs_guide/pages/train_pages.dart';
 
 void main() {
   test('YBS New is hidden without breaking tab indices', () {
@@ -88,6 +90,30 @@ void main() {
     await tester.tap(find.text('လမ်းကြောင်း ရှာရန်'));
     await tester.pumpAndSettle();
     expect(find.byType(FindRoutePage), findsOneWidget);
+  });
+
+  test('Train JSON loads routes, stations, and timetables', () async {
+    await TrainDataRepository.instance.load();
+    expect(TrainDataRepository.instance.routes, isNotEmpty);
+    expect(TrainDataRepository.instance.stations, isNotEmpty);
+    expect(
+      TrainDataRepository.instance.routes.first.stationSchedules,
+      isNotEmpty,
+    );
+    expect(
+      TrainDataRepository.instance.stations.first.latitude,
+      inInclusiveRange(-90, 90),
+    );
+  });
+
+  testWidgets('Transport chooser presents Bus and Train modes', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(home: TransportModeChooser(busPage: const RootShell())),
+    );
+    expect(find.text('Bus'), findsOneWidget);
+    expect(find.text('Train'), findsOneWidget);
   });
 
   testWidgets('App boots to splash', (WidgetTester tester) async {

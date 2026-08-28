@@ -12,6 +12,7 @@ import 'pages/ybs_new_page.dart';
 import 'pages/assistant_page.dart';
 import 'pages/favorites_page.dart';
 import 'pages/settings_page.dart';
+import 'pages/train_pages.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -46,7 +47,7 @@ class YbsApp extends StatelessWidget {
       // Keep the original light-mode visual design regardless of device theme.
       theme: AppTheme.light(),
       themeMode: ThemeMode.light,
-      home: const RootShell(),
+      home: TransportModeChooser(busPage: const RootShell()),
     );
   }
 }

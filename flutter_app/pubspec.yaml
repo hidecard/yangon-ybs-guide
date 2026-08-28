@@ -1,7 +1,7 @@
 name: ybs_guide
 description: "Yangon YBS AI - Bus routes, route finding, live tracking."
 publish_to: 'none'
-version: 3.3.5+10
+version: 3.4.0+11
 
 environment:
   sdk: ^3.12.0
@@ -61,3 +61,7 @@ flutter:
     - assets/routes.bin
     - assets/icons/logo.png
     - assets/adi-registration.properties
+    - assets/train/routes.json
+    - assets/train/route_details.json
+    - assets/train/stations.json
+    - assets/train/station_details.json
