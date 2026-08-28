@@ -1314,26 +1314,48 @@ class TrainStationDetailPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: AppColors.slate100,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
                         children: [
-                          const Text('တည်နေရာ', style: UI.label),
-                          Text(
-                            '${station.latitude.toStringAsFixed(6)}, ${station.longitude.toStringAsFixed(6)}',
-                            style: const TextStyle(fontWeight: FontWeight.w700),
+                          const Expanded(
+                            child: Text('တည်နေရာ', style: UI.label),
+                          ),
+                          OutlinedButton.icon(
+                            onPressed: _openMap,
+                            icon: const Icon(Icons.open_in_new, size: 16),
+                            label: const Text('Maps'),
+                            style: OutlinedButton.styleFrom(
+                              visualDensity: VisualDensity.compact,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 8,
+                              ),
+                            ),
                           ),
                         ],
                       ),
-                    ),
-                    OutlinedButton.icon(
-                      onPressed: _openMap,
-                      icon: const Icon(Icons.open_in_new, size: 16),
-                      label: const Text('Maps'),
-                    ),
-                  ],
+                      const SizedBox(height: 6),
+                      Text(
+                        '${station.latitude.toStringAsFixed(6)}, ${station.longitude.toStringAsFixed(6)}',
+                        maxLines: 1,
+                        softWrap: false,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 if (station.description.isNotEmpty) ...[
                   const SizedBox(height: 18),

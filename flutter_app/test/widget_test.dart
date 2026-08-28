@@ -132,6 +132,25 @@ void main() {
     expect(find.byIcon(Icons.train), findsWidgets);
   });
 
+  testWidgets('Station location stays on one readable coordinate line', (
+    WidgetTester tester,
+  ) async {
+    await TrainDataRepository.instance.load();
+    final station = TrainDataRepository.instance.stations.first;
+    await tester.pumpWidget(
+      MaterialApp(home: TrainStationDetailPage(station: station)),
+    );
+    await tester.pump();
+
+    final coordinates =
+        '${station.latitude.toStringAsFixed(6)}, ${station.longitude.toStringAsFixed(6)}';
+    final coordinateText = tester.widget<Text>(find.text(coordinates));
+    expect(coordinateText.maxLines, 1);
+    expect(coordinateText.softWrap, isFalse);
+    expect(find.text('တည်နေရာ'), findsOneWidget);
+    expect(find.text('Maps'), findsOneWidget);
+  });
+
   testWidgets('App boots to splash', (WidgetTester tester) async {
     await tester.pumpWidget(
       ChangeNotifierProvider(
