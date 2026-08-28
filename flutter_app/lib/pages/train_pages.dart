@@ -1326,9 +1326,13 @@ class TrainStationDetailPage extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          const Expanded(
-                            child: Text('တည်နေရာ', style: UI.label),
+                          const Text(
+                            'တည်နေရာ',
+                            maxLines: 1,
+                            softWrap: false,
+                            style: UI.label,
                           ),
+                          const Spacer(),
                           OutlinedButton.icon(
                             onPressed: _openMap,
                             icon: const Icon(Icons.open_in_new, size: 16),
