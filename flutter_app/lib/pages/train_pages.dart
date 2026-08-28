@@ -804,6 +804,7 @@ class _TrainRouteDetailPageState extends State<TrainRouteDetailPage> {
   String? _liveError;
   bool _liveLoading = true;
   Timer? _liveTimer;
+  Timer? _clockTimer;
 
   @override
   void initState() {
@@ -813,12 +814,73 @@ class _TrainRouteDetailPageState extends State<TrainRouteDetailPage> {
       const Duration(seconds: 30),
       (_) => _loadLive(),
     );
+    _clockTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (mounted) setState(() {});
+    });
   }
 
   @override
   void dispose() {
     _liveTimer?.cancel();
+    _clockTimer?.cancel();
     super.dispose();
+  }
+
+  int _timeMinutes(String value) {
+    final match = RegExp(
+      r'^(\d{1,2}):(\d{2})\s*(AM|PM)$',
+      caseSensitive: false,
+    ).firstMatch(value.trim());
+    if (match == null) return -1;
+    var hour = int.tryParse(match.group(1)!) ?? -1;
+    final minute = int.tryParse(match.group(2)!) ?? -1;
+    final period = match.group(3)!.toUpperCase();
+    if (hour < 1 || hour > 12 || minute < 0 || minute > 59) return -1;
+    if (period == 'AM') {
+      if (hour == 12) hour = 0;
+    } else if (hour != 12) {
+      hour += 12;
+    }
+    return hour * 60 + minute;
+  }
+
+  ({int index, String status}) _currentJourney(
+    List<TrainStationSchedule> schedules,
+    DateTime now,
+  ) {
+    if (schedules.isEmpty) return (index: -1, status: 'မရရှိပါ');
+    final timeline = <int>[];
+    var dayOffset = 0;
+    var previous = -1;
+    for (final item in schedules) {
+      final minutes = _timeMinutes(item.time);
+      if (minutes < 0) continue;
+      if (previous >= 0 && minutes < previous) dayOffset += 1440;
+      timeline.add(minutes + dayOffset);
+      previous = minutes;
+    }
+    if (timeline.length != schedules.length || timeline.isEmpty) {
+      return (index: 0, status: 'အချိန်မသေချာပါ');
+    }
+
+    var target = now.hour * 60 + now.minute;
+    final crossesMidnight = timeline.last >= 1440;
+    if (target < timeline.first) {
+      if (crossesMidnight) {
+        target += 1440;
+      } else {
+        return (index: 0, status: 'မထွက်ခွာသေးပါ');
+      }
+    }
+    if (target >= timeline.last) {
+      return (index: timeline.length - 1, status: 'ခရီးစဉ်ပြီးဆုံးပါပြီ');
+    }
+    for (var i = 0; i < timeline.length - 1; i++) {
+      if (target >= timeline[i] && target < timeline[i + 1]) {
+        return (index: i, status: 'လက်ရှိရောက်နေပါပြီ');
+      }
+    }
+    return (index: 0, status: 'မထွက်ခွာသေးပါ');
   }
 
   Future<void> _loadLive() async {
@@ -862,6 +924,7 @@ class _TrainRouteDetailPageState extends State<TrainRouteDetailPage> {
   Widget build(BuildContext context) {
     final route = widget.route;
     final live = _positionsForRoute(route);
+    final journey = _currentJourney(route.stationSchedules, DateTime.now());
     final stops = route.stationSchedules
         .where((item) => item.latitude != null && item.longitude != null)
         .toList();
@@ -872,14 +935,20 @@ class _TrainRouteDetailPageState extends State<TrainRouteDetailPage> {
       for (int i = 0; i < stops.length; i++)
         dotMarker(
           LatLng(stops[i].latitude!, stops[i].longitude!),
-          color: i == 0
+          color: i == journey.index
+              ? AppColors.rose
+              : i == 0
               ? AppColors.emeraldDark
               : i == stops.length - 1
               ? AppColors.rose
               : Colors.white,
-          border: route.color,
-          size: i == 0 || i == stops.length - 1 ? 16 : 10,
-          label: stops[i].title,
+          border: i == journey.index ? Colors.white : route.color,
+          size: i == journey.index
+              ? 22
+              : i == 0 || i == stops.length - 1
+              ? 16
+              : 10,
+          label: i == journey.index ? 'ယခုရောက်နေပါပြီ' : stops[i].title,
           subtitle: stops[i].time,
         ),
       ...live.map(
@@ -907,11 +976,7 @@ class _TrainRouteDetailPageState extends State<TrainRouteDetailPage> {
     ];
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          '${route.title} · ${route.routeTypeTitle}',
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
+        title: Text(route.title, maxLines: 1, overflow: TextOverflow.ellipsis),
       ),
       body: ListView(
         children: [
@@ -939,6 +1004,12 @@ class _TrainRouteDetailPageState extends State<TrainRouteDetailPage> {
                     if (route.duration.isNotEmpty)
                       Pill(route.duration, icon: Icons.schedule),
                   ],
+                ),
+                const SizedBox(height: 12),
+                _CurrentJourneyCard(
+                  schedule: route.stationSchedules,
+                  activeIndex: journey.index,
+                  status: journey.status,
                 ),
                 const SizedBox(height: 12),
                 _LiveStatusCard(
@@ -976,6 +1047,7 @@ class _TrainRouteDetailPageState extends State<TrainRouteDetailPage> {
                     index: entry.key,
                     item: entry.value,
                     last: entry.key == route.stationSchedules.length - 1,
+                    active: entry.key == journey.index,
                   ),
                 ),
                 if (route.description.isNotEmpty) ...[
@@ -1015,6 +1087,74 @@ class _TrainRouteDetailPageState extends State<TrainRouteDetailPage> {
                         ),
                       ),
                     ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CurrentJourneyCard extends StatelessWidget {
+  final List<TrainStationSchedule> schedule;
+  final int activeIndex;
+  final String status;
+
+  const _CurrentJourneyCard({
+    required this.schedule,
+    required this.activeIndex,
+    required this.status,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final currentTime =
+        '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+    final station = activeIndex >= 0 && activeIndex < schedule.length
+        ? schedule[activeIndex].title
+        : 'ဘူတာအချက်အလက် မရရှိပါ';
+    final active = status == 'လက်ရှိရောက်နေပါပြီ';
+    final color = active ? AppColors.rose : AppColors.brand;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: active ? AppColors.roseLight : AppColors.slate100,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: color.withValues(alpha: .18)),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            active ? Icons.radio_button_checked : Icons.schedule,
+            color: color,
+            size: 22,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'လက်ရှိအချိန် $currentTime · $status',
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  active ? 'ရထားရောက်နေသောဘူတာ: $station' : station,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 12,
                   ),
                 ),
               ],
@@ -1177,10 +1317,12 @@ class _ScheduleTile extends StatelessWidget {
   final int index;
   final TrainStationSchedule item;
   final bool last;
+  final bool active;
   const _ScheduleTile({
     required this.index,
     required this.item,
     required this.last,
+    required this.active,
   });
   @override
   Widget build(BuildContext context) => IntrinsicHeight(
@@ -1195,12 +1337,23 @@ class _ScheduleTile extends StatelessWidget {
                 width: 12,
                 height: 12,
                 decoration: BoxDecoration(
-                  color: index == 0
+                  color: active
+                      ? AppColors.rose
+                      : index == 0
                       ? AppColors.emeraldDark
                       : last
                       ? AppColors.rose
                       : AppColors.slate300,
                   shape: BoxShape.circle,
+                  boxShadow: active
+                      ? const [
+                          BoxShadow(
+                            color: Color(0x55F43F5E),
+                            blurRadius: 0,
+                            spreadRadius: 5,
+                          ),
+                        ]
+                      : null,
                 ),
               ),
               if (!last)
@@ -1213,19 +1366,45 @@ class _ScheduleTile extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 12),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              decoration: UI.card(),
+              decoration: BoxDecoration(
+                color: active ? AppColors.roseLight : Colors.white,
+                borderRadius: BorderRadius.circular(14),
+                border: active
+                    ? Border.all(color: AppColors.rose.withValues(alpha: .25))
+                    : null,
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x0D000000),
+                    blurRadius: 10,
+                    offset: Offset(0, 3),
+                  ),
+                ],
+              ),
               child: Row(
                 children: [
                   Expanded(
                     child: Text(
                       item.title,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                        fontWeight: active ? FontWeight.w800 : FontWeight.w600,
+                        color: active ? AppColors.rose : AppColors.text,
+                      ),
                     ),
                   ),
+                  if (active)
+                    const Padding(
+                      padding: EdgeInsets.only(right: 8),
+                      child: Pill(
+                        'လက်ရှိ',
+                        bg: AppColors.rose,
+                        fg: Colors.white,
+                        icon: Icons.my_location,
+                      ),
+                    ),
                   Text(
                     item.time,
-                    style: const TextStyle(
-                      color: AppColors.brand,
+                    style: TextStyle(
+                      color: active ? AppColors.rose : AppColors.brand,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
