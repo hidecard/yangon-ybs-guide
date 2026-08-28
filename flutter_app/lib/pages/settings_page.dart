@@ -8,6 +8,13 @@ import '../theme.dart';
 import '../widgets/modals.dart';
 import '../services/notify_service.dart';
 
+class SupportPage extends StatelessWidget {
+  const SupportPage({super.key});
+
+  @override
+  Widget build(BuildContext context) => const _DonationSection();
+}
+
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
@@ -964,7 +971,7 @@ class _DonationSection extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        'YBS AI ကို ဆက်လက်ဖွံ့ဖြိုးရန် ကူညီနိုင်ပါသည်',
+                        'Developer ကို ကော်ဖီတစ်ခွက် ဝယ်တိုက်မလား ☕',
                         style: TextStyle(
                           color: AppColors.slate300,
                           fontSize: 12,
@@ -976,16 +983,30 @@ class _DonationSection extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            _payRow(context, 'Kpay', '09446941632'),
+            const Text(
+              'Ads မပါတာမို့ Developer ကို ကော်ဖီတစ်ခွက် ဝယ်တိုက်မလား ☕ YBS AI App ကို အမြဲတမ်း အခမဲ့ သုံးနိုင်အောင်နဲ့ Server စရိတ်တွေအတွက် မိမိတတ်နိုင်သမျှ ပါဝင်ကူညီနိုင်ပါတယ်ခင်ဗျာ။',
+              style: TextStyle(
+                color: AppColors.slate300,
+                fontSize: 13,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 16),
+            _payRow(context, 'Kpay', '09446941632', 'Acc = Hmwe Kyu Kyu'),
             const SizedBox(height: 8),
-            _payRow(context, 'Wave Money', '09758430371'),
+            _payRow(context, 'Wave Pay', '09758430371', 'Acc = Arkar Yan'),
           ],
         ),
       ),
     );
   }
 
-  Widget _payRow(BuildContext context, String label, String number) {
+  Widget _payRow(
+    BuildContext context,
+    String label,
+    String number,
+    String accountName,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -1012,6 +1033,14 @@ class _DonationSection extends StatelessWidget {
                     color: Colors.white,
                     fontFamily: 'monospace',
                     fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  accountName,
+                  style: const TextStyle(
+                    color: AppColors.slate400,
+                    fontSize: 12,
                   ),
                 ),
               ],

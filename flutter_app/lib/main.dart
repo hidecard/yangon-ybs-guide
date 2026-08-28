@@ -137,6 +137,14 @@ class _RootShellState extends State<RootShell> {
         ),
         actions: [
           IconButton(
+            tooltip: 'Support This Project',
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SupportPage()),
+            ),
+            icon: const Icon(Icons.favorite, color: AppColors.rose),
+          ),
+          IconButton(
             tooltip: 'ဆက်တင်များ',
             onPressed: () => Navigator.push(
               context,

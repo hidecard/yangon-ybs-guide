@@ -333,7 +333,18 @@ class _NearestStopsCardState extends State<_NearestStopsCard> {
 
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: UI.card(),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.borderLight),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0A0F172A),
+            blurRadius: 16,
+            offset: Offset(0, 6),
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -346,27 +357,40 @@ class _NearestStopsCardState extends State<_NearestStopsCard> {
                   child: Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(8),
+                        padding: const EdgeInsets.all(9),
                         decoration: BoxDecoration(
-                          color: AppColors.brandLight,
-                          borderRadius: BorderRadius.circular(8),
+                          color: AppColors.rose.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(11),
                         ),
                         child: const Icon(
-                          Icons.my_location,
-                          size: 16,
-                          color: AppColors.brand,
+                          Icons.location_on,
+                          size: 18,
+                          color: AppColors.rose,
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 10),
                       const Flexible(
-                        child: Text(
-                          'အနီးဆုံးမှတ်တိုင်များ',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                          ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'အနီးနားမှတ်တိုင်များ',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
+                              ),
+                            ),
+                            SizedBox(height: 2),
+                            Text(
+                              'ယခုနေရာအနီးရှိ မှတ်တိုင်များ',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: AppColors.slate500,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -378,7 +402,7 @@ class _NearestStopsCardState extends State<_NearestStopsCard> {
                 onPressed: _locating ? null : _locate,
                 style: FilledButton.styleFrom(
                   backgroundColor: _pos == null
-                      ? AppColors.brand
+                      ? AppColors.rose
                       : AppColors.slate100,
                   foregroundColor: _pos == null
                       ? Colors.white
@@ -405,9 +429,21 @@ class _NearestStopsCardState extends State<_NearestStopsCard> {
           ),
           const SizedBox(height: 12),
           if (_pos == null && _error == null)
-            const Text(
-              '"ယခု နေရာ" ကိုနှိပ်ပြီး သင့်အနီးရှိ မှတ်တိုင်များနှင့် ကားလိုင်းများကို ကြည့်ရှုနိုင်ပါသည်။',
-              style: TextStyle(fontSize: 12, color: AppColors.slate400),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+              decoration: BoxDecoration(
+                color: AppColors.slate100,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Text(
+                '“ယခုနေရာ” ကိုနှိပ်ပြီး သင့်အနီးရှိ မှတ်တိုင်များနှင့် ကားလိုင်းများကို ကြည့်ရှုနိုင်ပါသည်။',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppColors.slate500,
+                  height: 1.35,
+                ),
+              ),
             ),
           if (_error != null)
             Text(
@@ -444,7 +480,7 @@ class _NearestStopsCardState extends State<_NearestStopsCard> {
               const Icon(
                 Icons.location_on_outlined,
                 size: 18,
-                color: AppColors.brand,
+                color: AppColors.rose,
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -489,8 +525,8 @@ class _NearestStopsCardState extends State<_NearestStopsCard> {
               ),
               Pill(
                 '${(distance * 1000).toStringAsFixed(0)}m',
-                bg: AppColors.brandLight,
-                fg: AppColors.brandHover,
+                bg: AppColors.rose.withValues(alpha: 0.12),
+                fg: AppColors.rose,
               ),
             ],
           ),
