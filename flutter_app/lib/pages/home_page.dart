@@ -109,9 +109,6 @@ class _HomePageState extends State<HomePage> {
               .map((a) => _quickAction(a.$1, a.$2, a.$3, a.$4))
               .toList(),
         ),
-        const SizedBox(height: 24),
-        _NearestStopsCard(state: state),
-        const SizedBox(height: 24),
         const Text('ခရီးသွားရန် အကြံပြုချက်များ', style: UI.sectionTitle),
         const SizedBox(height: 12),
         ..._travelTips.map(_tipCard),
