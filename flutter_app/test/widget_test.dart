@@ -13,6 +13,7 @@ import 'package:ybs_guide/pages/routes_page.dart';
 import 'package:ybs_guide/pages/find_route_page.dart';
 import 'package:ybs_guide/data/train_repository.dart';
 import 'package:ybs_guide/pages/train_pages.dart';
+import 'package:ybs_guide/services/train_live_service.dart';
 
 void main() {
   test('YBS New is hidden without breaking tab indices', () {
@@ -114,6 +115,20 @@ void main() {
     );
     expect(find.text('Bus'), findsOneWidget);
     expect(find.text('Train'), findsOneWidget);
+  });
+
+  test('Live train decoder preserves source coordinates', () {
+    final position = TrainLivePosition.fromJson({
+      'route_slug': '141-up',
+      'route_title': '၁၄၁ (အဆန်)',
+      'latitude': '16.781076',
+      'longitude': '96.161943',
+      'way': {'text': 'အဆန်'},
+      'train_model': {'text': 'AAR'},
+    });
+    expect(position.routeSlug, '141-up');
+    expect(position.latitude, 16.781076);
+    expect(position.longitude, 96.161943);
   });
 
   testWidgets('App boots to splash', (WidgetTester tester) async {

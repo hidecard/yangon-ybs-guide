@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -5,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../config.dart';
 import '../data/train_repository.dart';
+import '../services/train_live_service.dart';
 import '../theme.dart';
 import '../train_models.dart';
 import '../widgets/osm_map.dart';
@@ -787,12 +790,78 @@ class _StationMiniTile extends StatelessWidget {
   );
 }
 
-class TrainRouteDetailPage extends StatelessWidget {
+class TrainRouteDetailPage extends StatefulWidget {
   final TrainRoute route;
   const TrainRouteDetailPage({super.key, required this.route});
 
   @override
+  State<TrainRouteDetailPage> createState() => _TrainRouteDetailPageState();
+}
+
+class _TrainRouteDetailPageState extends State<TrainRouteDetailPage> {
+  List<TrainLivePosition> _livePositions = const [];
+  DateTime? _lastLiveUpdate;
+  String? _liveError;
+  bool _liveLoading = true;
+  Timer? _liveTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLive();
+    _liveTimer = Timer.periodic(
+      const Duration(seconds: 30),
+      (_) => _loadLive(),
+    );
+  }
+
+  @override
+  void dispose() {
+    _liveTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _loadLive() async {
+    if (!mounted) return;
+    setState(() {
+      _liveLoading = true;
+      _liveError = null;
+    });
+    try {
+      final snapshot = await TrainLiveService.instance.fetch();
+      if (!mounted) return;
+      setState(() {
+        _livePositions = snapshot.positions;
+        _lastLiveUpdate = snapshot.fetchedAt;
+        _liveLoading = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _liveLoading = false;
+        _liveError = 'Live ရထားတည်နေရာကို ယခုရယူမရသေးပါ။';
+      });
+    }
+  }
+
+  List<TrainLivePosition> _positionsForRoute(TrainRoute route) {
+    final title = route.title.trim();
+    return _livePositions.where((position) {
+      final sameSlug =
+          position.routeSlug.isNotEmpty && position.routeSlug == route.slug;
+      final sameTitle =
+          position.routeTitle.isNotEmpty &&
+          (position.routeTitle == title ||
+              position.routeTitle.contains(title) ||
+              title.contains(position.routeTitle));
+      return sameSlug || sameTitle;
+    }).toList();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final route = widget.route;
+    final live = _positionsForRoute(route);
     final stops = route.stationSchedules
         .where((item) => item.latitude != null && item.longitude != null)
         .toList();
@@ -813,6 +882,18 @@ class TrainRouteDetailPage extends StatelessWidget {
           label: stops[i].title,
           subtitle: stops[i].time,
         ),
+      ...live.map(
+        (position) => dotMarker(
+          LatLng(position.latitude, position.longitude),
+          color: AppColors.rose,
+          border: Colors.white,
+          size: 22,
+          label: 'LIVE',
+          subtitle: position.routeTitle.isEmpty
+              ? 'လက်ရှိရထား'
+              : position.routeTitle,
+        ),
+      ),
     ];
     final lines = [
       if (stops.length > 1)
@@ -858,6 +939,14 @@ class TrainRouteDetailPage extends StatelessWidget {
                     if (route.duration.isNotEmpty)
                       Pill(route.duration, icon: Icons.schedule),
                   ],
+                ),
+                const SizedBox(height: 12),
+                _LiveStatusCard(
+                  loading: _liveLoading,
+                  positions: live,
+                  lastUpdated: _lastLiveUpdate,
+                  error: _liveError,
+                  onRefresh: _loadLive,
                 ),
                 const SizedBox(height: 18),
                 _InfoGrid(route: route),
@@ -930,6 +1019,98 @@ class TrainRouteDetailPage extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LiveStatusCard extends StatelessWidget {
+  final bool loading;
+  final List<TrainLivePosition> positions;
+  final DateTime? lastUpdated;
+  final String? error;
+  final VoidCallback onRefresh;
+
+  const _LiveStatusCard({
+    required this.loading,
+    required this.positions,
+    required this.lastUpdated,
+    required this.error,
+    required this.onRefresh,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final hasLive = positions.isNotEmpty;
+    final color = error != null
+        ? AppColors.rose
+        : hasLive
+        ? AppColors.emeraldDark
+        : AppColors.slate600;
+    final time = lastUpdated == null
+        ? ''
+        : '${lastUpdated!.hour.toString().padLeft(2, '0')}:${lastUpdated!.minute.toString().padLeft(2, '0')}';
+    final message = error != null
+        ? error!
+        : loading
+        ? 'Live ရထားတည်နေရာ ရယူနေပါသည်...'
+        : hasLive
+        ? '${positions.length} စီး တွေ့ရှိ · နောက်ဆုံး update $time'
+        : 'ယခုအချိန် active ရထားတည်နေရာ မရရှိပါ။';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: .09),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: color.withValues(alpha: .18)),
+      ),
+      child: Row(
+        children: [
+          loading
+              ? SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: color,
+                  ),
+                )
+              : Icon(
+                  hasLive ? Icons.location_on : Icons.location_searching,
+                  color: color,
+                  size: 22,
+                ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  hasLive ? 'LIVE TRAIN LOCATION' : 'LIVE TRAIN STATUS',
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  message,
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            tooltip: 'ပြန်လည်ရယူမည်',
+            onPressed: loading ? null : onRefresh,
+            icon: Icon(Icons.refresh, color: color),
           ),
         ],
       ),
