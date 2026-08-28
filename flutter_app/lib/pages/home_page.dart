@@ -305,7 +305,8 @@ class _NearestStopsCardState extends State<_NearestStopsCard> {
     if (!mounted) return;
     if (p == null) {
       setState(() {
-        _error = 'လိုက်ရှင်း ရယူ၍ မရပါ။ Location permission ကို allow လုပ်ပါ။';
+        _error =
+            'တည်နေရာ မရရှိသေးပါ။ Location ဖွင့်ထားပြီး permission ကို Allow လုပ်ပါ။';
         _locating = false;
       });
       return;
@@ -338,24 +339,41 @@ class _NearestStopsCardState extends State<_NearestStopsCard> {
         children: [
           Row(
             children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.brandLight,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(
-                  Icons.my_location,
-                  size: 16,
-                  color: AppColors.brand,
+              Expanded(
+                child: InkWell(
+                  onTap: _locating ? null : _locate,
+                  borderRadius: BorderRadius.circular(10),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppColors.brandLight,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(
+                          Icons.my_location,
+                          size: 16,
+                          color: AppColors.brand,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      const Flexible(
+                        child: Text(
+                          'အနီးဆုံးမှတ်တိုင်များ',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(width: 8),
-              const Text(
-                'အနီးဆုံးမှတ်တိုင်များ',
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-              ),
-              const Spacer(),
               FilledButton.icon(
                 onPressed: _locating ? null : _locate,
                 style: FilledButton.styleFrom(

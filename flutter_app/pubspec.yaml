@@ -1,7 +1,7 @@
 name: ybs_guide
 description: "Yangon YBS AI - Bus routes, route finding, live tracking."
 publish_to: 'none'
-version: 3.4.1+12
+version: 3.4.2+13
 
 environment:
   sdk: ^3.12.0
