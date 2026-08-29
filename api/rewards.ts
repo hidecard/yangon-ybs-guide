@@ -1,0 +1,140 @@
+import { createClient } from '@libsql/client';
+
+const turso = createClient({
+  url: process.env.TURSO_DATABASE_URL!,
+  authToken: process.env.TURSO_AUTH_TOKEN!,
+});
+
+let schemaReady: Promise<void> | null = null;
+function ensureSchema(): Promise<void> {
+  if (!schemaReady) {
+    schemaReady = (async () => {
+      await turso.execute(`CREATE TABLE IF NOT EXISTS rewards (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        description TEXT,
+        cost INTEGER NOT NULL,
+        stock INTEGER DEFAULT -1,
+        icon TEXT,
+        is_active INTEGER DEFAULT 1,
+        created_at INTEGER NOT NULL
+      )`);
+      await turso.execute(`CREATE TABLE IF NOT EXISTS redemptions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        device_id TEXT NOT NULL,
+        reward_id INTEGER NOT NULL,
+        points_spent INTEGER NOT NULL,
+        claim_contact TEXT,
+        status TEXT DEFAULT 'pending',
+        note TEXT,
+        created_at INTEGER NOT NULL
+      )`);
+      await turso.execute(
+        `CREATE INDEX IF NOT EXISTS idx_redemptions_device ON redemptions(device_id, created_at DESC)`
+      );
+    })().catch((e) => {
+      schemaReady = null;
+      throw e;
+    });
+  }
+  return schemaReady;
+}
+
+export default async function handler(req: any, res: any) {
+  try {
+    await ensureSchema();
+
+    if (req.method === 'GET') {
+      const activeOnly = req.query?.active !== 'false';
+      let sql = 'SELECT id, title, description, cost, stock, icon, is_active FROM rewards';
+      const args: any[] = [];
+      if (activeOnly) {
+        sql += ' WHERE is_active = 1';
+      }
+      sql += ' ORDER BY cost ASC';
+      const r = await turso.execute({ sql, args });
+      const rewards = r.rows.map((row: any) => ({
+        id: Number(row.id),
+        title: String(row.title),
+        description: row.description ? String(row.description) : '',
+        cost: Number(row.cost),
+        stock: row.stock != null ? Number(row.stock) : -1,
+        icon: row.icon ? String(row.icon) : '🎁',
+        isActive: Number(row.is_active) === 1,
+      }));
+      return res.status(200).json({ rewards });
+    }
+
+    if (req.method === 'POST') {
+      const { device_id, reward_id, claim_contact } = req.body || {};
+      if (!device_id || !reward_id || !claim_contact) {
+        return res.status(400).json({ error: 'device_id, reward_id, claim_contact required' });
+      }
+
+      const reward = await turso.execute(
+        'SELECT id, title, cost, stock, is_active FROM rewards WHERE id = ?',
+        [Number(reward_id)]
+      );
+      if (reward.rows.length === 0) {
+        return res.status(404).json({ error: 'Reward not found' });
+      }
+      const r = reward.rows[0];
+      if (Number(r.is_active) !== 1) {
+        return res.status(400).json({ error: 'Reward is not available' });
+      }
+      const cost = Number(r.cost);
+      const stock = r.stock != null ? Number(r.stock) : -1;
+      if (stock === 0) {
+        return res.status(400).json({ error: 'Out of stock' });
+      }
+
+      const user = await turso.execute(
+        'SELECT total_points FROM leaderboard_users WHERE device_id = ?',
+        [device_id]
+      );
+      if (user.rows.length === 0) {
+        return res.status(400).json({ error: 'User not registered' });
+      }
+      const currentPoints = Number(user.rows[0].total_points ?? 0);
+      if (currentPoints < cost) {
+        return res.status(400).json({ error: 'Not enough points', required: cost, current: currentPoints });
+      }
+
+      const newTotal = currentPoints - cost;
+      await turso.execute(
+        'UPDATE leaderboard_users SET total_points = ?, updated_at = ? WHERE device_id = ?',
+        [newTotal, Date.now(), device_id]
+      );
+      await turso.execute(
+        `INSERT INTO points_history (device_id, points_changed, reason, reference_id, created_at)
+         VALUES (?, ?, ?, ?, ?)`,
+        [device_id, -cost, 'gift_redeem', `reward_${reward_id}`, Date.now()]
+      );
+
+      if (stock > 0) {
+        await turso.execute(
+          'UPDATE rewards SET stock = stock - 1 WHERE id = ?',
+          [Number(reward_id)]
+        );
+      }
+
+      await turso.execute(
+        `INSERT INTO redemptions (device_id, reward_id, points_spent, claim_contact, status, note, created_at)
+         VALUES (?, ?, ?, ?, 'pending', '', ?)`,
+        [device_id, Number(reward_id), cost, String(claim_contact), Date.now()]
+      );
+
+      return res.status(200).json({
+        ok: true,
+        points_spent: cost,
+        new_total: newTotal,
+        reward_title: String(r.title),
+      });
+    }
+
+    return res.status(405).json({ error: 'Method Not Allowed' });
+  } catch (error) {
+    console.error('Rewards API Error:', error);
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
+}

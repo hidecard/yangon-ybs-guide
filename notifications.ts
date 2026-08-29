@@ -36,12 +36,15 @@ export async function postNotification(n: {
   title: string;
   message: string;
   type?: 'info' | 'update' | 'alert';
+  token?: string;
 }): Promise<boolean> {
   try {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (n.token) headers['Authorization'] = `Bearer ${n.token}`;
     await api('/api/notifications', {
       method: 'POST',
-      headers: { Authorization: 'Bearer hidecard969aky' },
-      body: JSON.stringify(n),
+      headers,
+      body: JSON.stringify({ title: n.title, message: n.message, type: n.type }),
     });
     return true;
   } catch {

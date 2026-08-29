@@ -5,7 +5,7 @@ const turso = createClient({
   authToken: process.env.TURSO_AUTH_TOKEN!,
 });
 
-const ADMIN_PASSWORD = 'hidecard969aky';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
 
 let schemaReady: Promise<void> | null = null;
 function ensureSchema(): Promise<void> {
@@ -26,7 +26,14 @@ function ensureSchema(): Promise<void> {
   return schemaReady;
 }
 
+function cors(req: any, res: any) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+}
+
 async function verify(req: any): Promise<boolean> {
+  if (!ADMIN_PASSWORD) return false;
   const auth = req.headers.authorization || '';
   if (auth.startsWith('Bearer ')) {
     return auth.slice(7) === ADMIN_PASSWORD;
@@ -35,6 +42,11 @@ async function verify(req: any): Promise<boolean> {
 }
 
 export default async function handler(req: any, res: any) {
+  cors(req, res);
+  if (req.method === 'OPTIONS') {
+    return res.status(200).json({});
+  }
+
   try {
     await ensureSchema();
 

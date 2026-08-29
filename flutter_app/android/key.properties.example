@@ -1,0 +1,10 @@
+# Copy this file to key.properties and replace every placeholder.
+# Never commit key.properties or the .jks file to source control.
+storePassword=REPLACE_WITH_KEYSTORE_PASSWORD
+keyPassword=REPLACE_WITH_KEY_PASSWORD
+keyAlias=upload
+# Relative paths are resolved from the android/ directory.
+storeFile=upload-keystore.jks
+
+# For CI, create this file from encrypted GitHub Actions secrets before
+# running flutter build apk/appbundle --release.

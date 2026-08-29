@@ -1,0 +1,128 @@
+name: Build Flutter Android Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      play_store_release:
+        description: "Require upload-keystore signing for Play Store release"
+        required: true
+        default: false
+        type: boolean
+  push:
+    branches:
+      - V3
+    paths:
+      - "flutter_app/**"
+      - ".github/workflows/flutter-apk.yml"
+  pull_request:
+    branches:
+      - V3
+    paths:
+      - "flutter_app/**"
+      - ".github/workflows/flutter-apk.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build-android:
+    name: Build Android APK and App Bundle
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: flutter_app
+    steps:
+      - name: Checkout V3
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: "3.47.2"
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Validate route data
+        run: dart run tools/validate_routes.dart
+
+      - name: Check code
+        run: flutter analyze
+
+      - name: Run tests
+        run: flutter test
+
+      - name: Configure upload signing
+        id: signing
+        shell: bash
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+          PLAY_STORE_RELEASE: ${{ inputs.play_store_release || 'false' }}
+        run: |
+          if [[ -n "$ANDROID_KEYSTORE_BASE64" && -n "$ANDROID_KEY_ALIAS" && -n "$ANDROID_KEY_PASSWORD" && -n "$ANDROID_STORE_PASSWORD" ]]; then
+            printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/upload-keystore.jks
+            cat > android/key.properties <<EOF
+          storePassword=$ANDROID_STORE_PASSWORD
+          keyPassword=$ANDROID_KEY_PASSWORD
+          keyAlias=$ANDROID_KEY_ALIAS
+          storeFile=upload-keystore.jks
+          EOF
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo '::warning::Android signing secrets are not configured; this run will use the debug key and is not Play Store upload-ready.'
+            if [[ "$PLAY_STORE_RELEASE" == 'true' ]]; then
+              echo 'Play Store release requested, but signing secrets are missing.' >&2
+              exit 1
+            fi
+          fi
+
+      - name: Build release APK
+        run: flutter build apk --release
+
+      - name: Build Play Store App Bundle
+        run: flutter build appbundle --release
+
+      - name: Write release metadata
+        shell: bash
+        env:
+          SIGNING_CONFIGURED: ${{ steps.signing.outputs.configured }}
+          PLAY_STORE_RELEASE: ${{ inputs.play_store_release || 'false' }}
+        run: |
+          {
+            echo "version=$(awk '/^version:/{print $2}' pubspec.yaml)"
+            echo "flutter=3.47.2"
+            echo "signing_configured=$SIGNING_CONFIGURED"
+            echo "play_store_release=$PLAY_STORE_RELEASE"
+            sha256sum build/app/outputs/flutter-apk/app-release.apk
+            sha256sum build/app/outputs/bundle/release/app-release.aab
+          } > build/release-metadata.txt
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: yangon-ybs-guide-v3-apk
+          path: flutter_app/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload App Bundle artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: yangon-ybs-guide-v3-aab
+          path: flutter_app/build/app/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload release metadata artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: yangon-ybs-guide-v3-release-metadata
+          path: flutter_app/build/release-metadata.txt
+          if-no-files-found: error
+          retention-days: 14

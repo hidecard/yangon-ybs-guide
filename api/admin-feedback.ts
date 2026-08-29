@@ -5,7 +5,7 @@ const turso = createClient({
   authToken: process.env.TURSO_AUTH_TOKEN!,
 });
 
-const ADMIN_PASSWORD = 'hidecard969aky';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
 
 async function verify(req: any): Promise<boolean> {
   const auth = req.headers.authorization || '';

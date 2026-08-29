@@ -1,0 +1,1901 @@
+{
+    "bus_line": "1",
+    "route_info": {
+        "Route Name": "1",
+        "Line Name": "(၁) လှည်းကူးဈေး - ဇဝန",
+        "Agency": "GYCT",
+        "Route Type": "route",
+        "Total Stops": "236 stops",
+        "QR Payment": "Not available"
+    },
+    "stops": [
+        {
+            "index": "1",
+            "stop_name_en": "Hlegu Zay",
+            "stop_name_mm": "လှည်းကူးဈေး",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.096672,
+            "longitude": 96.219097
+        },
+        {
+            "index": "2",
+            "stop_name_en": "Tin Zar Oo",
+            "stop_name_mm": "သဉ္ဇာဦး",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.098352,
+            "longitude": 96.223179
+        },
+        {
+            "index": "3",
+            "stop_name_en": "Hlegu Tar Sone",
+            "stop_name_mm": "လှည်းကူးတာဆုံ",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.099458,
+            "longitude": 96.225736
+        },
+        {
+            "index": "4",
+            "stop_name_en": "Yezin Road",
+            "stop_name_mm": "ရေဆင်းလမ်း",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.100609,
+            "longitude": 96.228848
+        },
+        {
+            "index": "5",
+            "stop_name_en": "Nget Pyaw Taw",
+            "stop_name_mm": "ငှက်ပျောတော",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.10145,
+            "longitude": 96.231054
+        },
+        {
+            "index": "6",
+            "stop_name_en": "Mee That",
+            "stop_name_mm": "မီးသတ်",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.102627,
+            "longitude": 96.234177
+        },
+        {
+            "index": "7",
+            "stop_name_en": "107 Gate",
+            "stop_name_mm": "၁၀၇ ဂိတ်",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.104945,
+            "longitude": 96.240293
+        },
+        {
+            "index": "8",
+            "stop_name_en": "Ywa Le Kway",
+            "stop_name_mm": "ရွာလယ်ကွေ့",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.107311,
+            "longitude": 96.246134
+        },
+        {
+            "index": "9",
+            "stop_name_en": "Bodhi Pin",
+            "stop_name_mm": "ဗောဓိပင်",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.109037,
+            "longitude": 96.248194
+        },
+        {
+            "index": "10",
+            "stop_name_en": "Pyin Nyar Yay College",
+            "stop_name_mm": "ပညာရေးကောလိပ်",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.113482,
+            "longitude": 96.253445
+        },
+        {
+            "index": "11",
+            "stop_name_en": "Dayal Pho Sel Myoung",
+            "stop_name_mm": "ဒရယ်ဖိုဆည်မြောင်း",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.118019,
+            "longitude": 96.258971
+        },
+        {
+            "index": "12",
+            "stop_name_en": "Pauk Kone",
+            "stop_name_mm": "ပေါက်ကုန်း",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.123385,
+            "longitude": 96.265448
+        },
+        {
+            "index": "13",
+            "stop_name_en": "War Tada",
+            "stop_name_mm": "ဝါးတံတား",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.126907,
+            "longitude": 96.269663
+        },
+        {
+            "index": "14",
+            "stop_name_en": "War Net Kone",
+            "stop_name_mm": "ဝါးနက်ကုန်း",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.129672,
+            "longitude": 96.275145
+        },
+        {
+            "index": "15",
+            "stop_name_en": "Ye Mon Cantonment Town",
+            "stop_name_mm": "ရဲမွန်တပ်မြို့",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.130113,
+            "longitude": 96.276389
+        },
+        {
+            "index": "16",
+            "stop_name_en": "Lann Thit",
+            "stop_name_mm": "လမ်းသစ်",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.134911,
+            "longitude": 96.290021
+        },
+        {
+            "index": "17",
+            "stop_name_en": "Hlays Lann",
+            "stop_name_mm": "လှည်းလမ်း",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.135634,
+            "longitude": 96.291833
+        },
+        {
+            "index": "18",
+            "stop_name_en": "Kone Hteik",
+            "stop_name_mm": "ကုန်းထိပ်",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.136177,
+            "longitude": 96.293088
+        },
+        {
+            "index": "19",
+            "stop_name_en": "Ye Mon Monastery",
+            "stop_name_mm": "ရဲမွန်ဘုန်းကြီးကျောင်း",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.137254,
+            "longitude": 96.295165
+        },
+        {
+            "index": "20",
+            "stop_name_en": "Kyauk Ta Lone",
+            "stop_name_mm": "ကျောက်တလုံး",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.14074,
+            "longitude": 96.301194
+        },
+        {
+            "index": "21",
+            "stop_name_en": "COD Kyaung",
+            "stop_name_mm": "စီအိုဒီကျောင်း",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.142811,
+            "longitude": 96.304542
+        },
+        {
+            "index": "22",
+            "stop_name_en": "COD Zay",
+            "stop_name_mm": "စီအိုဒီဈေး",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.144267,
+            "longitude": 96.307642
+        },
+        {
+            "index": "23",
+            "stop_name_en": "COD Sar Taik",
+            "stop_name_mm": "စီအိုဒီစာတိုက်",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.144948,
+            "longitude": 96.309343
+        },
+        {
+            "index": "24",
+            "stop_name_en": "Koe Shit Thit",
+            "stop_name_mm": "ကိုးရှစ်တစ်",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.145835,
+            "longitude": 96.311638
+        },
+        {
+            "index": "25",
+            "stop_name_en": "Say Yone Haung",
+            "stop_name_mm": "ဆေးရုံဟောင်း",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.14726,
+            "longitude": 96.315453
+        },
+        {
+            "index": "26",
+            "stop_name_en": "Zayetkwin Than Lann",
+            "stop_name_mm": "ဇရပ်ကွင်းသံလမ်း",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.148265,
+            "longitude": 96.317963
+        },
+        {
+            "index": "27",
+            "stop_name_en": "Zayetkwin Lann Sone",
+            "stop_name_mm": "ဇရပ်ကွင်းလမ်းဆုံ (အမှတ် ၂ လမ်း)",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.150185,
+            "longitude": 96.32284
+        },
+        {
+            "index": "28",
+            "stop_name_en": "Gandamarpouk",
+            "stop_name_mm": "ဂန္ဓာမာပေါက်",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.142416,
+            "longitude": 96.323762
+        },
+        {
+            "index": "29",
+            "stop_name_en": "San Yay Pyar",
+            "stop_name_mm": "စမ်းရေပြာ",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.136517,
+            "longitude": 96.32497
+        },
+        {
+            "index": "30",
+            "stop_name_en": "Oak Khon",
+            "stop_name_mm": "အုတ်ခုံ",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.126864,
+            "longitude": 96.326108
+        },
+        {
+            "index": "31",
+            "stop_name_en": "Site Car Gate",
+            "stop_name_mm": "ဆိုက်ကားဂိတ်",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.131103,
+            "longitude": 96.32667
+        },
+        {
+            "index": "32",
+            "stop_name_en": "Phaya Gate",
+            "stop_name_mm": "ဘုရားဂိတ်",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.128586,
+            "longitude": 96.326338
+        },
+        {
+            "index": "33",
+            "stop_name_en": "Ywar Pouk",
+            "stop_name_mm": "ရွာပေါက်",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.126163,
+            "longitude": 96.326091
+        },
+        {
+            "index": "34",
+            "stop_name_en": "Zay Shae",
+            "stop_name_mm": "ဈေးရှေ့",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.120538,
+            "longitude": 96.325067
+        },
+        {
+            "index": "35",
+            "stop_name_en": "Than Lann",
+            "stop_name_mm": "သံလမ်း",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.119559,
+            "longitude": 96.324895
+        },
+        {
+            "index": "36",
+            "stop_name_en": "Say Kham",
+            "stop_name_mm": "ဆေးခန်း",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.117933,
+            "longitude": 96.324573
+        },
+        {
+            "index": "37",
+            "stop_name_en": "Ywar Lel",
+            "stop_name_mm": "ရွာလယ်",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.116328,
+            "longitude": 96.324251
+        },
+        {
+            "index": "38",
+            "stop_name_en": "Lann Thit",
+            "stop_name_mm": "လမ်းသစ်",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.111799,
+            "longitude": 96.323372
+        },
+        {
+            "index": "39",
+            "stop_name_en": "Inn Taing Winhtan",
+            "stop_name_mm": "အင်းတိုင်ဝန်ထမ်း",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.110031,
+            "longitude": 96.322933
+        },
+        {
+            "index": "40",
+            "stop_name_en": "A Lel Tan Kyaung Shae",
+            "stop_name_mm": "အလယ်တန်းကျောင်းရှေ့",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.108534,
+            "longitude": 96.322526
+        },
+        {
+            "index": "41",
+            "stop_name_en": "Kyauk Set",
+            "stop_name_mm": "ကျောက်စက်",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.100437,
+            "longitude": 96.32089
+        },
+        {
+            "index": "42",
+            "stop_name_en": "Ta Loke Kone",
+            "stop_name_mm": "တလုတ်ကုန်း",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.093186,
+            "longitude": 96.319448
+        },
+        {
+            "index": "43",
+            "stop_name_en": "Waryonesoae",
+            "stop_name_mm": "ဝါးရုံစွန်း",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.086633,
+            "longitude": 96.318114
+        },
+        {
+            "index": "44",
+            "stop_name_en": "Sel Myaung",
+            "stop_name_mm": "ဆည်မြောင်း",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.084911,
+            "longitude": 96.317793
+        },
+        {
+            "index": "45",
+            "stop_name_en": "U Phoo Kwae",
+            "stop_name_mm": "ဦးဖိုးကွေ့",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.081333,
+            "longitude": 96.317085
+        },
+        {
+            "index": "46",
+            "stop_name_en": "A Naut Zayet",
+            "stop_name_mm": "အနောက်ဇရပ်",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.079601,
+            "longitude": 96.316581
+        },
+        {
+            "index": "47",
+            "stop_name_en": "Ywar Lel Yay Nann",
+            "stop_name_mm": "ရွာဝင်ရေနံ",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.076607,
+            "longitude": 96.315316
+        },
+        {
+            "index": "48",
+            "stop_name_en": "Yay Oo Sin",
+            "stop_name_mm": "ရေအိုးစင်",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.068972,
+            "longitude": 96.311967
+        },
+        {
+            "index": "49",
+            "stop_name_en": "Sar Ta Lin Set Shae",
+            "stop_name_mm": "ဆားတလင်းစက်ရှေ့",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.066153,
+            "longitude": 96.310787
+        },
+        {
+            "index": "50",
+            "stop_name_en": "Sar Ta Lin Ywar Lel",
+            "stop_name_mm": "ဆားတလင်းရွာလယ်",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.063436,
+            "longitude": 96.309576
+        },
+        {
+            "index": "51",
+            "stop_name_en": "Sar Ta Lin Lann Sone",
+            "stop_name_mm": "ဆားတလင်းလမ်းဆုံ",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.061391,
+            "longitude": 96.308721
+        },
+        {
+            "index": "52",
+            "stop_name_en": "Sar Ta Lin Kyaung Shae",
+            "stop_name_mm": "ဆားတလင်းကျောင်းရှေ့",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.058962,
+            "longitude": 96.307568
+        },
+        {
+            "index": "53",
+            "stop_name_en": "Sar Ta Lin Pann Chan",
+            "stop_name_mm": "ဆားတလင်းပန်းခြံ",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.056091,
+            "longitude": 96.306775
+        },
+        {
+            "index": "54",
+            "stop_name_en": "Kyar Kan Tadar",
+            "stop_name_mm": "ကြာကန်တံတား",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.051893,
+            "longitude": 96.30585
+        },
+        {
+            "index": "55",
+            "stop_name_en": "Ngyoke Phoo Tadar",
+            "stop_name_mm": "ငရုတ်ဖိုတံတား",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.042683,
+            "longitude": 96.303931
+        },
+        {
+            "index": "56",
+            "stop_name_en": "Bo Taw Pouk",
+            "stop_name_mm": "ဘိုးတော်ပေါက်",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.040559,
+            "longitude": 96.303497
+        },
+        {
+            "index": "57",
+            "stop_name_en": "Thone Tone Lone",
+            "stop_name_mm": "သုံးသုံးလုံး",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.039216,
+            "longitude": 96.303239
+        },
+        {
+            "index": "58",
+            "stop_name_en": "Ywar Awin Yay  Kan",
+            "stop_name_mm": "ရွာအဝင်ရေကန်",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.03525,
+            "longitude": 96.302419
+        },
+        {
+            "index": "59",
+            "stop_name_en": "A Htet Ywar Kyaung Shae",
+            "stop_name_mm": "အထက်ရွာကျောင်းရှေ့",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.033435,
+            "longitude": 96.302001
+        },
+        {
+            "index": "60",
+            "stop_name_en": "Tama Sai",
+            "stop_name_mm": "သမဆိုင်",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.030523,
+            "longitude": 96.301475
+        },
+        {
+            "index": "61",
+            "stop_name_en": "A Htet Ywar Kyaung",
+            "stop_name_mm": "အထက်ရွာကျောင်း",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.028513,
+            "longitude": 96.301315
+        },
+        {
+            "index": "62",
+            "stop_name_en": "A Htet Set",
+            "stop_name_mm": "အထက်စက်",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.027048,
+            "longitude": 96.300904
+        },
+        {
+            "index": "63",
+            "stop_name_en": "Naywarkyar Yay Oo Sin",
+            "stop_name_mm": "နှစ်ရွာကြားရေအိုးစင်",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.022853,
+            "longitude": 96.299081
+        },
+        {
+            "index": "64",
+            "stop_name_en": "Nwar Chan",
+            "stop_name_mm": "နွားခြံ",
+            "road": "No. 2 Main Road, East Dagon",
+            "latitude": 17.02033,
+            "longitude": 96.297965
+        },
+        {
+            "index": "65",
+            "stop_name_en": "Aut Ywar Yeik Thar",
+            "stop_name_mm": "အောက်ရွာရိပ်သာ",
+            "road": "No. 2 Main Road, East Dagon",
+            "latitude": 17.018843,
+            "longitude": 96.297386
+        },
+        {
+            "index": "66",
+            "stop_name_en": "Aut Ywar Tadar",
+            "stop_name_mm": "အောက်ရွာတံတား",
+            "road": "No. 2 Main Road, East Dagon",
+            "latitude": 17.017459,
+            "longitude": 96.296968
+        },
+        {
+            "index": "67",
+            "stop_name_en": "Aut Ywar Kyauung",
+            "stop_name_mm": "အောက်ရွာကျောင်း",
+            "road": "No. 2 Main Road, East Dagon",
+            "latitude": 17.016064,
+            "longitude": 96.296979
+        },
+        {
+            "index": "68",
+            "stop_name_en": "Aut Ywar Yay Oo Sin",
+            "stop_name_mm": "အောက်ရွာရေအိုးစင်",
+            "road": "No. 2 Main Road,  East Dagon",
+            "latitude": 17.014608,
+            "longitude": 96.297172
+        },
+        {
+            "index": "69",
+            "stop_name_en": "Aut Set",
+            "stop_name_mm": "အောက်စက်",
+            "road": "No. 2 Main Road, East Dagon",
+            "latitude": 17.012065,
+            "longitude": 96.297429
+        },
+        {
+            "index": "70",
+            "stop_name_en": "Aut Ywar Si Sai",
+            "stop_name_mm": "အောက်ရွာဆီဆိုင်",
+            "road": "No. 2 Main Road, East Dagon",
+            "latitude": 17.006773,
+            "longitude": 96.299006
+        },
+        {
+            "index": "71",
+            "stop_name_en": "Sel Myaung",
+            "stop_name_mm": "ဆည်မြောင်း",
+            "road": "No. 2 Main Road, East Dagon",
+            "latitude": 16.999799,
+            "longitude": 96.300882
+        },
+        {
+            "index": "72",
+            "stop_name_en": "Nay La",
+            "stop_name_mm": "နေလ",
+            "road": "No. 2 Main Road, East Dagon",
+            "latitude": 16.994849,
+            "longitude": 96.300805
+        },
+        {
+            "index": "73",
+            "stop_name_en": "Daw Pya Pouk",
+            "stop_name_mm": "ဒေါပြားပေါက်",
+            "road": "No. 2 Main Road, East Dagon",
+            "latitude": 16.991177,
+            "longitude": 96.300741
+        },
+        {
+            "index": "74",
+            "stop_name_en": "Tet Pouk",
+            "stop_name_mm": "တပ်ပေါက်",
+            "road": "No. 2 Main Road,  East Dagon",
+            "latitude": 16.986747,
+            "longitude": 96.300483
+        },
+        {
+            "index": "75",
+            "stop_name_en": "Mee Set Pouk",
+            "stop_name_mm": "မီးစက်ပေါက်",
+            "road": "No. 2 Main Road,  East Dagon",
+            "latitude": 16.983764,
+            "longitude": 96.300465
+        },
+        {
+            "index": "76",
+            "stop_name_en": "Aung Kay Tha Alel Pouk",
+            "stop_name_mm": "အောင်ကေသာအလယ်ပေါက်",
+            "road": "No. 2 Main Road,  East Dagon",
+            "latitude": 16.980758,
+            "longitude": 96.300379
+        },
+        {
+            "index": "77",
+            "stop_name_en": "Aung Kay Thar Pa Hta Ma Pouk",
+            "stop_name_mm": "အောင်ကေသာပထမပေါက်",
+            "road": "No. 2 Main Road,  East Dagon",
+            "latitude": 16.977855,
+            "longitude": 96.300315
+        },
+        {
+            "index": "78",
+            "stop_name_en": "Than Lann Kwae",
+            "stop_name_mm": "သံလမ်းကွေ့",
+            "road": "No. 2 Main Road,  East Dagon",
+            "latitude": 16.968106,
+            "longitude": 96.298867
+        },
+        {
+            "index": "79",
+            "stop_name_en": "Kyaung Lann",
+            "stop_name_mm": "ကျောင်းလမ်း",
+            "road": "No. 2 Main Road,  East Dagon",
+            "latitude": 16.965962,
+            "longitude": 96.296926
+        },
+        {
+            "index": "80",
+            "stop_name_en": "Bu Tar",
+            "stop_name_mm": "ဘူတာ",
+            "road": "No. 2 Main Road,  East Dagon",
+            "latitude": 16.964239,
+            "longitude": 96.295243
+        },
+        {
+            "index": "81",
+            "stop_name_en": "Ball Lool Kwan Htat",
+            "stop_name_mm": "ဘောလုံးကွင်းထိပ်",
+            "road": "No. 2 Main Road, East Dagon",
+            "latitude": 16.963482,
+            "longitude": 96.29454
+        },
+        {
+            "index": "82",
+            "stop_name_en": "Set Yone Shae",
+            "stop_name_mm": "စက်ရုံရှေ့",
+            "road": "No. 2 Main Road, East Dagon",
+            "latitude": 16.962,
+            "longitude": 96.294068
+        },
+        {
+            "index": "83",
+            "stop_name_en": "Lay Daung Kan (Site Mway Tit)",
+            "stop_name_mm": "လေးထောင့်ကန် (ဆိုက်မွေး-၁)",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.960345,
+            "longitude": 96.294871
+        },
+        {
+            "index": "84",
+            "stop_name_en": "Me Pha Yeik",
+            "stop_name_mm": "မိဘရိပ်",
+            "road": "No. 2 Main Road,  East Dagon",
+            "latitude": 16.959011,
+            "longitude": 96.293948
+        },
+        {
+            "index": "85",
+            "stop_name_en": "Yeik Thar",
+            "stop_name_mm": "ရိပ်သာ",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.958359,
+            "longitude": 96.293384
+        },
+        {
+            "index": "86",
+            "stop_name_en": "Thama",
+            "stop_name_mm": "သမ",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.956527,
+            "longitude": 96.291597
+        },
+        {
+            "index": "87",
+            "stop_name_en": "U Khway Pu",
+            "stop_name_mm": "ဦးခွေးပု",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.954532,
+            "longitude": 96.290074
+        },
+        {
+            "index": "88",
+            "stop_name_en": "Moke Pho",
+            "stop_name_mm": "မုန့်ဖို",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.951143,
+            "longitude": 96.287073
+        },
+        {
+            "index": "89",
+            "stop_name_en": "Tha Pyay Chan",
+            "stop_name_mm": "သပြေခြံ",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.947098,
+            "longitude": 96.283471
+        },
+        {
+            "index": "90",
+            "stop_name_en": "December Alal Pauk",
+            "stop_name_mm": "ဒီဇင်ဘာမုခ်ဦး",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.943143,
+            "longitude": 96.28017
+        },
+        {
+            "index": "91",
+            "stop_name_en": "December Alepouk",
+            "stop_name_mm": "ဒီဇင်ဘာအလယ်ပေါက်",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.94012,
+            "longitude": 96.277568
+        },
+        {
+            "index": "92",
+            "stop_name_en": "A Aye Khan",
+            "stop_name_mm": "အအေးခန်း",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.939519,
+            "longitude": 96.276947
+        },
+        {
+            "index": "93",
+            "stop_name_en": "Unit Three",
+            "stop_name_mm": "ယူနစ် (၃)",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.935126,
+            "longitude": 96.273106
+        },
+        {
+            "index": "94",
+            "stop_name_en": "See Pwar Yay Takke Tho",
+            "stop_name_mm": "စီးပွားရေးတက္ကသိုလ်",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.929084,
+            "longitude": 96.267896
+        },
+        {
+            "index": "95",
+            "stop_name_en": "Kyo So Yay",
+            "stop_name_mm": "ကြိုဆိုရေး(အမှတ်-၂လမ်း)",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.924359,
+            "longitude": 96.263776
+        },
+        {
+            "index": "96",
+            "stop_name_en": "Sal Myaung",
+            "stop_name_mm": "ဆည်မြောင်း",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.922925,
+            "longitude": 96.262463
+        },
+        {
+            "index": "97",
+            "stop_name_en": "Tit Taw",
+            "stop_name_mm": "သစ်တော",
+            "road": "No. 2 Main Road, East Dagon",
+            "latitude": 16.915387,
+            "longitude": 96.256027
+        },
+        {
+            "index": "98",
+            "stop_name_en": "Tayar-Lay-Sae",
+            "stop_name_mm": "တစ်ရာ့လေးဆယ်",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.915075,
+            "longitude": 96.255732
+        },
+        {
+            "index": "99",
+            "stop_name_en": "Kyaung Shae",
+            "stop_name_mm": "ကျောင်းရှေ့",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.911324,
+            "longitude": 96.252426
+        },
+        {
+            "index": "100",
+            "stop_name_en": "Ah Kyaw Tae",
+            "stop_name_mm": "အကြော်တဲ",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.907097,
+            "longitude": 96.249969
+        },
+        {
+            "index": "101",
+            "stop_name_en": "Nyaung Pin",
+            "stop_name_mm": "ညောင်ပင်",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.905454,
+            "longitude": 96.248939
+        },
+        {
+            "index": "102",
+            "stop_name_en": "A Kauk Khun",
+            "stop_name_mm": "အကောက်ခွန်",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.90336,
+            "longitude": 96.247823
+        },
+        {
+            "index": "103",
+            "stop_name_en": "Lai Sin Yone Alal Pauk",
+            "stop_name_mm": "လိုင်စင်ရုံး (အလယ်ပေါက်)",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.89514,
+            "longitude": 96.242662
+        },
+        {
+            "index": "104",
+            "stop_name_en": "U Tun Myat",
+            "stop_name_mm": "ဦးထွန်းမြတ်",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.893652,
+            "longitude": 96.241586
+        },
+        {
+            "index": "105",
+            "stop_name_en": "U Tun Myat / Bandula Housing",
+            "stop_name_mm": "ဦးထွန်းမြတ်/ဗန္ဓုလအိမ်ယာ",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.89166,
+            "longitude": 96.240108
+        },
+        {
+            "index": "106",
+            "stop_name_en": "Kyauk Lan",
+            "stop_name_mm": "ကျောက်လမ်း",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.883578,
+            "longitude": 96.234031
+        },
+        {
+            "index": "107",
+            "stop_name_en": "Tat Yin Thone",
+            "stop_name_mm": "တပ်ရင်း (၃)",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.878599,
+            "longitude": 96.230459
+        },
+        {
+            "index": "108",
+            "stop_name_en": "Lay Kyaung",
+            "stop_name_mm": "ကွင်းဆင်းကျောင်း",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.874656,
+            "longitude": 96.227508
+        },
+        {
+            "index": "109",
+            "stop_name_en": "Thin Tan Kyaung",
+            "stop_name_mm": "သင်တန်းကျောင်း",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.871298,
+            "longitude": 96.224895
+        },
+        {
+            "index": "110",
+            "stop_name_en": "Nat Sin",
+            "stop_name_mm": "နတ်စင်",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.869143,
+            "longitude": 96.22241
+        },
+        {
+            "index": "111",
+            "stop_name_en": "Taung Myauk Lan Sone",
+            "stop_name_mm": "တောင်/မြောက်လမ်းဆုံ",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.863033,
+            "longitude": 96.216406
+        },
+        {
+            "index": "112",
+            "stop_name_en": "Tadar Phyu",
+            "stop_name_mm": "တံတားဖြူ",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.857583,
+            "longitude": 96.212415
+        },
+        {
+            "index": "113",
+            "stop_name_en": "Kar Gyi Gate",
+            "stop_name_mm": "ကားကြီးဂိတ်",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.847393,
+            "longitude": 96.20904
+        },
+        {
+            "index": "114",
+            "stop_name_en": "Sanpya Zay/ Nga Moe Yeik",
+            "stop_name_mm": "စံပြဈေး/ ငမိုးရိပ်",
+            "road": "Lay Daung Kan Road, Thingangyun",
+            "latitude": 16.841911,
+            "longitude": 96.204373
+        },
+        {
+            "index": "115",
+            "stop_name_en": "Bawa Myint",
+            "stop_name_mm": "ဘဝမြင့်",
+            "road": "Lay Daung Kan Road, Thingangyun",
+            "latitude": 16.837496,
+            "longitude": 96.199818
+        },
+        {
+            "index": "116",
+            "stop_name_en": "B.O.C",
+            "stop_name_mm": "ဘီအိုစီ",
+            "road": "Lay Daung Kan Road, Thingangyun",
+            "latitude": 16.832867,
+            "longitude": 96.195098
+        },
+        {
+            "index": "117",
+            "stop_name_en": "Paya Lan",
+            "stop_name_mm": "ဘုရားလမ်း",
+            "road": "Lay Daung Kan Road, Thingangyun",
+            "latitude": 16.831138,
+            "longitude": 96.193347
+        },
+        {
+            "index": "118",
+            "stop_name_en": "Zawana",
+            "stop_name_mm": "ဇဝန",
+            "road": "Lay Daung Kan Road, Thingangyun",
+            "latitude": 16.828079,
+            "longitude": 96.18817
+        },
+        {
+            "index": "119",
+            "stop_name_en": "Zawana",
+            "stop_name_mm": "ဇဝန",
+            "road": "Lay Daung Kan Road, Thingangyun",
+            "latitude": 16.827762,
+            "longitude": 96.187952
+        },
+        {
+            "index": "120",
+            "stop_name_en": "Paya Lan",
+            "stop_name_mm": "ဘုရားလမ်း",
+            "road": "Lay Daung Kan Road, Thingangyun",
+            "latitude": 16.830734,
+            "longitude": 96.193152
+        },
+        {
+            "index": "121",
+            "stop_name_en": "B.O.C",
+            "stop_name_mm": "ဘီအိုစီ",
+            "road": "Lay Daung Kan Road, Thingangyun",
+            "latitude": 16.832662,
+            "longitude": 96.195074
+        },
+        {
+            "index": "122",
+            "stop_name_en": "Bawa Myint",
+            "stop_name_mm": "ဘဝမြင့်",
+            "road": "Lay Daung Kan Road, Thingangyun",
+            "latitude": 16.83714,
+            "longitude": 96.19967
+        },
+        {
+            "index": "123",
+            "stop_name_en": "Sanpya Zay/ Nga Moe Yeik",
+            "stop_name_mm": "စံပြဈေး/ ငမိုးရိပ်",
+            "road": "Lay Daung Kan Road, Thingangyun",
+            "latitude": 16.842002,
+            "longitude": 96.20458
+        },
+        {
+            "index": "124",
+            "stop_name_en": "Kar Gyi Gate",
+            "stop_name_mm": "ကားကြီးဂိတ်",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.847381,
+            "longitude": 96.209097
+        },
+        {
+            "index": "125",
+            "stop_name_en": "Tadar Phyu",
+            "stop_name_mm": "တံတားဖြူ",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.857555,
+            "longitude": 96.212463
+        },
+        {
+            "index": "126",
+            "stop_name_en": "Taung Myauk Lan Sone",
+            "stop_name_mm": "တောင်/မြောက်လမ်းဆုံ",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.862961,
+            "longitude": 96.216418
+        },
+        {
+            "index": "127",
+            "stop_name_en": "Nat Sin",
+            "stop_name_mm": "နတ်စင်",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.869024,
+            "longitude": 96.222453
+        },
+        {
+            "index": "128",
+            "stop_name_en": "Thin Tan Kyaung",
+            "stop_name_mm": "သင်တန်းကျောင်း",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.871166,
+            "longitude": 96.225125
+        },
+        {
+            "index": "129",
+            "stop_name_en": "Lay Kyaung",
+            "stop_name_mm": "ကွင်းဆင်းကျောင်း",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.874543,
+            "longitude": 96.227658
+        },
+        {
+            "index": "130",
+            "stop_name_en": "Tat Yin Thone",
+            "stop_name_mm": "တပ်ရင်း (၃)",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.878229,
+            "longitude": 96.230341
+        },
+        {
+            "index": "131",
+            "stop_name_en": "Kyauk Lan",
+            "stop_name_mm": "ကျောက်လမ်း",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.883455,
+            "longitude": 96.234203
+        },
+        {
+            "index": "132",
+            "stop_name_en": "U Tun Myat / Bandula Housing",
+            "stop_name_mm": "ဦးထွန်းမြတ်/ဗန္ဓုလအိမ်ယာ",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.891745,
+            "longitude": 96.240253
+        },
+        {
+            "index": "133",
+            "stop_name_en": "U Tun Myat",
+            "stop_name_mm": "ဦးထွန်းမြတ်",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.893736,
+            "longitude": 96.241699
+        },
+        {
+            "index": "134",
+            "stop_name_en": "Lai Sin Yone Alal Pauk",
+            "stop_name_mm": "လိုင်စင်ရုံး (အလယ်ပေါက်)",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.895076,
+            "longitude": 96.242691
+        },
+        {
+            "index": "135",
+            "stop_name_en": "A Kauk Khun",
+            "stop_name_mm": "အကောက်ခွန်",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.903114,
+            "longitude": 96.248038
+        },
+        {
+            "index": "136",
+            "stop_name_en": "Nyaung Pin",
+            "stop_name_mm": "ညောင်ပင်",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.905372,
+            "longitude": 96.249197
+        },
+        {
+            "index": "137",
+            "stop_name_en": "Ah Kyaw Tae",
+            "stop_name_mm": "အကြော်တဲ",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.906974,
+            "longitude": 96.250269
+        },
+        {
+            "index": "138",
+            "stop_name_en": "Kyaung Shae",
+            "stop_name_mm": "ကျောင်းရှေ့",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.911141,
+            "longitude": 96.252676
+        },
+        {
+            "index": "139",
+            "stop_name_en": "Tayar-Lay-Sae",
+            "stop_name_mm": "တစ်ရာ့လေးဆယ်",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.915026,
+            "longitude": 96.25581
+        },
+        {
+            "index": "140",
+            "stop_name_en": "Tit Taw",
+            "stop_name_mm": "သစ်တော",
+            "road": "No. 2 Main Road, East Dagon",
+            "latitude": 16.915448,
+            "longitude": 96.256198
+        },
+        {
+            "index": "141",
+            "stop_name_en": "Sal Myaung",
+            "stop_name_mm": "ဆည်မြောင်း",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.922802,
+            "longitude": 96.262699
+        },
+        {
+            "index": "142",
+            "stop_name_en": "Kyo So Yay",
+            "stop_name_mm": "ကြိုဆိုရေး(အမှတ်-၂လမ်း)",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.924367,
+            "longitude": 96.263958
+        },
+        {
+            "index": "143",
+            "stop_name_en": "See Pwar Yay Takke Tho",
+            "stop_name_mm": "စီးပွားရေးတက္ကသိုလ်",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.929015,
+            "longitude": 96.268065
+        },
+        {
+            "index": "144",
+            "stop_name_en": "Unit Three",
+            "stop_name_mm": "ယူနစ် (၃)",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.934893,
+            "longitude": 96.273358
+        },
+        {
+            "index": "145",
+            "stop_name_en": "A Aye Khan",
+            "stop_name_mm": "အအေးခန်း",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.939312,
+            "longitude": 96.277016
+        },
+        {
+            "index": "146",
+            "stop_name_en": "December Alepouk",
+            "stop_name_mm": "ဒီဇင်ဘာအလယ်ပေါက်",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.939994,
+            "longitude": 96.277523
+        },
+        {
+            "index": "147",
+            "stop_name_en": "December Alal Pauk",
+            "stop_name_mm": "ဒီဇင်ဘာမုခ်ဦး",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.943087,
+            "longitude": 96.280308
+        },
+        {
+            "index": "148",
+            "stop_name_en": "Tha Pyay Chan",
+            "stop_name_mm": "သပြေခြံ",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.94703,
+            "longitude": 96.28377
+        },
+        {
+            "index": "149",
+            "stop_name_en": "Moke Pho",
+            "stop_name_mm": "မုန့်ဖို",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.950985,
+            "longitude": 96.287177
+        },
+        {
+            "index": "150",
+            "stop_name_en": "U Khway Pu",
+            "stop_name_mm": "ဦးခွေးပု",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.954393,
+            "longitude": 96.290224
+        },
+        {
+            "index": "151",
+            "stop_name_en": "Thama",
+            "stop_name_mm": "သမ",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.956322,
+            "longitude": 96.291811
+        },
+        {
+            "index": "152",
+            "stop_name_en": "Yeik Thar",
+            "stop_name_mm": "ရိပ်သာ",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.958333,
+            "longitude": 96.293432
+        },
+        {
+            "index": "153",
+            "stop_name_en": "Me Pha Yeik",
+            "stop_name_mm": "မိဘရိပ်",
+            "road": "No. 2 Main Road,  East Dagon",
+            "latitude": 16.958909,
+            "longitude": 96.293975
+        },
+        {
+            "index": "154",
+            "stop_name_en": "Lay Daung Kan (Site Mway Tit)",
+            "stop_name_mm": "လေးထောင့်ကန် (ဆိုက်မွေး-၁)",
+            "road": "No. 2 Main Road, South Dagon",
+            "latitude": 16.959838,
+            "longitude": 96.294813
+        },
+        {
+            "index": "155",
+            "stop_name_en": "Set Yone Shay",
+            "stop_name_mm": "စက်ရုံရှေ့",
+            "road": "No. 2 Main Road, East Dagon",
+            "latitude": 16.961897,
+            "longitude": 96.294202
+        },
+        {
+            "index": "156",
+            "stop_name_en": "Ball Lool Kwae Htat",
+            "stop_name_mm": "ဘောလုံးကွင်းထိပ်",
+            "road": "No. 2 Main Road, East Dagon",
+            "latitude": 16.963349,
+            "longitude": 96.294545
+        },
+        {
+            "index": "157",
+            "stop_name_en": "Bu Tar",
+            "stop_name_mm": "ဘူတာ",
+            "road": "No. 2 Main Road,  East Dagon",
+            "latitude": 16.964013,
+            "longitude": 96.295221
+        },
+        {
+            "index": "158",
+            "stop_name_en": "Kyaung Lann",
+            "stop_name_mm": "ကျောင်းလမ်း",
+            "road": "No. 2 Main Road,  East Dagon",
+            "latitude": 16.965675,
+            "longitude": 96.296873
+        },
+        {
+            "index": "159",
+            "stop_name_en": "Than Lann Kwae",
+            "stop_name_mm": "သံလမ်းကွေ့",
+            "road": "No. 2 Main Road,  East Dagon",
+            "latitude": 16.968393,
+            "longitude": 96.298942
+        },
+        {
+            "index": "160",
+            "stop_name_en": "Aung Kay Tha Pa Hta Ma Pouk",
+            "stop_name_mm": "အောင်ကေသာပထမပေါက်",
+            "road": "No. 2 Main Road,  East Dagon",
+            "latitude": 16.977979,
+            "longitude": 96.300422
+        },
+        {
+            "index": "161",
+            "stop_name_en": "Aung Kay Tha Alel Pouk",
+            "stop_name_mm": "အောင်ကေသာအလယ်ပေါက်",
+            "road": "No. 2 Main Road,  East Dagon",
+            "latitude": 16.980974,
+            "longitude": 96.300508
+        },
+        {
+            "index": "162",
+            "stop_name_en": "Mee Set Pouk",
+            "stop_name_mm": "မီးစက်ပေါက်",
+            "road": "No. 2 Main Road,  East Dagon",
+            "latitude": 16.983969,
+            "longitude": 96.300583
+        },
+        {
+            "index": "163",
+            "stop_name_en": "Tet Pouk",
+            "stop_name_mm": "တပ်ပေါက်",
+            "road": "No. 2 Main Road, East Dagon",
+            "latitude": 16.986952,
+            "longitude": 96.300655
+        },
+        {
+            "index": "164",
+            "stop_name_en": "Daw Pya Pouk",
+            "stop_name_mm": "ဒေါပြားပေါက်",
+            "road": "No. 2 Main Road, East Dagon",
+            "latitude": 16.990767,
+            "longitude": 96.300869
+        },
+        {
+            "index": "165",
+            "stop_name_en": "Nay La",
+            "stop_name_mm": "နေလ",
+            "road": "No. 2 Main Road, East Dagon",
+            "latitude": 16.994624,
+            "longitude": 96.300955
+        },
+        {
+            "index": "166",
+            "stop_name_en": "Sel Myaung",
+            "stop_name_mm": "ဆည်မြောင်း",
+            "road": "No. 2 Main Road, East Dagon",
+            "latitude": 16.999686,
+            "longitude": 96.301043
+        },
+        {
+            "index": "167",
+            "stop_name_en": "Aut Ywar Si Sai",
+            "stop_name_mm": "အောက်ရွာဆီဆိုင်",
+            "road": "No. 2 Main Road, East Dagon",
+            "latitude": 17.006855,
+            "longitude": 96.299134
+        },
+        {
+            "index": "168",
+            "stop_name_en": "Aut Set",
+            "stop_name_mm": "အောက်စက်",
+            "road": "No. 2 Main Road, East Dagon",
+            "latitude": 17.012218,
+            "longitude": 96.29759
+        },
+        {
+            "index": "169",
+            "stop_name_en": "Aut Ywar Yay Oo Sin",
+            "stop_name_mm": "အောက်ရွာရေအိုးစင်",
+            "road": "No. 2 Main Road, East Dagon",
+            "latitude": 17.0147,
+            "longitude": 96.297279
+        },
+        {
+            "index": "170",
+            "stop_name_en": "Aut Ywar Kyaung",
+            "stop_name_mm": "အောက်ရွာကျောင်း",
+            "road": "No. 2 Main Road, East Dagon",
+            "latitude": 17.015962,
+            "longitude": 96.297151
+        },
+        {
+            "index": "171",
+            "stop_name_en": "Aut Ywar Tadar",
+            "stop_name_mm": "အောက်ရွာတံတား",
+            "road": "No. 2 Main Road, East Dagon",
+            "latitude": 17.017346,
+            "longitude": 96.297086
+        },
+        {
+            "index": "172",
+            "stop_name_en": "Aut Ywar Yeik Thar",
+            "stop_name_mm": "အောက်ရွာရိပ်သာ",
+            "road": "No. 2 Main Road, East Dagon",
+            "latitude": 17.019028,
+            "longitude": 96.29759
+        },
+        {
+            "index": "173",
+            "stop_name_en": "Nwar Chan",
+            "stop_name_mm": "နွားခြံ",
+            "road": "No. 2 Main Road, East Dagon",
+            "latitude": 17.020176,
+            "longitude": 96.298062
+        },
+        {
+            "index": "174",
+            "stop_name_en": "Naywarkyar Yay Oo Sin",
+            "stop_name_mm": "နှစ်ရွာကြားရေအိုးစင်",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.02273,
+            "longitude": 96.299156
+        },
+        {
+            "index": "175",
+            "stop_name_en": "A Htet Set",
+            "stop_name_mm": "အထက်စက်",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.026894,
+            "longitude": 96.30099
+        },
+        {
+            "index": "176",
+            "stop_name_en": "A Htet Ywar Kyaung",
+            "stop_name_mm": "အထက်ရွာကျောင်း",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.028595,
+            "longitude": 96.301443
+        },
+        {
+            "index": "177",
+            "stop_name_en": "Tama Sai",
+            "stop_name_mm": "သမဆိုင်",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.030441,
+            "longitude": 96.301593
+        },
+        {
+            "index": "178",
+            "stop_name_en": "A Htet Ywar Kyaung Shae",
+            "stop_name_mm": "အထက်ရွာကျောင်းရှေ့",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.033537,
+            "longitude": 96.302183
+        },
+        {
+            "index": "179",
+            "stop_name_en": "Ywar Awin Yay  Kan",
+            "stop_name_mm": "ရွာအဝင်ရေကန်",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.035322,
+            "longitude": 96.302526
+        },
+        {
+            "index": "180",
+            "stop_name_en": "Thone Tone Lone",
+            "stop_name_mm": "သုံးသုံးလုံး",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.039313,
+            "longitude": 96.303341
+        },
+        {
+            "index": "181",
+            "stop_name_en": "Bo Taw Pouk",
+            "stop_name_mm": "ဘိုးတော်ပေါက်",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.040369,
+            "longitude": 96.303545
+        },
+        {
+            "index": "182",
+            "stop_name_en": "Ngyoke Phoo Tadar",
+            "stop_name_mm": "ငရုတ်ဖိုတံတား",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.042437,
+            "longitude": 96.303995
+        },
+        {
+            "index": "183",
+            "stop_name_en": "Kyar Kan Tadar",
+            "stop_name_mm": "ကြာကန်တံတား",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.051534,
+            "longitude": 96.305893
+        },
+        {
+            "index": "184",
+            "stop_name_en": "Sar Ta Lin Pann Chan",
+            "stop_name_mm": "ဆားတလင်းပန်းခြံ",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.055897,
+            "longitude": 96.306839
+        },
+        {
+            "index": "185",
+            "stop_name_en": "Sar Ta Lin Kyaung Shae",
+            "stop_name_mm": "ဆားတလင်းကျောင်းရှေ့",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.058767,
+            "longitude": 96.307643
+        },
+        {
+            "index": "186",
+            "stop_name_en": "Sar Ta Lin Lann Sone",
+            "stop_name_mm": "ဆားတလင်းလမ်းဆုံ",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.060986,
+            "longitude": 96.308625
+        },
+        {
+            "index": "187",
+            "stop_name_en": "Sar Ta Lin Ywar Lel",
+            "stop_name_mm": "ဆားတလင်းရွာလယ်",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.0636,
+            "longitude": 96.309779
+        },
+        {
+            "index": "188",
+            "stop_name_en": "Sar Ta Lin Set Shae",
+            "stop_name_mm": "ဆားတလင်းစက်ရှေ့",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.066266,
+            "longitude": 96.310916
+        },
+        {
+            "index": "189",
+            "stop_name_en": "Yay Oo Sin",
+            "stop_name_mm": "ရေအိုးစင်",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.06889,
+            "longitude": 96.312106
+        },
+        {
+            "index": "190",
+            "stop_name_en": "Ywar Lel Yay Nann",
+            "stop_name_mm": "ရွာဝင်ရေနံ",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.076443,
+            "longitude": 96.315358
+        },
+        {
+            "index": "191",
+            "stop_name_en": "A Naut Zayet",
+            "stop_name_mm": "အနောက်ဇရပ်",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.079375,
+            "longitude": 96.316645
+        },
+        {
+            "index": "192",
+            "stop_name_en": "U Phoo Kwae",
+            "stop_name_mm": "ဦးဖိုးကွေ့",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.081384,
+            "longitude": 96.317214
+        },
+        {
+            "index": "193",
+            "stop_name_en": "Sel Myaung",
+            "stop_name_mm": "ဆည်မြောင်း",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.084911,
+            "longitude": 96.3179
+        },
+        {
+            "index": "194",
+            "stop_name_en": "Waryonesoae",
+            "stop_name_mm": "ဝါးရုံစွန်း",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.086695,
+            "longitude": 96.318221
+        },
+        {
+            "index": "195",
+            "stop_name_en": "Ta Loke Kone",
+            "stop_name_mm": "တလုတ်ကုန်း",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.093312,
+            "longitude": 96.319557
+        },
+        {
+            "index": "196",
+            "stop_name_en": "Kyauk Set",
+            "stop_name_mm": "ကျောက်စက်",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.100544,
+            "longitude": 96.321024
+        },
+        {
+            "index": "197",
+            "stop_name_en": "A Lel Tan Kyaung Shae",
+            "stop_name_mm": "အလယ်တန်းကျောင်းရှေ့",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.108186,
+            "longitude": 96.322531
+        },
+        {
+            "index": "198",
+            "stop_name_en": "Inn Taing Winhtan",
+            "stop_name_mm": "အင်းတိုင်ဝန်ထမ်း",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.109841,
+            "longitude": 96.322912
+        },
+        {
+            "index": "199",
+            "stop_name_en": "Lann Thit",
+            "stop_name_mm": "လမ်းသစ်",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.111937,
+            "longitude": 96.323466
+        },
+        {
+            "index": "200",
+            "stop_name_en": "Ywar Lel",
+            "stop_name_mm": "ရွာလယ်",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.116185,
+            "longitude": 96.324289
+        },
+        {
+            "index": "201",
+            "stop_name_en": "Say Kham",
+            "stop_name_mm": "ဆေးခန်း",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.117804,
+            "longitude": 96.324603
+        },
+        {
+            "index": "202",
+            "stop_name_en": "Than Lann",
+            "stop_name_mm": "သံလမ်း",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.119391,
+            "longitude": 96.324914
+        },
+        {
+            "index": "203",
+            "stop_name_en": "Zay Shae",
+            "stop_name_mm": "ဈေးရှေ့",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.120435,
+            "longitude": 96.325121
+        },
+        {
+            "index": "204",
+            "stop_name_en": "Ywar Pouk",
+            "stop_name_mm": "ရွာပေါက်",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.126055,
+            "longitude": 96.32614
+        },
+        {
+            "index": "205",
+            "stop_name_en": "Phaya Gate",
+            "stop_name_mm": "ဘုရားဂိတ်",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.128428,
+            "longitude": 96.326402
+        },
+        {
+            "index": "206",
+            "stop_name_en": "Site Car Gate",
+            "stop_name_mm": "ဆိုက်ကားဂိတ်",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.131215,
+            "longitude": 96.326746
+        },
+        {
+            "index": "207",
+            "stop_name_en": "Oak Khon",
+            "stop_name_mm": "အုတ်ခုံ",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.126875,
+            "longitude": 96.326237
+        },
+        {
+            "index": "208",
+            "stop_name_en": "San Yay Pyar",
+            "stop_name_mm": "စမ်းရေပြာ",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.136045,
+            "longitude": 96.325238
+        },
+        {
+            "index": "209",
+            "stop_name_en": "Gandamarpouk",
+            "stop_name_mm": "ဂန္ဓာမာပေါက်",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.142314,
+            "longitude": 96.323843
+        },
+        {
+            "index": "210",
+            "stop_name_en": "Zayetkwin Lann Sone",
+            "stop_name_mm": "ဇရပ်ကွင်းလမ်းဆုံ",
+            "road": "No. 2 Main Road, လှည်းကူး",
+            "latitude": 17.150187,
+            "longitude": 96.323028
+        },
+        {
+            "index": "211",
+            "stop_name_en": "Zayetkwin Than Lann",
+            "stop_name_mm": "ဇရပ်ကွင်းသံလမ်း",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.148465,
+            "longitude": 96.318033
+        },
+        {
+            "index": "212",
+            "stop_name_en": "Say Yone Haung",
+            "stop_name_mm": "ဆေးရုံဟောင်း",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.147399,
+            "longitude": 96.315426
+        },
+        {
+            "index": "213",
+            "stop_name_en": "Koe Shit Thit",
+            "stop_name_mm": "ကိုးရှစ်တစ်",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.146025,
+            "longitude": 96.311627
+        },
+        {
+            "index": "214",
+            "stop_name_en": "COD Sar Tike",
+            "stop_name_mm": "စီအိုဒီစာတိုက်",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.145123,
+            "longitude": 96.309295
+        },
+        {
+            "index": "215",
+            "stop_name_en": "COD Zay",
+            "stop_name_mm": "စီအိုဒီဈေး",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.144523,
+            "longitude": 96.307798
+        },
+        {
+            "index": "216",
+            "stop_name_en": "COD Kyaung",
+            "stop_name_mm": "စီအိုဒီကျောင်း",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.143037,
+            "longitude": 96.304521
+        },
+        {
+            "index": "217",
+            "stop_name_en": "Kyauk Ta Lone",
+            "stop_name_mm": "ကျောက်တလုံး",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.140997,
+            "longitude": 96.301248
+        },
+        {
+            "index": "218",
+            "stop_name_en": "Ye Mon Monastery",
+            "stop_name_mm": "ရဲမွန်ဘုန်းကြီးကျောင်း",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.137423,
+            "longitude": 96.29508
+        },
+        {
+            "index": "219",
+            "stop_name_en": "Kone Hteik",
+            "stop_name_mm": "ကုန်းထိပ်",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.1363,
+            "longitude": 96.293018
+        },
+        {
+            "index": "220",
+            "stop_name_en": "Hlays Lann",
+            "stop_name_mm": "လှည်းလမ်း",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.135767,
+            "longitude": 96.291769
+        },
+        {
+            "index": "221",
+            "stop_name_en": "Lann Thit",
+            "stop_name_mm": "လမ်းသစ်",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.135039,
+            "longitude": 96.289967
+        },
+        {
+            "index": "222",
+            "stop_name_en": "Ye Mon Cantonment Town",
+            "stop_name_mm": "ရဲမွန်တပ်မြို့",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.130226,
+            "longitude": 96.276281
+        },
+        {
+            "index": "223",
+            "stop_name_en": "War Net Kone",
+            "stop_name_mm": "ဝါးနက်ကုန်း",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.129826,
+            "longitude": 96.275075
+        },
+        {
+            "index": "224",
+            "stop_name_en": "War Tada",
+            "stop_name_mm": "ဝါးတံတား",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.127061,
+            "longitude": 96.269577
+        },
+        {
+            "index": "225",
+            "stop_name_en": "Pauk Kone",
+            "stop_name_mm": "ပေါက်ကုန်း",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.123452,
+            "longitude": 96.26518
+        },
+        {
+            "index": "226",
+            "stop_name_en": "Dayal Pho Sel Myoung",
+            "stop_name_mm": "ဒရယ်ဖိုဆည်မြောင်း",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.118183,
+            "longitude": 96.258853
+        },
+        {
+            "index": "227",
+            "stop_name_en": "Pyin Nyar Yay College",
+            "stop_name_mm": "ပညာရေးကောလိပ်",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.113861,
+            "longitude": 96.253649
+        },
+        {
+            "index": "228",
+            "stop_name_en": "Bodhi Pin",
+            "stop_name_mm": "ဗောဓိပင်",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.109396,
+            "longitude": 96.248275
+        },
+        {
+            "index": "229",
+            "stop_name_en": "Ywa Le Kway",
+            "stop_name_mm": "ရွာလယ်ကွေ့",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.107501,
+            "longitude": 96.246116
+        },
+        {
+            "index": "230",
+            "stop_name_en": "107 Gate",
+            "stop_name_mm": "၁၀၇ ဂိတ်",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.105081,
+            "longitude": 96.240242
+        },
+        {
+            "index": "231",
+            "stop_name_en": "Mee That",
+            "stop_name_mm": "မီးသတ်",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.102778,
+            "longitude": 96.234204
+        },
+        {
+            "index": "232",
+            "stop_name_en": "Nget Pyaw Taw",
+            "stop_name_mm": "ငှက်ပျောတော",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.101663,
+            "longitude": 96.231194
+        },
+        {
+            "index": "233",
+            "stop_name_en": "Yezin Road",
+            "stop_name_mm": "ရေဆင်းလမ်း",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.100835,
+            "longitude": 96.229022
+        },
+        {
+            "index": "234",
+            "stop_name_en": "Hlegu Tar Sone",
+            "stop_name_mm": "လှည်းကူးတာဆုံ",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.09956,
+            "longitude": 96.225669
+        },
+        {
+            "index": "235",
+            "stop_name_en": "Tin Zar Oo",
+            "stop_name_mm": "သဉ္ဇာဦး",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.098559,
+            "longitude": 96.223129
+        },
+        {
+            "index": "236",
+            "stop_name_en": "Hlegu Zay",
+            "stop_name_mm": "လှည်းကူးဈေး",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.096831,
+            "longitude": 96.219037
+        }
+    ]
+}

@@ -1,0 +1,205 @@
+{
+    "bus_line": "56",
+    "route_info": {
+        "Route Name": "56",
+        "Line Name": "(၅၆) မြို့တွင်း",
+        "Agency": "Omini Focous",
+        "Route Type": "route",
+        "Total Stops": "24 stops",
+        "QR Payment": "Not available"
+    },
+    "stops": [
+        {
+            "index": "1",
+            "stop_name_en": "Bogyoke Kwae",
+            "stop_name_mm": "ဗိုလ်ချုပ်ကွေ့",
+            "road": "Bogyoke Aung San Road, Ahlone",
+            "latitude": 16.780237,
+            "longitude": 96.136731
+        },
+        {
+            "index": "2",
+            "stop_name_en": "Bahosi/ Mawtin",
+            "stop_name_mm": "ဗဟိုစည်/ မော်တင်",
+            "road": "Bogyoke Aung San Road, Lanmadaw",
+            "latitude": 16.780018,
+            "longitude": 96.140015
+        },
+        {
+            "index": "3",
+            "stop_name_en": "Thayet Taw Kyaung",
+            "stop_name_mm": "သရက်တောကျောင်း",
+            "road": "Bogyoke Aung San Road, Latha",
+            "latitude": 16.779782,
+            "longitude": 96.145659
+        },
+        {
+            "index": "4",
+            "stop_name_en": "Say Yon Gyi",
+            "stop_name_mm": "ဆေးရုံကြီး",
+            "road": "Bogyoke Aung San Road, Latha",
+            "latitude": 16.779525,
+            "longitude": 96.150563
+        },
+        {
+            "index": "5",
+            "stop_name_en": "Bogyoke Zay",
+            "stop_name_mm": "ဗိုလ်ချုပ်ဈေး",
+            "road": "Bogyoke Aung San Road, Pabedan",
+            "latitude": 16.779395,
+            "longitude": 96.154447
+        },
+        {
+            "index": "6",
+            "stop_name_en": "Pansodan",
+            "stop_name_mm": "ပန်းဆိုးတန်း",
+            "road": "Bogyoke Aung San Road, Kyauktada",
+            "latitude": 16.779171,
+            "longitude": 96.162356
+        },
+        {
+            "index": "7",
+            "stop_name_en": "Oeain",
+            "stop_name_mm": "အိုးအိမ်",
+            "road": "Bogyoke Aung San Road, Kyauktada",
+            "latitude": 16.77897,
+            "longitude": 96.165766
+        },
+        {
+            "index": "8",
+            "stop_name_en": "Lay-sae-chauk Lan",
+            "stop_name_mm": "(၄၆) လမ်း",
+            "road": "Bogyoke Aung San Road, Kyauktada",
+            "latitude": 16.77888,
+            "longitude": 96.168154
+        },
+        {
+            "index": "9",
+            "stop_name_en": "Lan Ngar Sae",
+            "stop_name_mm": "လမ်း(၅၀)",
+            "road": "Bogyoke Aung San Road, Kyauktada",
+            "latitude": 16.778734,
+            "longitude": 96.171312
+        },
+        {
+            "index": "10",
+            "stop_name_en": "Nyaung Tan",
+            "stop_name_mm": "ညောင်တန်း",
+            "road": "Lower Pazundaung Road, Pazundaung",
+            "latitude": 16.778577,
+            "longitude": 96.175247
+        },
+        {
+            "index": "11",
+            "stop_name_en": "Thida Seik",
+            "stop_name_mm": "သီတာဆိပ်",
+            "road": "Lower Pazundaung Road, Pazundaung",
+            "latitude": 16.77462,
+            "longitude": 96.180076
+        },
+        {
+            "index": "12",
+            "stop_name_en": "Gandee",
+            "stop_name_mm": "ဂန္ဓီ",
+            "road": "Merchant Road, Pazundaung",
+            "latitude": 16.771189,
+            "longitude": 96.174722
+        },
+        {
+            "index": "13",
+            "stop_name_en": "Ye Sa Khan",
+            "stop_name_mm": "ရဲစခန်း",
+            "road": "Botahtaung Pagoda Road, Botahtaung",
+            "latitude": 16.771384,
+            "longitude": 96.172557
+        },
+        {
+            "index": "14",
+            "stop_name_en": "Lan Ngar Sae",
+            "stop_name_mm": "လမ်း(၅၀)",
+            "road": "Merchant Road, Botahtaung",
+            "latitude": 16.771426,
+            "longitude": 96.171255
+        },
+        {
+            "index": "15",
+            "stop_name_en": "Bokalay Zay",
+            "stop_name_mm": "ဘိုကလေးဈေး",
+            "road": "Merchant Road, Kyauktada",
+            "latitude": 16.771597,
+            "longitude": 96.166374
+        },
+        {
+            "index": "16",
+            "stop_name_en": "(Pansodan Seikkanthar)",
+            "stop_name_mm": "ပန်းဆိုးတန်း (ဆိပ်ကမ်းသာလမ်း)",
+            "road": "Merchant Road, Kyauktada",
+            "latitude": 16.771652,
+            "longitude": 96.163083
+        },
+        {
+            "index": "17",
+            "stop_name_en": "Lan Thone Sae",
+            "stop_name_mm": "လမ်း(၃၀)",
+            "road": "Merchant Road, Pabedan",
+            "latitude": 16.771921,
+            "longitude": 96.156615
+        },
+        {
+            "index": "18",
+            "stop_name_en": "Latha",
+            "stop_name_mm": "လသာ",
+            "road": "Strand Road, Latha",
+            "latitude": 16.772114,
+            "longitude": 96.15142
+        },
+        {
+            "index": "19",
+            "stop_name_en": "Nyaung Pin Lay Zay",
+            "stop_name_mm": "ညောင်ပင်လေးဈေး",
+            "road": "Strand Road, Latha",
+            "latitude": 16.772605,
+            "longitude": 96.146209
+        },
+        {
+            "index": "20",
+            "stop_name_en": "Maw Tin",
+            "stop_name_mm": "မော်တင်",
+            "road": "Strand Road, Lanmadaw",
+            "latitude": 16.774627,
+            "longitude": 96.142315
+        },
+        {
+            "index": "21",
+            "stop_name_en": "Kili",
+            "stop_name_mm": "ကီလီ",
+            "road": "Strand Road, Lanmadaw",
+            "latitude": 16.775087,
+            "longitude": 96.139433
+        },
+        {
+            "index": "22",
+            "stop_name_en": "Kyone Gyi Gate",
+            "stop_name_mm": "ကျုံးကြီးဂိတ်",
+            "road": "Kyee Myin Daing Kannar Road, Ahlone",
+            "latitude": 16.777523,
+            "longitude": 96.137045
+        },
+        {
+            "index": "23",
+            "stop_name_en": "Thakhin Mya Pan Chan",
+            "stop_name_mm": "သခင်မြပန်းခြံ",
+            "road": "Kyee Myin Daing Kannar Road, Ahlone",
+            "latitude": 16.778411,
+            "longitude": 96.135751
+        },
+        {
+            "index": "24",
+            "stop_name_en": "Thakhin Mya Pan Cha",
+            "stop_name_mm": "သခင်မြပန်းခြံ",
+            "road": "Thakhin Mya Garden Street, Ahlone",
+            "latitude": 16.780298,
+            "longitude": 96.134971
+        }
+    ]
+}

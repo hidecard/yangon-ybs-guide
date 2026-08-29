@@ -1,0 +1,67 @@
+name: ybs_guide
+description: "Yangon YBS AI - Bus routes, route finding, live tracking."
+publish_to: 'none'
+version: 3.4.2+14
+
+environment:
+  sdk: ^3.12.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+  # Networking
+  http: ^1.2.2
+  # Cross-platform gzip decoding for bundled route data (web + native)
+  archive: ^4.0.7
+
+  # State + storage
+  provider: ^6.1.2
+  shared_preferences: ^2.3.2
+
+  # Local SQLite database (mobile equivalent of MySQL)
+  sqflite: ^2.4.1
+  path: ^1.9.0
+
+  # Maps (OSM tiles, matches web Leaflet)
+  # Maps with built-in persistent tile caching (offline-friendly)
+  flutter_map: ^8.3.1
+  latlong2: ^0.9.1
+
+  # Location
+  geolocator: ^13.0.2
+
+  # Notifications + vibration + tts (arrival alerts)
+  flutter_local_notifications: ^18.0.1
+  vibration: ^2.0.0
+  flutter_tts: ^4.2.0
+
+  # Background location service (alerts work when app closed / screen off)
+  flutter_background_service: ^5.0.7
+  flutter_background_service_android: ^6.3.1
+
+  # Utilities
+  url_launcher: ^6.3.1
+  intl: ^0.20.2
+  web: ^1.1.0
+  device_info_plus: ^10.1.0
+  crypto: ^3.0.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    # Encrypted route data blob (plain JSON is NOT bundled — see
+    # tools/build_routes_bundle.dart). Regenerate after editing routes.
+    - assets/routes.bin
+    - assets/icons/logo.png
+    - assets/adi-registration.properties
+    - assets/train/routes.json
+    - assets/train/route_details.json
+    - assets/train/stations.json
+    - assets/train/station_details.json

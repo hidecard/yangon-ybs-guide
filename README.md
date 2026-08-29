@@ -1,6 +1,22 @@
-# Yangon YBS Guide 🚌
+# Yangon YBS AI 🚌
 
 A comprehensive bus route guide application for Yangon, Myanmar, featuring interactive maps, an AI-powered route assistant, real-time user updates, and offline functionality.
+
+> This repository contains both the React web app on `main` and the cross-platform Flutter app on `V3`. The Flutter implementation is documented in [`flutter_app/README.md`](flutter_app/README.md), with release notes in [`flutter_app/CHANGELOG.md`](flutter_app/CHANGELOG.md).
+
+## Flutter app
+
+The Flutter app mirrors the web app’s core experience across Android, iOS, desktop, and web. It provides offline-first route data, Burmese and English stop search, route planning, maps, YBS New community updates, favorites, feedback, and arrival alerts. Flutter web uses a cross-platform route-bundle decoder and can be validated without Chrome using:
+
+```bash
+cd flutter_app
+flutter pub get
+flutter analyze
+flutter test
+flutter build web --release --no-wasm-dry-run
+```
+
+The Flutter source is maintained on the [`V3` branch](https://github.com/hidecard/yangon-ybs-guide/tree/V3/flutter_app). GitHub Actions validates the Flutter project automatically through [`.github/workflows/flutter.yml`](.github/workflows/flutter.yml).
 
 ## 🌟 Features
 
@@ -32,8 +48,11 @@ A comprehensive bus route guide application for Yangon, Myanmar, featuring inter
 - **YBS New** — community bus updates feed with user-submitted reports
 - **Report bus updates** — share live bus status, delays, and conditions
 - **Bus arrival predictions** — ETA estimates based on recent user reports
+- **Crowdsourced bus ETA** — real-time arrival estimates based on live passenger locations
 - **User feedback system** — report bugs, wrong info, or suggestions
 - **Admin notifications** — broadcast updates to all users
+- **Group trip sharing** — share your trip with friends and see each other's live locations
+- **Offline trip history** — recent searches persisted locally
 
 ### 👨‍💼 Admin Dashboard
 - Password-protected admin panel
@@ -121,7 +140,7 @@ A comprehensive bus route guide application for Yangon, Myanmar, featuring inter
 
 #### Sending Notifications
 1. Go to **Settings** → tap **Admin** link
-2. Enter password: `hidecard969aky`
+2. Enter the admin password (set via `ADMIN_PASSWORD` environment variable)
 3. Scroll to **"သတိပေးချက် ပို့ရန်"** card
 4. Enter title, message, and select type
 5. Tap **"သတိပေးချက် ပို့မည်"**
@@ -321,6 +340,14 @@ The assistant uses a **custom keyword extractor** for Myanmar language:
 
 ## 📊 Version History
 
+### v3.3
+- 👥 **Group Trip Sharing** — share your route with friends via link
+- 🗺️ **Shared trip viewer** — see shared trip route map with live position
+- 📍 **Real-time location sharing** — update shared trip position every 5 seconds
+- ⏱️ **Crowdsourced bus ETA** — arrival estimates based on live passenger locations
+- 🚌 **Bus waiting time estimates** — see when the bus will arrive at your stop
+- 🔄 Auto-refresh for shared trips and ETA data
+
 ### v3.2
 - 🗑️ Removed dedicated Stops page to streamline navigation
 - 🆕 Added **YBS New** page for community bus updates
@@ -366,11 +393,6 @@ The assistant uses a **custom keyword extractor** for Myanmar language:
 - Verify route JSON files in `/routes` directory
 - Check IndexedDB storage in browser DevTools
 - Run data update from Settings page
-
-### Admin login not working
-- Verify password is `hidecard969aky`
-- Check browser console for API errors
-- Ensure `/api/admin-auth` is deployed
 
 ### Notifications not showing
 - Check `/api/notifications` returns 200

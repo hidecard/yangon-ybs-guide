@@ -1,0 +1,269 @@
+{
+    "bus_line": "89 (National Cancer Institute)",
+    "route_info": {
+        "Route Name": "89 (National Cancer Institute)",
+        "Line Name": "(၈၉) အမျိုးသားကင်ဆာဌာန - အောက်ကွေ့",
+        "Agency": "YBPC",
+        "Route Type": "route",
+        "Total Stops": "32 stops",
+        "QR Payment": "Not available"
+    },
+    "stops": [
+        {
+            "index": "1",
+            "stop_name_en": "Aut Kwae",
+            "stop_name_mm": "အောက်ကွေ့",
+            "road": "Yadanar Road, Dagon Seikkan",
+            "latitude": 16.810323,
+            "longitude": 96.240983
+        },
+        {
+            "index": "2",
+            "stop_name_en": "Tinbaw Kyin",
+            "stop_name_mm": "သင်္ဘောကျင်း",
+            "road": "Yadanar Road, Dagon Seikkan",
+            "latitude": 16.813704,
+            "longitude": 96.243365
+        },
+        {
+            "index": "3",
+            "stop_name_en": "Yadanar Lann",
+            "stop_name_mm": "ရတနာလမ်း",
+            "road": "Yadanar Road, Dagon Seikkan",
+            "latitude": 16.817761,
+            "longitude": 96.244632
+        },
+        {
+            "index": "4",
+            "stop_name_en": "Yazgyo",
+            "stop_name_mm": "ရာဇဂြိုလ်",
+            "road": "Yadanar Road, Dagon Seikkan",
+            "latitude": 16.822335,
+            "longitude": 96.246123
+        },
+        {
+            "index": "5",
+            "stop_name_en": "Yadana Lann Sone",
+            "stop_name_mm": "ရတနာလမ်းဆုံ",
+            "road": "Shwe Li Road, Dagon Seikkan",
+            "latitude": 16.826367,
+            "longitude": 96.247832
+        },
+        {
+            "index": "6",
+            "stop_name_en": "Moke Oo",
+            "stop_name_mm": "မုခ်ဦး",
+            "road": "Shwe Li Road, Dagon Seikkan",
+            "latitude": 16.825133,
+            "longitude": 96.2522
+        },
+        {
+            "index": "7",
+            "stop_name_en": "Si Sai",
+            "stop_name_mm": "ဆီဆိုင်",
+            "road": "Shwe Li Road, Dagon Seikkan",
+            "latitude": 16.823944,
+            "longitude": 96.256183
+        },
+        {
+            "index": "8",
+            "stop_name_en": "17 Lann`",
+            "stop_name_mm": "၁၇ လမ်း",
+            "road": "Ponnami Road, Dagon Seikkan",
+            "latitude": 16.822792,
+            "longitude": 96.262106
+        },
+        {
+            "index": "9",
+            "stop_name_en": "11 Lann",
+            "stop_name_mm": "၁၁ လမ်း",
+            "road": "Ponnami Road, Dagon Seikkan",
+            "latitude": 16.825047,
+            "longitude": 96.262782
+        },
+        {
+            "index": "10",
+            "stop_name_en": "5 Lann",
+            "stop_name_mm": "၅ လမ်း",
+            "road": "Ponnami Road, Dagon Seikkan",
+            "latitude": 16.827357,
+            "longitude": 96.26349
+        },
+        {
+            "index": "11",
+            "stop_name_en": "Paduk Kwae",
+            "stop_name_mm": "ပိတောက်ကွေ့",
+            "road": "Ponnami Road, Dagon Seikkan",
+            "latitude": 16.828744,
+            "longitude": 96.263892
+        },
+        {
+            "index": "12",
+            "stop_name_en": "Ma Wa Ta Yone Shae/Oh Eain",
+            "stop_name_mm": "မဝတရုံးရှေ့/အိုးအိမ်",
+            "road": "Bago River Road, Dagon Seikkan",
+            "latitude": 16.832347,
+            "longitude": 96.265077
+        },
+        {
+            "index": "13",
+            "stop_name_en": "Si Sai",
+            "stop_name_mm": "ဆီဆိုင်",
+            "road": "Bago River Road, Dagon Seikkan",
+            "latitude": 16.831767,
+            "longitude": 96.267223
+        },
+        {
+            "index": "14",
+            "stop_name_en": "(Moke Oo Yuzana Garden)",
+            "stop_name_mm": "မုခ်ဦး (ယုဇနဥယျာဉ်)",
+            "road": "Bago River Road, Dagon Seikkan",
+            "latitude": 16.832326,
+            "longitude": 96.270409
+        },
+        {
+            "index": "15",
+            "stop_name_en": "Sitt Taung",
+            "stop_name_mm": "စစ်တောင်း",
+            "road": "Bago River Road, Dagon Seikkan",
+            "latitude": 16.831936,
+            "longitude": 96.274062
+        },
+        {
+            "index": "16",
+            "stop_name_en": "National Cancer Centre",
+            "stop_name_mm": "အမျိုးသားကင်ဆာဆေးရုံ",
+            "road": "Seik Kan Thar Road, Dagon Seikkan",
+            "latitude": 16.827194,
+            "longitude": 96.278716
+        },
+        {
+            "index": "17",
+            "stop_name_en": "National Cancer Centre",
+            "stop_name_mm": "အမျိုးသားကင်ဆာဆေးရုံ",
+            "road": "Seik Kan Thar Road, Dagon Seikkan",
+            "latitude": 16.82731,
+            "longitude": 96.278899
+        },
+        {
+            "index": "18",
+            "stop_name_en": "Sitt Taung",
+            "stop_name_mm": "စစ်တောင်း",
+            "road": "Bago River Road, Dagon Seikkan",
+            "latitude": 16.832075,
+            "longitude": 96.273837
+        },
+        {
+            "index": "19",
+            "stop_name_en": "(Moke Oo Yuzana Garden)",
+            "stop_name_mm": "မုခ်ဦး (ယုဇနဥယျာဉ်)",
+            "road": "Bago River Road, Dagon Seikkan",
+            "latitude": 16.832331,
+            "longitude": 96.270191
+        },
+        {
+            "index": "20",
+            "stop_name_en": "Si Sai",
+            "stop_name_mm": "ဆီဆိုင်",
+            "road": "Bago River Road, Dagon Seikkan",
+            "latitude": 16.831798,
+            "longitude": 96.267367
+        },
+        {
+            "index": "21",
+            "stop_name_en": "Ma Wa Ta Yone Shae/Oh Eain",
+            "stop_name_mm": "မဝတရုံးရှေ့/အိုးအိမ်",
+            "road": "Bago River Road, Dagon Seikkan",
+            "latitude": 16.832435,
+            "longitude": 96.265106
+        },
+        {
+            "index": "22",
+            "stop_name_en": "Paduk Kwae",
+            "stop_name_mm": "ပိတောက်ကွေ့",
+            "road": "Ponnami Road, Dagon Seikkan",
+            "latitude": 16.828872,
+            "longitude": 96.263855
+        },
+        {
+            "index": "23",
+            "stop_name_en": "5 Lann",
+            "stop_name_mm": "၅ လမ်း",
+            "road": "Ponnami Road, Dagon Seikkan",
+            "latitude": 16.82747,
+            "longitude": 96.263452
+        },
+        {
+            "index": "24",
+            "stop_name_en": "11 Lann",
+            "stop_name_mm": "၁၁ လမ်း",
+            "road": "Ponnami Road, Dagon Seikkan",
+            "latitude": 16.825149,
+            "longitude": 96.262728
+        },
+        {
+            "index": "25",
+            "stop_name_en": "17 Lann",
+            "stop_name_mm": "၁၇ လမ်း",
+            "road": "Ponnami Road, Dagon Seikkan",
+            "latitude": 16.822895,
+            "longitude": 96.262047
+        },
+        {
+            "index": "26",
+            "stop_name_en": "Si Sai",
+            "stop_name_mm": "ဆီဆိုင်",
+            "road": "Shwe Li Road, Dagon Seikkan",
+            "latitude": 16.823985,
+            "longitude": 96.256306
+        },
+        {
+            "index": "27",
+            "stop_name_en": "Moke Oo",
+            "stop_name_mm": "မုခ်ဦး",
+            "road": "Shwe Li Road, Dagon Seikkan",
+            "latitude": 16.825161,
+            "longitude": 96.252326
+        },
+        {
+            "index": "28",
+            "stop_name_en": "Yadana Lann Sone",
+            "stop_name_mm": "ရတနာလမ်းဆုံ",
+            "road": "Shwe Li Road, Dagon Seikkan",
+            "latitude": 16.826673,
+            "longitude": 96.247348
+        },
+        {
+            "index": "29",
+            "stop_name_en": "Yarzagyo",
+            "stop_name_mm": "ရာဇဂြိုလ်",
+            "road": "Yadanar Road,  Dagon Seikkan",
+            "latitude": 16.822335,
+            "longitude": 96.245962
+        },
+        {
+            "index": "30",
+            "stop_name_en": "Yadanar Lann",
+            "stop_name_mm": "ရတနာလမ်း",
+            "road": "Yadanar Road, Dagon Seikkan",
+            "latitude": 16.817905,
+            "longitude": 96.244589
+        },
+        {
+            "index": "31",
+            "stop_name_en": "Thinbaw Kyin",
+            "stop_name_mm": "သင်္ဘောကျင်း",
+            "road": "Yadanar Road, Dagon Seikkan",
+            "latitude": 16.813858,
+            "longitude": 96.243247
+        },
+        {
+            "index": "32",
+            "stop_name_en": "Aut Kwae",
+            "stop_name_mm": "အောက်ကွေ့",
+            "road": "Yadanar Road, Dagon Seikkan",
+            "latitude": 16.810683,
+            "longitude": 96.241114
+        }
+    ]
+}

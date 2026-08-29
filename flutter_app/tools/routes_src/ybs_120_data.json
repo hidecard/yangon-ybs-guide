@@ -1,0 +1,365 @@
+{
+    "bus_line": "120",
+    "route_info": {
+        "Route Name": "120",
+        "Line Name": "(၁၂၀) သာကေတ - ပန်းဆိုးတန်း",
+        "Agency": "Tranks Link",
+        "Route Type": "route",
+        "Total Stops": "44 stops",
+        "QR Payment": "✅ Supported"
+    },
+    "stops": [
+        {
+            "index": "1",
+            "stop_name_en": "Anawmar",
+            "stop_name_mm": "အနော်မာ",
+            "road": "Ayar Wun Main Road, Thaketa",
+            "latitude": 16.80388,
+            "longitude": 96.201768
+        },
+        {
+            "index": "2",
+            "stop_name_en": "Kyaung Kwae/ Htuu Par Yone",
+            "stop_name_mm": "ကျောင်းကွေ့/ထူပါရုံ",
+            "road": "Ayar Wun Main Road, Thaketa",
+            "latitude": 16.803715,
+            "longitude": 96.205867
+        },
+        {
+            "index": "3",
+            "stop_name_en": "Paya Shae",
+            "stop_name_mm": "ဘုရားရှေ့",
+            "road": "Myintawthar Road, Thaketa",
+            "latitude": 16.802075,
+            "longitude": 96.206599
+        },
+        {
+            "index": "4",
+            "stop_name_en": "Khun Zay",
+            "stop_name_mm": "(၇) ဈေး",
+            "road": "Myintawthar Road, Thaketa",
+            "latitude": 16.799036,
+            "longitude": 96.205881
+        },
+        {
+            "index": "5",
+            "stop_name_en": "Kyan Mar Yae",
+            "stop_name_mm": "ကျန်းမာရေး",
+            "road": "Myintawthar Road, Thaketa",
+            "latitude": 16.796623,
+            "longitude": 96.204681
+        },
+        {
+            "index": "6",
+            "stop_name_en": "Yoke Shin Yon",
+            "stop_name_mm": "ရုပ်ရှင်ရုံ",
+            "road": "Myintawthar Road, Thaketa",
+            "latitude": 16.793286,
+            "longitude": 96.203017
+        },
+        {
+            "index": "7",
+            "stop_name_en": "Htu Par Yon",
+            "stop_name_mm": "ထူပါရုံ",
+            "road": "Zingama Road, Thaketa",
+            "latitude": 16.793742,
+            "longitude": 96.201358
+        },
+        {
+            "index": "8",
+            "stop_name_en": "Anawmar",
+            "stop_name_mm": "အနော်မာ",
+            "road": "Zingama Road, Thaketa",
+            "latitude": 16.795256,
+            "longitude": 96.198171
+        },
+        {
+            "index": "9",
+            "stop_name_en": "Tit Zay Kwae",
+            "stop_name_mm": "(၁) ဈေးကွေ့",
+            "road": "Zingama Road, Thaketa",
+            "latitude": 16.796363,
+            "longitude": 96.195578
+        },
+        {
+            "index": "10",
+            "stop_name_en": "Thadar Yon",
+            "stop_name_mm": "သဒ္ဓါရုံ",
+            "road": "Min Nandar Road, Thaketa",
+            "latitude": 16.793654,
+            "longitude": 96.193935
+        },
+        {
+            "index": "11",
+            "stop_name_en": "Wet Su",
+            "stop_name_mm": "ဝက်စု",
+            "road": "Min Nandar Road, Thaketa",
+            "latitude": 16.789452,
+            "longitude": 96.191791
+        },
+        {
+            "index": "12",
+            "stop_name_en": "Yan Aung",
+            "stop_name_mm": "ရန်အောင်",
+            "road": "Min Nandar Road, Thaketa",
+            "latitude": 16.786143,
+            "longitude": 96.190049
+        },
+        {
+            "index": "13",
+            "stop_name_en": "Thinbaw Kyin",
+            "stop_name_mm": "သင်္ဘောကျင်း",
+            "road": "Min Nandar Road, Thaketa",
+            "latitude": 16.781991,
+            "longitude": 96.187698
+        },
+        {
+            "index": "14",
+            "stop_name_en": "Warso",
+            "stop_name_mm": "ဝါဆို",
+            "road": "Yamonar Road, Daw Bon",
+            "latitude": 16.782604,
+            "longitude": 96.183742
+        },
+        {
+            "index": "15",
+            "stop_name_en": "Mingalar Zay",
+            "stop_name_mm": "မင်္ဂလာဈေး",
+            "road": "Mill Road, Mingalar Taung Nyunt",
+            "latitude": 16.791773,
+            "longitude": 96.174681
+        },
+        {
+            "index": "16",
+            "stop_name_en": "Mingalar Zay/ Tara Na SeLayy Lan",
+            "stop_name_mm": "မင်္ဂလာဈေး/ (၁၂၄)လမ်း",
+            "road": "Banyardala Road, Mingalar Taung Nyunt",
+            "latitude": 16.791641,
+            "longitude": 96.172439
+        },
+        {
+            "index": "17",
+            "stop_name_en": "Masalar Set",
+            "stop_name_mm": "မဆလာစက်",
+            "road": "Banyardala Road, Mingalar Taung Nyunt",
+            "latitude": 16.790188,
+            "longitude": 96.169403
+        },
+        {
+            "index": "18",
+            "stop_name_en": "Thein Phyu Sar Taik",
+            "stop_name_mm": "သိမ်ဖြူစာတိုက်",
+            "road": "Daw Thein Tin St, Mingala Taungnyunt",
+            "latitude": 16.78901,
+            "longitude": 96.167436
+        },
+        {
+            "index": "19",
+            "stop_name_en": "91 Lan",
+            "stop_name_mm": "၉၁ လမ်း",
+            "road": "Daw Thein Tin St, Mingala Taungnyunt",
+            "latitude": 16.789018,
+            "longitude": 96.165477
+        },
+        {
+            "index": "20",
+            "stop_name_en": "88 Lan",
+            "stop_name_mm": "၈၈ လမ်း",
+            "road": "Daw Thein Tin St, Mingala Taungnyunt",
+            "latitude": 16.789297,
+            "longitude": 96.163441
+        },
+        {
+            "index": "21",
+            "stop_name_en": "Kyauk Kwae",
+            "stop_name_mm": "ကျောက်ကွေ့",
+            "road": "Upper Pansodan Road, Mingala Taungnyunt",
+            "latitude": 16.786382,
+            "longitude": 96.162075
+        },
+        {
+            "index": "22",
+            "stop_name_en": "Yangon Central Railway Station",
+            "stop_name_mm": "ရန်ကုန်ဘူတာကြီး",
+            "road": "Upper Pansodan Road, Mingala Taungnyunt",
+            "latitude": 16.782386,
+            "longitude": 96.161265
+        },
+        {
+            "index": "23",
+            "stop_name_en": "Yangon Central Railway Station",
+            "stop_name_mm": "ရန်ကုန်ဘူတာကြီး",
+            "road": "Upper Pansodan Road, Mingala Taungnyunt",
+            "latitude": 16.781359,
+            "longitude": 96.159208
+        },
+        {
+            "index": "24",
+            "stop_name_en": "Kyauk Kwae",
+            "stop_name_mm": "ကျောက်ကွေ့",
+            "road": "Upper Pansodan Road, Mingala Taungnyunt",
+            "latitude": 16.78646,
+            "longitude": 96.162337
+        },
+        {
+            "index": "25",
+            "stop_name_en": "88 Lan",
+            "stop_name_mm": "၈၈ လမ်း",
+            "road": "Daw Thein Tin St, Mingala Taungnyunt",
+            "latitude": 16.789184,
+            "longitude": 96.163355
+        },
+        {
+            "index": "26",
+            "stop_name_en": "91 Lan",
+            "stop_name_mm": "၉၁ လမ်း",
+            "road": "Daw Thein Tin St, Mingala Taungnyunt",
+            "latitude": 16.788934,
+            "longitude": 96.165552
+        },
+        {
+            "index": "27",
+            "stop_name_en": "Thein Phyu Sar Taik",
+            "stop_name_mm": "သိမ်ဖြူစာတိုက်",
+            "road": "Daw Thein Tin St, Mingala Taungnyunt",
+            "latitude": 16.788917,
+            "longitude": 96.167254
+        },
+        {
+            "index": "28",
+            "stop_name_en": "Masalar Set",
+            "stop_name_mm": "မဆလာစက်",
+            "road": "Banyardala Road, Mingalar Taung Nyunt",
+            "latitude": 16.790037,
+            "longitude": 96.169454
+        },
+        {
+            "index": "29",
+            "stop_name_en": "Mingalar Zay/ Tara Na SeLayy Lan",
+            "stop_name_mm": "မင်္ဂလာဈေး/ (၁၂၄)လမ်း",
+            "road": "Banyardala Road, Mingalar Taung Nyunt",
+            "latitude": 16.791508,
+            "longitude": 96.172476
+        },
+        {
+            "index": "30",
+            "stop_name_en": "Mingalar Zay",
+            "stop_name_mm": "မင်္ဂလာဈေး",
+            "road": "Mill Road, Mingalar Taung Nyunt",
+            "latitude": 16.791778,
+            "longitude": 96.174517
+        },
+        {
+            "index": "31",
+            "stop_name_en": "Warso",
+            "stop_name_mm": "ဝါဆို",
+            "road": "Yamonar Road, Daw Bon",
+            "latitude": 16.782555,
+            "longitude": 96.182733
+        },
+        {
+            "index": "32",
+            "stop_name_en": "Thinbaw Kyin",
+            "stop_name_mm": "သင်္ဘောကျင်း",
+            "road": "Min Nandar Road, Thaketa",
+            "latitude": 16.781903,
+            "longitude": 96.188016
+        },
+        {
+            "index": "33",
+            "stop_name_en": "Yan Aung",
+            "stop_name_mm": "ရန်အောင်",
+            "road": "Min Nandar Road, Thaketa",
+            "latitude": 16.785668,
+            "longitude": 96.189918
+        },
+        {
+            "index": "34",
+            "stop_name_en": "Wet Su",
+            "stop_name_mm": "ဝက်စု",
+            "road": "Min Nandar Road, Thaketa",
+            "latitude": 16.789535,
+            "longitude": 96.19194
+        },
+        {
+            "index": "35",
+            "stop_name_en": "Thadar Yon",
+            "stop_name_mm": "သဒ္ဓါရုံ",
+            "road": "Min Nandar Road, Thaketa",
+            "latitude": 16.793775,
+            "longitude": 96.194093
+        },
+        {
+            "index": "36",
+            "stop_name_en": "Tit Zay Kwae",
+            "stop_name_mm": "(၁) ဈေးကွေ့",
+            "road": "Zingama Road, Thaketa",
+            "latitude": 16.796254,
+            "longitude": 96.195559
+        },
+        {
+            "index": "37",
+            "stop_name_en": "Anawmar",
+            "stop_name_mm": "အနော်မာ",
+            "road": "Zingama Road, Thaketa",
+            "latitude": 16.795174,
+            "longitude": 96.19815
+        },
+        {
+            "index": "38",
+            "stop_name_en": "Htu Par Yon",
+            "stop_name_mm": "ထူပါရုံ",
+            "road": "Zingama Road, Thaketa",
+            "latitude": 16.793805,
+            "longitude": 96.201005
+        },
+        {
+            "index": "39",
+            "stop_name_en": "Yoke Shin Yon",
+            "stop_name_mm": "ရုပ်ရှင်ရုံ",
+            "road": "Myintawthar Road, Thaketa",
+            "latitude": 16.792665,
+            "longitude": 96.202841
+        },
+        {
+            "index": "40",
+            "stop_name_en": "Kyan Mar Yae",
+            "stop_name_mm": "ကျန်းမာရေး",
+            "road": "Myintawthar Road, Thaketa",
+            "latitude": 16.796244,
+            "longitude": 96.204615
+        },
+        {
+            "index": "41",
+            "stop_name_en": "Khun Zay",
+            "stop_name_mm": "(၇) ဈေး",
+            "road": "Myintawthar Road, Thaketa",
+            "latitude": 16.798736,
+            "longitude": 96.20583
+        },
+        {
+            "index": "42",
+            "stop_name_en": "Paya Shae",
+            "stop_name_mm": "ဘုရားရှေ့",
+            "road": "Myintawthar Road, Thaketa",
+            "latitude": 16.801955,
+            "longitude": 96.20669
+        },
+        {
+            "index": "43",
+            "stop_name_en": "Kyaung Kwae/ Htuu Par Yone",
+            "stop_name_mm": "ကျောင်းကွေ့/ထူပါရုံ",
+            "road": "Ayar Wun Main Road, Thaketa",
+            "latitude": 16.80381,
+            "longitude": 96.205891
+        },
+        {
+            "index": "44",
+            "stop_name_en": "Anawmar",
+            "stop_name_mm": "အနော်မာ",
+            "road": "Ayar Wun Main Road, Thaketa",
+            "latitude": 16.803926,
+            "longitude": 96.201911
+        }
+    ]
+}

@@ -1,0 +1,1085 @@
+{
+    "bus_line": "45",
+    "route_info": {
+        "Route Name": "45",
+        "Line Name": "(၄၅) ဖောင်ကြီး(မင်းကုန်းစျေး) - လှည်းကူးစျေး",
+        "Agency": "TYAT",
+        "Route Type": "route",
+        "Total Stops": "134 stops",
+        "QR Payment": "Not available"
+    },
+    "stops": [
+        {
+            "index": "1",
+            "stop_name_en": "Min Kone",
+            "stop_name_mm": "မင်းကုန်း",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.350679,
+            "longitude": 96.207826
+        },
+        {
+            "index": "2",
+            "stop_name_en": "Signboard",
+            "stop_name_mm": "ဆိုင်းဘုတ်",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.350266,
+            "longitude": 96.207801
+        },
+        {
+            "index": "3",
+            "stop_name_en": "Naung Pin",
+            "stop_name_mm": "ညောင်ပင်",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.349155,
+            "longitude": 96.206294
+        },
+        {
+            "index": "4",
+            "stop_name_en": "Sauk Lote Yae Lan Khwe",
+            "stop_name_mm": "ဆောက်လုပ်ရေးလမ်းခွဲ",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.347648,
+            "longitude": 96.203706
+        },
+        {
+            "index": "5",
+            "stop_name_en": "Thama War Ya Ma College",
+            "stop_name_mm": "သမကောလိပ်ဂိတ်လေး",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.346964,
+            "longitude": 96.202562
+        },
+        {
+            "index": "6",
+            "stop_name_en": "Thama War Ya Ma College",
+            "stop_name_mm": "သမကောလိပ်ဂိတ်ကြီး",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.345846,
+            "longitude": 96.200702
+        },
+        {
+            "index": "7",
+            "stop_name_en": "Hnit Gate",
+            "stop_name_mm": "(၂) ဂိတ်",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.340111,
+            "longitude": 96.197269
+        },
+        {
+            "index": "8",
+            "stop_name_en": "San Pya",
+            "stop_name_mm": "စံပြဂုန်းထိပ်",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.335523,
+            "longitude": 96.195982
+        },
+        {
+            "index": "9",
+            "stop_name_en": "Bathar",
+            "stop_name_mm": "ဘသာ",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.333619,
+            "longitude": 96.193456
+        },
+        {
+            "index": "10",
+            "stop_name_en": "Sel Tan Kyaung Shae",
+            "stop_name_mm": "၁၀ တန်းကျောင်းရှေ့",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.333189,
+            "longitude": 96.192244
+        },
+        {
+            "index": "11",
+            "stop_name_en": "Baho Wun Htan Takke Tho",
+            "stop_name_mm": "ဗဟိုဝန်ထမ်းတက္ကသိုလ်",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.331549,
+            "longitude": 96.187184
+        },
+        {
+            "index": "12",
+            "stop_name_en": "Say Yone Kone",
+            "stop_name_mm": "ဆေးရုံးကုန်း",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.328687,
+            "longitude": 96.186216
+        },
+        {
+            "index": "13",
+            "stop_name_en": "Say Yone Kone",
+            "stop_name_mm": "ဆေးရုံကုန်း",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.327411,
+            "longitude": 96.185596
+        },
+        {
+            "index": "14",
+            "stop_name_en": "Sel Myaung",
+            "stop_name_mm": "ဆည်မြောင်း",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.32672,
+            "longitude": 96.185061
+        },
+        {
+            "index": "15",
+            "stop_name_en": "Phaya Lann",
+            "stop_name_mm": "ဘုရားလေး",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.325651,
+            "longitude": 96.183559
+        },
+        {
+            "index": "16",
+            "stop_name_en": "Aung Chan Thar",
+            "stop_name_mm": "အောင်ချမ်းသာ",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.324379,
+            "longitude": 96.180532
+        },
+        {
+            "index": "17",
+            "stop_name_en": "Phaung Gyi Tar Sone",
+            "stop_name_mm": "ဖောင်ကြီးတာဆုံ",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.32229,
+            "longitude": 96.179202
+        },
+        {
+            "index": "18",
+            "stop_name_en": "Si Pin Lan Khwe",
+            "stop_name_mm": "စည်ပင်လမ်းခွဲ",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.320119,
+            "longitude": 96.180661
+        },
+        {
+            "index": "19",
+            "stop_name_en": "Paya Kone",
+            "stop_name_mm": "ဘုရားကုန်းဘုန်းကြီးကျောင်း",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.316472,
+            "longitude": 96.181047
+        },
+        {
+            "index": "20",
+            "stop_name_en": "Phaya Kone Sar Tain Kyaung",
+            "stop_name_mm": "ဘုရားကုန်းစာသင်ကျောင်း",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.314051,
+            "longitude": 96.182136
+        },
+        {
+            "index": "21",
+            "stop_name_en": "Phaya Kone",
+            "stop_name_mm": "ဘုရားကုန်းဦးသောင်းကွေ့",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.312228,
+            "longitude": 96.182307
+        },
+        {
+            "index": "22",
+            "stop_name_en": "Kone Htae Sign Board",
+            "stop_name_mm": "ကုန်းထိပ်ဆိုင်းဘုတ်",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.310109,
+            "longitude": 96.181921
+        },
+        {
+            "index": "23",
+            "stop_name_en": "Ou Yin Wa Lan Thit",
+            "stop_name_mm": "ဥယျာဉ်ဝလမ်းသစ်",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.308114,
+            "longitude": 96.181004
+        },
+        {
+            "index": "24",
+            "stop_name_en": "Kone Htae Sign Board",
+            "stop_name_mm": "ကုန်းထိပ်ဆိုင်းဘုတ်",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.306351,
+            "longitude": 96.181396
+        },
+        {
+            "index": "25",
+            "stop_name_en": "Ou Yin Wa Mohinga Phoo",
+            "stop_name_mm": "ဥယျာဉ်ဝမုန့်ဟင်းခါးဖို",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.304436,
+            "longitude": 96.182372
+        },
+        {
+            "index": "26",
+            "stop_name_en": "Yay Oo Sin",
+            "stop_name_mm": "ရေအိုးစင်",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.303054,
+            "longitude": 96.182961
+        },
+        {
+            "index": "27",
+            "stop_name_en": "Soe Battery",
+            "stop_name_mm": "စိုးဘတ္တရီ",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.300925,
+            "longitude": 96.183391
+        },
+        {
+            "index": "28",
+            "stop_name_en": "Ou Yin Wa",
+            "stop_name_mm": "ဥယျာဉ်ဝဘုန်းကြီးကျောင်းရှေ့",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.298281,
+            "longitude": 96.184609
+        },
+        {
+            "index": "29",
+            "stop_name_en": "Moe Kaung Phaya",
+            "stop_name_mm": "မိုးကောင်းဘုရား",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.294763,
+            "longitude": 96.184438
+        },
+        {
+            "index": "30",
+            "stop_name_en": "Tha Pyay Taung",
+            "stop_name_mm": "သပြေတောင်",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.28902,
+            "longitude": 96.185038
+        },
+        {
+            "index": "31",
+            "stop_name_en": "Twar Poo Cha",
+            "stop_name_mm": "သွားပိုးချ",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.285452,
+            "longitude": 96.187424
+        },
+        {
+            "index": "32",
+            "stop_name_en": "Kyi Soe Tadar",
+            "stop_name_mm": "ကြည်စိုးတံတား",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.283558,
+            "longitude": 96.18869
+        },
+        {
+            "index": "33",
+            "stop_name_en": "Hi Kuu Ywar Phyar",
+            "stop_name_mm": "ဟိုင်းကူးရွာဖျား",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.280519,
+            "longitude": 96.189677
+        },
+        {
+            "index": "34",
+            "stop_name_en": "Hi Kuu Phaya Lann",
+            "stop_name_mm": "ဟိုင်းကူးဘုရားလမ်း",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.27802,
+            "longitude": 96.189334
+        },
+        {
+            "index": "35",
+            "stop_name_en": "Hi Kuu Kyaung Shae",
+            "stop_name_mm": "ဟိုင်းကူးကျောင်းရှေ့",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.276116,
+            "longitude": 96.191093
+        },
+        {
+            "index": "36",
+            "stop_name_en": "Hine Koo",
+            "stop_name_mm": "ဟိုင်းကူးအောက်စု",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.274801,
+            "longitude": 96.192462
+        },
+        {
+            "index": "37",
+            "stop_name_en": "Hi Kuu Nat Sin",
+            "stop_name_mm": "ဟိုင်းကူးနတ်စင်",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.272951,
+            "longitude": 96.194599
+        },
+        {
+            "index": "38",
+            "stop_name_en": "Bo Kone Exchange Yone",
+            "stop_name_mm": "ကြို့ကုန်းအိတ်စ်ချိန်းရုံး",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.264978,
+            "longitude": 96.198432
+        },
+        {
+            "index": "39",
+            "stop_name_en": "Bo Kone Phaya Kyaung",
+            "stop_name_mm": "ကြို့ကုန်းဘုရားကျောင်း",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.263599,
+            "longitude": 96.198151
+        },
+        {
+            "index": "40",
+            "stop_name_en": "Kyo Kone",
+            "stop_name_mm": "ကြို့ကုန်းဉက္ကဌအိမ်ရှေ့",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.261315,
+            "longitude": 96.197722
+        },
+        {
+            "index": "41",
+            "stop_name_en": "Kyoe Kone Yone San",
+            "stop_name_mm": "ကြို့ကုန်းရုံးစံ",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.253554,
+            "longitude": 96.197961
+        },
+        {
+            "index": "42",
+            "stop_name_en": "Kyoe Kone Monastery Rd.",
+            "stop_name_mm": "ကြို့ကုန်းဘုန်းကြီးကျောင်းလမ်း",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.250185,
+            "longitude": 96.198862
+        },
+        {
+            "index": "43",
+            "stop_name_en": "Kyo Kone Lan Thit",
+            "stop_name_mm": "ကြို့ကုန်းလမ်းသစ်",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.247302,
+            "longitude": 96.199844
+        },
+        {
+            "index": "44",
+            "stop_name_en": "Nyaung Kone Sayar Gyi Pan Bal",
+            "stop_name_mm": "ညောင်ကုန်းဆရာကြီးပန်းပဲ",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.243793,
+            "longitude": 96.201307
+        },
+        {
+            "index": "45",
+            "stop_name_en": "Nyaung Kone Nanti",
+            "stop_name_mm": "ညောင်ကုန်းနံတီ",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.242543,
+            "longitude": 96.201864
+        },
+        {
+            "index": "46",
+            "stop_name_en": "Naung Tone Kyaung Shae",
+            "stop_name_mm": "ညောင်ကုန်းကျောင်းရှေ့",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.237207,
+            "longitude": 96.204119
+        },
+        {
+            "index": "47",
+            "stop_name_en": "Nyaung Kone",
+            "stop_name_mm": "ညောင်ကုန်း",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.230784,
+            "longitude": 96.206882
+        },
+        {
+            "index": "48",
+            "stop_name_en": "A Myan Lan Sone",
+            "stop_name_mm": "အမြန်လမ်းဆုံ",
+            "road": "Hlegu-Phaung Gyi Road, Hlegu",
+            "latitude": 17.22566,
+            "longitude": 96.210315
+        },
+        {
+            "index": "49",
+            "stop_name_en": "Sar Boo Taung",
+            "stop_name_mm": "စာဘူးတောင်း",
+            "road": "Hlegu-Phaung Gyi Road, Hlegu",
+            "latitude": 17.207172,
+            "longitude": 96.226666
+        },
+        {
+            "index": "50",
+            "stop_name_en": "Tha Pyay Kone",
+            "stop_name_mm": "သပြေကုန်း",
+            "road": "Hlegu-Phaung Gyi Road, Hlegu",
+            "latitude": 17.193931,
+            "longitude": 96.234133
+        },
+        {
+            "index": "51",
+            "stop_name_en": "Si Own",
+            "stop_name_mm": "ဆီအုန်း",
+            "road": "Hlegu-Phaung Gyi Road, Hlegu",
+            "latitude": 17.188232,
+            "longitude": 96.233919
+        },
+        {
+            "index": "52",
+            "stop_name_en": "Nat-Khan-Mhway Taik",
+            "stop_name_mm": "နှုတ်ခမ်းမွှေးသိုက်",
+            "road": "Hlegu-Phaung Gyi Road, Hlegu",
+            "latitude": 17.180237,
+            "longitude": 96.232159
+        },
+        {
+            "index": "53",
+            "stop_name_en": "Ka Dit",
+            "stop_name_mm": "ကဒစ်",
+            "road": "Hlegu-Phaung Gyi Road, Hlegu",
+            "latitude": 17.164082,
+            "longitude": 96.228812
+        },
+        {
+            "index": "54",
+            "stop_name_en": "Kyar Kan",
+            "stop_name_mm": "ကြာကန်",
+            "road": "Hlegu-Phaung Gyi Road, Hlegu",
+            "latitude": 17.153257,
+            "longitude": 96.226838
+        },
+        {
+            "index": "55",
+            "stop_name_en": "Aung Ta Pyay",
+            "stop_name_mm": "အောင်သပြေ",
+            "road": "Hlegu-Phaung Gyi Road, Hlegu",
+            "latitude": 17.15055,
+            "longitude": 96.226487
+        },
+        {
+            "index": "56",
+            "stop_name_en": "Ka Li Htaw",
+            "stop_name_mm": "ကလီထော်",
+            "road": "Hlegu-Phaung Gyi Road, Hlegu",
+            "latitude": 17.143497,
+            "longitude": 96.226366
+        },
+        {
+            "index": "57",
+            "stop_name_en": "Htain Thone Pin",
+            "stop_name_mm": "ထိန်သုံးပင်",
+            "road": "Hlegu-Phaung Gyi Road, Hlegu",
+            "latitude": 17.138248,
+            "longitude": 96.226623
+        },
+        {
+            "index": "58",
+            "stop_name_en": "Mhan Kone",
+            "stop_name_mm": "မှန်ကုန်း",
+            "road": "Hlegu-Phaung Gyi Road, Hlegu",
+            "latitude": 17.129636,
+            "longitude": 96.227224
+        },
+        {
+            "index": "59",
+            "stop_name_en": "Sakhan Kyi",
+            "stop_name_mm": "စခန်းကြီး",
+            "road": "Hlegu-Phaung Gyi Road, Hlegu",
+            "latitude": 17.122253,
+            "longitude": 96.226537
+        },
+        {
+            "index": "60",
+            "stop_name_en": "Ngapi Tae",
+            "stop_name_mm": "ငပိတဲ",
+            "road": "Hlegu-Phaung Gyi Road, Hlegu",
+            "latitude": 17.115199,
+            "longitude": 96.226451
+        },
+        {
+            "index": "61",
+            "stop_name_en": "Sal Myaung Yone",
+            "stop_name_mm": "ဆည်မြောင်းရုံး",
+            "road": "Hlegu-Phaung Gyi Road, Hlegu",
+            "latitude": 17.111672,
+            "longitude": 96.226326
+        },
+        {
+            "index": "62",
+            "stop_name_en": "Nyaung Pin",
+            "stop_name_mm": "ညောင်ပင်",
+            "road": "Hlegu-Phaung Gyi Road, Hlegu",
+            "latitude": 17.108062,
+            "longitude": 96.226777
+        },
+        {
+            "index": "63",
+            "stop_name_en": "San Taw Tar",
+            "stop_name_mm": "စန်းသော်တာ",
+            "road": "Hlegu-Phaung Gyi Road, Hlegu",
+            "latitude": 17.104422,
+            "longitude": 96.226661
+        },
+        {
+            "index": "64",
+            "stop_name_en": "Hlegu Tar Sone",
+            "stop_name_mm": "လှည်းကူးတာဆုံ",
+            "road": "Hlegu-Phaung Gyi Road, Hlegu",
+            "latitude": 17.099879,
+            "longitude": 96.225738
+        },
+        {
+            "index": "65",
+            "stop_name_en": "Hlegu Tar Sone",
+            "stop_name_mm": "လှည်းကူးတာဆုံ",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.09956,
+            "longitude": 96.225669
+        },
+        {
+            "index": "66",
+            "stop_name_en": "Tin Zar Oo",
+            "stop_name_mm": "သဉ္ဇာဦး",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.098559,
+            "longitude": 96.223129
+        },
+        {
+            "index": "67",
+            "stop_name_en": "Hlegu Zay",
+            "stop_name_mm": "လှည်းကူးဈေး",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.096831,
+            "longitude": 96.219037
+        },
+        {
+            "index": "68",
+            "stop_name_en": "Hlegu Zay",
+            "stop_name_mm": "လှည်းကူးဈေး",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.096672,
+            "longitude": 96.219097
+        },
+        {
+            "index": "69",
+            "stop_name_en": "Tin Zar Oo",
+            "stop_name_mm": "သဉ္ဇာဦး",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.098352,
+            "longitude": 96.223179
+        },
+        {
+            "index": "70",
+            "stop_name_en": "Hlegu Tar Sone",
+            "stop_name_mm": "လှည်းကူးတာဆုံ",
+            "road": "No. 1 Main Road, Hlegu",
+            "latitude": 17.099458,
+            "longitude": 96.225736
+        },
+        {
+            "index": "71",
+            "stop_name_en": "Hlegu Tar Sone",
+            "stop_name_mm": "လှည်းကူးတာဆုံ",
+            "road": "Hlegu-Phaung Gyi Road, Hlegu",
+            "latitude": 17.099807,
+            "longitude": 96.225899
+        },
+        {
+            "index": "72",
+            "stop_name_en": "San Taw Tar",
+            "stop_name_mm": "စန်းသော်တာ",
+            "road": "Hlegu-Phaung Gyi Road, Hlegu",
+            "latitude": 17.104258,
+            "longitude": 96.2268
+        },
+        {
+            "index": "73",
+            "stop_name_en": "Nyaung Pin",
+            "stop_name_mm": "ညောင်ပင်",
+            "road": "Hlegu-Phaung Gyi Road, Hlegu",
+            "latitude": 17.108185,
+            "longitude": 96.226991
+        },
+        {
+            "index": "74",
+            "stop_name_en": "Sal Myaung Yone",
+            "stop_name_mm": "ဆည်မြောင်းရုံး",
+            "road": "Hlegu-Phaung Gyi Road, Hlegu",
+            "latitude": 17.111631,
+            "longitude": 96.226627
+        },
+        {
+            "index": "75",
+            "stop_name_en": "Ngapi Tae",
+            "stop_name_mm": "ငပိတဲ",
+            "road": "Hlegu-Phaung Gyi Road, Hlegu",
+            "latitude": 17.115035,
+            "longitude": 96.226623
+        },
+        {
+            "index": "76",
+            "stop_name_en": "Sakhan Kyi",
+            "stop_name_mm": "စခန်းကြီး",
+            "road": "Hlegu-Phaung Gyi Road, Hlegu",
+            "latitude": 17.122499,
+            "longitude": 96.226966
+        },
+        {
+            "index": "77",
+            "stop_name_en": "Mhan Kone",
+            "stop_name_mm": "မှန်ကုန်း",
+            "road": "Hlegu-Phaung Gyi Road, Hlegu",
+            "latitude": 17.129841,
+            "longitude": 96.227567
+        },
+        {
+            "index": "78",
+            "stop_name_en": "Htain Thone Pin",
+            "stop_name_mm": "ထိန်သုံးပင်",
+            "road": "Hlegu-Phaung Gyi Road, Hlegu",
+            "latitude": 17.138412,
+            "longitude": 96.226838
+        },
+        {
+            "index": "79",
+            "stop_name_en": "Ka Li Htaw",
+            "stop_name_mm": "ကလီထော်",
+            "road": "Hlegu-Phaung Gyi Road, Hlegu",
+            "latitude": 17.143579,
+            "longitude": 96.226666
+        },
+        {
+            "index": "80",
+            "stop_name_en": "Aung Ta Pyay",
+            "stop_name_mm": "အောင်သပြေ",
+            "road": "Hlegu-Phaung Gyi Road, Hlegu",
+            "latitude": 17.150468,
+            "longitude": 96.22683
+        },
+        {
+            "index": "81",
+            "stop_name_en": "Kyar Kan",
+            "stop_name_mm": "ကြာကန်",
+            "road": "Hlegu-Phaung Gyi Road, Hlegu",
+            "latitude": 17.15338,
+            "longitude": 96.22731
+        },
+        {
+            "index": "82",
+            "stop_name_en": "Ka Dit",
+            "stop_name_mm": "ကဒစ်",
+            "road": "Hlegu-Phaung Gyi Road, Hlegu",
+            "latitude": 17.164041,
+            "longitude": 96.229112
+        },
+        {
+            "index": "83",
+            "stop_name_en": "Nat-Khan-Mhway Taik",
+            "stop_name_mm": "နှုတ်ခမ်းမွှေးသိုက်",
+            "road": "Hlegu-Phaung Gyi Road, Hlegu",
+            "latitude": 17.180237,
+            "longitude": 96.232588
+        },
+        {
+            "index": "84",
+            "stop_name_en": "Si Own",
+            "stop_name_mm": "ဆီအုန်း",
+            "road": "Hlegu-Phaung Gyi Road, Hlegu",
+            "latitude": 17.188273,
+            "longitude": 96.234391
+        },
+        {
+            "index": "85",
+            "stop_name_en": "Tha Pyay Kone",
+            "stop_name_mm": "သပြေကုန်း",
+            "road": "Hlegu-Phaung Gyi Road, Hlegu",
+            "latitude": 17.194095,
+            "longitude": 96.234477
+        },
+        {
+            "index": "86",
+            "stop_name_en": "Sar Boo Taung",
+            "stop_name_mm": "စာဘူးတောင်း",
+            "road": "Hlegu-Phaung Gyi Road, Hlegu",
+            "latitude": 17.207336,
+            "longitude": 96.227009
+        },
+        {
+            "index": "87",
+            "stop_name_en": "A Myan Lan Sone",
+            "stop_name_mm": "အမြန်လမ်းဆုံ",
+            "road": "Hlegu-Phaung Gyi Road, Hlegu",
+            "latitude": 17.225783,
+            "longitude": 96.210787
+        },
+        {
+            "index": "88",
+            "stop_name_en": "Nyaung Kone",
+            "stop_name_mm": "ညောင်ကုန်း",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.230948,
+            "longitude": 96.207268
+        },
+        {
+            "index": "89",
+            "stop_name_en": "Naung Tone Kyaung Shae",
+            "stop_name_mm": "ညောင်ကုန်းကျောင်းရှေ့",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.237316,
+            "longitude": 96.204328
+        },
+        {
+            "index": "90",
+            "stop_name_en": "Nyaung Kone Nanti",
+            "stop_name_mm": "ညောင်ကုန်းနံတီ",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.24281,
+            "longitude": 96.201918
+        },
+        {
+            "index": "91",
+            "stop_name_en": "Nyaung Kone Sayar Gyi Pan Bal",
+            "stop_name_mm": "ညောင်ကုန်းဆရာကြီးပန်းပဲ",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.244059,
+            "longitude": 96.20135
+        },
+        {
+            "index": "92",
+            "stop_name_en": "Kyo Kone Lan Thit",
+            "stop_name_mm": "ကြို့ကုန်းလမ်းသစ်",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.247015,
+            "longitude": 96.20023
+        },
+        {
+            "index": "93",
+            "stop_name_en": "Kyoe Kone Monastery Rd.",
+            "stop_name_mm": "ကြို့ကုန်းဘုန်းကြီးကျောင်းလမ်း",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.250154,
+            "longitude": 96.199055
+        },
+        {
+            "index": "94",
+            "stop_name_en": "Kyoe Kone Yone San",
+            "stop_name_mm": "ကြို့ကုန်းရုံးစံ",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.25338,
+            "longitude": 96.19825
+        },
+        {
+            "index": "95",
+            "stop_name_en": "Kyo Kone",
+            "stop_name_mm": "ကြို့ကုန်းဉက္ကဌအိမ်ရှေ့",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.261141,
+            "longitude": 96.197872
+        },
+        {
+            "index": "96",
+            "stop_name_en": "Bo Kone Phaya Kyaung",
+            "stop_name_mm": "ကြို့ကုန်းဘုရားကျောင်း",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.263588,
+            "longitude": 96.198301
+        },
+        {
+            "index": "97",
+            "stop_name_en": "Bo Kone Exchange Yone",
+            "stop_name_mm": "ကြို့ကုန်းအိတ်စ်ချိန်းရုံး",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.265065,
+            "longitude": 96.198539
+        },
+        {
+            "index": "98",
+            "stop_name_en": "Hi Kuu Nat Sin",
+            "stop_name_mm": "ဟိုင်းကူးနတ်စင်",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.273176,
+            "longitude": 96.194621
+        },
+        {
+            "index": "99",
+            "stop_name_en": "Hine Koo",
+            "stop_name_mm": "ဟိုင်းကူးအောက်စု",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.274965,
+            "longitude": 96.192677
+        },
+        {
+            "index": "100",
+            "stop_name_en": "Hi Kuu Kyaung Shae",
+            "stop_name_mm": "ဟိုင်းကူးကျောင်းရှေ့",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.276269,
+            "longitude": 96.191103
+        },
+        {
+            "index": "101",
+            "stop_name_en": "Hi Kuu Phaya Lann",
+            "stop_name_mm": "ဟိုင်းကူးဘုရားလမ်း",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.278153,
+            "longitude": 96.189452
+        },
+        {
+            "index": "102",
+            "stop_name_en": "Hi Kuu Ywar Phyar",
+            "stop_name_mm": "ဟိုင်းကူးရွာဖျား",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.280284,
+            "longitude": 96.189645
+        },
+        {
+            "index": "103",
+            "stop_name_en": "Kyi Soe Tadar",
+            "stop_name_mm": "ကြည်စိုးတံတား",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.283711,
+            "longitude": 96.188765
+        },
+        {
+            "index": "104",
+            "stop_name_en": "Twar Poo Cha",
+            "stop_name_mm": "သွားပိုးချ",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.285472,
+            "longitude": 96.187607
+        },
+        {
+            "index": "105",
+            "stop_name_en": "Tha Pyay Taung",
+            "stop_name_mm": "သပြေတောင်",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.28902,
+            "longitude": 96.185253
+        },
+        {
+            "index": "106",
+            "stop_name_en": "Moe Kaung Phaya",
+            "stop_name_mm": "မိုးကောင်းဘုရား",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.294881,
+            "longitude": 96.18453
+        },
+        {
+            "index": "107",
+            "stop_name_en": "Ou Yin Wa",
+            "stop_name_mm": "ဥယျာဉ်ဝဘုန်းကြီးကျောင်းရှေ့",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.298117,
+            "longitude": 96.184866
+        },
+        {
+            "index": "108",
+            "stop_name_en": "Soe Battery",
+            "stop_name_mm": "စိုးဘတ္တရီ",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.30113,
+            "longitude": 96.183444
+        },
+        {
+            "index": "109",
+            "stop_name_en": "Yay Oo Sin",
+            "stop_name_mm": "ရေအိုးစင်",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.30287,
+            "longitude": 96.183144
+        },
+        {
+            "index": "110",
+            "stop_name_en": "Ou Yin Wa Mohinga Phoo",
+            "stop_name_mm": "ဥယျာဉ်ဝမုန့်ဟင်းခါးဖို",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.30461,
+            "longitude": 96.182404
+        },
+        {
+            "index": "111",
+            "stop_name_en": "Kone Htae Sign Board",
+            "stop_name_mm": "ကုန်းထိပ်ဆိုင်းဘုတ်",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.306453,
+            "longitude": 96.181482
+        },
+        {
+            "index": "112",
+            "stop_name_en": "Ou Yin Wa Lan Thit",
+            "stop_name_mm": "ဥယျာဉ်ဝလမ်းသစ်",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.308155,
+            "longitude": 96.181262
+        },
+        {
+            "index": "113",
+            "stop_name_en": "Kone Htae Sign Board",
+            "stop_name_mm": "ကုန်းထိပ်ဆိုင်းဘုတ်",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.309945,
+            "longitude": 96.182018
+        },
+        {
+            "index": "114",
+            "stop_name_en": "Phaya Kone",
+            "stop_name_mm": "ဘုရားကုန်းဦးသောင်းကွေ့",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.3123,
+            "longitude": 96.182511
+        },
+        {
+            "index": "115",
+            "stop_name_en": "Phaya Kone Sar Tain Kyaung",
+            "stop_name_mm": "ဘုရားကုန်းစာသင်ကျောင်း",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.314051,
+            "longitude": 96.182329
+        },
+        {
+            "index": "116",
+            "stop_name_en": "Paya Kone",
+            "stop_name_mm": "ဘုရားကုန်းဘုန်းကြီးကျောင်း",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.316636,
+            "longitude": 96.181347
+        },
+        {
+            "index": "117",
+            "stop_name_en": "Si Pin Lan Khwe",
+            "stop_name_mm": "စည်ပင်လမ်းခွဲ",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.319955,
+            "longitude": 96.180961
+        },
+        {
+            "index": "118",
+            "stop_name_en": "Phaung Gyi Tar Sone",
+            "stop_name_mm": "ဖောင်ကြီးတာဆုံ",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.322331,
+            "longitude": 96.179502
+        },
+        {
+            "index": "119",
+            "stop_name_en": "Aung Chan Thar",
+            "stop_name_mm": "အောင်ချမ်းသာ",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.324175,
+            "longitude": 96.180747
+        },
+        {
+            "index": "120",
+            "stop_name_en": "Phaya Lann",
+            "stop_name_mm": "ဘုရားလမ်း",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.325523,
+            "longitude": 96.183543
+        },
+        {
+            "index": "121",
+            "stop_name_en": "Sel Myaung",
+            "stop_name_mm": "ဆည်မြောင်း",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.326585,
+            "longitude": 96.184972
+        },
+        {
+            "index": "122",
+            "stop_name_en": "Say Yone Kone",
+            "stop_name_mm": "ဆေးရုံကုန်း",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.327288,
+            "longitude": 96.185811
+        },
+        {
+            "index": "123",
+            "stop_name_en": "Say Yone Kone",
+            "stop_name_mm": "ဆေးရုံးကုန်း",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.328738,
+            "longitude": 96.18632
+        },
+        {
+            "index": "124",
+            "stop_name_en": "Baho Wun Htan Takke Tho",
+            "stop_name_mm": "ဗဟိုဝန်ထမ်းတက္ကသိုလ်",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.331385,
+            "longitude": 96.18727
+        },
+        {
+            "index": "125",
+            "stop_name_en": "Sel Tan Kyaung Shae",
+            "stop_name_mm": "၁၀ တန်းကျောင်းရှေ့",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.333091,
+            "longitude": 96.19211
+        },
+        {
+            "index": "126",
+            "stop_name_en": "Bathar",
+            "stop_name_mm": "ဘသာ",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.333496,
+            "longitude": 96.193402
+        },
+        {
+            "index": "127",
+            "stop_name_en": "San Pya",
+            "stop_name_mm": "စံပြဂုန်းထိပ်",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.335318,
+            "longitude": 96.196239
+        },
+        {
+            "index": "128",
+            "stop_name_en": "Hnit Gate",
+            "stop_name_mm": "(၂) ဂိတ်",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.339783,
+            "longitude": 96.197698
+        },
+        {
+            "index": "129",
+            "stop_name_en": "Thama War Ya Ma College",
+            "stop_name_mm": "သမကောလိပ်ဂိတ်ကြီး",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.345723,
+            "longitude": 96.200917
+        },
+        {
+            "index": "130",
+            "stop_name_en": "Thama War Ya Ma College",
+            "stop_name_mm": "သမကောလိပ်ဂိတ်လေး",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.346857,
+            "longitude": 96.202562
+        },
+        {
+            "index": "131",
+            "stop_name_en": "Sauk Lote Yae Lan Khwe",
+            "stop_name_mm": "ဆောက်လုပ်ရေးလမ်းခွဲ",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.347525,
+            "longitude": 96.203964
+        },
+        {
+            "index": "132",
+            "stop_name_en": "Naung Pin",
+            "stop_name_mm": "ညောင်ပင်",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.348996,
+            "longitude": 96.206133
+        },
+        {
+            "index": "133",
+            "stop_name_en": "Signboard",
+            "stop_name_mm": "ဆိုင်းဘုတ်",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.350148,
+            "longitude": 96.207795
+        },
+        {
+            "index": "134",
+            "stop_name_en": "Min Kone",
+            "stop_name_mm": "မင်းကုန်း",
+            "road": "Hlegu-Phaung Gyi Road, Phaung Gyi",
+            "latitude": 17.350638,
+            "longitude": 96.208084
+        }
+    ]
+}

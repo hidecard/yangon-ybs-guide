@@ -18,8 +18,14 @@ function ensureSchema(): Promise<void> {
         lat REAL,
         lng REAL,
         user_id TEXT,
+        upvotes INTEGER DEFAULT 0,
         created_at INTEGER NOT NULL
       )`);
+      try {
+        await turso.execute('ALTER TABLE bus_updates ADD COLUMN upvotes INTEGER DEFAULT 0');
+      } catch {
+        // Column may already exist.
+      }
     })().catch((e) => {
       schemaReady = null;
       throw e;
@@ -43,7 +49,7 @@ export default async function handler(req: any, res: any) {
       await turso.execute('DELETE FROM bus_updates WHERE created_at < ?', [oneDayAgo]);
 
       let sql =
-        'SELECT id, route_id, stop, type, note, lat, lng, user_id, created_at FROM bus_updates';
+        'SELECT id, route_id, stop, type, note, lat, lng, user_id, upvotes, created_at FROM bus_updates';
       const args: any[] = [];
       if (routeId) {
         sql += ' WHERE route_id = ?';
@@ -62,6 +68,7 @@ export default async function handler(req: any, res: any) {
         lat: row.lat != null ? Number(row.lat) : undefined,
         lng: row.lng != null ? Number(row.lng) : undefined,
         userId: row.user_id != null ? String(row.user_id) : undefined,
+        upvotes: Number(row.upvotes ?? 0),
         createdAt: Number(row.created_at),
       }));
       return res.status(200).json({ updates });
@@ -75,8 +82,8 @@ export default async function handler(req: any, res: any) {
       }
 
       await turso.execute({
-        sql: `INSERT INTO bus_updates (route_id, stop, type, note, lat, lng, user_id, created_at)
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        sql: `INSERT INTO bus_updates (route_id, stop, type, note, lat, lng, user_id, upvotes, created_at)
+              VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?)`,
         args: [
           String(routeId),
           stop != null ? String(stop) : null,
@@ -88,7 +95,9 @@ export default async function handler(req: any, res: any) {
           Date.now(),
         ],
       });
-      return res.status(200).json({ ok: true });
+      const insertResult = await turso.execute('SELECT last_insert_rowid() as id');
+      const newId = Number((insertResult.rows[0] as any).id);
+      return res.status(200).json({ ok: true, id: newId });
     }
 
     return res.status(405).json({ error: 'Method Not Allowed' });

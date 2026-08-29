@@ -49,6 +49,7 @@ import { fetchBusUpdates, postBusUpdate, fetchPredictions, timeAgo, UPDATE_TYPE_
 import { postFeedback, fetchFeedback, FEEDBACK_TYPE_META, type FeedbackItem, type FeedbackType } from './feedback';
 import { getTripHistory, addTripHistory, removeTripHistoryItem, clearTripHistory, type TripHistoryItem } from './tripHistory';
 import { fetchNotifications, postNotification, getLastSeenNotificationId, setLastSeenNotificationId } from './notifications';
+import { fetchBusEta, type BusEstimate } from './busEta';
 
 // --- Types for Search Results ---
 interface PathStep {
@@ -1485,6 +1486,34 @@ const RouteDetailPage: React.FC<{
   const [busPositions, setBusPositions] = useState<Array<{ lat: number; lng: number; type: string; note?: string; createdAt: number }>>([]);
   const [loadingBusPositions, setLoadingBusPositions] = useState(false);
 
+  const [busEta, setBusEta] = useState<BusEstimate[]>([]);
+  const [busEtaLoading, setBusEtaLoading] = useState(false);
+  const [busEtaMessage, setBusEtaMessage] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      setBusEtaLoading(true);
+      try {
+        const data = await fetchBusEta(route.id);
+        if (!cancelled) {
+          setBusEta(data.estimates || []);
+          setBusEtaMessage(data.message || '');
+        }
+      } catch {
+        if (!cancelled) {
+          setBusEta([]);
+          setBusEtaMessage('');
+        }
+      } finally {
+        if (!cancelled) setBusEtaLoading(false);
+      }
+    };
+    load();
+    const interval = setInterval(load, 15000);
+    return () => { cancelled = true; clearInterval(interval); };
+  }, [route.id]);
+
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
@@ -1693,6 +1722,30 @@ const RouteDetailPage: React.FC<{
                   </div>
                 )}
 
+                {(busEtaLoading || busEta.length > 0 || busEtaMessage) && (
+                  <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-100">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Clock size={14} className="text-emerald-600" />
+                      <p className="text-xs font-semibold text-emerald-700">ကားလာမည့် အချိန် ခန့်မှန်းချက်</p>
+                      <span className="text-[10px] text-emerald-500 font-medium">Live Location အခြေခံ</span>
+                    </div>
+                    {busEtaLoading ? (
+                      <p className="text-xs text-slate-400">တွက်ချက်နေပါသည်...</p>
+                    ) : busEtaMessage ? (
+                      <p className="text-xs text-slate-500">{busEtaMessage}</p>
+                    ) : (
+                      <div className="space-y-1.5">
+                        {busEta.slice(0, 6).map((est, i) => (
+                          <div key={i} className="flex items-center justify-between text-xs">
+                            <span className="text-slate-700 font-medium truncate">{est.stop}</span>
+                            <span className="text-emerald-600 shrink-0 ml-2 font-semibold">~{est.etaMinutes} မိနစ်</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <div className="space-y-2">
                 <p className="ui-label">မှတ်တိုင်များ ({routeStops.length})</p>
 
@@ -1833,18 +1886,17 @@ const RouteDetailPage: React.FC<{
 	             </div>
 	          </div>
 	        )}
- 	        {showReport && (
- 	          <ReportBusUpdateModal
- 	            routeId={route.id}
- 	            routeLabel={route.line_name || `YBS ${route.id}`}
- 	            onClose={() => setShowReport(false)}
- 	            onPosted={() => setReportNonce(n => n + 1)}
- 	          />
- 	        )}
+   	        {showReport && (
+   	          <ReportBusUpdateModal
+   	            routeId={route.id}
+   	            routeLabel={route.line_name || `YBS ${route.id}`}
+   	            onClose={() => setShowReport(false)}
+   	            onPosted={() => setReportNonce(n => n + 1)}
+   	          />
+    	        )}
     </div>
   );
 };
-
 
 const StopsPage: React.FC<{ stops: BusStop[], onStopClick: (s: BusStop) => void }> = ({ stops, onStopClick }) => {
   const [search, setSearch] = useState('');
@@ -3602,6 +3654,7 @@ const AdminPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [authed, setAuthed] = useState(false);
   const [error, setError] = useState('');
+  const [sessionToken, setSessionToken] = useState('');
   const [items, setItems] = useState<Array<{
     id: number;
     type: string;
@@ -3625,6 +3678,7 @@ const AdminPage: React.FC = () => {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Login failed');
+      setSessionToken(data.token || '');
       setAuthed(true);
       setPage(1);
       loadFeedback();
@@ -3638,7 +3692,7 @@ const AdminPage: React.FC = () => {
     setLoading(true);
     try {
       const res = await fetch(`/api/admin-feedback?limit=${limit}&offset=${(page - 1) * limit}`, {
-        headers: { Authorization: 'Bearer hidecard969aky' },
+        headers: { Authorization: `Bearer ${sessionToken}` },
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed');
@@ -3667,7 +3721,7 @@ const AdminPage: React.FC = () => {
   const loadNotifications = async () => {
     try {
       const res = await fetch('/api/notifications', {
-        headers: { Authorization: 'Bearer hidecard969aky' },
+        headers: { Authorization: `Bearer ${sessionToken}` },
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed');
@@ -3689,6 +3743,7 @@ const AdminPage: React.FC = () => {
         title: notificationTitle.trim(),
         message: notificationMessage.trim(),
         type: notificationType,
+        token: sessionToken,
       });
       if (ok) {
         setNotificationStatus('Notification sent successfully!');
