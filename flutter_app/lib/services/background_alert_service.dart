@@ -16,7 +16,7 @@ const _vibratePattern = [0, 400, 150, 400, 150, 400, 150, 400];
 /// Native channel used to acquire/release a wake lock + turn the screen on
 /// so the arrival alert (vibration + notification) is delivered even when the
 /// device is asleep (screen off or app closed).
-const _wakeLockChannel = MethodChannel('net.arkaryan.ybs_guide/wakelock');
+const _wakeLockChannel = MethodChannel('net.arkaryan.ybs_ai/wakelock');
 
 Future<void> _releaseWakeLock() async {
   try {

@@ -16,7 +16,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "net.arkaryan.ybs_guide"
+    namespace = "net.arkaryan.ybs_ai"
     compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
@@ -28,7 +28,7 @@ android {
 
     defaultConfig {
         // Stable application ID; changing it would create a different Play Store app.
-        applicationId = "net.arkaryan.ybs_guide"
+        applicationId = "net.arkaryan.ybs_ai"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

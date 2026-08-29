@@ -1,4 +1,4 @@
-package net.arkaryan.ybs_guide
+package net.arkaryan.ybs_ai
 
 import android.content.Context
 import android.os.Build
@@ -10,7 +10,7 @@ import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
     companion object {
-        private const val CHANNEL = "net.arkaryan.ybs_guide/wakelock"
+        private const val CHANNEL = "net.arkaryan.ybs_ai/wakelock"
     }
 
     private var wakeLock: PowerManager.WakeLock? = null

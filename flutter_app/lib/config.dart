@@ -45,7 +45,7 @@ class AppConfig {
   /// OSM tile URL (same as web Leaflet).
   static const String osmTileUrl =
       'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
-  static const String osmUserAgent = 'net.arkaryan.ybs_guide';
+  static const String osmUserAgent = 'net.arkaryan.ybs_ai';
 }
 
 /// Color palette mirroring the web app's index.css.
