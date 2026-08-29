@@ -185,37 +185,36 @@ class _YbsBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x12000000),
-            blurRadius: 12,
-            offset: Offset(0, -2),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: List.generate(items.length, (i) {
-              final item = items[i];
-              final active = i == index;
-              return Expanded(
-                child: _NavItem(
-                  active: active,
-                  icon: active ? item.$2 : item.$1,
-                  label: item.$3,
-                  onTap: () => onTap(i),
-                ),
-              );
-            }),
-          ),
+    return SafeArea(
+      top: false,
+      minimum: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(32),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x1A0F172A),
+              blurRadius: 18,
+              offset: Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: List.generate(items.length, (i) {
+            final item = items[i];
+            final active = i == index;
+            return Expanded(
+              child: _NavItem(
+                active: active,
+                icon: active ? item.$2 : item.$1,
+                label: item.$3,
+                onTap: () => onTap(i),
+              ),
+            );
+          }),
         ),
       ),
     );
@@ -245,8 +244,12 @@ class _NavItem extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: Container(
-          constraints: const BoxConstraints(minHeight: 48),
-          padding: const EdgeInsets.symmetric(vertical: 6),
+          constraints: const BoxConstraints(minHeight: 54),
+          padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 4),
+          decoration: BoxDecoration(
+            color: active ? AppColors.brandLight : Colors.transparent,
+            borderRadius: BorderRadius.circular(28),
+          ),
           child: AnimatedDefaultTextStyle(
             duration: const Duration(milliseconds: 220),
             style: TextStyle(

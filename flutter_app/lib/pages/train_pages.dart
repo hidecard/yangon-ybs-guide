@@ -252,61 +252,70 @@ class _TrainShellState extends State<TrainShell> {
         ],
       ),
       body: IndexedStack(index: _index, children: _pages),
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          boxShadow: [
-            BoxShadow(
-              color: Color(0x12000000),
-              blurRadius: 12,
-              offset: Offset(0, -2),
-            ),
-          ],
-        ),
-        child: SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-            child: Row(
-              children: List.generate(_items.length, (i) {
-                final item = _items[i];
-                final active = _index == i;
-                return Expanded(
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(16),
-                    onTap: () => setState(() => _index = i),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 5),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            active ? item.$2 : item.$1,
+      bottomNavigationBar: SafeArea(
+        top: false,
+        minimum: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(32),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x1A0F172A),
+                blurRadius: 18,
+                offset: Offset(0, 5),
+              ),
+            ],
+          ),
+          child: Row(
+            children: List.generate(_items.length, (i) {
+              final item = _items[i];
+              final active = _index == i;
+              return Expanded(
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(16),
+                  onTap: () => setState(() => _index = i),
+                  child: Container(
+                    constraints: const BoxConstraints(minHeight: 54),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 7,
+                      horizontal: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: active
+                          ? AppColors.emeraldLight
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(28),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          active ? item.$2 : item.$1,
+                          color: active
+                              ? AppColors.emeraldDark
+                              : AppColors.slate400,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          item.$3,
+                          style: TextStyle(
+                            fontSize: 11,
                             color: active
                                 ? AppColors.emeraldDark
                                 : AppColors.slate400,
+                            fontWeight: active
+                                ? FontWeight.w700
+                                : FontWeight.w500,
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            item.$3,
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: active
-                                  ? AppColors.emeraldDark
-                                  : AppColors.slate400,
-                              fontWeight: active
-                                  ? FontWeight.w700
-                                  : FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
-                );
-              }),
-            ),
+                ),
+              );
+            }),
           ),
         ),
       ),
