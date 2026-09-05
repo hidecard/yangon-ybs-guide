@@ -1,0 +1,1109 @@
+{
+    "bus_line": "76",
+    "route_info": {
+        "Route Name": "76",
+        "Line Name": "(၇၆) အရှေ့ပိုင်းတက္ကသိုလ် - မင်းဓမ္မ",
+        "Agency": "Trans Link",
+        "Route Type": "route",
+        "Total Stops": "137 stops",
+        "QR Payment": "✅ Supported"
+    },
+    "stops": [
+        {
+            "index": "1",
+            "stop_name_en": "Kar Gyi Gate",
+            "stop_name_mm": "ကားကြီးဂိတ်",
+            "road": "No. 6 Main Road, Thanlyin",
+            "latitude": 16.73478,
+            "longitude": 96.290014
+        },
+        {
+            "index": "2",
+            "stop_name_en": "A Shae Paing Takke Tho",
+            "stop_name_mm": "အရှေ.ပိုင်းတက္ကသိုလ်",
+            "road": "No. 6 Main Road, Thanlyin",
+            "latitude": 16.733832,
+            "longitude": 96.288276
+        },
+        {
+            "index": "3",
+            "stop_name_en": "Kunn Yar Saing",
+            "stop_name_mm": "ကွမ်းယာဆိုင်",
+            "road": "No. 6 Main Road, Thanlyin",
+            "latitude": 16.731306,
+            "longitude": 96.283165
+        },
+        {
+            "index": "4",
+            "stop_name_en": "Nyaung Pin",
+            "stop_name_mm": "ညောင်ပင်",
+            "road": "No. 6 Main Road, Thanlyin",
+            "latitude": 16.729945,
+            "longitude": 96.279253
+        },
+        {
+            "index": "5",
+            "stop_name_en": "Paya Kone Lan Sone",
+            "stop_name_mm": "ဘုရားကုန်းလမ်းဆုံ",
+            "road": "Thanlyin-Kyauktan Road, Thanlyin",
+            "latitude": 16.728782,
+            "longitude": 96.274
+        },
+        {
+            "index": "6",
+            "stop_name_en": "Paya Shae",
+            "stop_name_mm": "ဘုရားရှေ့",
+            "road": "Kyaik Khauk Pagoda Road, Thanlyin",
+            "latitude": 16.730064,
+            "longitude": 96.272653
+        },
+        {
+            "index": "7",
+            "stop_name_en": "Sae-Shit Kone",
+            "stop_name_mm": "(၁၈) ကုန်း",
+            "road": "Kyaik Khauk Pagoda Road, Thanlyin",
+            "latitude": 16.739455,
+            "longitude": 96.268619
+        },
+        {
+            "index": "8",
+            "stop_name_en": "Aung Chan Thar",
+            "stop_name_mm": "အောင်ချမ်းသာ",
+            "road": "Kyaik Khauk Pagoda Road, Thanlyin",
+            "latitude": 16.745619,
+            "longitude": 96.265293
+        },
+        {
+            "index": "9",
+            "stop_name_en": "Sal Myaung",
+            "stop_name_mm": "ဆည်မြောင်း",
+            "road": "Kyaik Khauk Pagoda Road, Thanlyin",
+            "latitude": 16.750962,
+            "longitude": 96.261367
+        },
+        {
+            "index": "10",
+            "stop_name_en": "Thama College",
+            "stop_name_mm": "သမကောလိပ်",
+            "road": "Thanlyin, Thanlyin",
+            "latitude": 16.754991,
+            "longitude": 96.258495
+        },
+        {
+            "index": "11",
+            "stop_name_en": "Kyar Paya",
+            "stop_name_mm": "ကျားဘုရား",
+            "road": "Kyaik Khauk Pagoda Road, Thanlyin",
+            "latitude": 16.757768,
+            "longitude": 96.2566
+        },
+        {
+            "index": "12",
+            "stop_name_en": "A Paw Kwae",
+            "stop_name_mm": "အပေါ်ကွေ့",
+            "road": "Bogyoke Road, Thanlyin",
+            "latitude": 16.760382,
+            "longitude": 96.252367
+        },
+        {
+            "index": "13",
+            "stop_name_en": "Out Kwae",
+            "stop_name_mm": "အောက်ကွေ့",
+            "road": "Bogyoke Road, Thanlyin",
+            "latitude": 16.760814,
+            "longitude": 96.251112
+        },
+        {
+            "index": "14",
+            "stop_name_en": "Yone Shae",
+            "stop_name_mm": "ရုံးရှေ့",
+            "road": "Bogyoke Road, Thanlyin",
+            "latitude": 16.761071,
+            "longitude": 96.248912
+        },
+        {
+            "index": "15",
+            "stop_name_en": "Thanlyin Zay",
+            "stop_name_mm": "သန်လျင်စျေး",
+            "road": "Bogyoke Road, Thanlyin",
+            "latitude": 16.761831,
+            "longitude": 96.24652
+        },
+        {
+            "index": "16",
+            "stop_name_en": "Myoma Zay",
+            "stop_name_mm": "မြို့မဈေး",
+            "road": "Bogyoke Nay Win Road, Thanlyin",
+            "latitude": 16.763618,
+            "longitude": 96.24622
+        },
+        {
+            "index": "17",
+            "stop_name_en": "Myoma",
+            "stop_name_mm": "မြို့မ",
+            "road": "Bogyoke Nay Win Road, Thanlyin",
+            "latitude": 16.768015,
+            "longitude": 96.246542
+        },
+        {
+            "index": "18",
+            "stop_name_en": "Dar Gude",
+            "stop_name_mm": "ဒါကုရ်",
+            "road": "Bogyoke Nay Win Road, Thanlyin",
+            "latitude": 16.770732,
+            "longitude": 96.24658
+        },
+        {
+            "index": "19",
+            "stop_name_en": "Yay Nan Gate",
+            "stop_name_mm": "ရေနံဂိတ်",
+            "road": "Bogyoke Nay Win Road, Thanlyin",
+            "latitude": 16.773198,
+            "longitude": 96.246896
+        },
+        {
+            "index": "20",
+            "stop_name_en": "Aung Thukha",
+            "stop_name_mm": "အောင်သုခ",
+            "road": "Bogyoke Nay Win Road, Thanlyin",
+            "latitude": 16.778087,
+            "longitude": 96.247427
+        },
+        {
+            "index": "21",
+            "stop_name_en": "Mee Point",
+            "stop_name_mm": "မီးပွိုင့်",
+            "road": "Kyaik Khauk Pagoda Road, Thanlyin",
+            "latitude": 16.778957,
+            "longitude": 96.247032
+        },
+        {
+            "index": "22",
+            "stop_name_en": "Lat Hmat Gate",
+            "stop_name_mm": "လက်မှတ်ဂိတ်",
+            "road": "Kyaik Khauk Pagoda Road, Thanlyin",
+            "latitude": 16.778698,
+            "longitude": 96.244222
+        },
+        {
+            "index": "23",
+            "stop_name_en": "Tadar Htate",
+            "stop_name_mm": "တံတားထိပ်",
+            "road": "Nawarat Pat Road, Thaketa",
+            "latitude": 16.801239,
+            "longitude": 96.225542
+        },
+        {
+            "index": "24",
+            "stop_name_en": "Sauk Lote Yae",
+            "stop_name_mm": "ဆောက်လုပ်ရေး",
+            "road": "Thanlyin Tada Chint Road, Thaketa",
+            "latitude": 16.803144,
+            "longitude": 96.223492
+        },
+        {
+            "index": "25",
+            "stop_name_en": "Tayar-Shit Taung",
+            "stop_name_mm": "(၁၀၈) တောင်",
+            "road": "Thalyin Thada Chin Kat Road, Thaketa",
+            "latitude": 16.806466,
+            "longitude": 96.21927
+        },
+        {
+            "index": "26",
+            "stop_name_en": "Thaketa Awine",
+            "stop_name_mm": "သာကေတအဝိုင်း",
+            "road": "Ayar Wun Main Road, Thaketa",
+            "latitude": 16.806457,
+            "longitude": 96.216833
+        },
+        {
+            "index": "27",
+            "stop_name_en": "Shit Gate",
+            "stop_name_mm": "(၈) ဂိတ်",
+            "road": "Ayar Wun Main Road, Thaketa",
+            "latitude": 16.804949,
+            "longitude": 96.213742
+        },
+        {
+            "index": "28",
+            "stop_name_en": "Myayni",
+            "stop_name_mm": "မြေနီ",
+            "road": "Ayar Wun Main Road, Thaketa",
+            "latitude": 16.803656,
+            "longitude": 96.210097
+        },
+        {
+            "index": "29",
+            "stop_name_en": "Kyaung Kwae/ Htuu Par Yone",
+            "stop_name_mm": "ကျောင်းကွေ့/ထူပါရုံ",
+            "road": "Ayar Wun Main Road, Thaketa",
+            "latitude": 16.80381,
+            "longitude": 96.205891
+        },
+        {
+            "index": "30",
+            "stop_name_en": "Anawmar",
+            "stop_name_mm": "အနော်မာ",
+            "road": "Ayar Wun Main Road, Thaketa",
+            "latitude": 16.803926,
+            "longitude": 96.201911
+        },
+        {
+            "index": "31",
+            "stop_name_en": "Kyauk Taing",
+            "stop_name_mm": "ကျောက်တိုင်",
+            "road": "Ayar Wun Main Road, Thaketa",
+            "latitude": 16.804258,
+            "longitude": 96.196239
+        },
+        {
+            "index": "32",
+            "stop_name_en": "Thuwunna Lan Sone",
+            "stop_name_mm": "သုဝဏ္ဏလမ်းဆုံ",
+            "road": "Waizayandar Road, Thingangyun",
+            "latitude": 16.813133,
+            "longitude": 96.191946
+        },
+        {
+            "index": "33",
+            "stop_name_en": "Kaw Set",
+            "stop_name_mm": "ကော်စက်",
+            "road": "Thanthumar Road, Thingangyun",
+            "latitude": 16.813903,
+            "longitude": 96.188372
+        },
+        {
+            "index": "34",
+            "stop_name_en": "Zay Lay",
+            "stop_name_mm": "ဈေးလေး",
+            "road": "Thanthumar Road, Thingangyun",
+            "latitude": 16.809926,
+            "longitude": 96.183588
+        },
+        {
+            "index": "35",
+            "stop_name_en": "Arthawka",
+            "stop_name_mm": "အာသောက",
+            "road": "Thamain Bayan Road, Tamwe",
+            "latitude": 16.80733,
+            "longitude": 96.180163
+        },
+        {
+            "index": "36",
+            "stop_name_en": "Tamwe Bali",
+            "stop_name_mm": "တာမွေဗလီ",
+            "road": "Thamain Bayan Road, Tamwe",
+            "latitude": 16.80953,
+            "longitude": 96.177036
+        },
+        {
+            "index": "37",
+            "stop_name_en": "Tamwe Plaza",
+            "stop_name_mm": "တာမွေပလာဇာ",
+            "road": "Thamain Bayan Road, Tamwe",
+            "latitude": 16.810901,
+            "longitude": 96.175102
+        },
+        {
+            "index": "38",
+            "stop_name_en": "Awine Htate/ Tamwe",
+            "stop_name_mm": "အဝိုင်းထိပ်/ တာမွေ",
+            "road": "West Horse Race Course Road, Tamwe",
+            "latitude": 16.81192,
+            "longitude": 96.17102
+        },
+        {
+            "index": "39",
+            "stop_name_en": "Mya Lan",
+            "stop_name_mm": "မြလမ်း",
+            "road": "West Horse Race Course Road, Bahan",
+            "latitude": 16.815803,
+            "longitude": 96.168246
+        },
+        {
+            "index": "40",
+            "stop_name_en": "Lan Sone",
+            "stop_name_mm": "လမ်းဆုံ",
+            "road": "U Chit Maung Road, Bahan",
+            "latitude": 16.817595,
+            "longitude": 96.16674
+        },
+        {
+            "index": "41",
+            "stop_name_en": "Min Lan",
+            "stop_name_mm": "မင်းလမ်း",
+            "road": "U Chit Maung Road, Bahan",
+            "latitude": 16.819495,
+            "longitude": 96.165249
+        },
+        {
+            "index": "42",
+            "stop_name_en": "Zay Kwae",
+            "stop_name_mm": "ဈေးကွေ့",
+            "road": "U Chit Maung Road, Bahan",
+            "latitude": 16.822503,
+            "longitude": 96.162803
+        },
+        {
+            "index": "43",
+            "stop_name_en": "Kyar Hmat Taing",
+            "stop_name_mm": "ကြားမှတ်တိုင်",
+            "road": "Yankin Road, Yankin",
+            "latitude": 16.825261,
+            "longitude": 96.164532
+        },
+        {
+            "index": "44",
+            "stop_name_en": "Yankin Zay",
+            "stop_name_mm": "ရန်ကင်းဈေး",
+            "road": "Yanshin Street, Yankin",
+            "latitude": 16.82892,
+            "longitude": 96.159207
+        },
+        {
+            "index": "45",
+            "stop_name_en": "Sae-hnat-lone-Tan",
+            "stop_name_mm": "(၁၂) လုံးတန်း",
+            "road": "Yanshin Road, Yankin",
+            "latitude": 16.830098,
+            "longitude": 96.162933
+        },
+        {
+            "index": "46",
+            "stop_name_en": "Set Hmu Tit",
+            "stop_name_mm": "စက်မှု (၁)",
+            "road": "No. 1 Industrial Road, Yankin",
+            "latitude": 16.827675,
+            "longitude": 96.15721
+        },
+        {
+            "index": "47",
+            "stop_name_en": "Set Hmu Tit/Myanmar Plaza",
+            "stop_name_mm": "စက်မှု (၁)/မြန်မာပလာဇာ",
+            "road": "Kabar Aye Pagoda Road, Bahan",
+            "latitude": 16.827033,
+            "longitude": 96.154205
+        },
+        {
+            "index": "48",
+            "stop_name_en": "Koke Kine",
+            "stop_name_mm": "ကုက္ကိုင်း",
+            "road": "University Avenue Road, Bahan",
+            "latitude": 16.823559,
+            "longitude": 96.153043
+        },
+        {
+            "index": "49",
+            "stop_name_en": "Inya Myaing",
+            "stop_name_mm": "အင်ယာမြိုင်",
+            "road": "University Avenue Road, Bahan",
+            "latitude": 16.824823,
+            "longitude": 96.147237
+        },
+        {
+            "index": "50",
+            "stop_name_en": "UFL",
+            "stop_name_mm": "ယူအပ်ဖ်အယ်",
+            "road": "University Avenue Road, Bahan",
+            "latitude": 16.825153,
+            "longitude": 96.142351
+        },
+        {
+            "index": "51",
+            "stop_name_en": "Kyuanlan",
+            "stop_name_mm": "ကျောင်းလမ်း",
+            "road": "University Avenue Road, Kamayut",
+            "latitude": 16.825918,
+            "longitude": 96.13846
+        },
+        {
+            "index": "52",
+            "stop_name_en": "Kyaung Shae/ Dhamar Yon",
+            "stop_name_mm": "ကျောင်းရှေ့/ဓမ္မာရုံ",
+            "road": "University Avenue Road, Kamayut",
+            "latitude": 16.826485,
+            "longitude": 96.132192
+        },
+        {
+            "index": "53",
+            "stop_name_en": "Hledan",
+            "stop_name_mm": "လှည်းတန်း",
+            "road": "Yangon-Insein Road, Kamayut",
+            "latitude": 16.827952,
+            "longitude": 96.130435
+        },
+        {
+            "index": "54",
+            "stop_name_en": "San Yeik Nyein",
+            "stop_name_mm": "စံရိပ်ငြိမ်",
+            "road": "Yangon-Insein Road, Kamayut",
+            "latitude": 16.831942,
+            "longitude": 96.129545
+        },
+        {
+            "index": "55",
+            "stop_name_en": "Sin Yae Twin",
+            "stop_name_mm": "ဆင်ရေတွင်း",
+            "road": "Yangon-Insein Road, Kamayut",
+            "latitude": 16.834326,
+            "longitude": 96.128639
+        },
+        {
+            "index": "56",
+            "stop_name_en": "Butar Yon Lan",
+            "stop_name_mm": "ဘူတာရုံလမ်း",
+            "road": "Yangon-Insein Road, Hlaing",
+            "latitude": 16.837297,
+            "longitude": 96.127752
+        },
+        {
+            "index": "57",
+            "stop_name_en": "Thukha",
+            "stop_name_mm": "သုခ",
+            "road": "Yangon-Insein Road, Hlaing",
+            "latitude": 16.84047,
+            "longitude": 96.127017
+        },
+        {
+            "index": "58",
+            "stop_name_en": "Than Lan",
+            "stop_name_mm": "သံလမ်း",
+            "road": "Yangon-Insein Road, Hlaing",
+            "latitude": 16.845174,
+            "longitude": 96.12593
+        },
+        {
+            "index": "59",
+            "stop_name_en": "Bartar",
+            "stop_name_mm": "ဘာတာ",
+            "road": "Yangon-Insein Road, Hlaing",
+            "latitude": 16.85115,
+            "longitude": 96.124556
+        },
+        {
+            "index": "60",
+            "stop_name_en": "Oakyin",
+            "stop_name_mm": "အုတ်ကျင်း",
+            "road": "Yangon-Insein Road, Hlaing",
+            "latitude": 16.854916,
+            "longitude": 96.123917
+        },
+        {
+            "index": "61",
+            "stop_name_en": "Paya Lan",
+            "stop_name_mm": "ဘုရားလမ်း",
+            "road": "Yangon-Insein Road, Hlaing",
+            "latitude": 16.857746,
+            "longitude": 96.123548
+        },
+        {
+            "index": "62",
+            "stop_name_en": "Thamine Lan Son",
+            "stop_name_mm": "သမိုင်းလမ်းဆုံ",
+            "road": "Yangon-Insein Road, Mayangone",
+            "latitude": 16.861021,
+            "longitude": 96.122327
+        },
+        {
+            "index": "63",
+            "stop_name_en": "Thamine Lan Son",
+            "stop_name_mm": "သမိုင်းလမ်းဆုံ",
+            "road": "Kyaik Wine Pagoda Road, Mayangone",
+            "latitude": 16.863127,
+            "longitude": 96.122465
+        },
+        {
+            "index": "64",
+            "stop_name_en": "Ye Yan Aung",
+            "stop_name_mm": "ရဲရန်အောင်",
+            "road": "Kyaik Wine Pagoda Road, Mayangone",
+            "latitude": 16.866135,
+            "longitude": 96.126088
+        },
+        {
+            "index": "65",
+            "stop_name_en": "Kyaik Wine",
+            "stop_name_mm": "ကျိုက်ဝိုင်း",
+            "road": "Kyaik Wine Pagoda Road, Mayangone",
+            "latitude": 16.866536,
+            "longitude": 96.128669
+        },
+        {
+            "index": "66",
+            "stop_name_en": "Shwe Kabar Eain Yar",
+            "stop_name_mm": "ရွှေကမ္ဘာအိမ်ရာ",
+            "road": "Min Dhama Road, Mayangone",
+            "latitude": 16.868247,
+            "longitude": 96.131841
+        },
+        {
+            "index": "67",
+            "stop_name_en": "Min Dhamma Eain Yar",
+            "stop_name_mm": "မင်းဓမ္မအိမ်ယာ",
+            "road": "Min Dhama Road, Mayangone",
+            "latitude": 16.871007,
+            "longitude": 96.130589
+        },
+        {
+            "index": "68",
+            "stop_name_en": "Myanmar Convention Centre",
+            "stop_name_mm": "မြန်မာကွန်ဗန်းရှင်းစင်တာ",
+            "road": "Min Dhama Road, Mayangone",
+            "latitude": 16.875386,
+            "longitude": 96.127281
+        },
+        {
+            "index": "69",
+            "stop_name_en": "Sin Phyu Taw Oo Yin",
+            "stop_name_mm": "ဆင်ဖြူတော်ဥယျာဉ်(ကျောက်တော်ကြီး)",
+            "road": "Min Dhama Road, Mayangone",
+            "latitude": 16.883254,
+            "longitude": 96.123145
+        },
+        {
+            "index": "70",
+            "stop_name_en": "Sin Phyu Taw Oo Yin",
+            "stop_name_mm": "ဆင်ဖြူတော်ဥယျာဉ်(ကျောက်တော်ကြီး)",
+            "road": "Min Dhama Road, Mayangone",
+            "latitude": 16.883161,
+            "longitude": 96.123011
+        },
+        {
+            "index": "71",
+            "stop_name_en": "Myanmar Convention Centre",
+            "stop_name_mm": "မြန်မာကွန်ဗန်းရှင်းစင်တာ",
+            "road": "Min Dhama Road, Mayangone",
+            "latitude": 16.8752,
+            "longitude": 96.127206
+        },
+        {
+            "index": "72",
+            "stop_name_en": "Min Dhama Eain Yar",
+            "stop_name_mm": "မင်းဓမ္မအိမ်ရာ",
+            "road": "Min Dhama Road, Mayangone",
+            "latitude": 16.870793,
+            "longitude": 96.130543
+        },
+        {
+            "index": "73",
+            "stop_name_en": "Shwe Kabar Eain Yar",
+            "stop_name_mm": "ရွှေကမ္ဘာအိမ်ရာ",
+            "road": "Min Dhama Road, Mayangone",
+            "latitude": 16.868258,
+            "longitude": 96.131696
+        },
+        {
+            "index": "74",
+            "stop_name_en": "Kyaik Wine",
+            "stop_name_mm": "ကျိုက်ဝိုင်း",
+            "road": "Kyaik Wine Pagoda Road, Mayangone",
+            "latitude": 16.866632,
+            "longitude": 96.1287
+        },
+        {
+            "index": "75",
+            "stop_name_en": "Ye Yan Aung",
+            "stop_name_mm": "ရဲရန်အောင်",
+            "road": "Kyaik Wine Pagoda Road, Mayangone",
+            "latitude": 16.866219,
+            "longitude": 96.126031
+        },
+        {
+            "index": "76",
+            "stop_name_en": "Thamine Lan Son",
+            "stop_name_mm": "သမိုင်းလမ်းဆုံ",
+            "road": "Kyaik Wine Pagoda Road, Mayangone",
+            "latitude": 16.863193,
+            "longitude": 96.122404
+        },
+        {
+            "index": "77",
+            "stop_name_en": "Paya Lan",
+            "stop_name_mm": "ဘုရားလမ်း",
+            "road": "Yangon-Insein Road, Hlaing",
+            "latitude": 16.858547,
+            "longitude": 96.123376
+        },
+        {
+            "index": "78",
+            "stop_name_en": "Oakyin",
+            "stop_name_mm": "အုတ်ကျင်း",
+            "road": "Yangon-Insein Road, Hlaing",
+            "latitude": 16.855354,
+            "longitude": 96.123574
+        },
+        {
+            "index": "79",
+            "stop_name_en": "Bartar",
+            "stop_name_mm": "ဘာတာ",
+            "road": "Yangon-Insein Road, Hlaing",
+            "latitude": 16.852029,
+            "longitude": 96.124148
+        },
+        {
+            "index": "80",
+            "stop_name_en": "Than Lan",
+            "stop_name_mm": "သံလမ်း",
+            "road": "Yangon-Insein Road, Hlaing",
+            "latitude": 16.846071,
+            "longitude": 96.125475
+        },
+        {
+            "index": "81",
+            "stop_name_en": "Thukha",
+            "stop_name_mm": "သုခ",
+            "road": "Yangon-Insein Road, Hlaing",
+            "latitude": 16.840511,
+            "longitude": 96.12683
+        },
+        {
+            "index": "82",
+            "stop_name_en": "Butar Yon Lan",
+            "stop_name_mm": "ဘူတာရုံလမ်း",
+            "road": "Yangon-Insein Road, Hlaing",
+            "latitude": 16.837466,
+            "longitude": 96.127449
+        },
+        {
+            "index": "83",
+            "stop_name_en": "Sin Yae Twin",
+            "stop_name_mm": "ဆင်ရေတွင်း",
+            "road": "Yangon-Insein Road, Kamayut",
+            "latitude": 16.833769,
+            "longitude": 96.128565
+        },
+        {
+            "index": "84",
+            "stop_name_en": "San Yeik Nyein",
+            "stop_name_mm": "စံရိပ်ငြိမ်",
+            "road": "Yangon-Insein Road, Kamayut",
+            "latitude": 16.830802,
+            "longitude": 96.129527
+        },
+        {
+            "index": "85",
+            "stop_name_en": "Hledan",
+            "stop_name_mm": "လှည်းတန်း",
+            "road": "Yangon-Insein Road, Kamayut",
+            "latitude": 16.828039,
+            "longitude": 96.130264
+        },
+        {
+            "index": "86",
+            "stop_name_en": "Kyaung Shae/ Dhamar Yon",
+            "stop_name_mm": "ကျောင်းရှေ့/ဓမ္မာရုံ",
+            "road": "University Avenue Road, Kamayut",
+            "latitude": 16.826186,
+            "longitude": 96.132782
+        },
+        {
+            "index": "87",
+            "stop_name_en": "Kyuanlan",
+            "stop_name_mm": "ကျောင်းလမ်း",
+            "road": "University Avenue Road, Kamayut",
+            "latitude": 16.825767,
+            "longitude": 96.138751
+        },
+        {
+            "index": "88",
+            "stop_name_en": "UFL",
+            "stop_name_mm": "ယူအပ်ဖ်အယ်",
+            "road": "University Avenue Road, Bahan",
+            "latitude": 16.825133,
+            "longitude": 96.142044
+        },
+        {
+            "index": "89",
+            "stop_name_en": "Inya Myaing",
+            "stop_name_mm": "အင်ယာမြိုင်",
+            "road": "University Avenue Road, Bahan",
+            "latitude": 16.824615,
+            "longitude": 96.147194
+        },
+        {
+            "index": "90",
+            "stop_name_en": "Koke Kine",
+            "stop_name_mm": "ကုက္ကိုင်း",
+            "road": "University Avenue Road, Bahan",
+            "latitude": 16.823772,
+            "longitude": 96.152223
+        },
+        {
+            "index": "91",
+            "stop_name_en": "Set Hmu Tit/Myanmar Plaza",
+            "stop_name_mm": "စက်မှု (၁)/မြန်မာပလာဇာ",
+            "road": "Kabar Aye Pagoda Road, Bahan",
+            "latitude": 16.827053,
+            "longitude": 96.154404
+        },
+        {
+            "index": "92",
+            "stop_name_en": "Set Hmu Tit",
+            "stop_name_mm": "စက်မှု (၁)",
+            "road": "No. 1 Industrial Road, Yankin",
+            "latitude": 16.827536,
+            "longitude": 96.157324
+        },
+        {
+            "index": "93",
+            "stop_name_en": "Yankin Zay",
+            "stop_name_mm": "ရန်ကင်းဈေး",
+            "road": "Yanshin Street, Yankin",
+            "latitude": 16.828822,
+            "longitude": 96.159214
+        },
+        {
+            "index": "94",
+            "stop_name_en": "Sae-hnat-lone-Tan",
+            "stop_name_mm": "(၁၂) လုံးတန်း",
+            "road": "Yanshin Road, Yankin",
+            "latitude": 16.830031,
+            "longitude": 96.16304
+        },
+        {
+            "index": "95",
+            "stop_name_en": "Kyar Hmat Taing",
+            "stop_name_mm": "ကြားမှတ်တိုင်",
+            "road": "Yankin Road, Yankin",
+            "latitude": 16.825104,
+            "longitude": 96.164489
+        },
+        {
+            "index": "96",
+            "stop_name_en": "Zay Kwae",
+            "stop_name_mm": "ဈေးကွေ့",
+            "road": "U Chit Maung Road, Bahan",
+            "latitude": 16.822303,
+            "longitude": 96.162665
+        },
+        {
+            "index": "97",
+            "stop_name_en": "Min Lan",
+            "stop_name_mm": "မင်းလမ်း",
+            "road": "U Chit Maung Road, Bahan",
+            "latitude": 16.819669,
+            "longitude": 96.164948
+        },
+        {
+            "index": "98",
+            "stop_name_en": "Lan Sone",
+            "stop_name_mm": "လမ်းဆုံ",
+            "road": "U Chit Maung Road, Bahan",
+            "latitude": 16.817532,
+            "longitude": 96.166528
+        },
+        {
+            "index": "99",
+            "stop_name_en": "Mya Lan",
+            "stop_name_mm": "မြလမ်း",
+            "road": "West Horse Race Course Road, Bahan",
+            "latitude": 16.816393,
+            "longitude": 96.16748
+        },
+        {
+            "index": "100",
+            "stop_name_en": "Awine Htate/ Tamwe",
+            "stop_name_mm": "အဝိုင်းထိပ်/ တာမွေ",
+            "road": "West Horse Race Course Road, Tamwe",
+            "latitude": 16.811861,
+            "longitude": 96.170899
+        },
+        {
+            "index": "101",
+            "stop_name_en": "Tamwe Plaza",
+            "stop_name_mm": "တာမွေပလာဇာ",
+            "road": "Thamain Bayan Road, Tamwe",
+            "latitude": 16.810675,
+            "longitude": 96.175352
+        },
+        {
+            "index": "102",
+            "stop_name_en": "Tamwe Bali",
+            "stop_name_mm": "တာမွေဗလီ",
+            "road": "Thamain Bayan Road, Tamwe",
+            "latitude": 16.809481,
+            "longitude": 96.176962
+        },
+        {
+            "index": "103",
+            "stop_name_en": "Arthawka",
+            "stop_name_mm": "အာသောက",
+            "road": "Thamain Bayan Road, Tamwe",
+            "latitude": 16.807242,
+            "longitude": 96.180101
+        },
+        {
+            "index": "104",
+            "stop_name_en": "Zay Lay",
+            "stop_name_mm": "ဈေးလေး",
+            "road": "Thanthumar Road, Thingangyun",
+            "latitude": 16.809825,
+            "longitude": 96.183666
+        },
+        {
+            "index": "105",
+            "stop_name_en": "Kaw Set",
+            "stop_name_mm": "ကော်စက်",
+            "road": "Thanthumar Road, Thingangyun",
+            "latitude": 16.813765,
+            "longitude": 96.188295
+        },
+        {
+            "index": "106",
+            "stop_name_en": "Thuwunna Lan Sone",
+            "stop_name_mm": "သုဝဏ္ဏလမ်းဆုံ",
+            "road": "Waizayandar Road, Thingangyun",
+            "latitude": 16.813151,
+            "longitude": 96.191771
+        },
+        {
+            "index": "107",
+            "stop_name_en": "Kyauk Taing",
+            "stop_name_mm": "ကျောက်တိုင်",
+            "road": "Ayar Wun Main Road, Thaketa",
+            "latitude": 16.804242,
+            "longitude": 96.196145
+        },
+        {
+            "index": "108",
+            "stop_name_en": "Anawmar",
+            "stop_name_mm": "အနော်မာ",
+            "road": "Ayar Wun Main Road, Thaketa",
+            "latitude": 16.80388,
+            "longitude": 96.201768
+        },
+        {
+            "index": "109",
+            "stop_name_en": "Myayni",
+            "stop_name_mm": "မြေနီ",
+            "road": "Ayar Wun Main Road, Thaketa",
+            "latitude": 16.803538,
+            "longitude": 96.209864
+        },
+        {
+            "index": "110",
+            "stop_name_en": "Kyaung Kwae/ Htuu Par Yone",
+            "stop_name_mm": "ကျောင်းကွေ့/ထူပါရုံ",
+            "road": "Ayar Wun Main Road, Thaketa",
+            "latitude": 16.803715,
+            "longitude": 96.205867
+        },
+        {
+            "index": "111",
+            "stop_name_en": "Shit Gate",
+            "stop_name_mm": "(၈) ဂိတ်",
+            "road": "Ayar Wun Main Road, Thaketa",
+            "latitude": 16.804751,
+            "longitude": 96.213528
+        },
+        {
+            "index": "112",
+            "stop_name_en": "Thaketa Awine",
+            "stop_name_mm": "သာကေတအဝိုင်း",
+            "road": "Ayeyar Wun Road, ရန်ကုန်မြို့",
+            "latitude": 16.806115,
+            "longitude": 96.216272
+        },
+        {
+            "index": "113",
+            "stop_name_en": "Tayar-Shit Taung",
+            "stop_name_mm": "(၁၀၈) တောင်",
+            "road": "Thalyin Thada Chin Kat Road, Thaketa",
+            "latitude": 16.806431,
+            "longitude": 96.218966
+        },
+        {
+            "index": "114",
+            "stop_name_en": "Sauk Lote Yae",
+            "stop_name_mm": "ဆောက်လုပ်ရေး",
+            "road": "Thanlyin Tada Chint Road, Thaketa",
+            "latitude": 16.803077,
+            "longitude": 96.223293
+        },
+        {
+            "index": "115",
+            "stop_name_en": "Tadar Htate",
+            "stop_name_mm": "တံတားထိပ်",
+            "road": "Nawarat Pat Road, Thaketa",
+            "latitude": 16.801254,
+            "longitude": 96.225282
+        },
+        {
+            "index": "116",
+            "stop_name_en": "Lat Hmat Gate",
+            "stop_name_mm": "လက်မှတ်ဂိတ်",
+            "road": "Kyaik Khauk Pagoda Road, Thanlyin",
+            "latitude": 16.77839,
+            "longitude": 96.243879
+        },
+        {
+            "index": "117",
+            "stop_name_en": "Mee Point",
+            "stop_name_mm": "မီးပွိုင့်",
+            "road": "Kyaik Khauk Pagoda Road, Thanlyin",
+            "latitude": 16.778739,
+            "longitude": 96.247226
+        },
+        {
+            "index": "118",
+            "stop_name_en": "Aung Thukha",
+            "stop_name_mm": "အောင်သုခ",
+            "road": "Bogyoke Nay Win Road, Thanlyin",
+            "latitude": 16.778113,
+            "longitude": 96.247347
+        },
+        {
+            "index": "119",
+            "stop_name_en": "Yay Nan Gate",
+            "stop_name_mm": "ရေနံဂိတ်",
+            "road": "Bogyoke Nay Win Road, Thanlyin",
+            "latitude": 16.773066,
+            "longitude": 96.246677
+        },
+        {
+            "index": "120",
+            "stop_name_en": "Dar Gude",
+            "stop_name_mm": "ဒါကုရ်",
+            "road": "Bogyoke Nay Win Road, Thanlyin",
+            "latitude": 16.770742,
+            "longitude": 96.246504
+        },
+        {
+            "index": "121",
+            "stop_name_en": "Myoma",
+            "stop_name_mm": "မြို့မ",
+            "road": "Bogyoke Nay Win Road, Thanlyin",
+            "latitude": 16.768025,
+            "longitude": 96.246483
+        },
+        {
+            "index": "122",
+            "stop_name_en": "Myoma Zay",
+            "stop_name_mm": "မြို့မဈေး",
+            "road": "Bogyoke Nay Win Road, Thanlyin",
+            "latitude": 16.763617,
+            "longitude": 96.246097
+        },
+        {
+            "index": "123",
+            "stop_name_en": "Thanlyin Zay",
+            "stop_name_mm": "သန်လျင်စျေး",
+            "road": "Bogyoke Road, Thanlyin",
+            "latitude": 16.76179,
+            "longitude": 96.246359
+        },
+        {
+            "index": "124",
+            "stop_name_en": "Yone Shae",
+            "stop_name_mm": "ရုံးရှေ့",
+            "road": "Bogyoke Road, Thanlyin",
+            "latitude": 16.760886,
+            "longitude": 96.248676
+        },
+        {
+            "index": "125",
+            "stop_name_en": "Out Kwae",
+            "stop_name_mm": "အောက်ကွေ့",
+            "road": "Bogyoke Road, Thanlyin",
+            "latitude": 16.760886,
+            "longitude": 96.250929
+        },
+        {
+            "index": "126",
+            "stop_name_en": "A Paw Kwae",
+            "stop_name_mm": "အပေါ်ကွေ့",
+            "road": "Bogyoke Road, Thanlyin",
+            "latitude": 16.760208,
+            "longitude": 96.252088
+        },
+        {
+            "index": "127",
+            "stop_name_en": "Kyar Paya",
+            "stop_name_mm": "ကျားဘုရား",
+            "road": "Kyaik Khauk Pagoda Road, Thanlyin",
+            "latitude": 16.757735,
+            "longitude": 96.25641
+        },
+        {
+            "index": "128",
+            "stop_name_en": "Thama College",
+            "stop_name_mm": "သမကောလိပ်",
+            "road": "Thanlyin, Thanlyin",
+            "latitude": 16.755061,
+            "longitude": 96.258146
+        },
+        {
+            "index": "129",
+            "stop_name_en": "Sal Myaung",
+            "stop_name_mm": "ဆည်မြောင်း",
+            "road": "Kyaik Khauk Pagoda Road, Thanlyin",
+            "latitude": 16.750871,
+            "longitude": 96.261025
+        },
+        {
+            "index": "130",
+            "stop_name_en": "Aung Chan Thar",
+            "stop_name_mm": "အောင်ချမ်းသာ",
+            "road": "Kyaik Khauk Pagoda Road, Thanlyin",
+            "latitude": 16.745437,
+            "longitude": 96.265006
+        },
+        {
+            "index": "131",
+            "stop_name_en": "Sae-Shit Kone",
+            "stop_name_mm": "(၁၈) ကုန်း",
+            "road": "Kyaik Khauk Pagoda Road, Thanlyin",
+            "latitude": 16.739825,
+            "longitude": 96.26804
+        },
+        {
+            "index": "132",
+            "stop_name_en": "Paya Shae",
+            "stop_name_mm": "ဘုရားရှေ့",
+            "road": "Kyaik Khauk Pagoda Road, Thanlyin",
+            "latitude": 16.730598,
+            "longitude": 96.272482
+        },
+        {
+            "index": "133",
+            "stop_name_en": "Paya Kone Lan Sone",
+            "stop_name_mm": "ဘုရားကုန်းလမ်းဆုံ",
+            "road": "Thanlyin-Kyauktan Road, Thanlyin",
+            "latitude": 16.728672,
+            "longitude": 96.273535
+        },
+        {
+            "index": "134",
+            "stop_name_en": "Nyaung Pin",
+            "stop_name_mm": "ညောင်ပင်",
+            "road": "No. 6 Main Road, Thanlyin",
+            "latitude": 16.729817,
+            "longitude": 96.279691
+        },
+        {
+            "index": "135",
+            "stop_name_en": "Kunn Yar Saing",
+            "stop_name_mm": "ကွမ်းယာဆိုင်",
+            "road": "No. 6 Main Road, Thanlyin",
+            "latitude": 16.731071,
+            "longitude": 96.283168
+        },
+        {
+            "index": "136",
+            "stop_name_en": "A Shae Paing Takke Tho",
+            "stop_name_mm": "အရှေ.ပိုင်းတက္ကသိုလ်",
+            "road": "No. 6 Main Road, Thanlyin",
+            "latitude": 16.732856,
+            "longitude": 96.286828
+        },
+        {
+            "index": "137",
+            "stop_name_en": "Kar Gyi Gate",
+            "stop_name_mm": "ကားကြီးဂိတ်",
+            "road": "No. 6 Main Road, Thanlyin",
+            "latitude": 16.734605,
+            "longitude": 96.290047
+        }
+    ]
+}

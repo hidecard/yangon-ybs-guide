@@ -1,0 +1,421 @@
+{
+    "bus_line": "53 (Meekwet Zay)",
+    "route_info": {
+        "Route Name": "53 (Meekwet Zay)",
+        "Line Name": "(၅၃) အလယ်ရွာ - လှိုင်သာယာ(မီးခွက်စျေး)",
+        "Agency": "Khit Thit Bayint Naung",
+        "Route Type": "route",
+        "Total Stops": "51 stops",
+        "QR Payment": "Not available"
+    },
+    "stops": [
+        {
+            "index": "1",
+            "stop_name_en": "Alel Ywar",
+            "stop_name_mm": "အလယ်ရွာ",
+            "road": "Khayae Pin Road, Hlaing Tharyar",
+            "latitude": 16.920001,
+            "longitude": 96.063407
+        },
+        {
+            "index": "2",
+            "stop_name_en": "Shwe Lin Pan Lan Sone",
+            "stop_name_mm": "ရွှေလင်ပန်း",
+            "road": "Khayae Pin Road, Hlaing Tharyar",
+            "latitude": 16.919895,
+            "longitude": 96.064035
+        },
+        {
+            "index": "3",
+            "stop_name_en": "53 Gate",
+            "stop_name_mm": "၅၃ ဂိတ်",
+            "road": "Khayae Pin Road, Hlaing Tharyar",
+            "latitude": 16.920601,
+            "longitude": 96.060939
+        },
+        {
+            "index": "4",
+            "stop_name_en": "Alel Ywa",
+            "stop_name_mm": "အလယ်ရွာ",
+            "road": "West University Road, Hlaing Tharyar",
+            "latitude": 16.921796,
+            "longitude": 96.056181
+        },
+        {
+            "index": "5",
+            "stop_name_en": "Yoe Gyi",
+            "stop_name_mm": "ရိုးကြီး",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.917169,
+            "longitude": 96.053049
+        },
+        {
+            "index": "6",
+            "stop_name_en": "Yoe Lay",
+            "stop_name_mm": "ရိုးလေး",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.910588,
+            "longitude": 96.050366
+        },
+        {
+            "index": "7",
+            "stop_name_en": "APhyu Gate",
+            "stop_name_mm": "အဖြူဂိတ်",
+            "road": "Bo Aung Kyaw Street, Hlaing Tharyar",
+            "latitude": 16.906949,
+            "longitude": 96.058225
+        },
+        {
+            "index": "8",
+            "stop_name_en": "Kyat Chan",
+            "stop_name_mm": "ကြက်ခြံ",
+            "road": "Bo Aung Kyaw Street, Hlaing Tharyar",
+            "latitude": 16.904543,
+            "longitude": 96.057307
+        },
+        {
+            "index": "9",
+            "stop_name_en": "Ko-set chauk  Apyar Gate",
+            "stop_name_mm": "၉၆ အပြာဂိတ်",
+            "road": "Bo Aung Kyaw Street, Hlaing Tharyar",
+            "latitude": 16.897686,
+            "longitude": 96.055055
+        },
+        {
+            "index": "10",
+            "stop_name_en": "Pann Chan",
+            "stop_name_mm": "ပန်းခြံ",
+            "road": "Bo Aung Kyaw Street, Hlaing Tharyar",
+            "latitude": 16.89588,
+            "longitude": 96.054282
+        },
+        {
+            "index": "11",
+            "stop_name_en": "Own Htaw",
+            "stop_name_mm": "အုန်းတော်",
+            "road": "Bo Aung Kyaw Street, Hlaing Tharyar",
+            "latitude": 16.893961,
+            "longitude": 96.053467
+        },
+        {
+            "index": "12",
+            "stop_name_en": "16 Kwae",
+            "stop_name_mm": "၁၆ ကွေ့",
+            "road": "Bo Aung Kyaw Street, Hlaing Tharyar",
+            "latitude": 16.890564,
+            "longitude": 96.052169
+        },
+        {
+            "index": "13",
+            "stop_name_en": "Ah Hta Ka Thone",
+            "stop_name_mm": "အထက (၃)",
+            "road": "Bo Aung Kyaw Street, Hlaing Tharyar",
+            "latitude": 16.889009,
+            "longitude": 96.051317
+        },
+        {
+            "index": "14",
+            "stop_name_en": "Dhama Yone",
+            "stop_name_mm": "ဓမ္မာရုံ",
+            "road": "Bo Aung Kyaw Street, Hlaing Tharyar",
+            "latitude": 16.884579,
+            "longitude": 96.049719
+        },
+        {
+            "index": "15",
+            "stop_name_en": "Pin Lon Zay",
+            "stop_name_mm": "ပင်လုံဈေး",
+            "road": "Bo Aung Kyaw Street, Hlaing Tharyar",
+            "latitude": 16.881072,
+            "longitude": 96.050293
+        },
+        {
+            "index": "16",
+            "stop_name_en": "Chauk Tha Ma",
+            "stop_name_mm": "(၆) သမ",
+            "road": "Bo Aung Kyaw Road, Hlaing Tharyar",
+            "latitude": 16.879322,
+            "longitude": 96.050608
+        },
+        {
+            "index": "17",
+            "stop_name_en": "Mee Khwat Zay",
+            "stop_name_mm": "မီးခွက်ဈေး",
+            "road": "Bo Aung Kyaw Road, Hlaing Tharyar",
+            "latitude": 16.874503,
+            "longitude": 96.05142
+        },
+        {
+            "index": "18",
+            "stop_name_en": "Tada Phyu",
+            "stop_name_mm": "တံတားဖြူ",
+            "road": "Nyaung Done Road, Hlaing Tharyar",
+            "latitude": 16.874854,
+            "longitude": 96.057919
+        },
+        {
+            "index": "19",
+            "stop_name_en": "Yone Shae",
+            "stop_name_mm": "ရုံးရှေ့",
+            "road": "Nyaung Done Road, Hlaing Tharyar",
+            "latitude": 16.875541,
+            "longitude": 96.062147
+        },
+        {
+            "index": "20",
+            "stop_name_en": "Zay Lay",
+            "stop_name_mm": "ဈေးလေး",
+            "road": "Kyansitthar Road, Hlaing Tharyar",
+            "latitude": 16.865648,
+            "longitude": 96.064483
+        },
+        {
+            "index": "21",
+            "stop_name_en": "Paya Lan",
+            "stop_name_mm": "ဘုရားလမ်း",
+            "road": "No. 5 Main Road, Hlaing Tharyar",
+            "latitude": 16.862165,
+            "longitude": 96.064365
+        },
+        {
+            "index": "22",
+            "stop_name_en": "Nawaday",
+            "stop_name_mm": "နဝဒေး",
+            "road": "No. 5 Main Road, Hlaing Tharyar",
+            "latitude": 16.861391,
+            "longitude": 96.068355
+        },
+        {
+            "index": "23",
+            "stop_name_en": "Ah Sint Myint",
+            "stop_name_mm": "အဆင့်မြင့်",
+            "road": "No. 5 Main Road, Hlaing Tharyar",
+            "latitude": 16.859898,
+            "longitude": 96.072637
+        },
+        {
+            "index": "24",
+            "stop_name_en": "Bogyoke",
+            "stop_name_mm": "ဗိုလ်ချုပ်",
+            "road": "No. 5 Main Road, Hlaing Tharyar",
+            "latitude": 16.858363,
+            "longitude": 96.076993
+        },
+        {
+            "index": "25",
+            "stop_name_en": "Set Hmu Zone",
+            "stop_name_mm": "စက်မှုဇုံ",
+            "road": "No. 5 Main Road, Hlaing Tharyar",
+            "latitude": 16.856658,
+            "longitude": 96.082186
+        },
+        {
+            "index": "26",
+            "stop_name_en": "Tat Htate",
+            "stop_name_mm": "တပ်ထိပ်",
+            "road": "No. 5 Main Road, Hlaing Tharyar",
+            "latitude": 16.854992,
+            "longitude": 96.086734
+        },
+        {
+            "index": "27",
+            "stop_name_en": "Tat Htate",
+            "stop_name_mm": "တပ်ထိပ်",
+            "road": "No. 5 Main Road, Hlaing Tharyar",
+            "latitude": 16.854893,
+            "longitude": 96.087846
+        },
+        {
+            "index": "28",
+            "stop_name_en": "Set Hmu Zone",
+            "stop_name_mm": "စက်မှုဇုံ",
+            "road": "No. 5 Main Road, Hlaing Tharyar",
+            "latitude": 16.856749,
+            "longitude": 96.082351
+        },
+        {
+            "index": "29",
+            "stop_name_en": "Bogyoke",
+            "stop_name_mm": "ဗိုလ်ချုပ်",
+            "road": "No. 5 Main Road, Hlaing Tharyar",
+            "latitude": 16.858331,
+            "longitude": 96.077607
+        },
+        {
+            "index": "30",
+            "stop_name_en": "Ah Sint Myint",
+            "stop_name_mm": "အဆင့်မြင့်",
+            "road": "No. 5 Main Road, Hlaing Tharyar",
+            "latitude": 16.859974,
+            "longitude": 96.073195
+        },
+        {
+            "index": "31",
+            "stop_name_en": "Nawaday",
+            "stop_name_mm": "နဝဒေး",
+            "road": "No. 5 Main Road, Hlaing Tharyar",
+            "latitude": 16.861356,
+            "longitude": 96.068966
+        },
+        {
+            "index": "32",
+            "stop_name_en": "Paya Lan",
+            "stop_name_mm": "ဘုရားလမ်း",
+            "road": "No. 5 Main Road, Hlaing Tharyar",
+            "latitude": 16.862317,
+            "longitude": 96.06468
+        },
+        {
+            "index": "33",
+            "stop_name_en": "Zay Lay",
+            "stop_name_mm": "ဈေးလေး",
+            "road": "Kyansitthar Road, Hlaing Tharyar",
+            "latitude": 16.865795,
+            "longitude": 96.064644
+        },
+        {
+            "index": "34",
+            "stop_name_en": "Yone Shae",
+            "stop_name_mm": "ရုံးရှေ့",
+            "road": "Nyaung Done Road, Hlaing Tharyar",
+            "latitude": 16.875692,
+            "longitude": 96.062609
+        },
+        {
+            "index": "35",
+            "stop_name_en": "Tada Phyu",
+            "stop_name_mm": "တံတားဖြူ",
+            "road": "Nyaung Done Road, Hlaing Tharyar",
+            "latitude": 16.875003,
+            "longitude": 96.058032
+        },
+        {
+            "index": "36",
+            "stop_name_en": "Mee Khwat Zay",
+            "stop_name_mm": "မီးခွက်ဈေး",
+            "road": "Nyaung Done Road, Hlaing Tharyar",
+            "latitude": 16.874082,
+            "longitude": 96.051997
+        },
+        {
+            "index": "37",
+            "stop_name_en": "Mee Khwat Zay",
+            "stop_name_mm": "မီးခွက်ဈေး",
+            "road": "Bo Aung Kyaw Road, Hlaing Tharyar",
+            "latitude": 16.874628,
+            "longitude": 96.051537
+        },
+        {
+            "index": "38",
+            "stop_name_en": "Chauk Tha Ma",
+            "stop_name_mm": "(၆) သမ",
+            "road": "Bo Aung Kyaw Road, Hlaing Tharyar",
+            "latitude": 16.879271,
+            "longitude": 96.050704
+        },
+        {
+            "index": "39",
+            "stop_name_en": "Pin Lon Zay",
+            "stop_name_mm": "ပင်လုံဈေး",
+            "road": "Bo Aung Kyaw Street, Hlaing Tharyar",
+            "latitude": 16.880934,
+            "longitude": 96.050427
+        },
+        {
+            "index": "40",
+            "stop_name_en": "Dhama Yone",
+            "stop_name_mm": "ဓမ္မာရုံ",
+            "road": "Bo Aung Kyaw Street, Hlaing Tharyar",
+            "latitude": 16.884522,
+            "longitude": 96.049813
+        },
+        {
+            "index": "41",
+            "stop_name_en": "Ah Hta Ka Thone",
+            "stop_name_mm": "အထက (၃)",
+            "road": "Bo Aung Kyaw Street, Hlaing Tharyar",
+            "latitude": 16.888619,
+            "longitude": 96.051468
+        },
+        {
+            "index": "42",
+            "stop_name_en": "16 Kwae",
+            "stop_name_mm": "၁၆ ကွေ့",
+            "road": "Bo Aung Kyaw Street, Hlaing Tharyar",
+            "latitude": 16.890512,
+            "longitude": 96.052308
+        },
+        {
+            "index": "43",
+            "stop_name_en": "Own Htaw",
+            "stop_name_mm": "အုန်းတော်",
+            "road": "Bo Aung Kyaw Street, Hlaing Tharyar",
+            "latitude": 16.893797,
+            "longitude": 96.053574
+        },
+        {
+            "index": "44",
+            "stop_name_en": "Pann Chan",
+            "stop_name_mm": "ပန်းခြံ",
+            "road": "Bo Aung Kyaw Street, Hlaing Tharyar",
+            "latitude": 16.895757,
+            "longitude": 96.054411
+        },
+        {
+            "index": "45",
+            "stop_name_en": "Ko-set chauk Apyar Gate",
+            "stop_name_mm": "၉၆ အပြာဂိတ်",
+            "road": "Bo Aung Kyaw Street, Hlaing Tharyar",
+            "latitude": 16.897563,
+            "longitude": 96.055183
+        },
+        {
+            "index": "46",
+            "stop_name_en": "Kyat Chan",
+            "stop_name_mm": "ကြက်ခြံ",
+            "road": "Bo Aung Kyaw Street, Hlaing Tharyar",
+            "latitude": 16.904409,
+            "longitude": 96.057468
+        },
+        {
+            "index": "47",
+            "stop_name_en": "Aphyu Gate",
+            "stop_name_mm": "အဖြူဂိတ်",
+            "road": "Bo Aung Kyaw Street, Hlaing Tharyar",
+            "latitude": 16.907054,
+            "longitude": 96.058147
+        },
+        {
+            "index": "48",
+            "stop_name_en": "Yoe Gyi",
+            "stop_name_mm": "ရိုးကြီး",
+            "road": "Anawratha Road, Hlaing Tharyar",
+            "latitude": 16.917067,
+            "longitude": 96.053221
+        },
+        {
+            "index": "49",
+            "stop_name_en": "Alel Ywa",
+            "stop_name_mm": "အလယ်ရွာ",
+            "road": "West University Road, Hlaing Tharyar",
+            "latitude": 16.92158,
+            "longitude": 96.056128
+        },
+        {
+            "index": "50",
+            "stop_name_en": "53 Gate",
+            "stop_name_mm": "၅၃ ဂိတ်",
+            "road": "Khayae Pin Road, Hlaing Tharyar",
+            "latitude": 16.920473,
+            "longitude": 96.060854
+        },
+        {
+            "index": "51",
+            "stop_name_en": "Alel Ywar",
+            "stop_name_mm": "အလယ်ရွာ",
+            "road": "Khayae Pin Road, Hlaing Tharyar",
+            "latitude": 16.919883,
+            "longitude": 96.063326
+        }
+    ]
+}

@@ -1,0 +1,229 @@
+{
+    "bus_line": "57",
+    "route_info": {
+        "Route Name": "57",
+        "Line Name": "(၅၇) မြို့တွင်း (ဗိုလ်တထောင်ဘုရားလမ်း)",
+        "Agency": "GYCT",
+        "Route Type": "route",
+        "Total Stops": "27 stops",
+        "QR Payment": "✅ Supported"
+    },
+    "stops": [
+        {
+            "index": "1",
+            "stop_name_en": "Thakhin Mya Pan Cha",
+            "stop_name_mm": "သခင်မြပန်းခြံ",
+            "road": "Thakhin Mya Garden Street, Ahlone",
+            "latitude": 16.780298,
+            "longitude": 96.134971
+        },
+        {
+            "index": "2",
+            "stop_name_en": "Kili",
+            "stop_name_mm": "ကီလီ",
+            "road": "Strand Road, Lanmadaw",
+            "latitude": 16.774959,
+            "longitude": 96.13993
+        },
+        {
+            "index": "3",
+            "stop_name_en": "Maw Tin",
+            "stop_name_mm": "မော်တင်",
+            "road": "Mahabandoola Road, Lanmadaw",
+            "latitude": 16.774862,
+            "longitude": 96.142339
+        },
+        {
+            "index": "4",
+            "stop_name_en": "Sae-ngar Lan",
+            "stop_name_mm": "(၁၅) လမ်း",
+            "road": "Mahabandoola Road, Latha",
+            "latitude": 16.774744,
+            "longitude": 96.146441
+        },
+        {
+            "index": "5",
+            "stop_name_en": "Latha",
+            "stop_name_mm": "လသာ",
+            "road": "Mahabandoola Road, Latha",
+            "latitude": 16.774631,
+            "longitude": 96.15199
+        },
+        {
+            "index": "6",
+            "stop_name_en": "Theingyi Zay/ Kone Zay Tan",
+            "stop_name_mm": "သိမ်ကြီးဈေး/ကုန်ဈေးတန်း",
+            "road": "Mahabandoola Road, Pabedan",
+            "latitude": 16.774559,
+            "longitude": 96.153921
+        },
+        {
+            "index": "7",
+            "stop_name_en": "Pansodan",
+            "stop_name_mm": "ပန်းဆိုးတန်း",
+            "road": "Mahabandoola Road, Kyauktada",
+            "latitude": 16.774167,
+            "longitude": 96.163094
+        },
+        {
+            "index": "8",
+            "stop_name_en": "Bokalay Zay",
+            "stop_name_mm": "ဘိုကလေးဈေး",
+            "road": "Mahabandoola Road, Kyauktada",
+            "latitude": 16.774037,
+            "longitude": 96.165841
+        },
+        {
+            "index": "9",
+            "stop_name_en": "Lay-sae-chauk Lan",
+            "stop_name_mm": "(၄၆) လမ်း",
+            "road": "Mahabandoola Road, Botahtaung",
+            "latitude": 16.773967,
+            "longitude": 96.168453
+        },
+        {
+            "index": "10",
+            "stop_name_en": "Lan Ngar Sae",
+            "stop_name_mm": "လမ်း(၅၀)",
+            "road": "Mahabandoola Road, Botahtaung",
+            "latitude": 16.773863,
+            "longitude": 96.171237
+        },
+        {
+            "index": "11",
+            "stop_name_en": "Gandee",
+            "stop_name_mm": "ဂန္ဓီ",
+            "road": "Mahabandoola Road, Pazundaung",
+            "latitude": 16.773779,
+            "longitude": 96.174183
+        },
+        {
+            "index": "12",
+            "stop_name_en": "Ocean",
+            "stop_name_mm": "အိုးရှင်း",
+            "road": "Mahabandoola Road, Botahtaung",
+            "latitude": 16.773625,
+            "longitude": 96.177384
+        },
+        {
+            "index": "13",
+            "stop_name_en": "Lin Sadaung",
+            "stop_name_mm": "လင်းစဒေါင်း",
+            "road": "Strand Road, Pazundaung",
+            "latitude": 16.76915,
+            "longitude": 96.180462
+        },
+        {
+            "index": "14",
+            "stop_name_en": "Botahtaung Zay",
+            "stop_name_mm": "ဗိုလ်တထောင်ဈေး",
+            "road": "Strand Road, Pazundaung",
+            "latitude": 16.769349,
+            "longitude": 96.174957
+        },
+        {
+            "index": "15",
+            "stop_name_en": "Gandee",
+            "stop_name_mm": "ဂန္ဓီ",
+            "road": "Merchant Road, Pazundaung",
+            "latitude": 16.771189,
+            "longitude": 96.174722
+        },
+        {
+            "index": "16",
+            "stop_name_en": "Ye Sa Khan",
+            "stop_name_mm": "ရဲစခန်း",
+            "road": "Botahtaung Pagoda Road, Botahtaung",
+            "latitude": 16.771384,
+            "longitude": 96.172557
+        },
+        {
+            "index": "17",
+            "stop_name_en": "Botahtaung Paya",
+            "stop_name_mm": "ဗိုလ်တထောင်ဘုရား",
+            "road": "Strand Road, Seikkan",
+            "latitude": 16.769469,
+            "longitude": 96.171983
+        },
+        {
+            "index": "18",
+            "stop_name_en": "Bokalay Zay",
+            "stop_name_mm": "ဘိုကလေးဈေး",
+            "road": "Strand Road, Pazundaung",
+            "latitude": 16.769119,
+            "longitude": 96.164778
+        },
+        {
+            "index": "19",
+            "stop_name_en": "Sar Taik Kyee",
+            "stop_name_mm": "စာတိုက်ကြီး",
+            "road": "Strand Road, Seikkan",
+            "latitude": 16.769155,
+            "longitude": 96.162463
+        },
+        {
+            "index": "20",
+            "stop_name_en": "Pansodan",
+            "stop_name_mm": "ပန်းဆိုးတန်း",
+            "road": "Strand Road, Seikkan",
+            "latitude": 16.769358,
+            "longitude": 96.16083
+        },
+        {
+            "index": "21",
+            "stop_name_en": "Chauk Htat Yone",
+            "stop_name_mm": "(၆) ထပ်ရုံး",
+            "road": "Strand Road, Pabedan",
+            "latitude": 16.770799,
+            "longitude": 96.157348
+        },
+        {
+            "index": "22",
+            "stop_name_en": "Latha",
+            "stop_name_mm": "လသာ",
+            "road": "Strand Road, Latha",
+            "latitude": 16.772114,
+            "longitude": 96.15142
+        },
+        {
+            "index": "23",
+            "stop_name_en": "Nyaung Pin Lay Zay",
+            "stop_name_mm": "ညောင်ပင်လေးဈေး",
+            "road": "Strand Road, Latha",
+            "latitude": 16.772605,
+            "longitude": 96.146209
+        },
+        {
+            "index": "24",
+            "stop_name_en": "Maw Tin",
+            "stop_name_mm": "မော်တင်",
+            "road": "Strand Road, Lanmadaw",
+            "latitude": 16.774627,
+            "longitude": 96.142315
+        },
+        {
+            "index": "25",
+            "stop_name_en": "Kili",
+            "stop_name_mm": "ကီလီ",
+            "road": "Strand Road, Lanmadaw",
+            "latitude": 16.775087,
+            "longitude": 96.139433
+        },
+        {
+            "index": "26",
+            "stop_name_en": "Thakhin Mya Pan Chan",
+            "stop_name_mm": "သခင်မြပန်းခြံ",
+            "road": "Kyee Myin Daing Kannar Road, Ahlone",
+            "latitude": 16.778411,
+            "longitude": 96.135751
+        },
+        {
+            "index": "27",
+            "stop_name_en": "Thakhin Mya Pan Cha",
+            "stop_name_mm": "သခင်မြပန်းခြံ",
+            "road": "Thakhin Mya Garden Street, Ahlone",
+            "latitude": 16.780258,
+            "longitude": 96.135098
+        }
+    ]
+}

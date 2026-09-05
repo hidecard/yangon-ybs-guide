@@ -1,0 +1,23 @@
+name: ybs_passenger_ar
+
+description: YBS V3 Passenger AR navigation companion.
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  camera: ^0.11.0+2
+  flutter_compass: ^0.8.1
+  flutter_tts: ^4.0.2
+  geolocator: ^12.0.0
+  google_maps_flutter: ^2.7.0
+  vibration: ^2.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/routes/
