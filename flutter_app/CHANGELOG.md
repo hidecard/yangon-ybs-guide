@@ -2,6 +2,14 @@
 
 All notable changes to the Flutter application are documented here.
 
+## 3.4.3 — 2026-09-06
+
+### Added
+
+- Added Passenger AR from Route Plan Detail: passengers can open a camera and compass overlay for the active YBS leg, see the next stop and remaining stops, and keep the destination visible while travelling.
+- Added GPS progress matching for the selected route leg with Burmese voice, vibration, and local arrival alerts at three stops, one stop, and the destination.
+- Added camera and motion permissions for Android and iOS and documented the passenger-only use case.
+
 ## 3.3.5 — 2026-08-27
 
 ### Fixed

@@ -16,6 +16,7 @@ import '../state/app_state.dart';
 import '../theme.dart';
 import '../widgets/osm_map.dart';
 import '../widgets/route_badge.dart';
+import 'passenger_ar_page.dart';
 
 class RoutePlanDetailPage extends StatefulWidget {
   final List<PathStep> steps;
@@ -393,6 +394,17 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
           ],
         ),
         actions: [
+          IconButton(
+            tooltip: 'Passenger AR',
+            onPressed: steps.isEmpty
+                ? null
+                : () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => PassengerArPage(step: steps[_activeStep]),
+                      ),
+                    ),
+            icon: const Icon(Icons.view_in_ar_rounded),
+          ),
           if (widget.canSave)
             IconButton(
               onPressed: () async {
