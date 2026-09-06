@@ -29,7 +29,8 @@ class _PassengerArPageState extends State<PassengerArPage> {
   StreamSubscription<CompassEvent>? _compassSub;
   double _heading = 0;
   int _currentIndex = 0;
-  double _distanceToNext = 0;
+  double? _distanceToNext;
+  double? _distanceToDestination;
   double _routeBearing = 0;
   bool _cameraReady = false;
   bool _voiceEnabled = true;
@@ -107,6 +108,12 @@ class _PassengerArPageState extends State<PassengerArPage> {
     setState(() {
       _currentIndex = bestIndex;
       _distanceToNext = next == null ? 0 : getDistance(value.latitude, value.longitude, next.lat, next.lng);
+      _distanceToDestination = getDistance(
+        value.latitude,
+        value.longitude,
+        stops.last.lat,
+        stops.last.lng,
+      );
       _routeBearing = bearing;
     });
     _checkAlerts(stops, bestIndex);
@@ -198,7 +205,7 @@ class _PassengerArPageState extends State<PassengerArPage> {
                 const SizedBox(width: 10),
                 Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text(next?.nameMm ?? widget.step.toStop, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                  Text(next == null ? 'ဆင်းရမည့်မှတ်တိုင် ရောက်ပါပြီ' : '${_distanceToNext.round()} m • $remaining မှတ်တိုင်ကျန်', style: const TextStyle(color: Colors.white70)),
+                  Text(next == null ? 'ဆင်းရမည့်မှတ်တိုင် ရောက်ပါပြီ' : '${_distanceToNext == null ? 'GPS ရှာနေသည်' : '${_distanceToNext!.round()} m'} • $remaining မှတ်တိုင်ကျန်', style: const TextStyle(color: Colors.white70)),
                 ])),
               ],
             ),
@@ -215,7 +222,7 @@ class _PassengerArPageState extends State<PassengerArPage> {
           const SizedBox(width: 10),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(next.nameMm, style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w800)),
-            Text('${_distanceToNext.round()} m • နောက်မှတ်တိုင်', style: const TextStyle(color: Colors.white70)),
+            Text('${_distanceToNext == null ? 'GPS ရှာနေသည်' : '${_distanceToNext!.round()} m'} • နောက်မှတ်တိုင်', style: const TextStyle(color: Colors.white70)),
           ])),
         ]),
       );
@@ -244,7 +251,7 @@ class _PassengerArPageState extends State<PassengerArPage> {
                     ),
                   ),
                   Text(
-                    '0 m  •  ${remaining == 0 ? 'ရောက်ပါပြီ' : 'နောက်မှတ်တိုင်'}',
+                    '${_distanceToDestination == null ? 'GPS ရှာနေသည်' : '${_distanceToDestination!.round()} m'}  •  ${remaining == 0 ? 'ရောက်ပါပြီ' : 'ဆင်းမည့်မှတ်တိုင်'}',
                     style: const TextStyle(color: Colors.white70),
                   ),
                 ],
