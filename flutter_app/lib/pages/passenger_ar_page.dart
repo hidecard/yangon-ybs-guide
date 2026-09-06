@@ -48,6 +48,7 @@ class _PassengerArPageState extends State<PassengerArPage> {
   bool _boarded = false;
   bool _followMap = true;
   bool _darkMap = false;
+  String? _lastAlertMessage;
   _PassengerViewMode _viewMode = _PassengerViewMode.hud;
   final Set<String> _alerted = {};
 
@@ -223,6 +224,7 @@ class _PassengerArPageState extends State<PassengerArPage> {
     if (remaining == 1) message = 'ပြင်ဆင်ထားပါ။ နောက်မှတ်တိုင်မှာ ဆင်းရပါမယ်';
     if (remaining == 0) message = '${widget.step.toStop} မှတ်တိုင် ရောက်ပါပြီ';
     if (message == null || !_alerted.add('$remaining:${widget.step.toStop}')) return;
+    if (mounted) setState(() => _lastAlertMessage = message);
     if (_notificationsEnabled) {
       await NotifyService.instance.triggerArrival(message, speak: false);
     }
@@ -266,6 +268,7 @@ class _PassengerArPageState extends State<PassengerArPage> {
               children: [
                 _topBar(context, remaining),
                 _statusCard(next, remaining),
+                if (_lastAlertMessage != null) _alertBanner(),
                 _progressStrip(stops),
                 const Spacer(),
                 Transform.rotate(
@@ -437,6 +440,32 @@ class _PassengerArPageState extends State<PassengerArPage> {
       ),
     );
   }
+
+  Widget _alertBanner() => Container(
+        margin: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: const Color(0xffffe6a6).withValues(alpha: .96),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.notifications_active, color: Color(0xffb66a00)),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                _lastAlertMessage!,
+                style: const TextStyle(color: Color(0xff6f4200), fontWeight: FontWeight.w700),
+              ),
+            ),
+            IconButton(
+              onPressed: () => setState(() => _lastAlertMessage = null),
+              icon: const Icon(Icons.close, color: Color(0xff6f4200)),
+              visualDensity: VisualDensity.compact,
+            ),
+          ],
+        ),
+      );
 
   Widget _nextStopLabel(BusStop next) => Container(
         margin: const EdgeInsets.symmetric(horizontal: 28),
