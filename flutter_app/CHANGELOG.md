@@ -2,6 +2,18 @@
 
 All notable changes to the Flutter application are documented here.
 
+## 3.4.4 — 2026-09-06
+
+### Added
+
+- Added a real-time OSM map background to Passenger HUD with current bus position, route line, next-stop marker, destination marker, cached tiles, map follow mode, free-map mode, and normal/dark map layers.
+- Added passenger boarding confirmation, manual stop-passed control, stop progress timeline, direction validation, distance-based get-off alerts, GPS accuracy status, and smoothed route distance.
+- Connected boarding to the existing background arrival notification queue so alerts continue with notification and vibration when the screen is locked.
+
+### Changed
+
+- Passenger alerts now use notification, vibration, and in-app text by default; automatic Voice Navigation is paused as requested.
+
 ## 3.4.3 — 2026-09-06
 
 ### Added

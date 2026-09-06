@@ -13,6 +13,7 @@ import '../config.dart';
 import '../models.dart';
 import '../services/location_service.dart';
 import '../services/notify_service.dart';
+import '../services/background_alert_service.dart';
 import '../widgets/osm_map.dart';
 
 enum _PassengerViewMode { hud, camera }
@@ -43,7 +44,10 @@ class _PassengerArPageState extends State<PassengerArPage> {
   double? _smoothedLat;
   double? _smoothedLng;
   bool _cameraReady = false;
-  bool _voiceEnabled = true;
+  bool _notificationsEnabled = true;
+  bool _boarded = false;
+  bool _followMap = true;
+  bool _darkMap = false;
   _PassengerViewMode _viewMode = _PassengerViewMode.hud;
   final Set<String> _alerted = {};
 
@@ -58,6 +62,13 @@ class _PassengerArPageState extends State<PassengerArPage> {
       if (to > from) return all.sublist(from, to + 1);
     }
     return all;
+  }
+
+  bool get _directionValid {
+    final all = widget.step.route.stopsDetailed;
+    final from = all.indexWhere((s) => s.nameMm == widget.step.fromStop);
+    final to = from < 0 ? -1 : all.indexWhere((s) => s.nameMm == widget.step.toStop, from + 1);
+    return from >= 0 && to > from;
   }
 
   @override
@@ -101,10 +112,32 @@ class _PassengerArPageState extends State<PassengerArPage> {
     _positionSub = LocationService.instance.watchPosition().listen(_updatePosition);
   }
 
+  Future<void> _boardTrip() async {
+    if (_boarded) return;
+    setState(() => _boarded = true);
+    if (!_notificationsEnabled || _stops.isEmpty) return;
+    final queue = _stops
+        .skip(math.min(_currentIndex + 1, _stops.length - 1))
+        .map((stop) => <String, dynamic>{
+              'stopName': stop.nameMm,
+              'lat': stop.lat,
+              'lng': stop.lng,
+              'detail': stop.nameMm == widget.step.toStop
+                  ? 'ဆင်းရမည့်မှတ်တိုင် ရောက်ခါနီးပါပြီ'
+                  : 'နောက်မှတ်တိုင် ရောက်ခါနီးပါပြီ',
+            })
+        .toList();
+    if (queue.isNotEmpty) await startBackgroundAlertQueue(queue);
+  }
+
   void _updatePosition(Position value) {
     final stops = _stops;
     if (stops.isEmpty) return;
     if (value.accuracy.isNaN || value.accuracy > 120) {
+      if (mounted) setState(() => _gpsAccuracy = value.accuracy);
+      return;
+    }
+    if (!_boarded) {
       if (mounted) setState(() => _gpsAccuracy = value.accuracy);
       return;
     }
@@ -135,7 +168,7 @@ class _PassengerArPageState extends State<PassengerArPage> {
       _gpsAccuracy = value.accuracy;
       _routeBearing = bearing;
     });
-    if (_mapReady) {
+    if (_mapReady && _followMap) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           try {
@@ -176,11 +209,33 @@ class _PassengerArPageState extends State<PassengerArPage> {
   Future<void> _checkAlerts(List<BusStop> stops, int index) async {
     final remaining = math.max(0, stops.length - index - 1);
     String? message;
+    final destinationDistance = _distanceToDestination;
+    if (destinationDistance != null && destinationDistance <= 0.1) {
+      message = '${widget.step.toStop} မှတ်တိုင် ရောက်ပါပြီ';
+    } else if (destinationDistance != null && destinationDistance <= 0.2) {
+      message = '${widget.step.toStop} သို့ 200 m လိုပါသည်။ ဆင်းရန်ပြင်ဆင်ပါ';
+    } else if (destinationDistance != null && destinationDistance <= 0.5) {
+      message = '${widget.step.toStop} သို့ 500 m လိုပါသည်။ ဆင်းရန်ပြင်ဆင်ပါ';
+    } else if (destinationDistance != null && destinationDistance <= 1) {
+      message = '${widget.step.toStop} သို့ 1 km လိုပါသည်';
+    }
     if (remaining == 3) message = '${widget.step.toStop} သို့ ၃ မှတ်တိုင်လိုပါသည်';
     if (remaining == 1) message = 'ပြင်ဆင်ထားပါ။ နောက်မှတ်တိုင်မှာ ဆင်းရပါမယ်';
     if (remaining == 0) message = '${widget.step.toStop} မှတ်တိုင် ရောက်ပါပြီ';
     if (message == null || !_alerted.add('$remaining:${widget.step.toStop}')) return;
-    if (_voiceEnabled) await NotifyService.instance.triggerArrival(message);
+    if (_notificationsEnabled) {
+      await NotifyService.instance.triggerArrival(message, speak: false);
+    }
+  }
+
+  void _confirmStopPassed() {
+    if (_stops.isEmpty || _currentIndex >= _stops.length - 1) return;
+    setState(() {
+      _currentIndex += 1;
+      _routeBearing = _currentIndex + 1 < _stops.length
+          ? _bearingBetween(_stops[_currentIndex], _stops[_currentIndex + 1])
+          : _routeBearing;
+    });
   }
 
   @override
@@ -272,8 +327,16 @@ class _PassengerArPageState extends State<PassengerArPage> {
       controller: _mapController,
       center: center,
       zoom: 14.2,
-      onPositionChanged: (_, __) => _mapReady = true,
-      interactive: false,
+      tileUrl: _darkMap
+          ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+          : null,
+      onPositionChanged: (_, hasGesture) {
+        _mapReady = true;
+        if (hasGesture && _followMap && mounted) {
+          setState(() => _followMap = false);
+        }
+      },
+      interactive: true,
       markers: markers,
       polylines: [
         Polyline(
@@ -310,6 +373,17 @@ class _PassengerArPageState extends State<PassengerArPage> {
                   Text(next?.nameMm ?? widget.step.toStop, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                   Text(next == null ? 'ဆင်းရမည့်မှတ်တိုင် ရောက်ပါပြီ' : '${_distanceToNext == null ? 'GPS ရှာနေသည်' : '${_distanceToNext!.round()} m'} • $remaining မှတ်တိုင်ကျန်', style: const TextStyle(color: Colors.white70)),
                   Text(_gpsAccuracy == null ? 'GPS စောင့်နေသည်' : 'GPS accuracy: ${_gpsAccuracy!.round()} m', style: TextStyle(color: _gpsAccuracy != null && _gpsAccuracy! <= 40 ? Colors.greenAccent : Colors.orangeAccent, fontSize: 11)),
+                  if (!_directionValid)
+                    const Text('ဒီ route direction နဲ့ destination မရောက်နိုင်ပါ', style: TextStyle(color: Colors.redAccent, fontSize: 11)),
+                  if (!_boarded)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: FilledButton.tonalIcon(
+                        onPressed: _boardTrip,
+                        icon: const Icon(Icons.directions_bus_filled, size: 18),
+                        label: const Text('ကားပေါ်တက်ပြီးပြီ'),
+                      ),
+                    ),
                 ])),
               ],
             ),
@@ -416,7 +490,22 @@ class _PassengerArPageState extends State<PassengerArPage> {
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 18),
         child: Row(children: [
           Expanded(child: Text('ဆင်းရန်: ${widget.step.toStop}\n$remaining မှတ်တိုင်လိုပါသည်', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
-          IconButton(onPressed: () => setState(() => _voiceEnabled = !_voiceEnabled), icon: Icon(_voiceEnabled ? Icons.volume_up : Icons.volume_off, color: Colors.white)),
+          IconButton(onPressed: () => setState(() => _notificationsEnabled = !_notificationsEnabled), icon: Icon(_notificationsEnabled ? Icons.notifications_active : Icons.notifications_off, color: Colors.white)),
+          IconButton(
+            onPressed: remaining == 0 ? null : _confirmStopPassed,
+            icon: const Icon(Icons.skip_next_rounded, color: Colors.white),
+            tooltip: 'မှတ်တိုင်ဖြတ်ပြီးပြီ',
+          ),
+          IconButton(
+            onPressed: () => setState(() => _followMap = !_followMap),
+            icon: Icon(_followMap ? Icons.my_location : Icons.pan_tool_alt, color: Colors.white),
+            tooltip: _followMap ? 'Map follow ပိတ်မည်' : 'Map follow ဖွင့်မည်',
+          ),
+          IconButton(
+            onPressed: () => setState(() => _darkMap = !_darkMap),
+            icon: Icon(_darkMap ? Icons.light_mode : Icons.dark_mode, color: Colors.white),
+            tooltip: 'Map layer ပြောင်းမည်',
+          ),
           IconButton(
             onPressed: () => setState(() => _viewMode = _viewMode == _PassengerViewMode.hud ? _PassengerViewMode.camera : _PassengerViewMode.hud),
             icon: Icon(_viewMode == _PassengerViewMode.hud ? Icons.camera_alt : Icons.dashboard, color: Colors.white),

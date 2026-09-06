@@ -13,6 +13,7 @@ class OsmMap extends StatelessWidget {
   final void Function(TapPosition, LatLng)? onTap;
   final void Function(MapCamera, bool)? onPositionChanged;
   final bool interactive;
+  final String? tileUrl;
 
   const OsmMap({
     super.key,
@@ -24,6 +25,7 @@ class OsmMap extends StatelessWidget {
     this.onTap,
     this.onPositionChanged,
     this.interactive = true,
+    this.tileUrl,
   });
 
   @override
@@ -41,7 +43,7 @@ class OsmMap extends StatelessWidget {
       ),
       children: [
         TileLayer(
-          urlTemplate: AppConfig.osmTileUrl,
+          urlTemplate: tileUrl ?? AppConfig.osmTileUrl,
           userAgentPackageName: AppConfig.osmUserAgent,
           // Keep recently viewed tiles on disk so previously visited areas can
           // still render when the device temporarily loses connectivity.

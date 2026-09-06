@@ -4,7 +4,6 @@ import 'dart:math' as math;
 import 'package:flutter/services.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:vibration/vibration.dart';
 
@@ -71,7 +70,6 @@ void onStart(ServiceInstance service) async {
   }
 
   final plugin = FlutterLocalNotificationsPlugin();
-  final tts = FlutterTts();
   try {
     // Explicitly use the launcher icon (the logo) as the default small icon.
     await plugin.initialize(
@@ -79,10 +77,6 @@ void onStart(ServiceInstance service) async {
         android: AndroidInitializationSettings('@mipmap/ic_launcher'),
       ),
     );
-  } catch (_) {}
-  try {
-    await tts.setLanguage('my-MM');
-    await tts.setSpeechRate(0.9);
   } catch (_) {}
 
   // Hold a partial wake lock (via the native channel) so the periodic timer
@@ -141,9 +135,6 @@ void onStart(ServiceInstance service) async {
           ),
         ),
       );
-    } catch (_) {}
-    try {
-      await tts.speak('$stopName မှတ်တိုင်အနီးရောက်ပါပြီ');
     } catch (_) {}
   }
 

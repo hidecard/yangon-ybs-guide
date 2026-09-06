@@ -84,7 +84,7 @@ class NotifyService {
     );
   }
 
-  Future<void> triggerArrival(String message) async {
+  Future<void> triggerArrival(String message, {bool speak = false}) async {
     await init();
     try {
       final hasVib = await Vibration.hasVibrator();
@@ -109,7 +109,7 @@ class NotifyService {
         ),
       );
     } catch (_) {}
-    speak(message);
+    if (speak) speak(message);
   }
 
   Future<void> showAdminNotification(NotificationItem notif) async {
