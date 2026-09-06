@@ -7,6 +7,7 @@ import 'package:flutter_compass/flutter_compass.dart';
 import 'package:geolocator/geolocator.dart';
 
 import '../data/route_finder.dart';
+import '../config.dart';
 import '../models.dart';
 import '../services/location_service.dart';
 import '../services/notify_service.dart';
@@ -27,7 +28,6 @@ class _PassengerArPageState extends State<PassengerArPage> {
   CameraController? _camera;
   StreamSubscription<Position>? _positionSub;
   StreamSubscription<CompassEvent>? _compassSub;
-  Position? _position;
   double _heading = 0;
   int _currentIndex = 0;
   double _distanceToNext = 0;
@@ -49,7 +49,7 @@ class _PassengerArPageState extends State<PassengerArPage> {
     _currentIndex = 0;
     _initCamera();
     _startTracking();
-    _compassSub = Compass.events?.listen((event) {
+    _compassSub = FlutterCompass.events?.listen((event) {
       if (mounted && event.heading != null) setState(() => _heading = event.heading!);
     });
   }
@@ -99,7 +99,6 @@ class _PassengerArPageState extends State<PassengerArPage> {
     }
     final next = bestIndex + 1 < stops.length ? stops[bestIndex + 1] : null;
     setState(() {
-      _position = value;
       _currentIndex = bestIndex;
       _distanceToNext = next == null ? 0 : getDistance(value.latitude, value.longitude, next.lat, next.lng);
     });
@@ -172,7 +171,7 @@ class _PassengerArPageState extends State<PassengerArPage> {
   Widget _statusCard(BusStop? next, int remaining) => Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Card(
-          color: Colors.black.withOpacity(.62),
+          color: Colors.black.withValues(alpha: .62),
           child: Padding(
             padding: const EdgeInsets.all(14),
             child: Row(
@@ -192,7 +191,7 @@ class _PassengerArPageState extends State<PassengerArPage> {
   Widget _nextStopLabel(BusStop next) => Container(
         margin: const EdgeInsets.symmetric(horizontal: 28),
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 13),
-        decoration: BoxDecoration(color: AppColors.brand.withOpacity(.94), borderRadius: BorderRadius.circular(18)),
+        decoration: BoxDecoration(color: AppColors.brand.withValues(alpha: .94), borderRadius: BorderRadius.circular(18)),
         child: Row(children: [
           const Icon(Icons.place_rounded, color: Colors.white),
           const SizedBox(width: 10),
@@ -216,5 +215,5 @@ class _PassengerArPageState extends State<PassengerArPage> {
 class _ArShade extends StatelessWidget {
   const _ArShade();
   @override
-  Widget build(BuildContext context) => IgnorePointer(child: DecoratedBox(decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Colors.black.withOpacity(.62), Colors.transparent, Colors.black.withOpacity(.82)]))));
+  Widget build(BuildContext context) => IgnorePointer(child: DecoratedBox(decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Colors.black.withValues(alpha: .62), Colors.transparent, Colors.black.withValues(alpha: .82)]))));
 }
