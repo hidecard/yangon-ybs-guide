@@ -32,6 +32,9 @@ class _PassengerArPageState extends State<PassengerArPage> {
   double? _distanceToNext;
   double? _distanceToDestination;
   double _routeBearing = 0;
+  double? _gpsAccuracy;
+  double? _smoothedLat;
+  double? _smoothedLng;
   bool _cameraReady = false;
   bool _voiceEnabled = true;
   final Set<String> _alerted = {};
@@ -93,11 +96,23 @@ class _PassengerArPageState extends State<PassengerArPage> {
   void _updatePosition(Position value) {
     final stops = _stops;
     if (stops.isEmpty) return;
+    if (value.accuracy.isNaN || value.accuracy > 120) {
+      if (mounted) setState(() => _gpsAccuracy = value.accuracy);
+      return;
+    }
+    _smoothedLat = _smoothedLat == null
+        ? value.latitude
+        : _smoothedLat! + (value.latitude - _smoothedLat!) * .35;
+    _smoothedLng = _smoothedLng == null
+        ? value.longitude
+        : _smoothedLng! + (value.longitude - _smoothedLng!) * .35;
+    final latitude = _smoothedLat!;
+    final longitude = _smoothedLng!;
     var bestIndex = _currentIndex;
     var bestDistance = double.infinity;
     // Never move backwards: GPS can jump slightly when the bus is moving.
     for (var index = _currentIndex; index < stops.length; index++) {
-      final distance = getDistance(value.latitude, value.longitude, stops[index].lat, stops[index].lng);
+      final distance = getDistance(latitude, longitude, stops[index].lat, stops[index].lng);
       if (distance < bestDistance) {
         bestDistance = distance;
         bestIndex = index;
@@ -107,16 +122,26 @@ class _PassengerArPageState extends State<PassengerArPage> {
     final bearing = next == null ? _routeBearing : _bearingBetween(stops[bestIndex], next);
     setState(() {
       _currentIndex = bestIndex;
-      _distanceToNext = next == null ? 0 : getDistance(value.latitude, value.longitude, next.lat, next.lng);
-      _distanceToDestination = getDistance(
-        value.latitude,
-        value.longitude,
-        stops.last.lat,
-        stops.last.lng,
-      );
+      _distanceToNext = next == null ? 0 : _routeDistance(latitude, longitude, bestIndex, bestIndex + 1);
+      _distanceToDestination = _routeDistance(latitude, longitude, bestIndex, stops.length - 1);
+      _gpsAccuracy = value.accuracy;
       _routeBearing = bearing;
     });
     _checkAlerts(stops, bestIndex);
+  }
+
+  double _routeDistance(double latitude, double longitude, int from, int to) {
+    if (from >= to || from < 0 || to >= _stops.length) return 0;
+    var total = getDistance(latitude, longitude, _stops[from].lat, _stops[from].lng);
+    for (var index = from; index < to; index++) {
+      total += getDistance(
+        _stops[index].lat,
+        _stops[index].lng,
+        _stops[index + 1].lat,
+        _stops[index + 1].lng,
+      );
+    }
+    return total;
   }
 
   double _bearingBetween(BusStop from, BusStop to) {
@@ -170,7 +195,7 @@ class _PassengerArPageState extends State<PassengerArPage> {
                   child: const Icon(Icons.navigation_rounded, size: 92, color: Color(0xff5eead4)),
                 ),
                 const SizedBox(height: 16),
-                if (next != null) _nextStopLabel(next),
+                if (next != null && next.nameMm != widget.step.toStop) _nextStopLabel(next),
                 const Spacer(),
                 _destinationCard(remaining),
                 _bottomBar(context, remaining),
@@ -206,6 +231,7 @@ class _PassengerArPageState extends State<PassengerArPage> {
                 Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text(next?.nameMm ?? widget.step.toStop, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                   Text(next == null ? 'ဆင်းရမည့်မှတ်တိုင် ရောက်ပါပြီ' : '${_distanceToNext == null ? 'GPS ရှာနေသည်' : '${_distanceToNext!.round()} m'} • $remaining မှတ်တိုင်ကျန်', style: const TextStyle(color: Colors.white70)),
+                  Text(_gpsAccuracy == null ? 'GPS စောင့်နေသည်' : 'GPS accuracy: ${_gpsAccuracy!.round()} m', style: TextStyle(color: _gpsAccuracy != null && _gpsAccuracy! <= 40 ? Colors.greenAccent : Colors.orangeAccent, fontSize: 11)),
                 ])),
               ],
             ),
