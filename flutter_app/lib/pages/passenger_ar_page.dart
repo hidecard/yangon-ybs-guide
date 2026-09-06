@@ -30,6 +30,7 @@ class _PassengerArPageState extends State<PassengerArPage> {
   double _heading = 0;
   int _currentIndex = 0;
   double _distanceToNext = 0;
+  double _routeBearing = 0;
   bool _cameraReady = false;
   bool _voiceEnabled = true;
   final Set<String> _alerted = {};
@@ -37,8 +38,13 @@ class _PassengerArPageState extends State<PassengerArPage> {
   List<BusStop> get _stops {
     final all = widget.step.route.stopsDetailed;
     final from = all.indexWhere((s) => s.nameMm == widget.step.fromStop);
-    final to = all.lastIndexWhere((s) => s.nameMm == widget.step.toStop);
-    if (from >= 0 && to > from) return all.sublist(from, to + 1);
+    if (from >= 0) {
+      final to = all.indexWhere(
+        (s) => s.nameMm == widget.step.toStop,
+        from + 1,
+      );
+      if (to > from) return all.sublist(from, to + 1);
+    }
     return all;
   }
 
@@ -97,11 +103,23 @@ class _PassengerArPageState extends State<PassengerArPage> {
       }
     }
     final next = bestIndex + 1 < stops.length ? stops[bestIndex + 1] : null;
+    final bearing = next == null ? _routeBearing : _bearingBetween(stops[bestIndex], next);
     setState(() {
       _currentIndex = bestIndex;
       _distanceToNext = next == null ? 0 : getDistance(value.latitude, value.longitude, next.lat, next.lng);
+      _routeBearing = bearing;
     });
     _checkAlerts(stops, bestIndex);
+  }
+
+  double _bearingBetween(BusStop from, BusStop to) {
+    final lat1 = from.lat * math.pi / 180;
+    final lat2 = to.lat * math.pi / 180;
+    final dLng = (to.lng - from.lng) * math.pi / 180;
+    final y = math.sin(dLng) * math.cos(lat2);
+    final x = math.cos(lat1) * math.sin(lat2) -
+        math.sin(lat1) * math.cos(lat2) * math.cos(dLng);
+    return (math.atan2(y, x) * 180 / math.pi + 360) % 360;
   }
 
   Future<void> _checkAlerts(List<BusStop> stops, int index) async {
@@ -141,12 +159,13 @@ class _PassengerArPageState extends State<PassengerArPage> {
                 _statusCard(next, remaining),
                 const Spacer(),
                 Transform.rotate(
-                  angle: _heading * math.pi / 180,
+                  angle: (_routeBearing - _heading) * math.pi / 180,
                   child: const Icon(Icons.navigation_rounded, size: 92, color: Color(0xff5eead4)),
                 ),
                 const SizedBox(height: 16),
                 if (next != null) _nextStopLabel(next),
                 const Spacer(),
+                _destinationCard(remaining),
                 _bottomBar(context, remaining),
               ],
             ),
@@ -199,6 +218,40 @@ class _PassengerArPageState extends State<PassengerArPage> {
             Text('${_distanceToNext.round()} m • နောက်မှတ်တိုင်', style: const TextStyle(color: Colors.white70)),
           ])),
         ]),
+      );
+
+  Widget _destinationCard(int remaining) => Container(
+        margin: const EdgeInsets.fromLTRB(28, 12, 28, 0),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 13),
+        decoration: BoxDecoration(
+          color: const Color(0xffe88900).withValues(alpha: .96),
+          borderRadius: BorderRadius.circular(18),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.location_on_rounded, color: Colors.white, size: 29),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.step.toStop,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 17,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  Text(
+                    '0 m  •  ${remaining == 0 ? 'ရောက်ပါပြီ' : 'နောက်မှတ်တိုင်'}',
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       );
 
   Widget _bottomBar(BuildContext context, int remaining) => Padding(
