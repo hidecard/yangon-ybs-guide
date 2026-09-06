@@ -12,6 +12,8 @@ import '../models.dart';
 import '../services/location_service.dart';
 import '../services/notify_service.dart';
 
+enum _PassengerViewMode { hud, camera }
+
 /// Passenger-only AR view. The phone is used by a passenger, not the driver.
 /// It shows the next stop and destination over the camera while GPS tracks
 /// progress along the selected V3 route leg.
@@ -37,6 +39,7 @@ class _PassengerArPageState extends State<PassengerArPage> {
   double? _smoothedLng;
   bool _cameraReady = false;
   bool _voiceEnabled = true;
+  _PassengerViewMode _viewMode = _PassengerViewMode.hud;
   final Set<String> _alerted = {};
 
   List<BusStop> get _stops {
@@ -182,13 +185,17 @@ class _PassengerArPageState extends State<PassengerArPage> {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          if (_cameraReady) CameraPreview(_camera!) else const ColoredBox(color: Color(0xff082f36)),
-          const _ArShade(),
+          if (_viewMode == _PassengerViewMode.camera && _cameraReady)
+            CameraPreview(_camera!)
+          else
+            const _HudBackground(),
+          if (_viewMode == _PassengerViewMode.camera) const _ArShade(),
           SafeArea(
             child: Column(
               children: [
                 _topBar(context, remaining),
                 _statusCard(next, remaining),
+                _progressStrip(stops),
                 const Spacer(),
                 Transform.rotate(
                   angle: (_routeBearing - _heading) * math.pi / 180,
@@ -238,6 +245,53 @@ class _PassengerArPageState extends State<PassengerArPage> {
           ),
         ),
       );
+
+  Widget _progressStrip(List<BusStop> stops) {
+    if (stops.isEmpty) return const SizedBox.shrink();
+    final visible = stops.length > 7
+        ? <BusStop>[...stops.take(3), stops.last]
+        : stops;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(28, 12, 28, 0),
+      child: Row(
+        children: visible.map((stop) {
+          final isCurrent = stop == stops[_currentIndex];
+          final isDestination = stop == stops.last;
+          return Expanded(
+            child: Column(
+              children: [
+                Icon(
+                  isDestination ? Icons.location_on : Icons.circle,
+                  size: isCurrent || isDestination ? 19 : 11,
+                  color: isDestination
+                      ? const Color(0xffffb020)
+                      : isCurrent
+                          ? const Color(0xff5eead4)
+                          : Colors.white54,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  stop.nameMm,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: isCurrent || isDestination
+                        ? Colors.white
+                        : Colors.white60,
+                    fontSize: 10,
+                    fontWeight: isCurrent || isDestination
+                        ? FontWeight.bold
+                        : FontWeight.normal,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
 
   Widget _nextStopLabel(BusStop next) => Container(
         margin: const EdgeInsets.symmetric(horizontal: 28),
@@ -292,6 +346,11 @@ class _PassengerArPageState extends State<PassengerArPage> {
         child: Row(children: [
           Expanded(child: Text('ဆင်းရန်: ${widget.step.toStop}\n$remaining မှတ်တိုင်လိုပါသည်', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
           IconButton(onPressed: () => setState(() => _voiceEnabled = !_voiceEnabled), icon: Icon(_voiceEnabled ? Icons.volume_up : Icons.volume_off, color: Colors.white)),
+          IconButton(
+            onPressed: () => setState(() => _viewMode = _viewMode == _PassengerViewMode.hud ? _PassengerViewMode.camera : _PassengerViewMode.hud),
+            icon: Icon(_viewMode == _PassengerViewMode.hud ? Icons.camera_alt : Icons.dashboard, color: Colors.white),
+            tooltip: _viewMode == _PassengerViewMode.hud ? 'Camera view' : 'Passenger HUD',
+          ),
           IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.map_rounded, color: Colors.white)),
         ]),
       );
@@ -301,4 +360,19 @@ class _ArShade extends StatelessWidget {
   const _ArShade();
   @override
   Widget build(BuildContext context) => IgnorePointer(child: DecoratedBox(decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Colors.black.withValues(alpha: .62), Colors.transparent, Colors.black.withValues(alpha: .82)]))));
+}
+
+class _HudBackground extends StatelessWidget {
+  const _HudBackground();
+  @override
+  Widget build(BuildContext context) => const ColoredBox(
+        color: Color(0xff102a33),
+        child: Center(
+          child: Icon(
+            Icons.directions_bus_filled_rounded,
+            size: 190,
+            color: Color(0x182dd4bf),
+          ),
+        ),
+      );
 }
