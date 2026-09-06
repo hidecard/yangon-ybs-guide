@@ -11,7 +11,6 @@ import '../config.dart';
 import '../models.dart';
 import '../services/location_service.dart';
 import '../services/notify_service.dart';
-import '../theme.dart';
 
 /// Passenger-only AR view. The phone is used by a passenger, not the driver.
 /// It shows the next stop and destination over the camera while GPS tracks
