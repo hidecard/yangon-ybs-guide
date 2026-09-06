@@ -5,12 +5,15 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../data/route_finder.dart';
 import '../config.dart';
 import '../models.dart';
 import '../services/location_service.dart';
 import '../services/notify_service.dart';
+import '../widgets/osm_map.dart';
 
 enum _PassengerViewMode { hud, camera }
 
@@ -29,6 +32,8 @@ class _PassengerArPageState extends State<PassengerArPage> {
   CameraController? _camera;
   StreamSubscription<Position>? _positionSub;
   StreamSubscription<CompassEvent>? _compassSub;
+  final _mapController = MapController();
+  bool _mapReady = false;
   double _heading = 0;
   int _currentIndex = 0;
   double? _distanceToNext;
@@ -130,6 +135,17 @@ class _PassengerArPageState extends State<PassengerArPage> {
       _gpsAccuracy = value.accuracy;
       _routeBearing = bearing;
     });
+    if (_mapReady) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          try {
+            _mapController.move(LatLng(latitude, longitude), 14.2);
+          } catch (_) {
+            // The map is detached while Camera mode is active.
+          }
+        }
+      });
+    }
     _checkAlerts(stops, bestIndex);
   }
 
@@ -188,7 +204,7 @@ class _PassengerArPageState extends State<PassengerArPage> {
           if (_viewMode == _PassengerViewMode.camera && _cameraReady)
             CameraPreview(_camera!)
           else
-            const _HudBackground(),
+            _liveMapBackground(stops),
           if (_viewMode == _PassengerViewMode.camera) const _ArShade(),
           SafeArea(
             child: Column(
@@ -211,6 +227,61 @@ class _PassengerArPageState extends State<PassengerArPage> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _liveMapBackground(List<BusStop> stops) {
+    if (stops.isEmpty) return const _HudBackground();
+    final center = _smoothedLat == null
+        ? LatLng(stops.first.lat, stops.first.lng)
+        : LatLng(_smoothedLat!, _smoothedLng!);
+    final next = _currentIndex + 1 < stops.length ? stops[_currentIndex + 1] : null;
+    final markers = <Marker>[
+      if (_smoothedLat != null)
+        Marker(
+          point: center,
+          width: 54,
+          height: 54,
+          child: Container(
+            decoration: BoxDecoration(
+              color: const Color(0xff1769e0),
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white, width: 3),
+              boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 8)],
+            ),
+            child: const Icon(Icons.directions_bus_rounded, color: Colors.white, size: 29),
+          ),
+        ),
+      if (next != null)
+        dotMarker(
+          LatLng(next.lat, next.lng),
+          color: const Color(0xff20b981),
+          size: 22,
+          label: next.nameMm,
+          subtitle: _distanceToNext == null ? 'GPS စောင့်နေသည်' : '${_distanceToNext!.round()} m',
+        ),
+      dotMarker(
+        LatLng(stops.last.lat, stops.last.lng),
+        color: const Color(0xffff9f0a),
+        size: 24,
+        label: widget.step.toStop,
+        subtitle: _distanceToDestination == null ? 'GPS စောင့်နေသည်' : '${_distanceToDestination!.round()} m',
+      ),
+    ];
+    return OsmMap(
+      controller: _mapController,
+      center: center,
+      zoom: 14.2,
+      onPositionChanged: (_, __) => _mapReady = true,
+      interactive: false,
+      markers: markers,
+      polylines: [
+        Polyline(
+          points: stops.map((stop) => LatLng(stop.lat, stop.lng)).toList(),
+          color: AppColors.brand,
+          strokeWidth: 6,
+        ),
+      ],
     );
   }
 
