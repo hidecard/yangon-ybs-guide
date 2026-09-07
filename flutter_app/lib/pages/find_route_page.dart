@@ -40,6 +40,7 @@ class _FindRoutePageState extends State<FindRoutePage> {
   bool _searching = false;
   bool _hasSearched = false;
   bool _locating = false;
+  int _searchSerial = 0;
 
   @override
   void initState() {
@@ -104,6 +105,27 @@ class _FindRoutePageState extends State<FindRoutePage> {
 
   Future<void> _search() async {
     if (_start.trim().isEmpty || _end.trim().isEmpty) return;
+    final sameNamedStop = _start.trim() == _end.trim();
+    final samePhysicalStop = _startStop != null &&
+        _endStop != null &&
+        getDistance(
+              _startStop!.lat,
+              _startStop!.lng,
+              _endStop!.lat,
+              _endStop!.lng,
+            ) <
+            0.02;
+    if (sameNamedStop || samePhysicalStop) {
+      setState(() {
+        _hasSearched = true;
+        _results = [];
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('စမှတ်တိုင်နှင့် ဆင်းမှတ်တိုင် မတူရပါ')),
+      );
+      return;
+    }
+    final serial = ++_searchSerial;
     final state = context.read<AppState>();
     setState(() {
       _searching = true;
@@ -153,12 +175,21 @@ class _FindRoutePageState extends State<FindRoutePage> {
                       ),
                     ],
                     transferCount: 0,
-                    totalDistance: 0,
+                    totalDistance: routeSpanDistance(
+                      r,
+                      _start.trim(),
+                      _end.trim(),
+                    ),
                   ),
                 )
                 .toList()
           : performBFS(_start.trim(), _end.trim(), state.routes, state.stops);
-      if (!mounted) return;
+      found.sort((a, b) {
+        final transfer = a.transferCount.compareTo(b.transferCount);
+        if (transfer != 0) return transfer;
+        return a.totalDistance.compareTo(b.totalDistance);
+      });
+      if (serial != _searchSerial || !mounted) return;
       setState(() {
         _results = found;
         _searching = false;
@@ -175,6 +206,7 @@ class _FindRoutePageState extends State<FindRoutePage> {
         }
       }
     } catch (_) {
+      if (serial != _searchSerial) return;
       if (!mounted) return;
       setState(() {
         _results = [];
@@ -475,6 +507,15 @@ class _FindRoutePageState extends State<FindRoutePage> {
           children: [
             Row(
               children: [
+                if (_results.isNotEmpty && identical(_results.first, res)) ...[
+                  const Pill(
+                    'အကြံပြုဆုံး',
+                    bg: AppColors.emeraldLight,
+                    fg: AppColors.emeraldDark,
+                    icon: Icons.star,
+                  ),
+                  const SizedBox(width: 6),
+                ],
                 Expanded(
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -581,7 +622,7 @@ class _FindRoutePageState extends State<FindRoutePage> {
                           ),
                           if (from != null && to != null)
                             Text(
-                              '${getDistance(from.lat, from.lng, to.lat, to.lng).toStringAsFixed(2)} km',
+                              '${routeSpanDistance(step.route, step.fromStop, step.toStop).toStringAsFixed(2)} km · ${routeSpanStops(step.route, step.fromStop, step.toStop)} မှတ်တိုင်',
                               style: const TextStyle(
                                 fontSize: 10,
                                 color: AppColors.slate400,

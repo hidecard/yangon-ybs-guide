@@ -2,6 +2,16 @@
 
 All notable changes to the Flutter application are documented here.
 
+## 3.4.5 — 2026-09-07
+
+### Improved
+
+- Route Search now scores direct and transfer results using ordered stop-to-stop route distance instead of zero or origin/destination straight-line distance.
+- Search results now show route distance and the number of stops, with the top ranked result marked as recommended.
+- Added validation for identical boarding and destination stops.
+- Prevented an older asynchronous search response from replacing a newer search result.
+- Optimized the transfer planner queue so large searches do not repeatedly shift the full queue.
+
 ## 3.4.4 — 2026-09-06
 
 ### Added

@@ -15,6 +15,36 @@ double getDistance(double lat1, double lon1, double lat2, double lon2) {
   return R * c;
 }
 
+/// Approximate distance along a route's ordered stop sequence.
+double routeSpanDistance(BusRoute route, String fromName, String toName) {
+  final stops = route.stopsDetailed;
+  var best = double.infinity;
+  for (var from = 0; from < stops.length; from++) {
+    if (stops[from].nameMm != fromName) continue;
+    for (var to = from + 1; to < stops.length; to++) {
+      if (stops[to].nameMm != toName) continue;
+      var total = 0.0;
+      for (var i = from; i < to; i++) {
+        total += getDistance(stops[i].lat, stops[i].lng, stops[i + 1].lat, stops[i + 1].lng);
+      }
+      if (total < best) best = total;
+    }
+  }
+  return best.isFinite ? best : 0;
+}
+
+int routeSpanStops(BusRoute route, String fromName, String toName) {
+  final stops = route.stopsDetailed;
+  var best = 1 << 30;
+  for (var from = 0; from < stops.length; from++) {
+    if (stops[from].nameMm != fromName) continue;
+    for (var to = from + 1; to < stops.length; to++) {
+      if (stops[to].nameMm == toName && to - from < best) best = to - from;
+    }
+  }
+  return best == 1 << 30 ? 0 : best;
+}
+
 /// BFS route planner (max 2 transfers), mirrors performBFS in App.tsx.
 List<SearchResult> performBFS(
   String start,
@@ -22,11 +52,6 @@ List<SearchResult> performBFS(
   List<BusRoute> allRoutes,
   List<BusStop> allStops,
 ) {
-  final stopMap = <String, BusStop>{};
-  for (final s in allStops) {
-    stopMap[s.nameMm] = s;
-  }
-
   final routeStopPositions = <String, Map<String, List<int>>>{};
   for (final r in allRoutes) {
     final idxMap = <String, List<int>>{};
@@ -36,17 +61,14 @@ List<SearchResult> performBFS(
     routeStopPositions[r.id] = idxMap;
   }
 
-  double calcPathDistance(List<PathStep> path) {
-    double total = 0;
-    for (final step in path) {
-      final from = stopMap[step.fromStop];
-      final to = stopMap[step.toStop];
-      if (from != null && to != null) {
-        total += getDistance(from.lat, from.lng, to.lat, to.lng);
-      }
-    }
-    return total;
-  }
+  double calcPathDistance(List<PathStep> path) => path.fold(
+        0,
+        (total, step) => total + routeSpanDistance(
+          step.route,
+          step.fromStop,
+          step.toStop,
+        ),
+      );
 
   final queue = <_QueueItem>[
     _QueueItem(currentStop: start, path: [], usedRouteIds: {}),
@@ -62,8 +84,9 @@ List<SearchResult> performBFS(
   int costOf(List<PathStep> path) =>
       path.length * 100000 + calcPathDistance(path).round().toInt();
 
-  while (queue.isNotEmpty) {
-    final item = queue.removeAt(0);
+  var queueHead = 0;
+  while (queueHead < queue.length) {
+    final item = queue[queueHead++];
     final currentStop = item.currentStop;
 
     if (item.path.length > maxTransfers + 1) continue;
