@@ -169,7 +169,7 @@ class _PassengerArPageState extends State<PassengerArPage> {
       _gpsAccuracy = value.accuracy;
       _routeBearing = bearing;
     });
-    if (_mapReady && _followMap) {
+    if (_followMap) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           try {
@@ -299,16 +299,33 @@ class _PassengerArPageState extends State<PassengerArPage> {
       if (_smoothedLat != null)
         Marker(
           point: center,
-          width: 54,
-          height: 54,
-          child: Container(
-            decoration: BoxDecoration(
-              color: const Color(0xff1769e0),
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 3),
-              boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 8)],
-            ),
-            child: const Icon(Icons.directions_bus_rounded, color: Colors.white, size: 29),
+          width: 140,
+          height: 82,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: const Color(0xff1458c7),
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: const [BoxShadow(color: Colors.black54, blurRadius: 5)],
+                ),
+                child: const Text('လက်ရှိနေရာ', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+              ),
+              const SizedBox(height: 3),
+              Container(
+                width: 54,
+                height: 54,
+                decoration: BoxDecoration(
+                  color: const Color(0xff1769e0),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 3),
+                  boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 8)],
+                ),
+                child: const Icon(Icons.directions_bus_rounded, color: Colors.white, size: 29),
+              ),
+            ],
           ),
         ),
       if (next != null)
