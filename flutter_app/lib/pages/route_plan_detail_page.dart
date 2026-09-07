@@ -905,6 +905,31 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
     return (bestFrom, bestTo);
   }
 
+  BusStop? _nearestStopForStep(PathStep active) {
+    if (_livePos == null) return null;
+    final detailed = active.route.stopsDetailed;
+    final leg = _findLeg(detailed, active.fromStop, active.toStop);
+    if (leg == null) return null;
+    BusStop? nearest;
+    var bestDistance = double.infinity;
+    for (final stop in detailed.sublist(leg.$1, leg.$2 + 1)) {
+      final distance = getDistance(
+        _livePos!.lat,
+        _livePos!.lng,
+        stop.lat,
+        stop.lng,
+      );
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        nearest = stop;
+      }
+    }
+    return nearest;
+  }
+
+  bool _sameStop(BusStop a, BusStop b) =>
+      (a.lat - b.lat).abs() < 0.00001 && (a.lng - b.lng).abs() < 0.00001;
+
   /// Shows only the stops between the active step's board/alight stops
   /// (excludes the start and end markers).
   Widget _intermediateStops(PathStep active) {
@@ -926,53 +951,195 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
     }
     if (between.isEmpty) return const SizedBox.shrink();
 
+    final current = _nearestStopForStep(active);
+    final currentIndex = current == null
+        ? -1
+        : between.indexWhere((stop) => _sameStop(stop, current));
+
     return Container(
       margin: const EdgeInsets.only(top: 4, bottom: 8),
-      padding: const EdgeInsets.all(16),
-      decoration: UI.card(),
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: currentIndex >= 0
+              ? AppColors.blue.withValues(alpha: 0.45)
+              : AppColors.borderLight,
+        ),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0A0F172A),
+            blurRadius: 12,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('ဖြတ်ရမည့်မှတ်တိုင်များ (${between.length})', style: UI.label),
-          const SizedBox(height: 10),
-          for (int i = 0; i < between.length; i++) ...[
-            Row(
-              children: [
-                Container(
-                  width: 22,
-                  height: 22,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: AppColors.slate100,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Text(
-                    '${fromIdx + i + 2}',
-                    style: const TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.slate500,
-                    ),
-                  ),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.blue.withValues(alpha: 0.12),
+                  shape: BoxShape.circle,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    between[i].nameMm,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
+                child: const Icon(
+                  Icons.alt_route,
+                  size: 18,
+                  color: AppColors.blue,
                 ),
-              ],
+              ),
+              const SizedBox(width: 10),
+              const Expanded(
+                child: Text(
+                  'ဖြတ်ရမည့်မှတ်တိုင်များ',
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+                ),
+              ),
+              Text(
+                '${between.length} မှတ်တိုင်',
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: AppColors.slate500,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            currentIndex >= 0
+                ? 'လက်ရှိရောက်နေသည့်မှတ်တိုင်ကို အပြာရောင်ဖြင့် ပြထားပါသည်'
+                : 'GPS ဖွင့်ပါက လက်ရှိရောက်နေသည့်မှတ်တိုင်ကို ပြပါမည်',
+            style: TextStyle(
+              fontSize: 11,
+              color: currentIndex >= 0 ? AppColors.blue : AppColors.slate500,
             ),
-            if (i < between.length - 1) const SizedBox(height: 8),
+          ),
+          const SizedBox(height: 12),
+          for (int i = 0; i < between.length; i++) ...[
+            _intermediateStopRow(
+              stop: between[i],
+              number: fromIdx + i + 2,
+              isCurrent: i == currentIndex,
+              isPassed: currentIndex > i,
+              isLast: i == between.length - 1,
+            ),
           ],
         ],
       ),
+    );
+  }
+
+  Widget _intermediateStopRow({
+    required BusStop stop,
+    required int number,
+    required bool isCurrent,
+    required bool isPassed,
+    required bool isLast,
+  }) {
+    final color = isCurrent
+        ? AppColors.blue
+        : isPassed
+        ? AppColors.emerald
+        : AppColors.slate300;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 30,
+          child: Column(
+            children: [
+              Container(
+                width: isCurrent ? 28 : 24,
+                height: isCurrent ? 28 : 24,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: isCurrent ? AppColors.blue : color.withValues(alpha: 0.14),
+                  shape: BoxShape.circle,
+                  border: isCurrent
+                      ? Border.all(color: Colors.white, width: 2)
+                      : null,
+                  boxShadow: isCurrent
+                      ? const [BoxShadow(color: Color(0x332563EB), blurRadius: 6)]
+                      : null,
+                ),
+                child: isCurrent
+                    ? const Icon(Icons.my_location, size: 15, color: Colors.white)
+                    : Text(
+                        '$number',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: isPassed ? AppColors.emeraldDark : AppColors.slate500,
+                        ),
+                      ),
+              ),
+              if (!isLast)
+                Container(
+                  width: 2,
+                  height: 28,
+                  color: color.withValues(alpha: 0.35),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 220),
+            margin: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: isCurrent ? AppColors.blue.withValues(alpha: 0.10) : null,
+              borderRadius: BorderRadius.circular(12),
+              border: isCurrent
+                  ? Border.all(color: AppColors.blue.withValues(alpha: 0.35))
+                  : null,
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        stop.nameMm,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: isCurrent ? FontWeight.w800 : FontWeight.w600,
+                          color: isCurrent ? AppColors.blue : AppColors.text,
+                        ),
+                      ),
+                      if (_stopSubtitle(stop).isNotEmpty)
+                        Text(
+                          _stopSubtitle(stop),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 10, color: AppColors.slate500),
+                        ),
+                    ],
+                  ),
+                ),
+                if (isCurrent)
+                  const Pill(
+                    'လက်ရှိရောက်နေ',
+                    bg: AppColors.blue,
+                    fg: Colors.white,
+                    icon: Icons.location_on,
+                  )
+                else if (isPassed)
+                  const Icon(Icons.check_circle, size: 18, color: AppColors.emerald),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

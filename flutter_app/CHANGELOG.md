@@ -2,6 +2,13 @@
 
 All notable changes to the Flutter application are documented here.
 
+## 3.4.7 — 2026-09-07
+
+### Improved
+
+- Route Plan Detail now detects the nearest stop on the active route leg from live GPS and highlights it in the intermediate-stop timeline.
+- Reworked the intermediate-stop UI into a progress timeline with current-stop, passed-stop, route number, township/road subtitle, and GPS guidance states.
+
 ## 3.4.6 — 2026-09-07
 
 ### Improved
