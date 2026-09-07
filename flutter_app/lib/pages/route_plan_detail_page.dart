@@ -13,7 +13,6 @@ import '../services/location_service.dart';
 import '../services/notify_service.dart';
 import '../services/background_alert_service.dart';
 import '../state/app_state.dart';
-import '../theme.dart';
 import '../widgets/osm_map.dart';
 import '../widgets/route_badge.dart';
 import 'passenger_ar_page.dart';
@@ -34,6 +33,7 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
   final _mapController = MapController();
   StreamSubscription<Position>? _posSub;
   ({double lat, double lng})? _livePos;
+  double? _gpsAccuracy;
   int _activeStep = 0;
   bool _arrivalEnabled = false;
   String? _arrivalMessage;
@@ -76,7 +76,10 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
     if (!mounted) return;
     _posSub = LocationService.instance.watchPosition().listen((p) {
       if (!mounted) return;
-      setState(() => _livePos = (lat: p.latitude, lng: p.longitude));
+      setState(() {
+        _livePos = (lat: p.latitude, lng: p.longitude);
+        _gpsAccuracy = p.accuracy;
+      });
       _recomputeActive();
       _checkArrival();
     });
@@ -90,6 +93,7 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
     if (mounted) {
       setState(() {
         _livePos = null;
+        _gpsAccuracy = null;
         _arrivalMessage = null;
       });
     }
@@ -100,6 +104,10 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
   /// while the user was between stops.
   void _recomputeActive() {
     if (_livePos == null || steps.isEmpty) return;
+    // A weak fix can put the user hundreds of metres away from the route and
+    // incorrectly switch the active bus leg. Keep the last stable leg until
+    // the device reports a usable GPS accuracy.
+    if (_gpsAccuracy != null && _gpsAccuracy! > 120) return;
     int best = _activeStep;
     double bestDist = double.infinity;
     for (int idx = 0; idx < steps.length; idx++) {
@@ -120,6 +128,7 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
   ({BusStop current, BusStop? next, double currentDistance})?
   _progressForActive() {
     if (_livePos == null || steps.isEmpty) return null;
+    if (_gpsAccuracy != null && _gpsAccuracy! > 120) return null;
     final active = steps[_activeStep];
     final detailed = active.route.stopsDetailed;
     final leg = _findLeg(detailed, active.fromStop, active.toStop);
@@ -213,6 +222,14 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (steps.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Route Plan Detail')),
+        body: const Center(
+          child: Text('လမ်းကြောင်းအချက်အလက် မရှိသေးပါ'),
+        ),
+      );
+    }
     final active = steps[_activeStep];
     final state = context.read<AppState>();
     final markers = <Marker>[];
@@ -907,6 +924,7 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
 
   BusStop? _nearestStopForStep(PathStep active) {
     if (_livePos == null) return null;
+    if (_gpsAccuracy != null && _gpsAccuracy! > 120) return null;
     final detailed = active.route.stopsDetailed;
     final leg = _findLeg(detailed, active.fromStop, active.toStop);
     if (leg == null) return null;
@@ -924,7 +942,9 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
         nearest = stop;
       }
     }
-    return nearest;
+    // Do not call a far-away stop the current stop when GPS is available but
+    // the bus is still between stops or the route data is approximate.
+    return bestDistance <= 0.5 ? nearest : null;
   }
 
   bool _sameStop(BusStop a, BusStop b) =>
@@ -1013,6 +1033,8 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
           Text(
             currentIndex >= 0
                 ? 'လက်ရှိရောက်နေသည့်မှတ်တိုင်ကို အပြာရောင်ဖြင့် ပြထားပါသည်'
+                : _gpsAccuracy != null && _gpsAccuracy! > 120
+                ? 'GPS signal အားနည်းနေသဖြင့် မှတ်တိုင်ကို မမှားယွင်းစေရန် ခဏစောင့်နေပါသည်'
                 : 'GPS ဖွင့်ပါက လက်ရှိရောက်နေသည့်မှတ်တိုင်ကို ပြပါမည်',
             style: TextStyle(
               fontSize: 11,

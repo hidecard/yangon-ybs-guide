@@ -2,6 +2,14 @@
 
 All notable changes to the Flutter application are documented here.
 
+## 3.4.8 — 2026-09-07
+
+### Fixed
+
+- Route Plan Detail now ignores GPS fixes poorer than 120 metres for active-stop highlighting, active-leg switching, and arrival progress to avoid false stop alerts.
+- Added a clear weak-GPS status message to the intermediate-stop timeline.
+- Added an empty-plan fallback screen instead of indexing into a missing route step.
+
 ## 3.4.7 — 2026-09-07
 
 ### Improved
