@@ -264,6 +264,12 @@ class _PassengerArPageState extends State<PassengerArPage> {
             _liveMapBackground(stops),
           if (_viewMode == _PassengerViewMode.camera) const _ArShade(),
           if (_viewMode == _PassengerViewMode.hud) const _HudMapShade(),
+          if (_viewMode == _PassengerViewMode.hud)
+            Positioned(
+              top: 154,
+              right: 14,
+              child: _mapControls(stops),
+            ),
           SafeArea(
             child: Column(
               children: [
@@ -288,6 +294,60 @@ class _PassengerArPageState extends State<PassengerArPage> {
       ),
     );
   }
+
+  void _zoomMap(double amount) {
+    try {
+      final camera = _mapController.camera;
+      final zoom = (camera.zoom + amount).clamp(10.0, 19.0).toDouble();
+      _mapController.move(camera.center, zoom);
+      if (_followMap && mounted) setState(() => _followMap = false);
+    } catch (_) {}
+  }
+
+  void _centerMap(List<BusStop> stops) {
+    if (stops.isEmpty) return;
+    final stopIndex = _currentIndex.clamp(0, stops.length - 1).toInt();
+    final point = _smoothedLat == null
+        ? LatLng(stops[stopIndex].lat, stops[stopIndex].lng)
+        : LatLng(_smoothedLat!, _smoothedLng!);
+    try {
+      _mapController.move(point, 15.0);
+      if (mounted) setState(() => _followMap = true);
+    } catch (_) {}
+  }
+
+  Widget _mapControls(List<BusStop> stops) => DecoratedBox(
+        decoration: BoxDecoration(
+          color: Colors.black.withValues(alpha: .78),
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 8)],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              onPressed: () => _zoomMap(1),
+              icon: const Icon(Icons.add, color: Colors.white),
+              tooltip: 'Zoom in',
+              visualDensity: VisualDensity.compact,
+            ),
+            const Divider(height: 1, color: Colors.white30),
+            IconButton(
+              onPressed: () => _zoomMap(-1),
+              icon: const Icon(Icons.remove, color: Colors.white),
+              tooltip: 'Zoom out',
+              visualDensity: VisualDensity.compact,
+            ),
+            const Divider(height: 1, color: Colors.white30),
+            IconButton(
+              onPressed: () => _centerMap(stops),
+              icon: Icon(_followMap ? Icons.my_location : Icons.gps_fixed, color: const Color(0xff5eead4)),
+              tooltip: 'လက်ရှိနေရာကို ပြန်ညှိမည်',
+              visualDensity: VisualDensity.compact,
+            ),
+          ],
+        ),
+      );
 
   Widget _liveMapBackground(List<BusStop> stops) {
     if (stops.isEmpty) return const _HudBackground();
