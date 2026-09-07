@@ -34,7 +34,6 @@ class _PassengerArPageState extends State<PassengerArPage> {
   StreamSubscription<Position>? _positionSub;
   StreamSubscription<CompassEvent>? _compassSub;
   final _mapController = MapController();
-  bool _mapReady = false;
   double _heading = 0;
   int _currentIndex = 0;
   double? _distanceToNext;
@@ -412,7 +411,6 @@ class _PassengerArPageState extends State<PassengerArPage> {
           ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
           : null,
       onPositionChanged: (_, hasGesture) {
-        _mapReady = true;
         if (hasGesture && _followMap && mounted) {
           setState(() => _followMap = false);
         }

@@ -109,7 +109,7 @@ class NotifyService {
         ),
       );
     } catch (_) {}
-    if (speak) speak(message);
+    if (speak) await this.speak(message);
   }
 
   Future<void> showAdminNotification(NotificationItem notif) async {
