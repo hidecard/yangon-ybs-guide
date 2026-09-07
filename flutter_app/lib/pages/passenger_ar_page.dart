@@ -263,6 +263,7 @@ class _PassengerArPageState extends State<PassengerArPage> {
           else
             _liveMapBackground(stops),
           if (_viewMode == _PassengerViewMode.camera) const _ArShade(),
+          if (_viewMode == _PassengerViewMode.hud) const _HudMapShade(),
           SafeArea(
             child: Column(
               children: [
@@ -365,7 +366,7 @@ class _PassengerArPageState extends State<PassengerArPage> {
   Widget _statusCard(BusStop? next, int remaining) => Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Card(
-          color: Colors.black.withValues(alpha: .62),
+          color: Colors.black.withValues(alpha: .82),
           child: Padding(
             padding: const EdgeInsets.all(14),
             child: Row(
@@ -375,7 +376,7 @@ class _PassengerArPageState extends State<PassengerArPage> {
                 Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text(next?.nameMm ?? widget.step.toStop, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                   Text(next == null ? 'ဆင်းရမည့်မှတ်တိုင် ရောက်ပါပြီ' : '${_distanceToNext == null ? 'GPS ရှာနေသည်' : '${_distanceToNext!.round()} m'} • $remaining မှတ်တိုင်ကျန်', style: const TextStyle(color: Colors.white70)),
-                  Text(_gpsAccuracy == null ? 'GPS စောင့်နေသည်' : 'GPS accuracy: ${_gpsAccuracy!.round()} m', style: TextStyle(color: _gpsAccuracy != null && _gpsAccuracy! <= 40 ? Colors.greenAccent : Colors.orangeAccent, fontSize: 11)),
+                  Text(_gpsAccuracy == null ? 'GPS စောင့်နေသည်' : 'GPS accuracy: ${_gpsAccuracy!.round()} m', style: TextStyle(color: _gpsAccuracy != null && _gpsAccuracy! <= 40 ? Colors.greenAccent : Colors.orangeAccent, fontSize: 11, shadows: const [Shadow(color: Colors.black54, blurRadius: 3)])),
                   if (!_directionValid)
                     const Text('ဒီ route direction နဲ့ destination မရောက်နိုင်ပါ', style: TextStyle(color: Colors.redAccent, fontSize: 11)),
                   if (!_boarded)
@@ -431,6 +432,7 @@ class _PassengerArPageState extends State<PassengerArPage> {
                     fontWeight: isCurrent || isDestination
                         ? FontWeight.bold
                         : FontWeight.normal,
+                    shadows: const [Shadow(color: Colors.black87, blurRadius: 4)],
                   ),
                 ),
               ],
@@ -516,8 +518,15 @@ class _PassengerArPageState extends State<PassengerArPage> {
       );
 
   Widget _bottomBar(BuildContext context, int remaining) => Padding(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 18),
-        child: Row(children: [
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: .68),
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            child: Row(children: [
           Expanded(child: Text('ဆင်းရန်: ${widget.step.toStop}\n$remaining မှတ်တိုင်လိုပါသည်', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
           IconButton(onPressed: () => setState(() => _notificationsEnabled = !_notificationsEnabled), icon: Icon(_notificationsEnabled ? Icons.notifications_active : Icons.notifications_off, color: Colors.white)),
           IconButton(
@@ -542,6 +551,8 @@ class _PassengerArPageState extends State<PassengerArPage> {
           ),
           IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.map_rounded, color: Colors.white)),
         ]),
+          ),
+        ),
       );
 }
 
@@ -561,6 +572,28 @@ class _HudBackground extends StatelessWidget {
             Icons.directions_bus_filled_rounded,
             size: 190,
             color: Color(0x182dd4bf),
+          ),
+        ),
+      );
+}
+
+class _HudMapShade extends StatelessWidget {
+  const _HudMapShade();
+
+  @override
+  Widget build(BuildContext context) => IgnorePointer(
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.black.withValues(alpha: .34),
+                Colors.transparent,
+                Colors.black.withValues(alpha: .48),
+              ],
+              stops: const [0, .52, 1],
+            ),
           ),
         ),
       );
