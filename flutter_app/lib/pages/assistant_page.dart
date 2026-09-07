@@ -156,7 +156,7 @@ class _AssistantPageState extends State<AssistantPage> {
                 (r) => SearchResult(
                   steps: [PathStep(route: r, fromStop: start!, toStop: end!)],
                   transferCount: 0,
-                  totalDistance: routeSpanDistance(r, start!, end!),
+                  totalDistance: routeSpanDistance(r, start, end),
                 ),
               )
               .toList()
