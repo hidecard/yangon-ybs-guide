@@ -29,15 +29,19 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _loadNotif() async {
-    final items = await ApiService.instance.fetchNotifications();
-    if (items.isEmpty || !mounted) return;
-    final latest = items.first;
-    final lastSeen = await LocalStore.instance.lastSeenNotification();
-    if (latest.id != lastSeen) {
-      await LocalStore.instance.setLastSeenNotification(latest.id);
-      // Request permission and show phone notification instead of UI card
-      await NotifyService.instance.requestPermission();
-      await NotifyService.instance.showAdminNotification(latest);
+    try {
+      final items = await ApiService.instance.fetchNotifications();
+      if (items.isEmpty || !mounted) return;
+      final latest = items.first;
+      final lastSeen = await LocalStore.instance.lastSeenNotification();
+      if (latest.id != lastSeen) {
+        await LocalStore.instance.setLastSeenNotification(latest.id);
+        // Request permission and show phone notification instead of UI card.
+        await NotifyService.instance.requestPermission();
+        await NotifyService.instance.showAdminNotification(latest);
+      }
+    } catch (_) {
+      // Home remains usable when the optional notification API is offline.
     }
   }
 

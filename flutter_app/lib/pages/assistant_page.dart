@@ -156,12 +156,18 @@ class _AssistantPageState extends State<AssistantPage> {
                 (r) => SearchResult(
                   steps: [PathStep(route: r, fromStop: start!, toStop: end!)],
                   transferCount: 0,
-                  totalDistance: 0,
+                  totalDistance: routeSpanDistance(r, start!, end!),
                 ),
               )
               .toList()
         // 2) Fall back to the BFS planner for transfer routes.
         : performBFS(start, end, state.routes, state.stops);
+
+    found.sort((a, b) {
+      final transfers = a.transferCount.compareTo(b.transferCount);
+      if (transfers != 0) return transfers;
+      return a.totalDistance.compareTo(b.totalDistance);
+    });
 
     if (found.isNotEmpty) {
       final directCount = found.where((r) => r.transferCount == 0).length;

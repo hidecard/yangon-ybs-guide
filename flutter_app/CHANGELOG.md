@@ -2,6 +2,13 @@
 
 All notable changes to the Flutter application are documented here.
 
+## 3.4.6 — 2026-09-07
+
+### Improved
+
+- Assistant route results now use ordered route distance and the same transfer/distance ranking as Find Route.
+- Home notification polling now fails safely when the optional notification API or network is unavailable, leaving the home page usable.
+
 ## 3.4.5 — 2026-09-07
 
 ### Improved
