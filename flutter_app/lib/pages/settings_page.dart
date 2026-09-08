@@ -399,20 +399,29 @@ class _DataSectionState extends State<_DataSection> {
   }
 
   Future<void> _sync() async {
+    if (!mounted) return;
     setState(() {
       _syncStatus = 'updating';
       _syncError = null;
     });
     final state = context.read<AppState>();
-    await state.reloadData();
-    if (!mounted) return;
-    _cacheSize = await state.repo.cacheInfo();
-    if (!mounted) return;
-    final error = state.initError;
-    setState(() {
-      _syncError = error;
-      _syncStatus = error == null ? 'done' : 'error';
-    });
+    try {
+      await state.reloadData();
+      if (!mounted) return;
+      _cacheSize = await state.repo.cacheInfo();
+      if (!mounted) return;
+      final error = state.initError;
+      setState(() {
+        _syncError = error;
+        _syncStatus = error == null ? 'done' : 'error';
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _syncError = 'အချက်အလက် Update မအောင်မြင်ပါ။ Internet ကို စစ်ပြီး ထပ်ကြိုးစားပါ။';
+        _syncStatus = 'error';
+      });
+    }
     if (error == null) {
       Future.delayed(const Duration(seconds: 2), () {
         if (mounted) setState(() => _syncStatus = 'idle');

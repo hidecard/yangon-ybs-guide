@@ -2,6 +2,19 @@
 
 All notable changes to the Flutter application are documented here.
 
+## 3.4.9 — 2026-09-08
+
+### Fixed
+
+- Route Detail now handles GPS stream failures without an uncaught exception and shows a recoverable signal message.
+- Route Detail prediction, ETA, and live-bus requests now show safe fallback states when the network/API fails.
+- Settings data synchronization now reports update failures instead of leaving the page in a loading state or crashing.
+
+### Audited
+
+- Reviewed all Flutter pages for empty route data, async `setState` lifecycle safety, map/location handling, notification flows, and navigation paths.
+- No additional critical empty-state or navigation crash was found in Favorites, Routes, Map Picker, Train, Assistant, or Find Route pages.
+
 ## 3.4.8 — 2026-09-07
 
 ### Fixed

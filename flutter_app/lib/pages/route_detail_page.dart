@@ -79,40 +79,60 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
   }
 
   Future<void> _loadPredictions() async {
-    setState(() => _loadingPred = true);
-    final (preds, msg) = await ApiService.instance.fetchPredictions(
-      widget.route.id,
-    );
     if (!mounted) return;
-    setState(() {
-      _predictions = preds;
-      _predictionMsg = msg;
-      _loadingPred = false;
-    });
+    setState(() => _loadingPred = true);
+    try {
+      final (preds, msg) = await ApiService.instance.fetchPredictions(
+        widget.route.id,
+      );
+      if (!mounted) return;
+      setState(() {
+        _predictions = preds;
+        _predictionMsg = msg;
+        _loadingPred = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _predictionMsg = 'ခန့်မှန်းချက်ကို ယခုမရနိုင်သေးပါ';
+        _loadingPred = false;
+      });
+    }
   }
 
   Future<void> _loadBusEta() async {
-    final data = await ApiService.instance.fetchBusEta(widget.route.id);
-    if (!mounted) return;
-    setState(() {
-      _busEta = data.estimates;
-      _busEtaMsg = data.message;
-    });
+    try {
+      final data = await ApiService.instance.fetchBusEta(widget.route.id);
+      if (!mounted) return;
+      setState(() {
+        _busEta = data.estimates;
+        _busEtaMsg = data.message;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _busEtaMsg = 'ကားရောက်ချိန်ကို ယခုမရနိုင်သေးပါ');
+    }
   }
 
   Future<void> _loadBusPositions() async {
-    setState(() => _loadingBusPos = true);
-    final updates = await ApiService.instance.fetchBusUpdates(
-      routeId: widget.route.id,
-      limit: 50,
-    );
     if (!mounted) return;
-    setState(() {
-      _busPositions = updates
-          .where((u) => u.lat != null && u.lng != null)
-          .toList();
-      _loadingBusPos = false;
-    });
+    setState(() => _loadingBusPos = true);
+    try {
+      final updates = await ApiService.instance.fetchBusUpdates(
+        routeId: widget.route.id,
+        limit: 50,
+      );
+      if (!mounted) return;
+      setState(() {
+        _busPositions = updates
+            .where((u) => u.lat != null && u.lng != null)
+            .toList();
+        _loadingBusPos = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _loadingBusPos = false);
+    }
   }
 
   int get _activeIndex {
@@ -146,19 +166,37 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
   }
 
   void _startTracking() async {
-    if (!await LocationService.instance.ensurePermission()) return;
+    if (!await LocationService.instance.ensurePermission()) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('GPS permission နှင့် Location ကို ဖွင့်ပါ')),
+        );
+      }
+      return;
+    }
     _posSub?.cancel();
-    _posSub = LocationService.instance.watchPosition().listen((p) {
-      setState(() {
-        _livePos = (lat: p.latitude, lng: p.longitude);
-        _tracking = true;
-      });
-      _checkArrival();
-    });
+    _posSub = LocationService.instance.watchPosition().listen(
+      (p) {
+        if (!mounted) return;
+        setState(() {
+          _livePos = (lat: p.latitude, lng: p.longitude);
+          _tracking = true;
+        });
+        _checkArrival();
+      },
+      onError: (_) {
+        if (!mounted) return;
+        setState(() => _tracking = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('GPS signal ပြတ်တောက်သွားပါသည်')),
+        );
+      },
+      cancelOnError: true,
+    );
   }
 
   void _checkArrival() {
-    if (!_arrivalEnabled || _livePos == null) return;
+    if (!mounted || !_arrivalEnabled || _livePos == null) return;
     final active = _activeIndex;
     if (active >= 0 && active + 1 < _stops.length) {
       final next = _stops[active + 1];
