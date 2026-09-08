@@ -1,10 +1,6 @@
--- For shared hosting/phpMyAdmin, use schema_hosting.sql instead.
--- This full-server version requires a MySQL account with CREATE DATABASE permission.
-CREATE DATABASE IF NOT EXISTS ybs_ai
-  CHARACTER SET utf8mb4
-  COLLATE utf8mb4_unicode_ci;
-
-USE ybs_ai;
+-- Shared hosting version for phpMyAdmin.
+-- IMPORTANT: First click/select your existing YBS database in phpMyAdmin,
+-- then run this file. Do NOT run CREATE DATABASE or USE here.
 
 CREATE TABLE IF NOT EXISTS notifications (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -33,10 +29,3 @@ CREATE TABLE IF NOT EXISTS feedback (
   INDEX idx_feedback_ip_created (ip_hash, created_at),
   INDEX idx_feedback_status_created (status, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Create a dedicated DB user in production, not the root user.
--- Replace the password before running this section.
--- CREATE USER 'ybs_api'@'localhost' IDENTIFIED BY 'CHANGE_THIS_LONG_PASSWORD';
--- GRANT SELECT, INSERT ON ybs_ai.notifications TO 'ybs_api'@'localhost';
--- GRANT SELECT, INSERT ON ybs_ai.feedback TO 'ybs_api'@'localhost';
--- FLUSH PRIVILEGES;

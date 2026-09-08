@@ -57,6 +57,28 @@ Feedback type များမှာ `bug`, `wrong_info`, `suggestion`, `other` �
 mysql -u root -p < schema.sql
 ```
 
+#### Shared hosting / phpMyAdmin သုံးသူများ
+
+Screenshot လို `#1044 Access denied ... to database` error ပေါ်တာက hosting user မှာ database အသစ်ဖန်တီးခွင့်မရှိလို့ပါ။ `schema.sql` ထဲက `CREATE DATABASE ybs_ai` နဲ့ `USE ybs_ai` ကို shared hosting မှာ မ run ပါနှင့်။ Hosting control panel က ဖန်တီးပေးထားတဲ့ ရှိပြီးသား database ကို select လုပ်ပြီး `schema_hosting.sql` ကို run ပါ။
+
+phpMyAdmin အဆင့်များ:
+
+1. ဘယ်ဘက်က hosting ဖန်တီးပေးထားတဲ့ database ကို click/select လုပ်ပါ။ ဥပမာ `zulszwhh_ybsai`။
+2. **Import** သို့မဟုတ် **SQL** ကိုဖွင့်ပါ။
+3. `schema_hosting.sql` ကို upload/paste လုပ်ပါ။
+4. Run/Go နှိပ်ပါ။ `notifications` နဲ့ `feedback` tables နှစ်ခု ပေါ်လာရပါမယ်။
+5. cPanel **MySQL Databases** မှာ API သုံးမယ့် MySQL user ကို အဲဒီ database နဲ့ add/assign လုပ်ပြီး **All Privileges** ပေးပါ။
+
+`.env` ထဲက `DB_NAME` ကို database အမည်အပြည့်၊ `DB_USER` ကို hosting user အမည်အပြည့်နဲ့ ထည့်ပါ။ ဥပမာ:
+
+```env
+DB_NAME=zulszwhh_ybsai
+DB_USER=zulszwhh_api
+DB_PASS=hosting-mysql-user-password
+```
+
+Database နာမည်ကို ကိုယ်တိုင် `ybs_ai` လို့ မပြောင်းပါနှင့်။ Hosting panel မှာ ပေးထားတဲ့ prefix ပါတဲ့အမည်ကို အတိအကျသုံးပါ။
+
 Production မှာ `schema.sql` အောက်ဆုံးက dedicated database user commands ကို password အသစ်နဲ့ ပြင်ပြီး run ပါ။ Root database account ကို API ထဲမသုံးပါနှင့်။
 
 ### 2. Environment ပြင်ရန်
