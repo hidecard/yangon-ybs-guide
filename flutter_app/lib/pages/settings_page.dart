@@ -415,16 +415,16 @@ class _DataSectionState extends State<_DataSection> {
         _syncError = error;
         _syncStatus = error == null ? 'done' : 'error';
       });
+      if (error == null) {
+        Future.delayed(const Duration(seconds: 2), () {
+          if (mounted) setState(() => _syncStatus = 'idle');
+        });
+      }
     } catch (_) {
       if (!mounted) return;
       setState(() {
         _syncError = 'အချက်အလက် Update မအောင်မြင်ပါ။ Internet ကို စစ်ပြီး ထပ်ကြိုးစားပါ။';
         _syncStatus = 'error';
-      });
-    }
-    if (error == null) {
-      Future.delayed(const Duration(seconds: 2), () {
-        if (mounted) setState(() => _syncStatus = 'idle');
       });
     }
   }
