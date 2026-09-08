@@ -8,14 +8,19 @@ function env_value(string $key, ?string $fallback = null): ?string {
     static $values = null;
     if ($values === null) {
         $values = [];
-        $file = dirname(__DIR__) . DIRECTORY_SEPARATOR . '.env';
-        if (is_readable($file)) {
+        $files = [
+            dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . '.env', // DirectAdmin: domain/.env
+            dirname(__DIR__) . DIRECTORY_SEPARATOR . '.env',     // fallback: public_html/.env
+        ];
+        foreach ($files as $file) {
+            if (!is_readable($file)) continue;
             foreach (file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [] as $line) {
                 $line = trim($line);
                 if ($line === '' || str_starts_with($line, '#') || !str_contains($line, '=')) continue;
                 [$name, $value] = explode('=', $line, 2);
                 $values[trim($name)] = trim($value, " \t\"'");
             }
+            break;
         }
     }
     $value = getenv($key);

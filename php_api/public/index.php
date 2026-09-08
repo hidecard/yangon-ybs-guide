@@ -21,14 +21,19 @@ function env_value(string $key, ?string $fallback = null): ?string {
     static $localEnv = null;
     if ($localEnv === null) {
         $localEnv = [];
-        $envFile = dirname(__DIR__) . DIRECTORY_SEPARATOR . '.env';
-        if (is_readable($envFile)) {
+        $envFiles = [
+            dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . '.env', // DirectAdmin: domain/.env
+            dirname(__DIR__) . DIRECTORY_SEPARATOR . '.env',     // fallback: public_html/.env
+        ];
+        foreach ($envFiles as $envFile) {
+            if (!is_readable($envFile)) continue;
             foreach (file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [] as $line) {
                 $line = trim($line);
                 if ($line === '' || str_starts_with($line, '#') || !str_contains($line, '=')) continue;
                 [$name, $value] = explode('=', $line, 2);
                 $localEnv[trim($name)] = trim($value, " \t\"'");
             }
+            break;
         }
     }
     $value = getenv($key);
