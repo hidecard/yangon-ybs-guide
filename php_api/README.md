@@ -10,6 +10,18 @@
 | `POST` | `/api/notifications` | `X-Admin-Token` | Admin က notification အသစ်ပို့ရန် |
 | `POST` | `/api/feedback` | မလို | App user feedback ပို့ရန် |
 
+## Notification Admin UI
+
+Browser ကနေ Notification ပို့ရန် `public/admin.php` ကို ထည့်ထားပါတယ်။ Upload ပြီးရင်:
+
+```text
+https://api.your-domain.com/admin.php
+```
+
+ကိုဖွင့်ပြီး `.env` ထဲက `ADMIN_API_TOKEN` နဲ့ Login ဝင်ပါ။ UI မှာ Notification title, message, type (`info`, `update`, `alert`) ဖြည့်ပြီး ပို့နိုင်သလို နောက်ဆုံး Notification ၂၀ ခုကိုလည်း ပြန်ကြည့်နိုင်ပါတယ်။
+
+`admin.php` ထဲမှာ token ကို hard-code မလုပ်ထားပါ။ CSRF token, prepared statements, HTML escaping နဲ့ session login ပါဝင်ပါတယ်။ `admin.php` ကို HTTPS နဲ့သာ အသုံးပြုပါ။
+
 ### Notification GET response
 
 ```json
