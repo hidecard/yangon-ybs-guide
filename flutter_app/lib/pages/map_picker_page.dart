@@ -43,7 +43,35 @@ class _MapPickerPageState extends State<MapPickerPage> {
             .where((e) => e.$2 <= 1.0)
             .toList()
           ..sort((a, b) => a.$2.compareTo(b.$2));
-    setState(() => _nearby = found);
+    if (mounted) setState(() => _nearby = found);
+  }
+
+  void _selectNearestAt(LatLng point) {
+    if (widget.stops.isEmpty) return;
+    BusStop? nearest;
+    var bestDistance = double.infinity;
+    for (final stop in widget.stops) {
+      final distance = getDistance(
+        point.latitude,
+        point.longitude,
+        stop.lat,
+        stop.lng,
+      );
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        nearest = stop;
+      }
+    }
+    // A map tap or centered selection should be close enough to a real stop;
+    // otherwise returning a distant stop feels like the picker selected the
+    // wrong place.
+    if (nearest == null || bestDistance > 0.25) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('ဒီနေရာအနီး 250 မီတာအတွင်း မှတ်တိုင်မရှိပါ')),
+      );
+      return;
+    }
+    Navigator.pop(context, nearest);
   }
 
   Future<void> _locate() async {
@@ -93,6 +121,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
                       center: _center,
                       zoom: 14,
                       markers: markers,
+                      onTap: (_, point) => _selectNearestAt(point),
                       onPositionChanged: (cam, _) {
                         _center = cam.center;
                         _updateNearby(cam.center);
@@ -106,6 +135,27 @@ class _MapPickerPageState extends State<MapPickerPage> {
                         color: AppColors.brand.withValues(alpha: 0.2),
                         shape: BoxShape.circle,
                         border: Border.all(color: AppColors.brand, width: 2),
+                      ),
+                    ),
+                    Positioned(
+                      left: 12,
+                      bottom: 12,
+                      child: FilledButton.icon(
+                        onPressed: () => _selectNearestAt(_center),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: AppColors.brand,
+                          elevation: 3,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 9,
+                          ),
+                        ),
+                        icon: const Icon(Icons.push_pin_outlined, size: 17),
+                        label: const Text(
+                          'ဒီနေရာအနီးဆုံးမှတ်တိုင်ရွေးမည်',
+                          style: TextStyle(fontSize: 11),
+                        ),
                       ),
                     ),
                     Positioned(

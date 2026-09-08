@@ -2,6 +2,14 @@
 
 All notable changes to the Flutter application are documented here.
 
+## 3.5.0 — 2026-09-08
+
+### Fixed
+
+- Near Me map stop selection now works by tapping near a stop or using the explicit “ဒီနေရာအနီးဆုံးမှတ်တိုင်ရွေးမည်” button after moving the map center.
+- Map Picker now returns the nearest stop only when it is within 250 metres, preventing an unrelated distant stop from being selected.
+- Nearby-stop updates are mounted-safe while the map picker is opening or closing.
+
 ## 3.4.9 — 2026-09-08
 
 ### Fixed
