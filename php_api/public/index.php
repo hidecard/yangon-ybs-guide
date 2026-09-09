@@ -89,7 +89,11 @@ function db(): PDO {
 
 function request_path(): string {
     $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+    $path = preg_replace('#^/api/index\.php#', '', $path) ?: $path;
     $path = preg_replace('#^/index\.php#', '', $path) ?: $path;
+    if ($path === '/' && isset($_GET['path'])) {
+        $path = (string)$_GET['path'];
+    }
     return rtrim($path, '/') ?: '/';
 }
 
