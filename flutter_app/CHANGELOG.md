@@ -2,6 +2,13 @@
 
 All notable changes to the Flutter application are documented here.
 
+## 3.5.1 — 2026-09-09
+
+### Changed
+
+- Switched Flutter API requests from the old Vercel backend to `https://ybs-ai.arkaryan.net` PHP + MySQL API.
+- Admin Notification UI now shows the latest 50 user feedback submissions with type, status, route, user, and message.
+
 ## 3.5.0 — 2026-09-08
 
 ### Fixed

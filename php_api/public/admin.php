@@ -103,9 +103,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $loggedIn = isset($_SESSION['admin_token']);
 $recent = [];
+$feedback = [];
 if ($loggedIn) {
     try {
         $recent = database()->query('SELECT id, title, message, type, created_at FROM notifications ORDER BY created_at DESC LIMIT 20')->fetchAll();
+        $feedback = database()->query('SELECT id, type, message, route_id, user_id, status, created_at FROM feedback ORDER BY created_at DESC LIMIT 50')->fetchAll();
     } catch (Throwable $error) {
         $message = 'Database ကို ဖတ်မရသေးပါ။ .env နဲ့ table ကို စစ်ပါ။';
         $messageType = 'error';
@@ -153,6 +155,9 @@ if ($loggedIn) {
   </section>
   <section class="card"><h2 class="title">နောက်ဆုံးပို့ထားသော Notifications</h2><p class="sub">နောက်ဆုံး ၂၀ ခု</p>
   <?php if (!$recent): ?><div class="empty">Notification မရှိသေးပါ။</div><?php else: foreach ($recent as $item): ?><article class="item"><div class="item-head"><span class="tag tag-<?=e((string)$item['type'])?>"><?=e(strtoupper((string)$item['type']))?></span><h3><?=e((string)$item['title'])?></h3><span class="date"><?=e((string)$item['created_at'])?></span></div><p><?=e((string)$item['message'])?></p></article><?php endforeach; endif; ?>
+  </section>
+  <section class="card"><h2 class="title">User Feedback</h2><p class="sub">App အသုံးပြုသူများ ပေးပို့ထားသော Feedback နောက်ဆုံး ၅၀ ခု</p>
+  <?php if (!$feedback): ?><div class="empty">Feedback မရှိသေးပါ။</div><?php else: foreach ($feedback as $item): ?><article class="item"><div class="item-head"><span class="tag tag-<?=e((string)$item['type'])?>"><?=e(strtoupper((string)$item['type']))?></span><h3><?=e((string)$item['status'])?></h3><span class="date"><?=e((string)$item['created_at'])?></span></div><p><?=e((string)$item['message'])?></p><div class="date">Route: <?=e((string)($item['route_id'] ?? '-'))?> · User: <?=e((string)($item['user_id'] ?? '-'))?> · ID: <?=e((string)$item['id'])?></div></article><?php endforeach; endif; ?>
   </section>
 <?php endif; ?>
 </div>

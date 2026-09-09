@@ -22,6 +22,10 @@ https://api.your-domain.com/admin.php
 
 `admin.php` ထဲမှာ token ကို hard-code မလုပ်ထားပါ။ CSRF token, prepared statements, HTML escaping နဲ့ session login ပါဝင်ပါတယ်။ `admin.php` ကို HTTPS နဲ့သာ အသုံးပြုပါ။
 
+Login ဝင်ပြီးနောက် **User Feedback** section မှာ App က ပေးပို့ထားသော feedback နောက်ဆုံး ၅၀ ခုကို type, status, route, user ID နဲ့ message အပါအဝင် ပြန်ကြည့်နိုင်ပါတယ်။
+
+Flutter App ရဲ့ API base ကို `https://ybs-ai.arkaryan.net` သို့ ပြောင်းထားပြီး Notification ဖတ်ခြင်း၊ Feedback ပို့ခြင်းတို့သည် ဒီ PHP API ကို တိုက်ရိုက်အသုံးပြုပါမယ်။
+
 ### Notification GET response
 
 ```json
