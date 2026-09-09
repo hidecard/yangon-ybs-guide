@@ -8,6 +8,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:vibration/vibration.dart';
 
 import 'local_store.dart';
+import 'api_service.dart';
 
 /// Vibration pattern used for the arrival alert (ms): vibrate, pause, repeat.
 const _vibratePattern = [0, 400, 150, 400, 150, 400, 150, 400];
@@ -21,6 +22,48 @@ Future<void> _releaseWakeLock() async {
   try {
     await _wakeLockChannel.invokeMethod('release');
   } catch (_) {}
+}
+
+Future<void> _pollAdminNotifications(
+  FlutterLocalNotificationsPlugin plugin,
+) async {
+  try {
+    final notifications = await ApiService.instance.fetchNotifications();
+    if (notifications.isEmpty) return;
+    final latestId = notifications
+        .map((n) => n.id)
+        .reduce((a, b) => a > b ? a : b);
+    final lastSeen = await LocalStore.instance.lastSeenNotification();
+    // Seed the cursor on first install so old announcements do not all fire.
+    if (lastSeen == null) {
+      await LocalStore.instance.setLastSeenNotification(latestId);
+      return;
+    }
+    final fresh = notifications.where((n) => n.id > lastSeen).toList()
+      ..sort((a, b) => a.id.compareTo(b.id));
+    for (final notification in fresh) {
+      await plugin.show(
+        notification.id,
+        notification.title,
+        notification.message,
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
+            'ybs_admin',
+            'Admin Notifications',
+            channelDescription: 'Important announcements from YBS AI',
+            importance: Importance.high,
+            priority: Priority.high,
+          ),
+          iOS: DarwinNotificationDetails(),
+        ),
+      );
+    }
+    if (latestId > lastSeen) {
+      await LocalStore.instance.setLastSeenNotification(latestId);
+    }
+  } catch (_) {
+    // Network failure must not stop GPS alerts or the background service.
+  }
 }
 
 /// Threshold (km) at which the background service fires the arrival alert.
@@ -79,13 +122,6 @@ void onStart(ServiceInstance service) async {
     );
   } catch (_) {}
 
-  // Hold a partial wake lock (via the native channel) so the periodic timer
-  // keeps firing and the vibration / notification are actually delivered
-  // while the device is asleep (screen off or app closed).
-  try {
-    await _wakeLockChannel.invokeMethod('acquire');
-  } catch (_) {}
-
   Future<void> vibrateStrong() async {
     try {
       if (await Vibration.hasVibrator()) {
@@ -138,19 +174,16 @@ void onStart(ServiceInstance service) async {
     } catch (_) {}
   }
 
-  // Poll loop runs only while an arrival alert is active. This is deliberately
-  // opt-in so the app does not keep GPS/wake-lock work running indefinitely.
+  // Poll loop supports admin announcements continuously; GPS work remains
+  // conditional on an active arrival alert.
   Timer.periodic(_pollInterval, (timer) async {
+    // Firebase-free admin notification polling. Android keeps this foreground
+    // service alive so new announcements can arrive while the app is closed.
+    await _pollAdminNotifications(plugin);
+
     // ---- Active arrival alert ----
     final alert = await LocalStore.instance.getBackgroundAlert();
-    if (alert == null) {
-      timer.cancel();
-      await _releaseWakeLock();
-      if (service is AndroidServiceInstance) {
-        await service.stopSelf();
-      }
-      return;
-    }
+    if (alert == null) return;
 
     // Already fired once -> keep monitoring but don't re-alert.
     if (alert['alerted'] == true) return;

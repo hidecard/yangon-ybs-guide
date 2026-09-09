@@ -2,6 +2,19 @@
 
 All notable changes to the Flutter application are documented here.
 
+## 3.5.2 — 2026-09-09
+
+### Added
+
+- Added Firebase-free Android admin notification polling through the existing foreground service.
+- New PHP API notifications are checked every 30 seconds and shown as local system notifications when the app UI is closed.
+- Added duplicate prevention using the locally stored last-seen notification ID.
+
+### Note
+
+- Android requires the app's foreground-service notification and notification permission to remain enabled.
+- This is polling, not a carrier push service; force-stopped apps, battery restrictions, and iOS terminated-app restrictions can still prevent background execution.
+
 ## 3.5.1 — 2026-09-09
 
 ### Changed

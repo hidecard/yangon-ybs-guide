@@ -33,6 +33,7 @@ Future<void> _initializePlatformServices() async {
   } catch (_) {}
   try {
     await initBackgroundAlertService();
+    await startAdminNotificationService();
   } catch (_) {}
 }
 
