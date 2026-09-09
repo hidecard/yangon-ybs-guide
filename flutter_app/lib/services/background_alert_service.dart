@@ -331,11 +331,8 @@ Future<void> startBackgroundAlertQueue(
 /// Stops the background service and clears the persisted alert.
 Future<void> stopBackgroundAlert() async {
   await LocalStore.instance.clearBackgroundAlert();
-  // Stop the foreground service when there is no active arrival alert. This
-  // keeps GPS, wake-lock, and foreground-notification work opt-in and avoids
-  // draining the battery while the user is not tracking a trip.
-  final service = FlutterBackgroundService();
-  if (await service.isRunning()) {
-    service.invoke('stopService');
-  }
+  // Do not stop the foreground service here. It also owns Firebase-free admin
+  // notification polling, which must continue after a passenger turns off
+  // route arrival alerts. The service simply skips GPS work when this queue is
+  // empty.
 }

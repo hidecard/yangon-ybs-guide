@@ -203,7 +203,6 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
             ? 'သင်ဆင်းရမည့်မှတ်တိုင် ${next.nameMm} ရောက်ခါနီးပါပြီ'
             : 'နောက်ရောက်မည့်မှတ်တိုင် ${next.nameMm} ပါ';
         if (mounted) setState(() => _arrivalMessage = msg);
-        NotifyService.instance.triggerArrival(msg);
       }
     }
 
@@ -213,7 +212,6 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
       final msg =
           '${progress.current.nameMm} မှတ်တိုင် ရောက်ပါပြီ။ နောက်ရောက်မည့်မှတ်တိုင်က ${progress.next?.nameMm ?? 'မရှိတော့ပါ'} ပါ';
       if (mounted) setState(() => _arrivalMessage = msg);
-      NotifyService.instance.triggerArrival(msg);
       if (progress.next == null) {
         stopBackgroundAlert();
       }
