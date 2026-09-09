@@ -288,6 +288,15 @@ Future<void> initBackgroundAlertService() async {
   );
 }
 
+/// Starts the foreground service used for Firebase-free admin notification
+/// polling. The service can run without an active GPS arrival alert.
+Future<void> startAdminNotificationService() async {
+  final service = FlutterBackgroundService();
+  if (!await service.isRunning()) {
+    await service.startService();
+  }
+}
+
 @pragma('vm:entry-point')
 Future<bool> onIosBackground(ServiceInstance service) async {
   // iOS background execution; monitoring handled by the same onStart logic.
