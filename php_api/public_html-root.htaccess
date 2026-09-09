@@ -1,0 +1,9 @@
+# Copy this file to: public_html/.htaccess
+<FilesMatch "^\.env$">
+  Require all denied
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^\.env$ - [F,L]
+</IfModule>
