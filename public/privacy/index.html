@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>YBS AI Privacy Policy</title>
+  <style>
+    body{margin:0;background:#f8fafc;color:#1e293b;font:16px/1.7 Arial,sans-serif}
+    main{max-width:820px;margin:0 auto;padding:32px 20px 64px;background:#fff;min-height:100vh}
+    h1{font-size:30px;line-height:1.2;color:#0f172a} h2{margin-top:30px;color:#0f172a}
+    .updated{color:#64748b;font-size:14px} li{margin:8px 0} a{color:#2563eb}
+  </style>
+</head>
+<body>
+<main>
+  <h1>YBS AI Privacy Policy</h1>
+  <p class="updated"><strong>Last updated:</strong> 1 October 2026</p>
+  <p>YBS AI is a Yangon bus-route guide. This policy describes what the current application stores, what it sends over the network, and how users can control or delete local data.</p>
+
+  <h2>Data stored on the device</h2>
+  <p>The application stores route and stop data locally so route search can continue without an internet connection. It may also store favorite routes, favorite stops, saved trips, recent search history, notification state, and an active arrival-alert queue in the device application storage. These records are used only to provide the corresponding feature and are not sold.</p>
+
+  <h2>Location data</h2>
+  <p>Location permission is optional. Before requesting it, YBS AI shows an in-app disclosure and asks for the user's explicit consent.</p>
+  <p>When the user selects Near Me, map picking, live tracking, walking directions, or an arrival alert, the application accesses and uses the device's precise location to find a nearby stop, display the user on a map, or calculate distance to the selected stop.</p>
+  <p>The current implementation does not send GPS coordinates to the application API, sell them, or share them with third parties.</p>
+  <p>Background location is requested only for an explicitly enabled arrival alert. The application may use location while the app is in the background or the screen is off to calculate the distance to the selected stop and provide an arrival notification. The foreground service stops when the alert queue is cleared or completed.</p>
+
+  <h2>Network requests</h2>
+  <p>The application may contact the YBS service for route-data refreshes, bus-position updates, arrival estimates, notifications, and feedback links. Requests for live route information include the selected route or request parameters needed by that feature. The offline route search itself is performed on the device. Network failures do not prevent the cached route directory from being used.</p>
+
+  <h2>Notifications and speech</h2>
+  <p>If the user grants notification permission or enables an arrival alert, the application may display a local notification, vibrate, and speak an arrival message. Users can revoke notification, location, or microphone-related permissions through Android or iOS settings. The application does not use microphone recording for the local assistant.</p>
+
+  <h2>User controls and deletion</h2>
+  <p>Favorites, saved trips, recent searches, cached route data, and an active alert can be removed from the application settings or by clearing the application storage from the operating-system settings. Users may contact <a href="mailto:info@arkaryan.net">info@arkaryan.net</a> with privacy questions or deletion requests.</p>
+
+  <h2>Children and third parties</h2>
+  <p>YBS AI is a general public-transport utility. It does not knowingly sell personal information or use the local assistant to collect sensitive personal information. Third-party map tiles, operating-system location services, notification services, and the configured YBS API may process technical requests according to their own policies.</p>
+
+  <h2>Changes</h2>
+  <p>If the data practices change, this document and the in-app privacy section will be updated before the relevant feature is released.</p>
+</main>
+</body>
+</html>
