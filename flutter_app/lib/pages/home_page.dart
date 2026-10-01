@@ -14,6 +14,7 @@ import '../pages/assistant_page.dart';
 import '../pages/find_route_page.dart';
 import '../pages/routes_page.dart';
 import '../widgets/route_badge.dart';
+import '../widgets/location_disclosure.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -294,6 +295,7 @@ class _NearestStopsCardState extends State<_NearestStopsCard> {
   String? _error;
 
   Future<void> _locate() async {
+    if (!await showLocationDisclosure(context, background: false)) return;
     setState(() {
       _locating = true;
       _error = null;

@@ -9,6 +9,7 @@ import '../state/app_state.dart';
 import '../theme.dart';
 import '../util/nav.dart';
 import '../widgets/route_badge.dart';
+import '../widgets/location_disclosure.dart';
 import 'map_picker_page.dart';
 
 class FindRoutePage extends StatefulWidget {
@@ -213,6 +214,7 @@ class _FindRoutePageState extends State<FindRoutePage> {
   Future<void> _useCurrentLocation() async {
     final state = context.read<AppState>();
     if (state.stops.isEmpty) return;
+    if (!await showLocationDisclosure(context, background: false)) return;
     setState(() => _locating = true);
     final ok = await LocationService.instance.ensurePermission();
     if (!ok) {

@@ -16,6 +16,7 @@ import '../state/app_state.dart';
 import '../theme.dart';
 import '../widgets/osm_map.dart';
 import '../widgets/route_badge.dart';
+import '../widgets/location_disclosure.dart';
 
 class RoutePlanDetailPage extends StatefulWidget {
   final List<PathStep> steps;
@@ -62,8 +63,12 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
     super.dispose();
   }
 
-  Future<void> _startWatch() async {
+  Future<void> _startWatch({bool skipDisclosure = false}) async {
     if (_posSub != null) return;
+    if (!skipDisclosure &&
+        !await showLocationDisclosure(context, background: false)) {
+      return;
+    }
     if (!await LocationService.instance.ensurePermission()) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -503,32 +508,6 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
     );
   }
 
-  Future<bool> _showBackgroundLocationDisclosure() async {
-    final result = await showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: const Text('Background location အသုံးပြုမှု'),
-        content: const Text(
-          'Arrival Alert ကို ဖွင့်ထားချိန်တွင် YBS AI သည် သင်ရွေးချယ်ထားသော မှတ်တိုင်အနီးရောက်သည့်အခါ အသိပေးနိုင်ရန် ဖုန်း၏ location ကို app ပိတ်ထားချိန်နှင့် screen ပိတ်ထားချိန်တွင်ပါ အသုံးပြုပါမည်။ '
-          'Location data ကို server သို့ မပို့ဘဲ ဖုန်းပေါ်တွင်သာ လမ်းကြောင်းအကွာအဝေးတွက်ချက်ရန် အသုံးပြုပါသည်။ '
-          'ခရီးပြီးဆုံးချိန် သို့မဟုတ် Arrival Alert ကို ပိတ်ချိန်တွင် background location service ရပ်ပါမည်။',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('မလုပ်တော့ပါ'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('သဘောတူပြီး ဆက်လုပ်မည်'),
-          ),
-        ],
-      ),
-    );
-    return result ?? false;
-  }
-
   Future<void> _toggleArrival() async {
     final enabled = !_arrivalEnabled;
     if (!enabled) {
@@ -536,7 +515,7 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
       await _stopWatch();
       return;
     }
-    if (!await _showBackgroundLocationDisclosure()) return;
+    if (!await showLocationDisclosure(context, background: true)) return;
     final permissionGranted = await LocationService.instance.ensurePermission();
     if (!permissionGranted) {
       if (mounted) {
@@ -553,7 +532,7 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
     await NotifyService.instance.requestPermission();
     if (!mounted) return;
     setState(() => _arrivalEnabled = true);
-    await _startWatch();
+    await _startWatch(skipDisclosure: true);
   }
 
   Widget _progressCard() {

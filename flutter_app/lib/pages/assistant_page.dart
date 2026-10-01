@@ -7,6 +7,7 @@ import '../services/local_store.dart';
 import '../services/location_service.dart';
 import '../state/app_state.dart';
 import '../util/nav.dart';
+import '../widgets/location_disclosure.dart';
 
 class AssistantPage extends StatefulWidget {
   const AssistantPage({super.key});
@@ -194,6 +195,7 @@ class _AssistantPageState extends State<AssistantPage> {
 
   Future<String?> _nearestStopName(AppState state) async {
     if (state.stops.isEmpty) return null;
+    if (!await showLocationDisclosure(context, background: false)) return null;
     final p = await LocationService.instance.currentPosition();
     if (p == null) return null;
     BusStop nearest = state.stops.first;

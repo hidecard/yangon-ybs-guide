@@ -8,6 +8,7 @@ import '../services/location_service.dart';
 import '../theme.dart';
 import '../util/nav.dart';
 import '../widgets/route_badge.dart';
+import '../widgets/location_disclosure.dart';
 
 class StopDetailPage extends StatefulWidget {
   final BusStop stop;
@@ -218,6 +219,7 @@ class _StopDetailPageState extends State<StopDetailPage> {
   }
 
   Future<void> _openWalkingDirections(BusStop stop) async {
+    if (!await showLocationDisclosure(context, background: false)) return;
     final position = await LocationService.instance.currentPosition();
     if (!mounted) return;
     if (position == null) {
