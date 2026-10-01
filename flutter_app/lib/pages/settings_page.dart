@@ -776,10 +776,10 @@ class _PrivacySection extends StatelessWidget {
               'Favorite၊ saved trip နှင့် recent search များကို ဖုန်းထဲတွင်သာ သိမ်းထားပြီး Settings မှ ဖျက်နိုင်ပါသည်။',
             ),
             _privacy(
-              'Near Me၊ map နှင့် Arrival Alert အတွက် location ကို အသုံးပြုပါသည်။ လက်ရှိ app implementation တွင် GPS ကို server သို့ မပို့ပါ။',
+              'Location permission မတောင်းမီ app ထဲတွင် အသုံးပြုပုံကို ရှင်းပြပြီး သဘောတူညီချက် တောင်းပါသည်။ Near Me၊ map၊ live tracking၊ လမ်းလျှောက်လမ်းညွှန်နှင့် Arrival Alert အတွက် သင့်ဖုန်း၏ တိကျသော location ကို အသုံးပြုပါသည်။ GPS ကို server သို့ မပို့၊ မရောင်း၊ third party နှင့် မမျှဝေပါ။',
             ),
             _privacy(
-              'Arrival Alert ကို ဖွင့်ထားချိန်တွင်သာ background location service အလုပ်လုပ်ပြီး ခရီးပြီးလျှင် ရပ်ပေးပါသည်။',
+              'Arrival Alert ကို သင်ကိုယ်တိုင် ဖွင့်ထားချိန်တွင်သာ app နောက်ကွယ်နှင့် screen ပိတ်ထားချိန်၌ background location service အလုပ်လုပ်ပြီး alert ပြီးလျှင် ရပ်ပေးပါသည်။',
             ),
             _privacy(
               'Live estimate နှင့် bus update အတွက် route ID/request data ကို API သို့ ပို့နိုင်ပါသည်။',

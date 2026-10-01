@@ -4435,6 +4435,29 @@ const BusUpdatesFeed: React.FC<{
   );
 };
 
+const PrivacyPolicyPage: React.FC = () => (
+  <article className="max-w-3xl mx-auto px-5 py-10 pb-20 prose prose-slate">
+    <p className="text-sm text-slate-500">Last updated: 1 October 2026</p>
+    <h1>YBS AI Privacy Policy</h1>
+    <p>YBS AI is a Yangon bus-route guide. This policy explains what the app accesses, stores, uses, and shares.</p>
+    <h2>Location data</h2>
+    <p><strong>Before requesting location permission, the app shows an in-app disclosure and asks for your explicit consent.</strong></p>
+    <p>When you choose Near Me, map picking, live tracking, walking directions, or an arrival alert, YBS AI accesses and uses your device's precise location.</p>
+    <ul>
+      <li><strong>Why:</strong> to find nearby bus stops, show your position on a map, calculate route distance, and notify you when an arrival-alert stop is near.</li>
+      <li><strong>How:</strong> location is used to calculate distances and alert status on the device.</li>
+      <li><strong>Background access:</strong> used only while you explicitly enable Arrival Alert, including when the app is in the background or the screen is off. The service stops when the alert is cleared or completed.</li>
+      <li><strong>Sharing:</strong> GPS coordinates are not sent to the YBS application API, sold, or shared with third parties.</li>
+    </ul>
+    <h2>Data stored on the device</h2>
+    <p>Route and stop data, favorites, saved trips, recent searches, notification state, and an active arrival-alert queue may be stored locally to provide the corresponding features.</p>
+    <h2>Network requests</h2>
+    <p>The app may contact the YBS service for route refreshes, bus-position updates, arrival estimates, notifications, and feedback links. Requests contain feature-related route or request parameters, not GPS coordinates.</p>
+    <h2>Notifications and deletion</h2>
+    <p>If you grant notification permission or enable Arrival Alert, the app may display a local notification, vibrate, or speak an arrival message. Local data can be removed from Settings or by clearing app storage. Contact <a href="mailto:info@arkaryan.net">info@arkaryan.net</a> with privacy questions or deletion requests.</p>
+  </article>
+);
+
 const App: React.FC = () => {
   const [stops, setStops] = useState<BusStop[]>([]);
   const [routes, setRoutes] = useState<BusRoute[]>([]);
@@ -4522,6 +4545,7 @@ const App: React.FC = () => {
       <Header />
       <main className="flex-1 relative">
         <Routes>
+          <Route path="/privacy" element={<PrivacyPolicyPage />} />
           <Route path="/" element={<HomePage stops={stops} routes={routes} onRouteClick={setActiveRoute} />} />
           <Route path="/routes" element={
             <RoutesPage 

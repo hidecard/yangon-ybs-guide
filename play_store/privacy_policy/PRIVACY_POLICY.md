@@ -1,6 +1,6 @@
 # YBS AI Privacy Policy
 
-**Last updated:** 27 August 2026
+**Last updated:** 1 October 2026
 
 YBS AI is a Yangon bus-route guide. This policy describes what the current application stores, what it sends over the network, and how users can control or delete local data.
 
@@ -10,7 +10,7 @@ The application stores route and stop data locally so route search can continue 
 
 ## Location data
 
-Location permission is optional. When the user selects Near Me, map picking, live tracking, or an arrival alert, the application may read the device location to find a nearby stop, display the user on a map, or calculate distance to the selected stop. The current implementation does not send GPS coordinates to the application API. Background location is requested only for an explicitly enabled arrival alert and the foreground service stops when the alert queue is cleared or completed.
+Location permission is optional. Before requesting it, YBS AI shows an in-app disclosure and asks for the user's explicit consent. When the user selects Near Me, map picking, live tracking, walking directions, or an arrival alert, the application accesses and uses the device's precise location to find a nearby stop, display the user on a map, or calculate distance to the selected stop. The current implementation does not send GPS coordinates to the application API, sell them, or share them with third parties. Background location is requested only for an explicitly enabled arrival alert and the foreground service stops when the alert queue is cleared or completed.
 
 ## Network requests
 

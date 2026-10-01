@@ -462,6 +462,23 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
+                Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.blueLight,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: const Text(
+                    'Location data disclosure: YBS AI သည် Near Me၊ live tracking နှင့် Arrival Alert အတွက် သင့်ဖုန်း၏ တိကျသော location ကို အသုံးပြုပါသည်။ Arrival Alert ဖွင့်ထားလျှင် app နောက်ကွယ်နှင့် screen ပိတ်ထားချိန်တွင်ပါ မှတ်တိုင်နီးကပ်မှုတွက်ချက်ရန် အသုံးပြုနိုင်ပါသည်။ GPS ကို server သို့ မပို့၊ မရောင်း၊ third party နှင့် မမျှဝေပါ။ ဆက်လုပ်ရန် အောက်ပါ feature ကို ရွေးချယ်ပြီး သဘောတူညီချက်ပေးပါ။',
+                    style: TextStyle(
+                      fontSize: 12,
+                      height: 1.4,
+                      color: AppColors.slate700,
+                    ),
+                  ),
+                ),
                 if (_arrivalMessage != null)
                   Container(
                     margin: const EdgeInsets.only(bottom: 12),

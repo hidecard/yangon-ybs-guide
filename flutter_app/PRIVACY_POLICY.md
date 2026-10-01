@@ -1,6 +1,6 @@
 # YBS AI Privacy Policy
 
-**Last updated:** 27 August 2026
+**Last updated:** 1 October 2026
 
 YBS AI is a Yangon bus-route guide. This policy describes what the current application stores, what it sends over the network, and how users can control or delete local data.
 
