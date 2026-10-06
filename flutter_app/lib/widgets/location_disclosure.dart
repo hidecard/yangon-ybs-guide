@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Shows the in-app disclosure required before requesting location access.
-///
-/// This is intentionally shown immediately before the Android permission flow,
-/// rather than relying on the privacy policy or Play listing.
+/// Shows the in-app prominent disclosure immediately before location permission.
 Future<bool> showLocationDisclosure(
   BuildContext context, {
   required bool background,
@@ -12,18 +9,20 @@ Future<bool> showLocationDisclosure(
     context: context,
     barrierDismissible: false,
     builder: (dialogContext) => AlertDialog(
-      title: const Text('Location data အသုံးပြုမှု'),
+      title: const Text('Location data use'),
       content: SingleChildScrollView(
         child: Text(
           background
-              ? 'YBS AI accesses and uses your precise device location while the app is in use, in the background, or the screen is off.\n\n'
-                    'Why: Arrival Alert အတွက် သင်ရွေးချယ်ထားသော မှတ်တိုင်အနီးရောက်သောအခါ အသိပေးရန် ဖြစ်ပါသည်။\n\n'
-                    'What: သင့်ဖုန်း၏ တိကျသော location data ကို အသုံးပြုပါသည်။\n\n'
-                    'How: လက်ရှိတည်နေရာနှင့် ရွေးချယ်ထားသောမှတ်တိုင်အကြား အကွာအဝေးတွက်ချက်ပြီး alert ပြရန် ဖုန်းပေါ်တွင် အသုံးပြုပါသည်။ Location data ကို server သို့ မပို့ပါ၊ မရောင်းပါ၊ third party နှင့် မမျှဝေပါ။ Arrival Alert ကို ပိတ်လိုက်သည်နှင့် background location service ရပ်ပါမည်။'
-              : 'YBS AI accesses and uses your precise device location while you use Near Me, maps, route search, or walking directions.\n\n'
-                    'Why: အနီးဆုံးမှတ်တိုင်ရှာရန်၊ မြေပုံပေါ်တွင် သင့်တည်နေရာပြရန်နှင့် လမ်းကြောင်းတွက်ချက်ရန် ဖြစ်ပါသည်။\n\n'
-                    'What: သင့်ဖုန်း၏ တိကျသော location data ကို အသုံးပြုပါသည်။\n\n'
-                    'How: သင့်တည်နေရာကို ဖုန်းပေါ်တွင် လမ်းကြောင်းနှင့် အကွာအဝေးတွက်ချက်ရန် အသုံးပြုပါသည်။ Location data ကို server သို့ မပို့ပါ၊ မရောင်းပါ၊ third party နှင့် မမျှဝေပါ။',
+              ? 'YBS AI collects and uses your precise device location while the app is in use, in the background, or when the screen is off.\n\n'
+                    'Why: to calculate your distance from the selected bus stop and send an Arrival Alert when you are nearby.\n\n'
+                    'How: location is processed on your device for distance and alert calculations. Background location is used only while you have explicitly enabled Arrival Alert and stops when the alert is cleared or completed.\n\n'
+                    'Sharing: GPS coordinates are not sent to our API, sold, or shared with third parties.\n\n'
+                    'မြန်မာ: Arrival Alert ဖွင့်ထားချိန်တွင် app နောက်ကွယ်နှင့် screen ပိတ်ထားချိန်၌ မှတ်တိုင်နီးကပ်မှုတွက်ချက်ရန် location ကို အသုံးပြုပါသည်။ GPS ကို server သို့ မပို့ပါ၊ မရောင်းပါ၊ third party နှင့် မမျှဝေပါ။'
+              : 'YBS AI collects and uses your precise device location when you choose Near Me, map picking, live tracking, route search, or walking directions.\n\n'
+                    'Why: to find nearby bus stops, show your position on a map, calculate route distance, and provide walking directions.\n\n'
+                    'How: location is processed on your device for nearby-stop, map, route, and distance calculations.\n\n'
+                    'Sharing: GPS coordinates are not sent to our API, sold, or shared with third parties.\n\n'
+                    'မြန်မာ: အနီးဆုံးမှတ်တိုင်ရှာရန်၊ မြေပုံပေါ်တွင် တည်နေရာပြရန်နှင့် အကွာအဝေးတွက်ရန် location ကို အသုံးပြုပါသည်။ GPS ကို server သို့ မပို့ပါ။',
           style: const TextStyle(height: 1.45),
         ),
       ),

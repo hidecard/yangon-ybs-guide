@@ -413,6 +413,28 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
       ),
       body: Column(
         children: [
+          Container(
+            width: double.infinity,
+            margin: const EdgeInsets.fromLTRB(12, 10, 12, 8),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.blueLight,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.border, width: 1.2),
+            ),
+            child: const Text(
+              'LOCATION DATA USE / တည်နေရာဒေတာအသုံးပြုမှု\n\n'
+              'YBS AI collects and uses your precise device location when you choose GPS, live tracking, or Arrival Alert. We use it to find nearby bus stops, show your position, calculate distance, and notify you when you are near your selected stop.\n\n'
+              'When Arrival Alert is enabled, location may be used in the background or while the screen is off. GPS is processed on your device and is not sent to our API, sold, or shared with third parties. Tap the feature below to review this disclosure and give consent before permission is requested.\n\n'
+              'သင်သဘောတူပြီး permission ပေးမှသာ location ကို အသုံးပြုပါမည်။',
+              style: TextStyle(
+                fontSize: 12,
+                height: 1.4,
+                fontWeight: FontWeight.w500,
+                color: AppColors.slate700,
+              ),
+            ),
+          ),
           SizedBox(
             height: 340,
             child: Stack(
@@ -462,23 +484,6 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.blueLight,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.border),
-                  ),
-                  child: const Text(
-                    'Location data disclosure: YBS AI သည် Near Me၊ live tracking နှင့် Arrival Alert အတွက် သင့်ဖုန်း၏ တိကျသော location ကို အသုံးပြုပါသည်။ Arrival Alert ဖွင့်ထားလျှင် app နောက်ကွယ်နှင့် screen ပိတ်ထားချိန်တွင်ပါ မှတ်တိုင်နီးကပ်မှုတွက်ချက်ရန် အသုံးပြုနိုင်ပါသည်။ GPS ကို server သို့ မပို့၊ မရောင်း၊ third party နှင့် မမျှဝေပါ။ ဆက်လုပ်ရန် အောက်ပါ feature ကို ရွေးချယ်ပြီး သဘောတူညီချက်ပေးပါ။',
-                    style: TextStyle(
-                      fontSize: 12,
-                      height: 1.4,
-                      color: AppColors.slate700,
-                    ),
-                  ),
-                ),
                 if (_arrivalMessage != null)
                   Container(
                     margin: const EdgeInsets.only(bottom: 12),
