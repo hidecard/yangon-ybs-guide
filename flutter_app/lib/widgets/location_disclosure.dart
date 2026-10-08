@@ -87,6 +87,7 @@ class _LocationDisclosureGateState extends State<LocationDisclosureGate> {
     if (!mounted || _checked) return;
     _checked = true;
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     if (prefs.getBool(_locationDisclosureAcceptedKey) == true) return;
     final accepted = await showLocationDisclosure(context, background: true);
     if (accepted) {
