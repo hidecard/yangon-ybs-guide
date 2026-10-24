@@ -16,7 +16,6 @@ import '../util/nav.dart';
 import '../widgets/modals.dart';
 import '../widgets/osm_map.dart';
 import '../widgets/route_badge.dart';
-import '../widgets/location_disclosure.dart';
 
 class RouteDetailPage extends StatefulWidget {
   final BusRoute route;
@@ -147,7 +146,6 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
   }
 
   void _startTracking() async {
-    if (!await showLocationDisclosure(context, background: false)) return;
     if (!await LocationService.instance.ensurePermission()) return;
     _posSub?.cancel();
     _posSub = LocationService.instance.watchPosition().listen((p) {

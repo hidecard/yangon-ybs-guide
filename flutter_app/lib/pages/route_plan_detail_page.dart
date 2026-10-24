@@ -16,7 +16,6 @@ import '../state/app_state.dart';
 import '../theme.dart';
 import '../widgets/osm_map.dart';
 import '../widgets/route_badge.dart';
-import '../widgets/location_disclosure.dart';
 
 class RoutePlanDetailPage extends StatefulWidget {
   final List<PathStep> steps;
@@ -63,12 +62,8 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
     super.dispose();
   }
 
-  Future<void> _startWatch({bool skipDisclosure = false}) async {
+  Future<void> _startWatch() async {
     if (_posSub != null) return;
-    if (!skipDisclosure &&
-        !await showLocationDisclosure(context, background: false)) {
-      return;
-    }
     if (!await LocationService.instance.ensurePermission()) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -413,28 +408,6 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
       ),
       body: Column(
         children: [
-          Container(
-            width: double.infinity,
-            margin: const EdgeInsets.fromLTRB(12, 10, 12, 8),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.blueLight,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.border, width: 1.2),
-            ),
-            child: const Text(
-              'LOCATION DATA USE / တည်နေရာဒေတာအသုံးပြုမှု\n\n'
-              'YBS AI collects and uses your precise device location when you choose GPS, live tracking, or Arrival Alert. We use it to find nearby bus stops, show your position, calculate distance, and notify you when you are near your selected stop.\n\n'
-              'When Arrival Alert is enabled, location may be used in the background or while the screen is off. GPS is processed on your device and is not sent to our API, sold, or shared with third parties. Tap the feature below to review this disclosure and give consent before permission is requested.\n\n'
-              'သင်သဘောတူပြီး permission ပေးမှသာ location ကို အသုံးပြုပါမည်။',
-              style: TextStyle(
-                fontSize: 12,
-                height: 1.4,
-                fontWeight: FontWeight.w500,
-                color: AppColors.slate700,
-              ),
-            ),
-          ),
           SizedBox(
             height: 340,
             child: Stack(
@@ -537,7 +510,6 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
       await _stopWatch();
       return;
     }
-    if (!await showLocationDisclosure(context, background: true)) return;
     final permissionGranted = await LocationService.instance.ensurePermission();
     if (!permissionGranted) {
       if (mounted) {
@@ -554,7 +526,7 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
     await NotifyService.instance.requestPermission();
     if (!mounted) return;
     setState(() => _arrivalEnabled = true);
-    await _startWatch(skipDisclosure: true);
+    await _startWatch();
   }
 
   Widget _progressCard() {

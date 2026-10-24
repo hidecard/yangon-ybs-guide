@@ -8,7 +8,6 @@ import '../models.dart';
 import '../services/location_service.dart';
 import '../state/app_state.dart';
 import '../widgets/osm_map.dart';
-import '../widgets/location_disclosure.dart';
 
 /// Pick a stop by panning the map; shows stops within 1km of center.
 class MapPickerPage extends StatefulWidget {
@@ -50,7 +49,6 @@ class _MapPickerPageState extends State<MapPickerPage> {
   }
 
   Future<void> _locate() async {
-    if (!await showLocationDisclosure(context, background: false)) return;
     setState(() => _locating = true);
     final p = await LocationService.instance.currentPosition();
     if (!mounted) return;
