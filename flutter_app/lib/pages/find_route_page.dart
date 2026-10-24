@@ -478,7 +478,7 @@ class _FindRoutePageState extends State<FindRoutePage> {
     BuildContext context,
     SearchResult res,
     Map<String, BusStop> stopByName,
-    {bool isRecommended = false},
+    {bool isRecommended = false}
   ) {
     final first = res.steps.first;
     final last = res.steps.last;
