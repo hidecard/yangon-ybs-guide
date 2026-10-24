@@ -15,6 +15,25 @@ double getDistance(double lat1, double lon1, double lat2, double lon2) {
   return R * c;
 }
 
+/// Calculates the geographic distance covered by each leg of a planned trip.
+/// Shared by the search UI and the assistant so direct routes are not shown as
+/// zero-distance results.
+double calculatePathDistance(List<PathStep> path, List<BusStop> allStops) {
+  final byName = <String, BusStop>{};
+  for (final stop in allStops) {
+    byName.putIfAbsent(stop.nameMm, () => stop);
+  }
+  var total = 0.0;
+  for (final step in path) {
+    final from = byName[step.fromStop];
+    final to = byName[step.toStop];
+    if (from != null && to != null) {
+      total += getDistance(from.lat, from.lng, to.lat, to.lng);
+    }
+  }
+  return total;
+}
+
 /// BFS route planner (max 2 transfers), mirrors performBFS in App.tsx.
 List<SearchResult> performBFS(
   String start,

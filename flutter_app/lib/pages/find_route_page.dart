@@ -153,11 +153,27 @@ class _FindRoutePageState extends State<FindRoutePage> {
                       ),
                     ],
                     transferCount: 0,
-                    totalDistance: 0,
+                    totalDistance: calculatePathDistance(
+                      [
+                        PathStep(
+                          route: r,
+                          fromStop: _start.trim(),
+                          toStop: _end.trim(),
+                        ),
+                      ],
+                      state.stops,
+                    ),
                   ),
                 )
                 .toList()
           : performBFS(_start.trim(), _end.trim(), state.routes, state.stops);
+      found.sort((a, b) {
+        final transfers = a.transferCount.compareTo(b.transferCount);
+        if (transfers != 0) return transfers;
+        final distance = a.totalDistance.compareTo(b.totalDistance);
+        if (distance != 0) return distance;
+        return a.steps.length.compareTo(b.steps.length);
+      });
       if (!mounted) return;
       setState(() {
         _results = found;
@@ -389,7 +405,14 @@ class _FindRoutePageState extends State<FindRoutePage> {
           ),
         ),
         const SizedBox(height: 16),
-        ..._results.map((r) => _resultCard(context, r, stopByName)),
+        ..._results.asMap().entries.map(
+          (entry) => _resultCard(
+            context,
+            entry.value,
+            stopByName,
+            isRecommended: entry.key == 0,
+          ),
+        ),
         if (_results.isEmpty && _hasSearched && !_searching)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 40),
@@ -455,6 +478,7 @@ class _FindRoutePageState extends State<FindRoutePage> {
     BuildContext context,
     SearchResult res,
     Map<String, BusStop> stopByName,
+    {bool isRecommended = false},
   ) {
     final first = res.steps.first;
     final last = res.steps.last;
@@ -473,9 +497,18 @@ class _FindRoutePageState extends State<FindRoutePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Expanded(
+              Row(
+                children: [
+                  if (isRecommended) ...[
+                    const Pill(
+                      'အကောင်းဆုံးရွေးချယ်မှု',
+                      bg: AppColors.brandLight,
+                      fg: AppColors.brandHover,
+                      icon: Icons.star,
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                  Expanded(
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
@@ -519,6 +552,28 @@ class _FindRoutePageState extends State<FindRoutePage> {
               ],
             ),
             const SizedBox(height: 12),
+            Text(
+              res.transferCount == 0
+                  ? 'တိုက်ရိုက်စီးနိုင်သော လမ်းကြောင်း'
+                  : '${res.transferCount} ကြိမ် ကားပြောင်းစီးရမည့် လမ်းကြောင်း',
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: AppColors.slate600,
+              ),
+            ),
+            if (res.totalDistance > 0)
+              Padding(
+                padding: const EdgeInsets.only(top: 3),
+                child: Text(
+                  'ခန့်မှန်းအကွာအဝေး ${res.totalDistance.toStringAsFixed(1)} km',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: AppColors.slate400,
+                  ),
+                ),
+              ),
+            const SizedBox(height: 8),
             ...res.steps.map((step) {
               final isFirstStep = step == first;
               final isLastStep = step == last;
@@ -673,6 +728,17 @@ class _StopFieldState extends State<_StopField> {
                   minWidth: 12,
                   maxWidth: 12,
                 ),
+                suffixIcon: controller.text.isEmpty
+                    ? null
+                    : IconButton(
+                        tooltip: 'ဖျက်ရန်',
+                        icon: const Icon(Icons.clear, size: 18),
+                        onPressed: () {
+                          controller.clear();
+                          widget.onChanged(null);
+                          widget.onTextChanged?.call('');
+                        },
+                      ),
               ),
               onChanged: (v) => widget.onTextChanged?.call(v),
             );

@@ -36,32 +36,19 @@ class _AssistantPageState extends State<AssistantPage> {
 
   void _loadSuggestions() {
     final state = context.read<AppState>();
-    final stops = state.stops;
-    if (stops.isEmpty) return;
-
     final seen = <String>{};
-    final picks = <String>[];
-
-    for (final s in stops) {
-      final name = s.nameMm.trim();
-      if (name.isEmpty || seen.contains(name)) continue;
-      seen.add(name);
-      picks.add(name);
-      if (picks.length >= 20) break;
+    final suggestions = <String>[];
+    for (final route in state.routes) {
+      if (route.stops.length < 2) continue;
+      final a = route.stops.first.trim();
+      final b = route.stops.last.trim();
+      if (a.isEmpty || b.isEmpty || a == b) continue;
+      final prompt = '$a ကနေ $b ကို';
+      if (seen.add(prompt)) suggestions.add(prompt);
+      if (suggestions.length >= 4) break;
     }
-
-    if (picks.length >= 2 && mounted) {
-      final suggestions = <String>[];
-      for (int i = 0; i < picks.length && suggestions.length < 4; i++) {
-        final a = picks[i];
-        final b = picks[(i + 3) % picks.length];
-        if (a != b) {
-          suggestions.add('$a ကနေ $b ကို');
-        }
-      }
-      if (suggestions.isNotEmpty) {
-        setState(() => _suggestions = suggestions);
-      }
+    if (suggestions.isNotEmpty && mounted) {
+      setState(() => _suggestions = suggestions);
     }
   }
 
@@ -156,7 +143,10 @@ class _AssistantPageState extends State<AssistantPage> {
                 (r) => SearchResult(
                   steps: [PathStep(route: r, fromStop: start!, toStop: end!)],
                   transferCount: 0,
-                  totalDistance: 0,
+                  totalDistance: calculatePathDistance(
+                    [PathStep(route: r, fromStop: start, toStop: end)],
+                    state.stops,
+                  ),
                 ),
               )
               .toList()
@@ -166,8 +156,15 @@ class _AssistantPageState extends State<AssistantPage> {
     if (found.isNotEmpty) {
       final directCount = found.where((r) => r.transferCount == 0).length;
       final transferCount = found.length - directCount;
+      final best = found.first;
       final summary = [
         '$start မှ $end သို့ စီးရမည့် လမ်းကြောင်း ${found.length} ခု တွေ့ပါတယ်။',
+        if (best.transferCount == 0)
+          'အကောင်းဆုံး: YBS ${best.steps.first.route.id} တိုက်ရိုက်စီးနိုင်ပါတယ်။'
+        else
+          'အကောင်းဆုံးလမ်းကြောင်းမှာ ${best.transferCount} ကြိမ် ကားပြောင်းစီးရပါမယ်။',
+        if (best.totalDistance > 0)
+          'ခန့်မှန်းအကွာအဝေး ${best.totalDistance.toStringAsFixed(1)} km ဖြစ်ပါတယ်။',
         if (directCount > 0) '• တိုက်ရိုက် လိုင်း $directCount ခု',
         if (transferCount > 0)
           '• ကားပြောင်းစီးရမည့် လမ်းကြောင်း $transferCount ခု',
