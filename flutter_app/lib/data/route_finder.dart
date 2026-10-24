@@ -34,6 +34,16 @@ double calculatePathDistance(List<PathStep> path, List<BusStop> allStops) {
   return total;
 }
 
+BusRoute reversedBusRoute(BusRoute route) => BusRoute(
+  id: route.id,
+  color: route.color,
+  operator: route.operator,
+  lineName: route.lineName,
+  qrPayment: route.qrPayment,
+  stops: route.stops.reversed.toList(growable: false),
+  stopsDetailed: route.stopsDetailed.reversed.toList(growable: false),
+);
+
 /// BFS route planner (max 2 transfers), mirrors performBFS in App.tsx.
 List<SearchResult> performBFS(
   String start,

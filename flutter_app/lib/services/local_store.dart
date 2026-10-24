@@ -18,6 +18,17 @@ class LocalStore {
   static const _tripHistoryKey = 'ybs_trip_history';
   static const _savedTripsKey = 'ybs_saved_trips';
   static const _lastSeenNotifKey = 'ybs_notifications_last_seen';
+  static const _vibrationEnabledKey = 'ybs_vibration_enabled';
+
+  Future<bool> vibrationEnabled() async {
+    final p = await _p;
+    return p.getBool(_vibrationEnabledKey) ?? true;
+  }
+
+  Future<void> setVibrationEnabled(bool enabled) async {
+    final p = await _p;
+    await p.setBool(_vibrationEnabledKey, enabled);
+  }
 
   // ---- Favorite routes ----
   Future<Set<String>> favRoutes() async {

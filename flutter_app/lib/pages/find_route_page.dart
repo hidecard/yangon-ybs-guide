@@ -40,6 +40,7 @@ class _FindRoutePageState extends State<FindRoutePage> {
   bool _searching = false;
   bool _hasSearched = false;
   bool _locating = false;
+  bool _includeReturn = true;
 
   @override
   void initState() {
@@ -141,32 +142,86 @@ class _FindRoutePageState extends State<FindRoutePage> {
 
       // Show each directly-serving bus line as its own result card so the user
       // can pick one route at a time.
-      final found = direct.isNotEmpty
-          ? direct
-                .map(
-                  (r) => SearchResult(
-                    steps: [
-                      PathStep(
-                        route: r,
-                        fromStop: _start.trim(),
-                        toStop: _end.trim(),
-                      ),
-                    ],
-                    transferCount: 0,
-                    totalDistance: calculatePathDistance(
-                      [
-                        PathStep(
-                          route: r,
+      final directReturn = _includeReturn
+          ? await state.repo.findDirectRoutes(
+              _end.trim(),
+              _start.trim(),
+              startStop: _endStop,
+              endStop: _startStop,
+            )
+          : const <BusRoute>[];
+      final found = <SearchResult>[];
+      void addDirect(BusRoute route, {required bool isReturn}) {
+        final plan = PathStep(
+          route: isReturn ? reversedBusRoute(route) : route,
+          fromStop: _start.trim(),
+          toStop: _end.trim(),
+          isReturn: isReturn,
+        );
+        found.add(
+          SearchResult(
+            steps: [plan],
+            transferCount: 0,
+            totalDistance: calculatePathDistance([plan], state.stops),
+          ),
+        );
+      }
+      for (final route in direct) addDirect(route, isReturn: false);
+      for (final route in directReturn) addDirect(route, isReturn: true);
+      if (_includeReturn && directReturn.isEmpty) {
+        final reverseDirect = performBFS(
+          _end.trim(),
+          _start.trim(),
+          state.routes.map(reversedBusRoute).toList(),
+          state.stops,
+        ).where((result) => result.transferCount == 0);
+        for (final result in reverseDirect) {
+          final plan = result.steps
+              .map((step) => PathStep(
+                    route: step.route,
+                    fromStop: _start.trim(),
+                    toStop: _end.trim(),
+                    isReturn: true,
+                  ))
+              .toList();
+          found.add(
+            SearchResult(
+              steps: plan,
+              transferCount: result.transferCount,
+              totalDistance: calculatePathDistance(plan, state.stops),
+            ),
+          );
+        }
+      }
+      if (found.isEmpty) {
+        found.addAll(
+          performBFS(_start.trim(), _end.trim(), state.routes, state.stops),
+        );
+        if (_includeReturn) {
+          final reverse = performBFS(
+            _end.trim(),
+            _start.trim(),
+            state.routes.map(reversedBusRoute).toList(),
+            state.stops,
+          );
+          found.addAll(
+            reverse.map(
+              (result) => SearchResult(
+                steps: result.steps
+                    .map((step) => PathStep(
+                          route: step.route,
                           fromStop: _start.trim(),
                           toStop: _end.trim(),
-                        ),
-                      ],
-                      state.stops,
-                    ),
-                  ),
-                )
-                .toList()
-          : performBFS(_start.trim(), _end.trim(), state.routes, state.stops);
+                          isReturn: true,
+                        ))
+                    .toList(),
+                transferCount: result.transferCount,
+                totalDistance: result.totalDistance,
+              ),
+            ),
+          );
+        }
+      }
       found.sort((a, b) {
         final transfers = a.transferCount.compareTo(b.transferCount);
         if (transfers != 0) return transfers;
@@ -401,6 +456,20 @@ class _FindRoutePageState extends State<FindRoutePage> {
                   ),
                 ),
               ),
+              SwitchListTile.adaptive(
+                contentPadding: EdgeInsets.zero,
+                value: _includeReturn,
+                onChanged: (value) => setState(() => _includeReturn = value),
+                secondary: const Icon(Icons.swap_horiz, color: AppColors.brand),
+                title: const Text(
+                  'အသွား / အပြန် လမ်းကြောင်းပါ ရှာမည်',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                ),
+                subtitle: const Text(
+                  'တူညီသောကားလိုင်း၏ အခြားဘက်ဦးတည်ချက်ကိုလည်း ပြမည်',
+                  style: TextStyle(fontSize: 11),
+                ),
+              ),
             ],
           ),
         ),
@@ -508,6 +577,17 @@ class _FindRoutePageState extends State<FindRoutePage> {
                     ),
                     const SizedBox(width: 8),
                   ],
+                  Pill(
+                    res.steps.first.isReturn ? 'အပြန်လမ်း' : 'အသွားလမ်း',
+                    bg: res.steps.first.isReturn
+                        ? AppColors.amberLight
+                        : AppColors.brandLight,
+                    fg: res.steps.first.isReturn
+                        ? AppColors.brandHover
+                        : AppColors.brand,
+                    icon: Icons.swap_horiz,
+                  ),
+                  const SizedBox(width: 8),
                   Expanded(
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,

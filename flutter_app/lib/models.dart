@@ -103,23 +103,27 @@ class PathStep {
   final BusRoute route;
   final String fromStop;
   final String toStop;
+  final bool isReturn;
 
   const PathStep({
     required this.route,
     required this.fromStop,
     required this.toStop,
+    this.isReturn = false,
   });
 
   Map<String, dynamic> toJson() => {
     'route': route.toJson(),
     'from_stop': fromStop,
     'to_stop': toStop,
+    'is_return': isReturn,
   };
 
   factory PathStep.fromJson(Map<String, dynamic> j) => PathStep(
     route: BusRoute.fromJson(j['route'] as Map<String, dynamic>),
     fromStop: j['from_stop'] as String,
     toStop: j['to_stop'] as String,
+    isReturn: j['is_return'] == true,
   );
 }
 

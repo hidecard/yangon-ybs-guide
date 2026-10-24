@@ -7,6 +7,7 @@ import '../state/app_state.dart';
 import '../theme.dart';
 import '../widgets/modals.dart';
 import '../services/notify_service.dart';
+import '../services/local_store.dart';
 
 class SupportPage extends StatelessWidget {
   const SupportPage({super.key});
@@ -32,6 +33,13 @@ class SettingsPage extends StatelessWidget {
       'အကြောင်းကြားချက် ဆက်တင်',
       'App ပိတ်ထားသည့်တိုင် သတိပေးချက် ရောက်စေရန်',
       const _NotifSetupSection(),
+    ),
+    _Section(
+      Icons.vibration,
+      AppColors.brand,
+      'အသံနှင့် Vibration',
+      'မှတ်တိုင်ရောက်ခါနီး vibration ကို ဖွင့်/ပိတ်ရန်',
+      const _VibrationSection(),
     ),
     _Section(
       Icons.groups,
@@ -607,6 +615,89 @@ class _NotifSetupSection extends StatelessWidget {
   }
 }
 
+class _VibrationSection extends StatefulWidget {
+  const _VibrationSection();
+  @override
+  State<_VibrationSection> createState() => _VibrationSectionState();
+}
+
+class _VibrationSectionState extends State<_VibrationSection> {
+  bool _enabled = true;
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final value = await LocalStore.instance.vibrationEnabled();
+    if (mounted) setState(() { _enabled = value; _loading = false; });
+  }
+
+  Future<void> _setEnabled(bool value) async {
+    setState(() => _enabled = value);
+    await LocalStore.instance.setVibrationEnabled(value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SettingsSectionPage(
+      title: 'အသံနှင့် Vibration',
+      child: _card(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _cardHeader(
+              Icons.vibration,
+              AppColors.brand,
+              'Vibration ဆက်တင်',
+              'Arrival Alert ရောက်လာချိန် ဖုန်းတုန်မလား ရွေးချယ်ပါ',
+            ),
+            const SizedBox(height: 14),
+            Container(
+              decoration: BoxDecoration(
+                color: AppColors.bg,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: SwitchListTile.adaptive(
+                value: _enabled,
+                onChanged: _loading ? null : _setEnabled,
+                secondary: Icon(
+                  _enabled ? Icons.vibration : Icons.mobile_off,
+                  color: _enabled ? AppColors.brand : AppColors.slate400,
+                ),
+                title: const Text(
+                  'Arrival Alert Vibration',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: Text(
+                  _enabled ? 'မှတ်တိုင်နီးလျှင် ဖုန်းတုန်မည်' : 'ဖုန်းမတုန်ပါ',
+                  style: const TextStyle(fontSize: 12),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: _enabled
+                    ? () => NotifyService.instance.triggerArrival(
+                        'Vibration စမ်းသပ်မှု ဖြစ်ပါတယ်',
+                      )
+                    : null,
+                icon: const Icon(Icons.play_circle_outline),
+                label: const Text('Vibration စမ်းသပ်မည်'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 // ---------------- Team & Conditions ----------------
 class _TeamConditionsSection extends StatelessWidget {
   const _TeamConditionsSection();
@@ -728,6 +819,21 @@ class _AboutSection extends StatelessWidget {
             _link('Website', 'https://www.arkaryan.net/'),
             _link('Facebook', 'https://www.facebook.com/share/1d9kEym9Wq/'),
             _link('TikTok', 'https://www.tiktok.com/@ybs.ai.mm'),
+            const SizedBox(height: 14),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                style: FilledButton.styleFrom(backgroundColor: AppColors.amber),
+                onPressed: () => launchUrl(
+                  Uri.parse(
+                    'https://play.google.com/store/apps/details?id=net.arkaryan.ybs_ai',
+                  ),
+                  mode: LaunchMode.externalApplication,
+                ),
+                icon: const Icon(Icons.star_rate_rounded),
+                label: const Text('Play Store မှာ Rate ပေးမည်'),
+              ),
+            ),
             const SizedBox(height: 14),
             const Divider(),
             const SizedBox(height: 14),

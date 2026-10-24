@@ -736,6 +736,13 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
                   bg: AppColors.amberLight,
                   fg: AppColors.brandHover,
                 ),
+              if (st.isReturn)
+                const Pill(
+                  'အပြန်လမ်း',
+                  bg: AppColors.amberLight,
+                  fg: AppColors.brandHover,
+                  icon: Icons.swap_horiz,
+                ),
               if (isActive)
                 const Pill(
                   'လက်ရှိစီးရမည့်ကား',
@@ -914,6 +921,10 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
     }
     if (between.isEmpty) return const SizedBox.shrink();
 
+    final progress = _progressForActive();
+    final nextName = progress?.next?.nameMm;
+    final currentName = progress?.current.nameMm;
+
     return Container(
       margin: const EdgeInsets.only(top: 4, bottom: 8),
       padding: const EdgeInsets.all(16),
@@ -921,44 +932,147 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('ဖြတ်ရမည့်မှတ်တိုင်များ (${between.length})', style: UI.label),
-          const SizedBox(height: 10),
+          Row(
+            children: [
+              const Icon(Icons.alt_route, size: 18, color: AppColors.brand),
+              const SizedBox(width: 8),
+              Text('ရောက်မည့်မှတ်တိုင်များ (${between.length})', style: UI.label),
+            ],
+          ),
+          const SizedBox(height: 12),
           for (int i = 0; i < between.length; i++) ...[
-            Row(
+            _stopTimelineTile(
+              stop: between[i],
+              index: fromIdx + i + 2,
+              last: i == between.length - 1,
+              active: between[i].nameMm == nextName,
+              arrived: between[i].nameMm == currentName,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _stopTimelineTile({
+    required BusStop stop,
+    required int index,
+    required bool last,
+    required bool active,
+    required bool arrived,
+  }) {
+    final highlight = active || arrived;
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(
+            width: 30,
+            child: Column(
               children: [
                 Container(
-                  width: 22,
-                  height: 22,
-                  alignment: Alignment.center,
+                  width: highlight ? 15 : 12,
+                  height: highlight ? 15 : 12,
                   decoration: BoxDecoration(
-                    color: AppColors.slate100,
+                    color: active
+                        ? AppColors.rose
+                        : arrived
+                        ? AppColors.emerald
+                        : AppColors.slate300,
                     shape: BoxShape.circle,
-                  ),
-                  child: Text(
-                    '${fromIdx + i + 2}',
-                    style: const TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.slate500,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    between[i].nameMm,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    boxShadow: active
+                        ? const [
+                            BoxShadow(
+                              color: Color(0x55F43F5E),
+                              blurRadius: 0,
+                              spreadRadius: 5,
+                            ),
+                          ]
+                        : null,
                   ),
                 ),
+                if (!last)
+                  Expanded(child: Container(width: 2, color: AppColors.slate200)),
               ],
             ),
-            if (i < between.length - 1) const SizedBox(height: 8),
-          ],
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                decoration: BoxDecoration(
+                  color: active
+                      ? AppColors.roseLight
+                      : arrived
+                      ? AppColors.emeraldLight
+                      : Colors.white,
+                  borderRadius: BorderRadius.circular(14),
+                  border: highlight
+                      ? Border.all(
+                          color: active ? AppColors.rose : AppColors.emerald,
+                          width: 1.1,
+                        )
+                      : null,
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x0D000000),
+                      blurRadius: 8,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 25,
+                      height: 25,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: highlight ? Colors.white : AppColors.slate100,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        '$index',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: active ? AppColors.rose : AppColors.slate500,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        stop.nameMm,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: highlight ? FontWeight.w800 : FontWeight.w600,
+                          color: active ? AppColors.rose : AppColors.text,
+                        ),
+                      ),
+                    ),
+                    if (active)
+                      const Pill(
+                        'နီးပြီ',
+                        bg: AppColors.rose,
+                        fg: Colors.white,
+                        icon: Icons.near_me,
+                      )
+                    else if (arrived)
+                      const Pill(
+                        'ရောက်ပြီ',
+                        bg: AppColors.emerald,
+                        fg: Colors.white,
+                        icon: Icons.check,
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );

@@ -2,6 +2,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:vibration/vibration.dart';
 import 'api_service.dart';
+import 'local_store.dart';
 
 /// Local arrival alert: vibration + system notification + Burmese TTS.
 /// Mirrors triggerArrivalNotify() in the web app.
@@ -88,7 +89,8 @@ class NotifyService {
     await init();
     try {
       final hasVib = await Vibration.hasVibrator();
-      if (hasVib) {
+      final vibrationEnabled = await LocalStore.instance.vibrationEnabled();
+      if (hasVib && vibrationEnabled) {
         Vibration.vibrate(pattern: [0, 200, 120, 200]);
       }
     } catch (_) {}
