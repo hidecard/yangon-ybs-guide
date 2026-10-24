@@ -805,8 +805,11 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
             ? Border.all(color: const Color(0xFF86EFAC))
             : Border.all(color: Colors.transparent),
       ),
-      child: ListTile(
-        onTap: () => Nav.openStop(context, s),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+        child: ListTile(
+          onTap: () => Nav.openStop(context, s),
         leading: CircleAvatar(
           backgroundColor: isActive
               ? AppColors.emerald
@@ -859,13 +862,14 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
               ),
           ],
         ),
-        trailing: isActive
-            ? const Pill(
-                'လက်ရှိရောက်နေပါပြီ',
-                bg: Color(0xFFD1FAE5),
-                fg: AppColors.emeraldDark,
-              )
-            : const SizedBox.shrink(),
+          trailing: isActive
+              ? const Pill(
+                  'လက်ရှိရောက်နေပါပြီ',
+                  bg: Color(0xFFD1FAE5),
+                  fg: AppColors.emeraldDark,
+                )
+              : const SizedBox.shrink(),
+        ),
       ),
     );
   }
