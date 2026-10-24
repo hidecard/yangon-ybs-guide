@@ -166,8 +166,12 @@ class _FindRoutePageState extends State<FindRoutePage> {
           ),
         );
       }
-      for (final route in direct) addDirect(route, isReturn: false);
-      for (final route in directReturn) addDirect(route, isReturn: true);
+      for (final route in direct) {
+        addDirect(route, isReturn: false);
+      }
+      for (final route in directReturn) {
+        addDirect(route, isReturn: true);
+      }
       if (_includeReturn && directReturn.isEmpty) {
         final reverseDirect = performBFS(
           _end.trim(),
