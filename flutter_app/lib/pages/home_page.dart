@@ -13,6 +13,7 @@ import '../util/nav.dart';
 import '../pages/assistant_page.dart';
 import '../pages/find_route_page.dart';
 import '../pages/routes_page.dart';
+import '../pages/places_page.dart';
 import '../widgets/route_badge.dart';
 
 class HomePage extends StatefulWidget {
@@ -22,6 +23,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  NotificationItem? _latestNotification;
+
   @override
   void initState() {
     super.initState();
@@ -32,6 +35,7 @@ class _HomePageState extends State<HomePage> {
     final items = await ApiService.instance.fetchNotifications();
     if (items.isEmpty || !mounted) return;
     final latest = items.first;
+    setState(() => _latestNotification = latest);
     final lastSeen = await LocalStore.instance.lastSeenNotification();
     if (latest.id != lastSeen) {
       await LocalStore.instance.setLastSeenNotification(latest.id);
@@ -57,6 +61,12 @@ class _HomePageState extends State<HomePage> {
         'ကားလိုင်းများ',
         AppColors.brand,
         AppConfig.routesTab,
+      ),
+      (
+        Icons.place_outlined,
+        'လည်ပတ်စရာနေရာများ',
+        AppColors.emeraldDark,
+        -1,
       ),
       if (AppConfig.showYbsNew)
         (
@@ -98,6 +108,10 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         const SizedBox(height: 24),
+        if (_latestNotification != null) ...[
+          _notificationCard(_latestNotification!),
+          const SizedBox(height: 14),
+        ],
         GridView.count(
           crossAxisCount: 2,
           shrinkWrap: true,
@@ -115,6 +129,35 @@ class _HomePageState extends State<HomePage> {
         const SizedBox(height: 12),
         _RecentSearches(state: state),
       ],
+    );
+  }
+
+  Widget _notificationCard(NotificationItem item) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.amberLight,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.amber.withValues(alpha: 0.28)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.notifications_active_outlined, color: AppColors.amber),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('နောက်ဆုံး အသိပေးချက်', style: TextStyle(fontSize: 11, color: AppColors.amber, fontWeight: FontWeight.w700)),
+                const SizedBox(height: 3),
+                Text(item.title.isEmpty ? 'YBS AI' : item.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                if (item.message.isNotEmpty) Padding(padding: const EdgeInsets.only(top: 4), child: Text(item.message, style: const TextStyle(fontSize: 12, height: 1.35))),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -166,6 +209,12 @@ class _HomePageState extends State<HomePage> {
             child: RoutesPage(),
           ),
         ),
+      );
+      return;
+    }
+    if (tabIndex == -1) {
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => const PlacesPage()),
       );
       return;
     }

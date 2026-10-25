@@ -16,6 +16,7 @@ class AppConfig {
   /// We therefore use the current page origin on the web (works for
   /// `localhost:3000`, the Vercel deploy, or any host serving the app),
   /// and the deployed origin everywhere else (native apps hit it directly).
+  static const String placesApiBase = 'https://ybs.easyzaymm.com/api.php';
   static String get apiBase {
     if (kIsWeb) {
       // window.location.origin is e.g. "http://localhost:3000".

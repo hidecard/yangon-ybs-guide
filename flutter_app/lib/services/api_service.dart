@@ -170,6 +170,45 @@ const feedbackTypeLabels = <FeedbackType, String>{
 };
 
 // ----- Notifications -----
+class PlaceCategory {
+  final int id;
+  final String slug;
+  final String nameEn;
+  final String nameMy;
+  final String description;
+  const PlaceCategory({required this.id, required this.slug, required this.nameEn, required this.nameMy, required this.description});
+  factory PlaceCategory.fromJson(Map<String, dynamic> j) => PlaceCategory(
+    id: (j['id'] as num?)?.toInt() ?? 0,
+    slug: j['slug']?.toString() ?? '',
+    nameEn: j['name_en']?.toString() ?? j['nameEn']?.toString() ?? '',
+    nameMy: j['name_my']?.toString() ?? j['nameMy']?.toString() ?? '',
+    description: j['description']?.toString() ?? '',
+  );
+}
+class PlaceItem {
+  final int id;
+  final String name;
+  final String nameMy;
+  final String description;
+  final String category;
+  final String categoryName;
+  final double? lat;
+  final double? lng;
+  final String address;
+  final String nearbyStops;
+  final String busNumbers;
+  final String imageUrl;
+  final String actionUrl;
+  const PlaceItem({required this.id, required this.name, required this.nameMy, required this.description, required this.category, required this.categoryName, required this.lat, required this.lng, required this.address, required this.nearbyStops, required this.busNumbers, required this.imageUrl, required this.actionUrl});
+  static String _s(Map<String, dynamic> j, List<String> keys) { for (final k in keys) { final v=j[k]; if (v != null && v.toString().trim().isNotEmpty) return v.toString(); } return ''; }
+  static double? _d(Map<String, dynamic> j, List<String> keys) { for (final k in keys) { final v=j[k]; if (v is num) return v.toDouble(); final n=double.tryParse(v?.toString() ?? ''); if (n != null) return n; } return null; }
+  factory PlaceItem.fromJson(Map<String, dynamic> j) => PlaceItem(
+    id: (j['id'] as num?)?.toInt() ?? 0,
+    name: _s(j, ['name','name_en','title']), nameMy: _s(j, ['name_my','title_my','name']),
+    description: _s(j, ['description','description_my','body_my']), category: _s(j, ['category','category_slug','slug']), categoryName: _s(j, ['category_name_my','category_name','category_name_en']),
+    lat: _d(j, ['lat','latitude']), lng: _d(j, ['lng','longitude','lon']), address: _s(j, ['address','address_my']), nearbyStops: _s(j, ['nearby_stops','nearby_stop','stop_name']), busNumbers: _s(j, ['bus_numbers','bus_number']), imageUrl: _s(j, ['image_url','image']), actionUrl: _s(j, ['action_url','url']),
+  );
+}
 class NotificationItem {
   final int id;
   final String title;
@@ -184,11 +223,11 @@ class NotificationItem {
     required this.createdAt,
   });
   factory NotificationItem.fromJson(Map<String, dynamic> j) => NotificationItem(
-    id: (j['id'] as num).toInt(),
-    title: j['title']?.toString() ?? '',
-    message: j['message']?.toString() ?? '',
-    type: j['type']?.toString() ?? 'info',
-    createdAt: (j['createdAt'] as num?)?.toInt() ?? 0,
+    id: (j['id'] as num?)?.toInt() ?? 0,
+    title: j['title']?.toString() ?? j['title_my']?.toString() ?? '',
+    message: j['message']?.toString() ?? j['body_my']?.toString() ?? j['body']?.toString() ?? '',
+    type: j['type']?.toString() ?? j['notification_type']?.toString() ?? 'info',
+    createdAt: (j['createdAt'] as num?)?.toInt() ?? DateTime.tryParse(j['published_at']?.toString() ?? '')?.millisecondsSinceEpoch ?? 0,
   );
 }
 
@@ -349,16 +388,35 @@ class ApiService {
     }
   }
 
+  // ---- External categories and places ----
+  Uri _placesUri(String path, [Map<String, String>? params]) => Uri.parse('${AppConfig.placesApiBase}$path').replace(queryParameters: params);
+  Future<Map<String, dynamic>> _getPlaces(String path, [Map<String, String>? params]) async {
+    final res = await http.get(_placesUri(path, params), headers: {'Accept': 'application/json'}).timeout(const Duration(seconds: 15));
+    final decoded = json.decode(res.body);
+    if (res.statusCode >= 400) throw Exception('Places request failed');
+    return decoded is Map<String, dynamic> ? decoded : <String, dynamic>{};
+  }
+  Future<List<PlaceCategory>> fetchPlaceCategories() async {
+    try { final raw = (await _getPlaces('/categories'))['data']; return raw is List ? raw.whereType<Map>().map((e) => PlaceCategory.fromJson(Map<String,dynamic>.from(e))).toList() : const []; } catch (_) { return const []; }
+  }
+  Future<List<PlaceItem>> fetchPlaces({String? category, double? lat, double? lng, int? radiusMeters, String? stopName, String? busNumber}) async {
+    try {
+      final q = <String,String>{}; if (category?.isNotEmpty == true) q['category']=category!; if (lat != null) q['lat']='$lat'; if (lng != null) q['lng']='$lng'; if (radiusMeters != null) q['radius_m']='$radiusMeters'; if (stopName?.isNotEmpty == true) q['stop_name']=stopName!; if (busNumber?.isNotEmpty == true) q['bus_number']=busNumber!;
+      final raw = (await _getPlaces('/places', q))['data']; return raw is List ? raw.whereType<Map>().map((e) => PlaceItem.fromJson(Map<String,dynamic>.from(e))).toList() : const [];
+    } catch (_) { return const []; }
+  }
   // ---- Notifications ----
   Future<List<NotificationItem>> fetchNotifications() async {
     try {
-      final data = await _get('/api/notifications?limit=50');
-      final list = (data['notifications'] as List?) ?? [];
-      return list
-          .map((e) => NotificationItem.fromJson(e as Map<String, dynamic>))
-          .toList();
+      final data = await _getPlaces('/notifications');
+      final list = (data['data'] as List?) ?? (data['notifications'] as List?) ?? [];
+      return list.whereType<Map>().map((e) => NotificationItem.fromJson(Map<String, dynamic>.from(e))).toList();
     } catch (_) {
-      return [];
+      try {
+        final data = await _get('/api/notifications?limit=50');
+        final list = (data['notifications'] as List?) ?? (data['data'] as List?) ?? [];
+        return list.whereType<Map>().map((e) => NotificationItem.fromJson(Map<String, dynamic>.from(e))).toList();
+      } catch (_) { return []; }
     }
   }
 

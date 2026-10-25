@@ -9,6 +9,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:vibration/vibration.dart';
 
 import 'local_store.dart';
+import 'api_service.dart';
 
 /// Vibration pattern used for the arrival alert (ms): vibrate, pause, repeat.
 const _vibratePattern = [0, 400, 150, 400, 150, 400, 150, 400];
@@ -82,12 +83,6 @@ void onStart(ServiceInstance service) async {
     await tts.setSpeechRate(0.9);
   } catch (_) {}
 
-  // Hold a partial wake lock (via the native channel) so the periodic timer
-  // keeps firing and the vibration / notification are actually delivered
-  // while the device is asleep (screen off or app closed).
-  try {
-    await _wakeLockChannel.invokeMethod('acquire');
-  } catch (_) {}
 
   Future<void> vibrateStrong() async {
     try {
@@ -150,8 +145,9 @@ void onStart(ServiceInstance service) async {
     }
   }
 
-  // Poll loop runs only while an arrival alert is active. This is deliberately
-  // opt-in so the app does not keep GPS/wake-lock work running indefinitely.
+  // Admin notifications are polled independently of arrival alerts. The
+  // foreground service keeps this reliable while the app is backgrounded or
+  // its screen is off; GPS and the wake lock remain opt-in for arrival alerts.
   final batterySaver = await LocalStore.instance.arrivalBatterySaver();
   final pollInterval = batterySaver
       ? const Duration(seconds: 60)
@@ -159,16 +155,38 @@ void onStart(ServiceInstance service) async {
   final distanceMeters = await LocalStore.instance.arrivalAlertDistanceMeters();
   final arrivalThresholdKm = distanceMeters / 1000;
   Timer.periodic(pollInterval, (timer) async {
-    // ---- Active arrival alert ----
+    // ---- Admin notifications ----
+    try {
+      final items = await ApiService.instance.fetchNotifications();
+      if (items.isNotEmpty) {
+        final latest = items.first;
+        final lastSeen = await LocalStore.instance.lastSeenNotification();
+        if (latest.id != lastSeen) {
+          await LocalStore.instance.setLastSeenNotification(latest.id);
+          await plugin.show(
+            DateTime.now().millisecondsSinceEpoch ~/ 1000,
+            latest.title.isEmpty ? 'YBS AI' : latest.title,
+            latest.message,
+            const NotificationDetails(
+              android: AndroidNotificationDetails(
+                'ybs_admin', 'Admin Notifications',
+                channelDescription: 'Important announcements from YBS AI',
+                importance: Importance.high, priority: Priority.high,
+              ),
+              iOS: DarwinNotificationDetails(),
+            ),
+          );
+        }
+      }
+    } catch (_) {}
+
+    // ---- Active arrival alert (optional) ----
     final alert = await LocalStore.instance.getBackgroundAlert();
     if (alert == null) {
-      timer.cancel();
       await _releaseWakeLock();
-      if (service is AndroidServiceInstance) {
-        await service.stopSelf();
-      }
       return;
     }
+    try { await _wakeLockChannel.invokeMethod('acquire'); } catch (_) {}
 
     // Already fired once -> keep monitoring but don't re-alert.
     if (alert['alerted'] == true) return;
@@ -257,8 +275,8 @@ Future<void> initBackgroundAlertService() async {
   await service.configure(
     androidConfiguration: AndroidConfiguration(
       onStart: onStart,
-      autoStart: false,
-      autoStartOnBoot: false,
+      autoStart: true,
+      autoStartOnBoot: true,
       isForegroundMode: true,
       notificationChannelId: 'ybs_bg',
       initialNotificationTitle: 'YBS AI',
