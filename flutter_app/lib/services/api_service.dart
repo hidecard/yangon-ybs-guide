@@ -197,16 +197,22 @@ class PlaceItem {
   final String address;
   final String nearbyStops;
   final String busNumbers;
-  final String imageUrl;
+  final List<String> imageUrls;
   final String actionUrl;
-  const PlaceItem({required this.id, required this.name, required this.nameMy, required this.description, required this.category, required this.categoryName, required this.lat, required this.lng, required this.address, required this.nearbyStops, required this.busNumbers, required this.imageUrl, required this.actionUrl});
+  const PlaceItem({required this.id, required this.name, required this.nameMy, required this.description, required this.category, required this.categoryName, required this.lat, required this.lng, required this.address, required this.nearbyStops, required this.busNumbers, required this.imageUrls, required this.actionUrl});
   static String _s(Map<String, dynamic> j, List<String> keys) { for (final k in keys) { final v=j[k]; if (v != null && v.toString().trim().isNotEmpty) return v.toString(); } return ''; }
   static double? _d(Map<String, dynamic> j, List<String> keys) { for (final k in keys) { final v=j[k]; if (v is num) return v.toDouble(); final n=double.tryParse(v?.toString() ?? ''); if (n != null) return n; } return null; }
+  static List<String> _images(Map<String, dynamic> j) {
+    final raw = j['images'] ?? j['image_urls'];
+    if (raw is List) return raw.map((e) => e is Map ? (e['url'] ?? e['image_url'] ?? '').toString() : e.toString()).where((e) => e.isNotEmpty).toList();
+    final single = _s(j, ['image_url','image']);
+    return single.isEmpty ? const [] : [single];
+  }
   factory PlaceItem.fromJson(Map<String, dynamic> j) => PlaceItem(
     id: (j['id'] as num?)?.toInt() ?? 0,
     name: _s(j, ['name','name_en','title']), nameMy: _s(j, ['name_my','title_my','name']),
-    description: _s(j, ['description','description_my','body_my']), category: _s(j, ['category','category_slug','slug']), categoryName: _s(j, ['category_name_my','category_name','category_name_en']),
-    lat: _d(j, ['lat','latitude']), lng: _d(j, ['lng','longitude','lon']), address: _s(j, ['address','address_my']), nearbyStops: _s(j, ['nearby_stops','nearby_stop','stop_name']), busNumbers: _s(j, ['bus_numbers','bus_number']), imageUrl: _s(j, ['image_url','image']), actionUrl: _s(j, ['action_url','url']),
+    description: _s(j, ['description_my','description_en','description','body_my']), category: _s(j, ['category','category_slug','slug']), categoryName: _s(j, ['category_name_my','category_name','category_name_en']),
+    lat: _d(j, ['lat','latitude']), lng: _d(j, ['lng','longitude','lon']), address: _s(j, ['address_my','address_en','address','township']), nearbyStops: _s(j, ['nearby_bus_stops_text','nearby_stops','nearby_bus_stops','nearby_stop','stop_name']), busNumbers: _s(j, ['bus_numbers_text','bus_numbers','bus_number']), imageUrls: _images(j), actionUrl: _s(j, ['website_url','action_url','url']),
   );
 }
 class NotificationItem {
