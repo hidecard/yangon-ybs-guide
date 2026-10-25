@@ -460,18 +460,28 @@ class _FindRoutePageState extends State<FindRoutePage> {
                   ),
                 ),
               ),
-              SwitchListTile.adaptive(
-                contentPadding: EdgeInsets.zero,
-                value: _includeReturn,
-                onChanged: (value) => setState(() => _includeReturn = value),
-                secondary: const Icon(Icons.swap_horiz, color: AppColors.brand),
-                title: const Text(
-                  'အသွား / အပြန် လမ်းကြောင်းပါ ရှာမည်',
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-                ),
-                subtitle: const Text(
-                  'တူညီသောကားလိုင်း၏ အခြားဘက်ဦးတည်ချက်ကိုလည်း ပြမည်',
-                  style: TextStyle(fontSize: 11),
+              Material(
+                color: Colors.transparent,
+                child: SwitchListTile.adaptive(
+                  contentPadding: EdgeInsets.zero,
+                  value: _includeReturn,
+                  onChanged: (value) =>
+                      setState(() => _includeReturn = value),
+                  secondary: const Icon(
+                    Icons.swap_horiz,
+                    color: AppColors.brand,
+                  ),
+                  title: const Text(
+                    'အသွား / အပြန် လမ်းကြောင်းပါ ရှာမည်',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  subtitle: const Text(
+                    'တူညီသောကားလိုင်း၏ အခြားဘက်ဦးတည်ချက်ကိုလည်း ပြမည်',
+                    style: TextStyle(fontSize: 11),
+                  ),
                 ),
               ),
             ],
