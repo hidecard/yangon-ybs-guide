@@ -11,6 +11,7 @@ on:
   push:
     branches:
       - V3
+      - rollback-version-15
     paths:
       - "flutter_app/**"
       - ".github/workflows/flutter-apk.yml"
