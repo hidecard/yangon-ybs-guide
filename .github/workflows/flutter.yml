@@ -2,7 +2,7 @@ name: Flutter CI
 
 on:
   push:
-    branches: [V3, fix/flutter-app]
+    branches: [V3, fix/flutter-app, rollback-version-15]
     paths:
       - "flutter_app/**"
       - ".github/workflows/flutter.yml"
