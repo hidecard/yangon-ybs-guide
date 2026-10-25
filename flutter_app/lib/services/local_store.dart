@@ -19,6 +19,47 @@ class LocalStore {
   static const _savedTripsKey = 'ybs_saved_trips';
   static const _lastSeenNotifKey = 'ybs_notifications_last_seen';
   static const _vibrationEnabledKey = 'ybs_vibration_enabled';
+  static const _arrivalDistanceKey = 'ybs_arrival_distance_meters';
+  static const _arrivalModeKey = 'ybs_arrival_alert_mode';
+  static const _batterySaverKey = 'ybs_arrival_battery_saver';
+
+  static const alertModeBoth = 'both';
+  static const alertModeSound = 'sound';
+  static const alertModeVibration = 'vibration';
+
+  Future<int> arrivalAlertDistanceMeters() async {
+    final p = await _p;
+    return p.getInt(_arrivalDistanceKey) ?? 200;
+  }
+
+  Future<void> setArrivalAlertDistanceMeters(int meters) async {
+    final p = await _p;
+    await p.setInt(_arrivalDistanceKey, meters.clamp(100, 500));
+  }
+
+  Future<String> arrivalAlertMode() async {
+    final p = await _p;
+    return p.getString(_arrivalModeKey) ?? alertModeBoth;
+  }
+
+  Future<void> setArrivalAlertMode(String mode) async {
+    final p = await _p;
+    final value = <String>{alertModeBoth, alertModeSound, alertModeVibration}
+            .contains(mode)
+        ? mode
+        : alertModeBoth;
+    await p.setString(_arrivalModeKey, value);
+  }
+
+  Future<bool> arrivalBatterySaver() async {
+    final p = await _p;
+    return p.getBool(_batterySaverKey) ?? false;
+  }
+
+  Future<void> setArrivalBatterySaver(bool enabled) async {
+    final p = await _p;
+    await p.setBool(_batterySaverKey, enabled);
+  }
 
   Future<bool> vibrationEnabled() async {
     final p = await _p;

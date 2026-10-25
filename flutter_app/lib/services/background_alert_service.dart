@@ -24,9 +24,6 @@ Future<void> _releaseWakeLock() async {
   } catch (_) {}
 }
 
-/// Threshold (km) at which the background service fires the arrival alert.
-const _arrivalThresholdKm = 0.2;
-
 /// How often the background service polls the server for admin notifications
 /// and for the current GPS position (used for arrival alerts). Kept modest so
 /// it works without draining the battery noticeably.
@@ -111,13 +108,16 @@ void onStart(ServiceInstance service) async {
   }
 
   Future<void> fireAlert(String stopName, String detail) async {
+    final mode = await LocalStore.instance.arrivalAlertMode();
+    final useSound = mode != LocalStore.alertModeVibration;
+    final useVibration = mode != LocalStore.alertModeSound;
     // Wake the screen through the native wake-lock channel when supported;
     // the notification itself remains a regular heads-up notification.
     try {
       await _wakeLockChannel.invokeMethod('wakeScreen');
     } catch (_) {}
     // Vibrate first (works even with screen off / app closed).
-    vibrateStrong();
+    if (useVibration) vibrateStrong();
     try {
       await plugin.show(
         DateTime.now().millisecondsSinceEpoch ~/ 1000,
@@ -134,22 +134,31 @@ void onStart(ServiceInstance service) async {
             // user's screen with a full-screen intent.
             category: AndroidNotificationCategory.navigation,
             visibility: NotificationVisibility.public,
+            playSound: useSound,
           ),
-          iOS: const DarwinNotificationDetails(
+          iOS: DarwinNotificationDetails(
             presentAlert: true,
-            presentSound: true,
+            presentSound: useSound,
           ),
         ),
       );
     } catch (_) {}
-    try {
-      await tts.speak('$stopName မှတ်တိုင်အနီးရောက်ပါပြီ');
-    } catch (_) {}
+    if (useSound) {
+      try {
+        await tts.speak('$stopName မှတ်တိုင်အနီးရောက်ပါပြီ');
+      } catch (_) {}
+    }
   }
 
   // Poll loop runs only while an arrival alert is active. This is deliberately
   // opt-in so the app does not keep GPS/wake-lock work running indefinitely.
-  Timer.periodic(_pollInterval, (timer) async {
+  final batterySaver = await LocalStore.instance.arrivalBatterySaver();
+  final pollInterval = batterySaver
+      ? const Duration(seconds: 60)
+      : _pollInterval;
+  final distanceMeters = await LocalStore.instance.arrivalAlertDistanceMeters();
+  final arrivalThresholdKm = distanceMeters / 1000;
+  Timer.periodic(pollInterval, (timer) async {
     // ---- Active arrival alert ----
     final alert = await LocalStore.instance.getBackgroundAlert();
     if (alert == null) {
@@ -186,7 +195,7 @@ void onStart(ServiceInstance service) async {
       (alert['lng'] as num).toDouble(),
     );
 
-    if (d <= _arrivalThresholdKm) {
+    if (d <= arrivalThresholdKm && arrivalThresholdKm > 0) {
       await fireAlert(
         alert['stopName'] as String,
         (alert['detail'] as String?) ?? '',

@@ -87,10 +87,13 @@ class NotifyService {
 
   Future<void> triggerArrival(String message) async {
     await init();
+    final mode = await LocalStore.instance.arrivalAlertMode();
+    final useSound = mode != LocalStore.alertModeVibration;
+    final useVibration = mode != LocalStore.alertModeSound;
     try {
       final hasVib = await Vibration.hasVibrator();
       final vibrationEnabled = await LocalStore.instance.vibrationEnabled();
-      if (hasVib && vibrationEnabled) {
+      if (useVibration && hasVib && vibrationEnabled) {
         Vibration.vibrate(pattern: [0, 200, 120, 200]);
       }
     } catch (_) {}
@@ -99,19 +102,20 @@ class NotifyService {
         DateTime.now().millisecondsSinceEpoch ~/ 1000,
         'YBS AI',
         message,
-        const NotificationDetails(
+        NotificationDetails(
           android: AndroidNotificationDetails(
             'ybs_arrival',
             'Arrival Alerts',
             channelDescription: 'Notifies when approaching a bus stop',
             importance: Importance.high,
             priority: Priority.high,
+            playSound: useSound,
           ),
-          iOS: DarwinNotificationDetails(),
+          iOS: DarwinNotificationDetails(presentSound: useSound),
         ),
       );
     } catch (_) {}
-    speak(message);
+    if (useSound) speak(message);
   }
 
   Future<void> showAdminNotification(NotificationItem notif) async {

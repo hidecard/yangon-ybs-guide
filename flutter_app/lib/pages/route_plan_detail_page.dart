@@ -12,6 +12,7 @@ import '../models.dart';
 import '../services/location_service.dart';
 import '../services/notify_service.dart';
 import '../services/background_alert_service.dart';
+import '../services/local_store.dart';
 import '../state/app_state.dart';
 import '../theme.dart';
 import '../widgets/osm_map.dart';
@@ -35,6 +36,7 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
   ({double lat, double lng})? _livePos;
   int _activeStep = 0;
   bool _arrivalEnabled = false;
+  int _arrivalDistanceMeters = 200;
   String? _arrivalMessage;
   final Set<String> _alerted = {};
   String _prevStopKey = '';
@@ -54,6 +56,12 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
         _stopsByName.putIfAbsent(s.nameMm, () => s);
       }
     }
+    _loadAlertPreferences();
+  }
+
+  Future<void> _loadAlertPreferences() async {
+    final meters = await LocalStore.instance.arrivalAlertDistanceMeters();
+    if (mounted) setState(() => _arrivalDistanceMeters = meters);
   }
 
   @override
@@ -186,7 +194,7 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
     if (next != null) {
       final d = getDistance(_livePos!.lat, _livePos!.lng, next.lat, next.lng);
       final key = 'next-$_activeStep-${next.nameMm}';
-      if (d <= 0.2 && !_alerted.contains(key)) {
+      if (d <= _arrivalDistanceMeters / 1000 && !_alerted.contains(key)) {
         _alerted.add(key);
         final msg =
             _activeStep == steps.length - 1 && next.nameMm == steps.last.toStop

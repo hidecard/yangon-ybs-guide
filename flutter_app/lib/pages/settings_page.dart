@@ -35,6 +35,13 @@ class SettingsPage extends StatelessWidget {
       const _NotifSetupSection(),
     ),
     _Section(
+      Icons.tune,
+      AppColors.primary,
+      'Arrival Alert စိတ်ကြိုက်ဆက်တင်',
+      'အကွာအဝေး၊ အသံနှင့် battery အသုံးပြုမှုကို ရွေးချယ်ရန်',
+      const _ArrivalAlertPreferencesSection(),
+    ),
+    _Section(
       Icons.vibration,
       AppColors.brand,
       'အသံနှင့် Vibration',
@@ -619,6 +626,162 @@ class _VibrationSection extends StatefulWidget {
   const _VibrationSection();
   @override
   State<_VibrationSection> createState() => _VibrationSectionState();
+}
+
+class _ArrivalAlertPreferencesSection extends StatefulWidget {
+  const _ArrivalAlertPreferencesSection();
+
+  @override
+  State<_ArrivalAlertPreferencesSection> createState() =>
+      _ArrivalAlertPreferencesSectionState();
+}
+
+class _ArrivalAlertPreferencesSectionState
+    extends State<_ArrivalAlertPreferencesSection> {
+  int _distance = 200;
+  String _mode = LocalStore.alertModeBoth;
+  bool _batterySaver = false;
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final store = LocalStore.instance;
+    final values = await Future.wait<Object>([
+      store.arrivalAlertDistanceMeters(),
+      store.arrivalAlertMode(),
+      store.arrivalBatterySaver(),
+    ]);
+    if (!mounted) return;
+    setState(() {
+      _distance = values[0] as int;
+      _mode = values[1] as String;
+      _batterySaver = values[2] as bool;
+      _loading = false;
+    });
+  }
+
+  Future<void> _setDistance(int? value) async {
+    if (value == null) return;
+    setState(() => _distance = value);
+    await LocalStore.instance.setArrivalAlertDistanceMeters(value);
+  }
+
+  Future<void> _setMode(String? value) async {
+    if (value == null) return;
+    setState(() => _mode = value);
+    await LocalStore.instance.setArrivalAlertMode(value);
+  }
+
+  Future<void> _setBatterySaver(bool value) async {
+    setState(() => _batterySaver = value);
+    await LocalStore.instance.setArrivalBatterySaver(value);
+  }
+
+  String _modeLabel(String mode) {
+    switch (mode) {
+      case LocalStore.alertModeSound:
+        return 'အသံ + Notification';
+      case LocalStore.alertModeVibration:
+        return 'Vibration + Silent Notification';
+      default:
+        return 'အသံ + Vibration';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SettingsSectionPage(
+      title: 'Arrival Alert စိတ်ကြိုက်ဆက်တင်',
+      child: _card(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _cardHeader(
+              Icons.tune,
+              AppColors.primary,
+              'Arrival Alert စိတ်ကြိုက်ဆက်တင်',
+              'ခရီးသွားနေစဉ် သတိပေးပုံကို ရွေးချယ်ပါ',
+            ),
+            const SizedBox(height: 18),
+            const Text(
+              'ဘယ်လောက်အကွာအဝေးမှာ သတိပေးမလဲ',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<int>(
+              initialValue: _distance,
+              decoration: const InputDecoration(
+                prefixIcon: Icon(Icons.social_distance),
+                border: OutlineInputBorder(),
+              ),
+              items: const [100, 200, 300, 500]
+                  .map(
+                    (meters) => DropdownMenuItem(
+                      value: meters,
+                      child: Text('$meters m အလို'),
+                    ),
+                  )
+                  .toList(),
+              onChanged: _loading ? null : _setDistance,
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'သတိပေးသံပုံစံ',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<String>(
+              initialValue: _mode,
+              decoration: const InputDecoration(
+                prefixIcon: Icon(Icons.notifications_active_outlined),
+                border: OutlineInputBorder(),
+              ),
+              items: [
+                for (final mode in [
+                  LocalStore.alertModeBoth,
+                  LocalStore.alertModeSound,
+                  LocalStore.alertModeVibration,
+                ])
+                  DropdownMenuItem(value: mode, child: Text(_modeLabel(mode))),
+              ],
+              onChanged: _loading ? null : _setMode,
+            ),
+            const SizedBox(height: 10),
+            Material(
+              color: Colors.transparent,
+              child: SwitchListTile.adaptive(
+                contentPadding: EdgeInsets.zero,
+                value: _batterySaver,
+                onChanged: _loading ? null : _setBatterySaver,
+                secondary: Icon(
+                  _batterySaver ? Icons.battery_saver : Icons.battery_full,
+                  color: _batterySaver ? AppColors.emerald : AppColors.slate500,
+                ),
+                title: const Text(
+                  'Battery Saver Mode',
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
+                subtitle: const Text(
+                  'GPS စစ်ဆေးမှုကို 30 စက္ကန့်မှ 60 စက္ကန့်သို့ လျှော့ချမည်',
+                  style: TextStyle(fontSize: 12),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'မှတ်ချက် — အကွာအဝေးနည်းလျှင် သတိပေးချိန်ပိုတိကျသော်လည်း GPS နှင့် battery အသုံးပြုမှု ပိုများနိုင်ပါသည်။',
+              style: TextStyle(fontSize: 12, color: AppColors.slate500),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _VibrationSectionState extends State<_VibrationSection> {
