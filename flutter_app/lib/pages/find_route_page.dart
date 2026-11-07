@@ -743,6 +743,15 @@ class _FindRoutePageState extends State<FindRoutePage> {
                 ),
               );
             }),
+            const SizedBox(height: 4),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton.icon(
+                onPressed: () => Nav.openRoutePlan(context, res.steps),
+                icon: const Icon(Icons.map_outlined, size: 16),
+                label: const Text('မြေပုံနှင့် အသေးစိတ်ကြည့်ရန်'),
+              ),
+            ),
           ],
         ),
       ),

@@ -27,6 +27,13 @@ class _MapPickerPageState extends State<MapPickerPage> {
   @override
   void initState() {
     super.initState();
+    if (widget.stops.isNotEmpty) {
+      final lat = widget.stops.map((s) => s.lat).reduce((a, b) => a + b) /
+          widget.stops.length;
+      final lng = widget.stops.map((s) => s.lng).reduce((a, b) => a + b) /
+          widget.stops.length;
+      _center = LatLng(lat, lng);
+    }
     _updateNearby(_center);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _locate();
@@ -45,7 +52,8 @@ class _MapPickerPageState extends State<MapPickerPage> {
             .where((e) => e.$2 <= 1.0)
             .toList()
           ..sort((a, b) => a.$2.compareTo(b.$2));
-    setState(() => _nearby = found);
+    final limited = found.take(40).toList(growable: false);
+    if (mounted) setState(() => _nearby = limited);
   }
 
   Future<void> _locate() async {
@@ -78,6 +86,15 @@ class _MapPickerPageState extends State<MapPickerPage> {
             subtitle: subtitle,
           );
         }).toList();
+        markers.add(
+          dotMarker(
+            _center,
+            color: AppColors.brand,
+            border: Colors.white,
+            size: 18,
+            label: 'ရွေးချယ်မည့်နေရာ',
+          ),
+        );
 
         return Scaffold(
           appBar: AppBar(

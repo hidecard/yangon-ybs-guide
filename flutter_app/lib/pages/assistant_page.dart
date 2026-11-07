@@ -435,6 +435,26 @@ class _AssistantPageState extends State<AssistantPage> {
                             color: AppColors.slate500,
                           ),
                         ),
+                        const SizedBox(height: 6),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: const [
+                            Icon(
+                              Icons.map_outlined,
+                              size: 14,
+                              color: AppColors.brand,
+                            ),
+                            SizedBox(width: 4),
+                            Text(
+                              'မြေပုံနှင့် အသေးစိတ်ကြည့်ရန်',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: AppColors.brandHover,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),

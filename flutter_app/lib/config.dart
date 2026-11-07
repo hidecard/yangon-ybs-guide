@@ -16,8 +16,21 @@ class AppConfig {
   /// We therefore use the current page origin on the web (works for
   /// `localhost:3000`, the Vercel deploy, or any host serving the app),
   /// and the deployed origin everywhere else (native apps hit it directly).
-  static const String placesApiBase = 'https://ybs.easyzaymm.com/api.php';
+  /// Override with `--dart-define=YBS_PLACES_API_BASE=...` for staging or a
+  /// replacement backend without changing the app source.
+  static const String placesApiBaseOverride = String.fromEnvironment(
+    'YBS_PLACES_API_BASE',
+  );
+  static String get placesApiBase => placesApiBaseOverride.isNotEmpty
+      ? placesApiBaseOverride
+      : 'https://ybs.easyzaymm.com/api.php';
+
+  /// Override with `--dart-define=YBS_API_BASE=...` when the current backend is
+  /// unavailable. This keeps the rollback build deployable while the API is
+  /// being restored.
+  static const String apiBaseOverride = String.fromEnvironment('YBS_API_BASE');
   static String get apiBase {
+    if (apiBaseOverride.isNotEmpty) return apiBaseOverride;
     if (kIsWeb) {
       // window.location.origin is e.g. "http://localhost:3000".
       final origin = currentWebOrigin();
@@ -31,7 +44,7 @@ class AppConfig {
   static const bool showYbsNew = false;
 
   /// Keep the user-facing version aligned with pubspec.yaml.
-  static const String appVersion = '3.4.2';
+  static const String appVersion = '3.4.3';
 
   // Stable bottom-navigation indices for quick actions and deep links.
   static const int homeTab = 0;

@@ -41,6 +41,7 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
   final Set<String> _alerted = {};
   String _prevStopKey = '';
   String _backgroundAlertKey = '';
+  String _lastMapFitKey = '';
 
   bool _tripSaved = false;
 
@@ -220,6 +221,12 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (steps.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Route Plan Detail')),
+        body: const Center(child: Text('လမ်းကြောင်းအချက်အလက် မရှိပါ')),
+      );
+    }
     final active = steps[_activeStep];
     final state = context.read<AppState>();
     final markers = <Marker>[];
@@ -306,15 +313,40 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
       );
     }
 
-    final deduped = uniqueVisible
-        .map((s) => LatLng(s.lat, s.lng))
-        .toList(growable: false);
-
-    if (deduped.length > 1) {
-      polylines.add(
-        Polyline(points: deduped, color: active.route.color, strokeWidth: 5),
+    // Draw every leg of the plan. The active leg is emphasized while transfer
+    // legs remain visible, so a multi-leg result is understandable at a glance.
+    final allMapPoints = <LatLng>[];
+    for (int idx = 0; idx < steps.length; idx++) {
+      final step = steps[idx];
+      final stepLeg = _findLeg(
+        step.route.stopsDetailed,
+        step.fromStop,
+        step.toStop,
       );
+      final raw = stepLeg == null
+          ? step.route.stopsDetailed
+          : step.route.stopsDetailed.sublist(stepLeg.$1, stepLeg.$2 + 1);
+      final seen = <String>{};
+      final points = <LatLng>[];
+      for (final stop in raw) {
+        final key =
+            '${stop.lat.toStringAsFixed(6)}:${stop.lng.toStringAsFixed(6)}';
+        if (seen.add(key)) points.add(LatLng(stop.lat, stop.lng));
+      }
+      allMapPoints.addAll(points);
+      if (points.length > 1) {
+        polylines.add(
+          Polyline(
+            points: points,
+            color: step.route.color.withValues(
+              alpha: idx == _activeStep ? 1 : 0.55,
+            ),
+            strokeWidth: idx == _activeStep ? 6 : 4,
+          ),
+        );
+      }
     }
+    _scheduleMapFit(allMapPoints);
 
     if (_livePos != null) {
       markers.add(
@@ -458,6 +490,25 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
                     ],
                   ),
                 ),
+                Positioned(
+                  right: 12,
+                  bottom: 12,
+                  child: Column(
+                    children: [
+                      _mapActionButton(
+                        icon: Icons.fit_screen,
+                        tooltip: 'လမ်းကြောင်းတစ်ခုလုံး ကြည့်ရန်',
+                        onPressed: () => _fitRouteOnMap(allMapPoints),
+                      ),
+                      const SizedBox(height: 8),
+                      _mapActionButton(
+                        icon: Icons.my_location,
+                        tooltip: 'လက်ရှိနေရာသို့ သွားရန်',
+                        onPressed: _centerOnLiveLocation,
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -509,6 +560,59 @@ class _RoutePlanDetailPageState extends State<RoutePlanDetailPage> {
         ],
       ),
     );
+  }
+
+  Widget _mapActionButton({
+    required IconData icon,
+    required String tooltip,
+    required VoidCallback? onPressed,
+  }) {
+    return Material(
+      color: Colors.white,
+      elevation: 3,
+      borderRadius: BorderRadius.circular(12),
+      child: IconButton(
+        tooltip: tooltip,
+        onPressed: onPressed,
+        icon: Icon(icon, color: AppColors.primary),
+      ),
+    );
+  }
+
+  void _scheduleMapFit(List<LatLng> points) {
+    if (points.length < 2) return;
+    final key = points
+        .map(
+          (p) =>
+              '${p.latitude.toStringAsFixed(5)},${p.longitude.toStringAsFixed(5)}',
+        )
+        .join('|');
+    if (key == _lastMapFitKey) return;
+    _lastMapFitKey = key;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _fitRouteOnMap(points);
+    });
+  }
+
+  void _fitRouteOnMap(List<LatLng> points) {
+    if (points.length < 2) return;
+    _mapController.fitCamera(
+      CameraFit.bounds(
+        bounds: LatLngBounds.fromPoints(points),
+        padding: const EdgeInsets.fromLTRB(56, 56, 56, 56),
+        maxZoom: 15,
+      ),
+    );
+  }
+
+  void _centerOnLiveLocation() {
+    if (_livePos == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('GPS ဖွင့်ပြီးမှ လက်ရှိနေရာကို ပြနိုင်ပါမည်')),
+      );
+      return;
+    }
+    _mapController.move(LatLng(_livePos!.lat, _livePos!.lng), 16);
   }
 
   Future<void> _toggleArrival() async {
